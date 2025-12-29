@@ -1,17 +1,17 @@
-# ?? PUBLICACI”N R¡PIDA - GuÌa de Clicks
+Ôªø# ?? PUBLICACI√ìN R√ÅPIDA - Gu√≠a de Clicks
 
 **Tiempo estimado:** 5 minutos  
 **Estado actual:** ? Proyecto listo para publicar
 
 ---
 
-## ? TU PROYECTO YA EST¡ CONFIGURADO
+## ? TU PROYECTO YA EST√Å CONFIGURADO
 
 He verificado y tienes:
 - ? `Package.appxmanifest` creado
 - ? `EnableMsixTooling` habilitado en `.csproj`
 - ? Assets (iconos) incluidos
-- ? ConfiguraciÛn correcta
+- ? Configuraci√≥n correcta
 
 Solo necesitas seguir los clicks en Visual Studio.
 
@@ -19,7 +19,7 @@ Solo necesitas seguir los clicks en Visual Studio.
 
 ## ?? PASOS EN VISUAL STUDIO (5 minutos)
 
-### **1. Abrir el men˙ de publicaciÛn**
+### **1. Abrir el men√∫ de publicaci√≥n**
 
 ```
 Click derecho en "GestionTime.Desktop" (en el Solution Explorer)
@@ -31,22 +31,22 @@ Publish ? Create App Packages
 
 ---
 
-### **2. Elegir distribuciÛn**
+### **2. Elegir distribuci√≥n**
 
-Se abrir· un wizard. En la primera pantalla:
+Se abrir√° un wizard. En la primera pantalla:
 
 ```
 ??????????????????????????????????????????????
 ?  Where would you like to publish?          ?
 ??????????????????????????????????????????????
 ?  ( ) Microsoft Store                       ?
-?  (ï) Sideloading                           ?  ? SELECCIONAR ESTE
+?  (‚Ä¢) Sideloading                           ?  ? SELECCIONAR ESTE
 ??????????????????????????????????????????????
 
-[Next >]  ? CLICK AQUÕ
+[Next >]  ? CLICK AQU√ç
 ```
 
-**Nota:** "Sideloading" significa distribuciÛn manual (sin Store).
+**Nota:** "Sideloading" significa distribuci√≥n manual (sin Store).
 
 ---
 
@@ -64,7 +64,7 @@ Se abrir· un wizard. En la primera pantalla:
 Version: 1.0.0.0
 ? Automatically increment   ? MARCAR ESTE
 
-[Next >]  ? CLICK AQUÕ
+[Next >]  ? CLICK AQU√ç
 ```
 
 **Nota:** x64 es para sistemas de 64 bits (99% de PCs actuales).
@@ -73,27 +73,27 @@ Version: 1.0.0.0
 
 ### **4. Configurar certificado**
 
-Si es la primera vez, ver·s:
+Si es la primera vez, ver√°s:
 
 ```
 ??????????????????????????????????????????????
 ?  Select a certificate                      ?
 ??????????????????????????????????????????????
 ?  ( ) Select from file...                   ?
-?  (ï) Create a test certificate             ?  ? SELECCIONAR ESTE
+?  (‚Ä¢) Create a test certificate             ?  ? SELECCIONAR ESTE
 ??????????????????????????????????????????????
 
 Publisher: CN=GestionTime
 Password: (dejar en blanco o poner una simple)
 
-[Next >]  ? CLICK AQUÕ
+[Next >]  ? CLICK AQU√ç
 ```
 
 **Alternativa:** Si ya tienes un certificado, selecciona "Select from file...".
 
 ---
 
-### **5. UbicaciÛn de salida**
+### **5. Ubicaci√≥n de salida**
 
 ```
 ??????????????????????????????????????????????
@@ -105,16 +105,16 @@ Password: (dejar en blanco o poner una simple)
 ?  [Browse...]                               ?
 ??????????????????????????????????????????????
 
-[Create]  ? CLICK AQUÕ FINAL
+[Create]  ? CLICK AQU√ç FINAL
 ```
 
-**Sugerencia:** Puedes cambiar la ubicaciÛn si quieres, pero la por defecto est· bien.
+**Sugerencia:** Puedes cambiar la ubicaci√≥n si quieres, pero la por defecto est√° bien.
 
 ---
 
-### **6. Esperar compilaciÛn**
+### **6. Esperar compilaci√≥n**
 
-Visual Studio compilar· y empaquetar·:
+Visual Studio compilar√° y empaquetar√°:
 
 ```
 Building...  ???????????????? 30%
@@ -129,7 +129,7 @@ Signing...   ???????????????? 90%
 
 ### **7. Resultado**
 
-Al finalizar ver·s:
+Al finalizar ver√°s:
 
 ```
 ??????????????????????????????????????????????
@@ -139,7 +139,7 @@ Al finalizar ver·s:
 ?  C:\GestionTime\...\AppPackages\           ?
 ?  GestionTime.Desktop_1.0.0.0_x64_Test\     ?
 ?                                            ?
-?  [Open output location]  ? CLICK AQUÕ     ?
+?  [Open output location]  ? CLICK AQU√ç     ?
 ?  [Close]                                   ?
 ??????????????????????????????????????????????
 ```
@@ -148,7 +148,7 @@ Al finalizar ver·s:
 
 ## ?? ARCHIVOS GENERADOS
 
-Se crear· esta estructura:
+Se crear√° esta estructura:
 
 ```
 C:\GestionTime\GestionTime.Desktop\AppPackages\
@@ -158,7 +158,7 @@ C:\GestionTime\GestionTime.Desktop\AppPackages\
     ??? Dependencies\
     ?   ??? x64\
     ?       ??? Microsoft.WindowsAppRuntime.*.msix
-    ??? Install.ps1                                ? SCRIPT DE INSTALACI”N
+    ??? Install.ps1                                ? SCRIPT DE INSTALACI√ìN
     ??? Add-AppDevPackage.ps1
 ```
 
@@ -176,23 +176,23 @@ Contiene:
 ? GestionTime.Desktop_1.0.0.0_x64.msix    ? Instalador principal
 ? GestionTime.Desktop_1.0.0.0_x64.cer     ? Certificado (primera vez)
 ? Dependencies\                            ? Dependencias de Windows App SDK
-? Install.ps1                              ? Script autom·tico de instalaciÛn
+? Install.ps1                              ? Script autom√°tico de instalaci√≥n
 ```
 
 ---
 
 ## ?? INSTALAR EN OTRO PC
 
-### **OpciÛn 1: Script Autom·tico (M·s F·cil)**
+### **Opci√≥n 1: Script Autom√°tico (M√°s F√°cil)**
 
 1. Copiar toda la carpeta `GestionTime.Desktop_1.0.0.0_x64_Test\` al otro PC
 2. Click derecho en `Install.ps1` ? **Ejecutar con PowerShell**
 3. Aceptar permisos
-4. °Listo!
+4. ¬°Listo!
 
 ---
 
-### **OpciÛn 2: Manual**
+### **Opci√≥n 2: Manual**
 
 1. **Instalar certificado** (solo primera vez):
    ```powershell
@@ -200,21 +200,21 @@ Contiene:
    Import-Certificate -FilePath "GestionTime.Desktop_1.0.0.0_x64.cer" -CertStoreLocation Cert:\LocalMachine\TrustedPeople
    ```
 
-2. **Instalar aplicaciÛn**:
+2. **Instalar aplicaci√≥n**:
    ```powershell
    Add-AppxPackage -Path "GestionTime.Desktop_1.0.0.0_x64.msix"
    ```
 
-3. **Buscar en el men˙ inicio**: "GestionTime"
+3. **Buscar en el men√∫ inicio**: "GestionTime"
 
 ---
 
-## ?? ACTUALIZAR VERSI”N
+## ?? ACTUALIZAR VERSI√ìN
 
-Para crear una nueva versiÛn:
+Para crear una nueva versi√≥n:
 
-1. Repetir los pasos de publicaciÛn
-2. Visual Studio incrementar· autom·ticamente la versiÛn:
+1. Repetir los pasos de publicaci√≥n
+2. Visual Studio incrementar√° autom√°ticamente la versi√≥n:
    ```
    1.0.0.0 ? 1.0.1.0 ? 1.0.2.0 ? ...
    ```
@@ -222,13 +222,13 @@ Para crear una nueva versiÛn:
 
 ---
 
-## ?? SOLUCI”N A PROBLEMAS COMUNES
+## ?? SOLUCI√ìN A PROBLEMAS COMUNES
 
 ### **Problema: "Error al crear el paquete"**
 
-**Causa:** Falta configuraciÛn en el proyecto
+**Causa:** Falta configuraci√≥n en el proyecto
 
-**SoluciÛn:**
+**Soluci√≥n:**
 ```powershell
 # Limpiar y reconstruir
 dotnet clean
@@ -241,18 +241,18 @@ Luego repetir los pasos.
 
 ### **Problema: "No encuentra el certificado"**
 
-**Causa:** No se creÛ el certificado de prueba
+**Causa:** No se cre√≥ el certificado de prueba
 
-**SoluciÛn:**
-En el paso 4, aseg˙rate de seleccionar **"Create a test certificate"**.
+**Soluci√≥n:**
+En el paso 4, aseg√∫rate de seleccionar **"Create a test certificate"**.
 
 ---
 
 ### **Problema: "Error al instalar - Certificado no confiable"**
 
-**Causa:** El certificado no est· en "Personas de confianza"
+**Causa:** El certificado no est√° en "Personas de confianza"
 
-**SoluciÛn:**
+**Soluci√≥n:**
 ```powershell
 # Ejecutar como Administrador
 Import-Certificate -FilePath "GestionTime.Desktop_1.0.0.0_x64.cer" -CertStoreLocation Cert:\LocalMachine\TrustedPeople
@@ -264,11 +264,11 @@ Import-Certificate -FilePath "GestionTime.Desktop_1.0.0.0_x64.cer" -CertStoreLoc
 
 Antes de distribuir, verifica:
 
-- [ ] La aplicaciÛn inicia correctamente despuÈs de instalar
+- [ ] La aplicaci√≥n inicia correctamente despu√©s de instalar
 - [ ] Login funciona con la API de Render
 - [ ] Todos los assets (iconos) se ven bien
-- [ ] La versiÛn en "ConfiguraciÛn ? Sistema ? Aplicaciones" es correcta
-- [ ] El certificado est· incluido en la carpeta
+- [ ] La versi√≥n en "Configuraci√≥n ? Sistema ? Aplicaciones" es correcta
+- [ ] El certificado est√° incluido en la carpeta
 
 ---
 
@@ -298,25 +298,25 @@ Incluye este texto con el instalador:
   GestionTime - Instalador v1.0.0
 ???????????????????????????????????????????????
 
-INSTALACI”N:
+INSTALACI√ìN:
 
 1. Extraer el archivo ZIP completo
-2. Abrir la carpeta extraÌda
+2. Abrir la carpeta extra√≠da
 3. Click derecho en "Install.ps1"
 4. Seleccionar "Ejecutar con PowerShell"
 5. Si pregunta, aceptar los permisos
 6. Esperar a que finalice (~1 minuto)
-7. Buscar "GestionTime" en el men˙ inicio
+7. Buscar "GestionTime" en el men√∫ inicio
 
 REQUISITOS:
 
-ï Windows 10 versiÛn 1809 o superior
-ï Windows 11 (cualquier versiÛn)
+‚Ä¢ Windows 10 versi√≥n 1809 o superior
+‚Ä¢ Windows 11 (cualquier versi√≥n)
 
 SOPORTE:
 
 Email: soporte@tuempresa.com
-TelÈfono: XXX-XXX-XXX
+Tel√©fono: XXX-XXX-XXX
 
 ???????????????????????????????????????????????
 ```
@@ -327,7 +327,7 @@ TelÈfono: XXX-XXX-XXX
 
 ```
 ??????????????????????????????????????????????
-?  ?? PUBLICACI”N LISTA                      ?
+?  ?? PUBLICACI√ìN LISTA                      ?
 ?                                            ?
 ?  1?? Click derecho en proyecto              ?
 ?  2?? Publish ? Create App Packages          ?
@@ -335,10 +335,10 @@ TelÈfono: XXX-XXX-XXX
 ?  4?? x64 + Auto-increment                   ?
 ?  5?? Create test certificate                ?
 ?  6?? Create                                  ?
-?  7?? °Listo! ??                             ?
+?  7?? ¬°Listo! ??                             ?
 ?                                            ?
 ?  ?? Tiempo: ~5 minutos                     ?
-?  ?? TamaÒo: ~50MB                          ?
+?  ?? Tama√±o: ~50MB                          ?
 ?  ?? Estado: Listo para distribuir          ?
 ??????????????????????????????????????????????
 ```
@@ -346,5 +346,5 @@ TelÈfono: XXX-XXX-XXX
 ---
 
 **Fecha:** 2025-01-27  
-**VersiÛn guÌa:** 1.0  
+**Versi√≥n gu√≠a:** 1.0  
 **Estado:** ? Lista para seguir

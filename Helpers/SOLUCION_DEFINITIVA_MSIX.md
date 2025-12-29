@@ -1,11 +1,11 @@
-# ?? SOLUCIÓN DEFINITIVA: CREAR MSIX PACKAGE
+ï»¿# ?? SOLUCIÃ“N DEFINITIVA: CREAR MSIX PACKAGE
 
 **Error persistente:** Windows App Runtime no se registra correctamente  
-**Solución final:** Crear instalador MSIX que incluye automáticamente todas las dependencias
+**SoluciÃ³n final:** Crear instalador MSIX que incluye automÃ¡ticamente todas las dependencias
 
 ---
 
-## ? PASOS PARA CREAR MSIX (SOLUCIÓN DEFINITIVA)
+## ? PASOS PARA CREAR MSIX (SOLUCIÃ“N DEFINITIVA)
 
 ### **1. Abrir Visual Studio 2022**
 - Abrir el proyecto `GestionTime.Desktop.csproj`
@@ -30,17 +30,17 @@ Publisher: CN=GestionTime
 Create
 ```
 
-### **3. El MSIX incluirá automáticamente:**
+### **3. El MSIX incluirÃ¡ automÃ¡ticamente:**
 - ? Windows App Runtime 1.8
 - ? Todas las dependencias .NET
-- ? Instalación automática sin problemas
-- ? Actualización automática en el futuro
+- ? InstalaciÃ³n automÃ¡tica sin problemas
+- ? ActualizaciÃ³n automÃ¡tica en el futuro
 
 ---
 
 ## ?? RESULTADO ESPERADO
 
-El proceso creará:
+El proceso crearÃ¡:
 ```
 AppPackages\GestionTime.Desktop_1.1.0.0_x64_Test\
 ??? GestionTime.Desktop_1.1.0.0_x64.msix        ? INSTALADOR FINAL
@@ -48,18 +48,18 @@ AppPackages\GestionTime.Desktop_1.1.0.0_x64_Test\
 ??? Dependencies\
 ?   ??? x64\
 ?       ??? Microsoft.WindowsAppRuntime.*.msix  ? DEPENDENCIAS INCLUIDAS
-??? Install.ps1                                 ? Script de instalación
+??? Install.ps1                                 ? Script de instalaciÃ³n
 ```
 
 ---
 
 ## ?? VENTAJAS DEL MSIX
 
-1. **Incluye Windows App Runtime:** No requiere instalación manual
-2. **Sandboxing:** Aplicación segura e isolada
-3. **Actualizaciones automáticas:** Mecanismo built-in
-4. **Desinstalación limpia:** No deja rastros
-5. **Microsoft Store compatible:** Preparado para distribución
+1. **Incluye Windows App Runtime:** No requiere instalaciÃ³n manual
+2. **Sandboxing:** AplicaciÃ³n segura e isolada
+3. **Actualizaciones automÃ¡ticas:** Mecanismo built-in
+4. **DesinstalaciÃ³n limpia:** No deja rastros
+5. **Microsoft Store compatible:** Preparado para distribuciÃ³n
 
 ---
 
@@ -70,17 +70,17 @@ AppPackages\GestionTime.Desktop_1.1.0.0_x64_Test\
 2. EJECUTAR Install.ps1 en PowerShell como Administrador
    O
    Doble-click en GestionTime.Desktop_1.1.0.0_x64.msix
-3. Aceptar instalación del certificado
-4. ¡Listo! Buscar "GestionTime" en menú inicio
+3. Aceptar instalaciÃ³n del certificado
+4. Â¡Listo! Buscar "GestionTime" en menÃº inicio
 ```
 
 ---
 
 ## ?? MIENTRAS TANTO: WORKAROUND TEMPORAL
 
-Para el instalador portable actual, el único workaround es:
+Para el instalador portable actual, el Ãºnico workaround es:
 
-### **Script de instalación forzada de Windows App Runtime:**
+### **Script de instalaciÃ³n forzada de Windows App Runtime:**
 
 ```powershell
 # Ejecutar en PowerShell como Administrador
@@ -95,13 +95,13 @@ Write-Host "Windows App Runtime instalado. Ahora ejecuta GestionTime.Desktop.exe
 
 ---
 
-## ?? RECOMENDACIÓN FINAL
+## ?? RECOMENDACIÃ“N FINAL
 
-**Para producción:** Usar MSIX package (solución definitiva)  
-**Para testing rápido:** Instalar Windows App Runtime manualmente
+**Para producciÃ³n:** Usar MSIX package (soluciÃ³n definitiva)  
+**Para testing rÃ¡pido:** Instalar Windows App Runtime manualmente
 
-El problema NO es del código de la aplicación, sino que **WinUI 3 requiere obligatoriamente Windows App Runtime** instalado en el sistema, y la única manera de distribuirlo automáticamente es con MSIX.
+El problema NO es del cÃ³digo de la aplicaciÃ³n, sino que **WinUI 3 requiere obligatoriamente Windows App Runtime** instalado en el sistema, y la Ãºnica manera de distribuirlo automÃ¡ticamente es con MSIX.
 
 ---
 
-**Próximo paso:** Crear el MSIX package siguiendo los pasos arriba. ¿Quieres que te guíe a través del proceso?
+**PrÃ³ximo paso:** Crear el MSIX package siguiendo los pasos arriba. Â¿Quieres que te guÃ­e a travÃ©s del proceso?

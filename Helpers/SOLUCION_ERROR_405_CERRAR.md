@@ -1,4 +1,4 @@
-# ?? SOLUCI”N - ERROR 405 AL CERRAR PARTE
+Ôªø# ?? SOLUCI√ìN - ERROR 405 AL CERRAR PARTE
 
 **Error visto:**
 ```
@@ -10,10 +10,10 @@ Error cerrando parte: Error 405 (MethodNotAllowed): Error al procesar la solicit
 ## ?? CAUSA DEL PROBLEMA
 
 El error **405 (MethodNotAllowed)** ocurre cuando:
-- El backend no acepta el mÈtodo HTTP usado (GET, POST, PUT, DELETE, etc.)
-- El endpoint espera un mÈtodo diferente al que se est· usando
+- El backend no acepta el m√©todo HTTP usado (GET, POST, PUT, DELETE, etc.)
+- El endpoint espera un m√©todo diferente al que se est√° usando
 
-En tu caso, el cÛdigo estaba usando:
+En tu caso, el c√≥digo estaba usando:
 ```csharp
 await App.Api.PutAsync<object, object>($"/api/v1/partes/{parteId}/close", new { HoraFin = horaFin });
 ```
@@ -22,12 +22,12 @@ Pero el backend probablemente espera un **POST** en lugar de **PUT**.
 
 ---
 
-## ? SOLUCI”N APLICADA
+## ? SOLUCI√ìN APLICADA
 
-He modificado el mÈtodo `OnCerrarClick` para que:
+He modificado el m√©todo `OnCerrarClick` para que:
 
-1. **Pregunte la hora de cierre** al usuario con un di·logo intuitivo
-2. **Incluya botÛn "Ahora"** para poner la hora actual autom·ticamente  
+1. **Pregunte la hora de cierre** al usuario con un di√°logo intuitivo
+2. **Incluya bot√≥n "Ahora"** para poner la hora actual autom√°ticamente  
 3. **Intente primero POST** y, si falla con 405, **pruebe con PUT**
 
 ```csharp
@@ -44,7 +44,7 @@ private async void OnCerrarClick(object sender, RoutedEventArgs e)
         
         if (string.IsNullOrEmpty(horaFin))
         {
-            App.Log?.LogInformation("Usuario cancelÛ el cierre del parte");
+            App.Log?.LogInformation("Usuario cancel√≥ el cierre del parte");
             return;
         }
         
@@ -79,7 +79,7 @@ private async Task<string?> AskHoraCierreAsync()
 {
     var horaActual = DateTime.Now.ToString("HH:mm");
     
-    // Crear di·logo con TimePicker y botÛn "Ahora"
+    // Crear di√°logo con TimePicker y bot√≥n "Ahora"
     var stackPanel = new StackPanel { Spacing = 15 };
     
     stackPanel.Children.Add(new TextBlock
@@ -136,14 +136,14 @@ private async Task<string?> AskHoraCierreAsync()
 
 ---
 
-## ?? C”MO FUNCIONA
+## ?? C√ìMO FUNCIONA
 
 ### **Paso 1: Usuario hace click en "Cerrar"**
 ```
 Usuario ? Click en icono de estado (?) ? "Cerrar"
 ```
 
-### **Paso 2: Di·logo de hora de cierre**
+### **Paso 2: Di√°logo de hora de cierre**
 ```
 ??????????????????????????????????????????
 ?  ? Cerrar Parte                       ?
@@ -167,20 +167,20 @@ Usuario ? Click en icono de estado (?) ? "Cerrar"
 ??????????????????????????????????????????
 ```
 
-**CaracterÌsticas:**
+**Caracter√≠sticas:**
 - ?? **Hora de inicio**: Se muestra pero NO es modificable (solo lectura)
 - ? **Hora de fin**: Campo de texto editable con formato HH:mm
-- ?? **BotÛn "Ahora"**: Pone la hora actual autom·ticamente en hora de fin
-- ?? **EdiciÛn manual**: Puedes escribir directamente en formato HH:mm
-- ? **ValidaciÛn**: Verifica que el formato sea correcto antes de cerrar
+- ?? **Bot√≥n "Ahora"**: Pone la hora actual autom√°ticamente en hora de fin
+- ?? **Edici√≥n manual**: Puedes escribir directamente en formato HH:mm
+- ? **Validaci√≥n**: Verifica que el formato sea correcto antes de cerrar
 
 **Opciones del usuario:**
-- ?? **Click en "Ahora"**: Pone la hora actual autom·ticamente
+- ?? **Click en "Ahora"**: Pone la hora actual autom√°ticamente
 - ?? **Escribir hora**: Formato HH:mm (ejemplo: 14:30)
 - ? **Cerrar**: Confirma y cierra el parte con la hora especificada
-- ? **Cancelar**: Cancela la operaciÛn, el parte sigue abierto
+- ? **Cancelar**: Cancela la operaci√≥n, el parte sigue abierto
 
-### **Paso 3: EnvÌo al backend**
+### **Paso 3: Env√≠o al backend**
 ```http
 POST /api/v1/partes/123/close?horaFin=14:30
 ```
@@ -203,13 +203,13 @@ Content-Type: application/json
 
 ---
 
-## ?? COMPARACI”N
+## ?? COMPARACI√ìN
 
 ### ? **ANTES (TimePicker complejo):**
 ```
 Usuario hace click en "Cerrar" 
-? Di·logo con TimePicker
-? DifÌcil de usar
+? Di√°logo con TimePicker
+? Dif√≠cil de usar
 ? No muestra hora de inicio
 ? POST /api/v1/partes/123/close
 ```
@@ -217,23 +217,23 @@ Usuario hace click en "Cerrar"
 ### ? **AHORA (TextBox simple y directo):**
 ```
 Usuario hace click en "Cerrar"
-? Di·logo aparece
+? Di√°logo aparece
 ? Muestra hora de inicio (solo lectura)
 ? Campo de texto para hora de fin
-? BotÛn "Ahora" para hora actual
+? Bot√≥n "Ahora" para hora actual
 ? Puede escribir directamente: "14:30"
 ? Valida formato antes de enviar
 ? POST /api/v1/partes/123/close?horaFin=14:30
 ? Si funciona: ? Cerrado
 ? Si recibe 405: Intenta PUT
-? Si falla: ? Error con formato inv·lido
+? Si falla: ? Error con formato inv√°lido
 ```
 
 ---
 
-## ?? PRUEBA DESPU…S DE LA SOLUCI”N
+## ?? PRUEBA DESPU√âS DE LA SOLUCI√ìN
 
-1. **Ejecutar la aplicaciÛn** (`F5`)
+1. **Ejecutar la aplicaci√≥n** (`F5`)
 
 2. **Seleccionar un parte abierto o pausado**
 
@@ -244,41 +244,41 @@ Usuario hace click en "Cerrar"
 5. **Resultado esperado:**
    - ?? Muestra hora de inicio (solo lectura, en gris)
    - ? Campo de hora de fin editable con hora actual
-   - ?? BotÛn "Ahora" funciona
+   - ?? Bot√≥n "Ahora" funciona
    - ?? Puedes escribir la hora directamente (ej: 14:30)
    - ? Al confirmar, valida el formato
-   - ? Si es v·lido, cierra el parte
-   - ?? Si es inv·lido, muestra error y no cierra
+   - ? Si es v√°lido, cierra el parte
+   - ?? Si es inv√°lido, muestra error y no cierra
 
 ---
 
-## ?? CARACTERÕSTICAS DEL DI¡LOGO
+## ?? CARACTER√çSTICAS DEL DI√ÅLOGO
 
-| Elemento | DescripciÛn |
+| Elemento | Descripci√≥n |
 |----------|-------------|
 | **Hora de inicio** | Solo lectura, fondo gris, muestra la hora de inicio del parte |
 | **Hora de fin** | TextBox editable, formato HH:mm |
-| **BotÛn "Ahora"** | Pone la hora actual con un click |
+| **Bot√≥n "Ahora"** | Pone la hora actual con un click |
 | **Formato** | HH:mm (24 horas) - ejemplo: 08:30, 14:45, 23:59 |
-| **ValidaciÛn** | Verifica formato antes de cerrar |
+| **Validaci√≥n** | Verifica formato antes de cerrar |
 | **Valor inicial** | Hora actual del sistema |
-| **BotÛn Cerrar** | Confirma y cierra el parte |
-| **BotÛn Cancelar** | Cancela la operaciÛn |
+| **Bot√≥n Cerrar** | Confirma y cierra el parte |
+| **Bot√≥n Cancelar** | Cancela la operaci√≥n |
 
 ---
 
-## ?? VERIFICACI”N EN LOGS
+## ?? VERIFICACI√ìN EN LOGS
 
-DespuÈs de cerrar un parte, revisa los logs:
+Despu√©s de cerrar un parte, revisa los logs:
 
 ```powershell
 # Abrir logs
 notepad C:\Logs\GestionTime\app_*.log
 ```
 
-### **Buscar estas lÌneas:**
+### **Buscar estas l√≠neas:**
 
-**Si el usuario confirma con hora v·lida:**
+**Si el usuario confirma con hora v√°lida:**
 ```
 ?? CERRAR PARTE - ID: 123
 ? Parte 123 cerrado correctamente usando POST con HoraFin=14:30
@@ -287,12 +287,12 @@ notepad C:\Logs\GestionTime\app_*.log
 **Si el usuario cancela:**
 ```
 ?? CERRAR PARTE - ID: 123
-Usuario cancelÛ el cierre del parte
+Usuario cancel√≥ el cierre del parte
 ```
 
-**Si el formato es inv·lido:**
+**Si el formato es inv√°lido:**
 ```
-?? Formato de hora inv·lido. Use HH:mm (ejemplo: 14:30)
+?? Formato de hora inv√°lido. Use HH:mm (ejemplo: 14:30)
 ```
 
 **Si POST no funciona y usa PUT:**
@@ -306,7 +306,7 @@ Usuario cancelÛ el cierre del parte
 
 ## ? RESULTADO ESPERADO
 
-DespuÈs de aplicar la soluciÛn:
+Despu√©s de aplicar la soluci√≥n:
 
 ```
 ??????????????????????????????????????????????
@@ -314,22 +314,22 @@ DespuÈs de aplicar la soluciÛn:
 ?                                            ?
 ?  ?? Muestra hora de inicio (solo lectura)  ?
 ?  ? Campo de texto simple para hora fin    ?
-?  ?? BotÛn "Ahora" para hora actual         ?
+?  ?? Bot√≥n "Ahora" para hora actual         ?
 ?  ?? Puede escribir directamente HH:mm      ?
-?  ? ValidaciÛn de formato autom·tica       ?
+?  ? Validaci√≥n de formato autom√°tica       ?
 ?  ?? Intenta POST primero                   ?
-?  ?? Fallback autom·tico a PUT si falla     ?
+?  ?? Fallback autom√°tico a PUT si falla     ?
 ?  ?? Logs detallados de cada intento        ?
-?  ??? No rompe si el formato es inv·lido    ?
+?  ??? No rompe si el formato es inv√°lido    ?
 ?                                            ?
-?  ?? INTERFAZ MEJORADA Y M¡S SIMPLE         ?
+?  ?? INTERFAZ MEJORADA Y M√ÅS SIMPLE         ?
 ??????????????????????????????????????????????
 ```
 
 ---
 
 **Fecha:** 2025-01-27  
-**Estado:** ? SoluciÛn aplicada con TextBox simple  
+**Estado:** ? Soluci√≥n aplicada con TextBox simple  
 **Build:** ? Exitoso  
-**Interfaz:** ? Mejorada - M·s simple y directa  
-**PrÛximo paso:** Probar cerrar un parte y verificar el nuevo di·logo
+**Interfaz:** ? Mejorada - M√°s simple y directa  
+**Pr√≥ximo paso:** Probar cerrar un parte y verificar el nuevo di√°logo

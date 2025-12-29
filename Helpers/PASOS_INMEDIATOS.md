@@ -1,4 +1,4 @@
-# ?? PASOS INMEDIATOS - SOLUCIONAR ERROR DE CONEXI”N
+Ôªø# ?? PASOS INMEDIATOS - SOLUCIONAR ERROR DE CONEXI√ìN
 
 **Tu error:** La app intenta conectarse a `localhost:2501` en lugar de Render
 
@@ -8,9 +8,9 @@
 
 ### **En Visual Studio:**
 
-1. Cerrar la aplicaciÛn si est· ejecut·ndose
-2. Men˙: **Build** ? **Clean Solution** 
-3. Men˙: **Build** ? **Rebuild Solution**
+1. Cerrar la aplicaci√≥n si est√° ejecut√°ndose
+2. Men√∫: **Build** ? **Clean Solution** 
+3. Men√∫: **Build** ? **Rebuild Solution**
 4. Esperar a que termine (sin errores)
 5. Presionar `F5` para ejecutar
 
@@ -19,8 +19,8 @@
 ## ? PASO 2: PROBAR LOGIN
 
 1. Ingresar tus credenciales
-2. Click "Iniciar SesiÛn"
-3. **IMPORTANTE:** La primera conexiÛn a Render puede tardar **30-60 segundos**
+2. Click "Iniciar Sesi√≥n"
+3. **IMPORTANTE:** La primera conexi√≥n a Render puede tardar **30-60 segundos**
 4. Esperar pacientemente (Render en plan gratuito se "duerme")
 
 ---
@@ -34,17 +34,17 @@ Si sigue sin funcionar, revisar logs:
 notepad C:\Logs\GestionTime\app_20250127.log
 ```
 
-**Buscar esta lÌnea:**
+**Buscar esta l√≠nea:**
 ```
 API BaseUrl=https://gestiontimeapi.onrender.com
 ```
 
-? **Si aparece Render** ? ConfiguraciÛn correcta, solo espera m·s tiempo  
-? **Si aparece localhost** ? El archivo no se copiÛ, pasar al Paso 4
+? **Si aparece Render** ? Configuraci√≥n correcta, solo espera m√°s tiempo  
+? **Si aparece localhost** ? El archivo no se copi√≥, pasar al Paso 4
 
 ---
 
-## ? PASO 4: VERIFICAR ARCHIVO (Si Paso 3 fallÛ)
+## ? PASO 4: VERIFICAR ARCHIVO (Si Paso 3 fall√≥)
 
 ```powershell
 # Ver si existe el archivo
@@ -66,11 +66,11 @@ Debe decir `gestiontimeapi.onrender.com`
 
 ---
 
-## ?? SOLUCI”N R¡PIDA ALTERNATIVA
+## ?? SOLUCI√ìN R√ÅPIDA ALTERNATIVA
 
 Si todo lo anterior falla, editar `App.xaml.cs`:
 
-### **LÌnea ~69, cambiar:**
+### **L√≠nea ~69, cambiar:**
 
 ```csharp
 var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
@@ -93,7 +93,7 @@ Guardar, recompilar, ejecutar.
 ```
 ? "Conectando con el servidor..."
 ?? Esperando... (puede tardar 30-60s la primera vez)
-? "Inicio de sesiÛn exitoso" o error especÌfico de la API
+? "Inicio de sesi√≥n exitoso" o error espec√≠fico de la API
 ```
 
 ### **En los logs:**
@@ -110,14 +110,14 @@ Guardar, recompilar, ejecutar.
 
 **Render en plan gratuito:**
 - ? Es gratis
-- ?? Se "duerme" despuÈs de 15 minutos de inactividad
-- ?? Primera conexiÛn tarda 30-60 segundos
-- ? Conexiones siguientes son r·pidas
+- ?? Se "duerme" despu√©s de 15 minutos de inactividad
+- ?? Primera conexi√≥n tarda 30-60 segundos
+- ? Conexiones siguientes son r√°pidas
 
-**Si ves "Conectando..." por m·s de 60 segundos:**
-1. Verificar que la URL de Render estÈ correcta
+**Si ves "Conectando..." por m√°s de 60 segundos:**
+1. Verificar que la URL de Render est√© correcta
 2. Probar en navegador: `https://gestiontimeapi.onrender.com`
-3. Si no responde en navegador, la API puede estar caÌda
+3. Si no responde en navegador, la API puede estar ca√≠da
 
 ---
 
@@ -132,13 +132,13 @@ notepad C:\log_completo.txt
 
 Buscar en los logs:
 - `[ERR]` ? Errores
-- `API BaseUrl=` ? URL que est· usando
+- `API BaseUrl=` ? URL que est√° usando
 - `HTTP POST /api/v1/auth/login` ? Intentos de login
 - `EXCEPTION` ? Excepciones
 
 ---
 
 **Fecha:** 2025-01-27  
-**AcciÛn inmediata:** Clean + Rebuild + F5  
-**Tiempo esperado primera conexiÛn:** 30-60 segundos  
-**Estado:** ? SoluciÛn lista para aplicar
+**Acci√≥n inmediata:** Clean + Rebuild + F5  
+**Tiempo esperado primera conexi√≥n:** 30-60 segundos  
+**Estado:** ? Soluci√≥n lista para aplicar

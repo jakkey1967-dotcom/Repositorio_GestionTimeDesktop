@@ -1,10 +1,10 @@
-# ?? CREAR INSTALADOR MSIX PASO A PASO EN VISUAL STUDIO
+Ôªø# ?? CREAR INSTALADOR MSIX PASO A PASO EN VISUAL STUDIO
 
-Si el script autom·tico no funciona, seguir estos pasos manuales:
+Si el script autom√°tico no funciona, seguir estos pasos manuales:
 
 ---
 
-## ?? M…TODO 1: VISUAL STUDIO 2022 (RECOMENDADO)
+## ?? M√âTODO 1: VISUAL STUDIO 2022 (RECOMENDADO)
 
 ### **Paso 1: Abrir el proyecto**
 1. Abrir **Visual Studio 2022**
@@ -17,10 +17,10 @@ Si el script autom·tico no funciona, seguir estos pasos manuales:
 3. Click en **"Create App Packages..."**
 
 ### **Paso 3: Configurar el paquete**
-1. Seleccionar **"Sideloading"** (distribuciÛn directa)
+1. Seleccionar **"Sideloading"** (distribuci√≥n directa)
 2. Click **"Next"**
 
-### **Paso 4: ConfiguraciÛn de arquitectura**
+### **Paso 4: Configuraci√≥n de arquitectura**
 1. **Desmarcar** ARM64 y x86 
 2. **Dejar marcado solo** x64
 3. **Configuration:** Release
@@ -39,31 +39,31 @@ Si el script autom·tico no funciona, seguir estos pasos manuales:
    - Click "OK"
 3. Click **"Create"**
 
-### **Paso 7: Esperar creaciÛn**
+### **Paso 7: Esperar creaci√≥n**
 - El proceso puede tomar 5-10 minutos
-- Visual Studio descargar· e incluir· Windows App Runtime autom·ticamente
-- Se mostrar·n los archivos creados al final
+- Visual Studio descargar√° e incluir√° Windows App Runtime autom√°ticamente
+- Se mostrar√°n los archivos creados al final
 
 ---
 
 ## ?? RESULTADO ESPERADO
 
-El paquete se crear· en:
+El paquete se crear√° en:
 ```
 C:\GestionTime\GestionTime.Desktop\AppPackages\GestionTime.Desktop_1.1.0.0_x64_Test\
 ```
 
 ### **Archivos creados:**
 - `GestionTime.Desktop_1.1.0.0_x64.msix` ? **INSTALADOR PRINCIPAL**
-- `Install.ps1` ? Script de instalaciÛn alternativo
+- `Install.ps1` ? Script de instalaci√≥n alternativo
 - `GestionTime.Desktop_1.1.0.0_x64.cer` ? Certificado
 - `Dependencies\x64\` ? Carpeta con Windows App Runtime incluido
 
 ---
 
-## ?? M…TODO 2: COMMAND LINE (ALTERNATIVO)
+## ?? M√âTODO 2: COMMAND LINE (ALTERNATIVO)
 
-Si Visual Studio no est· disponible:
+Si Visual Studio no est√° disponible:
 
 ### **Prerrequisitos:**
 ```powershell
@@ -88,7 +88,7 @@ msbuild GestionTime.Desktop.csproj /p:Configuration=Release /p:Platform=x64 /p:A
 
 ---
 
-## ?? DISTRIBUCI”N DEL INSTALADOR
+## ?? DISTRIBUCI√ìN DEL INSTALADOR
 
 ### **Para enviar a usuarios:**
 
@@ -110,23 +110,23 @@ msbuild GestionTime.Desktop.csproj /p:Configuration=Release /p:Platform=x64 /p:A
 ### **Instrucciones para usuarios:**
 
 ```
-INSTALACI”N GESTIONTIME DESKTOP v1.1.0
+INSTALACI√ìN GESTIONTIME DESKTOP v1.1.0
 
 1. Descomprimir GestionTimeDesktop_Installer.zip
 
 2. Hacer DOBLE-CLICK en: GestionTimeDesktop_install.msix
 
 3. Si aparece advertencia de certificado:
-   - Click en "M·s informaciÛn"
+   - Click en "M√°s informaci√≥n"
    - Click en "Instalar de todas formas"
 
-4. Seguir el asistente de instalaciÛn
+4. Seguir el asistente de instalaci√≥n
 
-5. Una vez instalado, buscar "GestionTime Desktop" en el men˙ inicio
+5. Una vez instalado, buscar "GestionTime Desktop" en el men√∫ inicio
 
-6. °Listo! La aplicaciÛn ya incluye todas las dependencias necesarias
+6. ¬°Listo! La aplicaci√≥n ya incluye todas las dependencias necesarias
 
-NOTA: Este instalador incluye autom·ticamente Windows App Runtime,
+NOTA: Este instalador incluye autom√°ticamente Windows App Runtime,
 no es necesario instalarlo por separado.
 
 Soporte: [tu-email]
@@ -136,10 +136,10 @@ Soporte: [tu-email]
 
 ## ? VENTAJAS DEL INSTALADOR MSIX
 
-- ? **Incluye Windows App Runtime autom·ticamente**
-- ? **InstalaciÛn con un solo click**
-- ? **Actualizaciones autom·ticas**
-- ? **DesinstalaciÛn limpia**
+- ? **Incluye Windows App Runtime autom√°ticamente**
+- ? **Instalaci√≥n con un solo click**
+- ? **Actualizaciones autom√°ticas**
+- ? **Desinstalaci√≥n limpia**
 - ? **Sandboxing de seguridad**
 - ? **Compatible con Windows Store**
 - ? **No requiere scripts BAT complicados**
@@ -161,10 +161,10 @@ Import-Certificate -FilePath "certificado.cer" -CertStoreLocation Cert:\LocalMac
 ```
 
 ### **Error en Visual Studio**
-- Verificar que Windows SDK 10.0.22621 estÈ instalado
-- Verificar que .NET 8 SDK estÈ instalado
-- Limpiar soluciÛn: Build ? Clean Solution
+- Verificar que Windows SDK 10.0.22621 est√© instalado
+- Verificar que .NET 8 SDK est√© instalado
+- Limpiar soluci√≥n: Build ? Clean Solution
 
 ---
 
-**°Con este instalador MSIX, el problema de Windows App Runtime queda resuelto definitivamente!** ??
+**¬°Con este instalador MSIX, el problema de Windows App Runtime queda resuelto definitivamente!** ??

@@ -1,4 +1,4 @@
-# ?? PROBLEMA CRÕTICO: WINDOWS APP RUNTIME REQUERIDO
+Ôªø# ?? PROBLEMA CR√çTICO: WINDOWS APP RUNTIME REQUERIDO
 
 **Error persistente:**
 ```
@@ -9,12 +9,12 @@ System.Runtime.InteropServices.COMException (0x80040154): Clase no registrada
 
 ---
 
-## ?? DIAGN”STICO FINAL
+## ?? DIAGN√ìSTICO FINAL
 
-### **CAUSA RAÕZ:**
-Las aplicaciones **WinUI 3** requieren **OBLIGATORIAMENTE** que el **Windows App Runtime** estÈ instalado en el sistema de destino, **INDEPENDIENTEMENTE** de si se publican como self-contained o no.
+### **CAUSA RA√çZ:**
+Las aplicaciones **WinUI 3** requieren **OBLIGATORIAMENTE** que el **Windows App Runtime** est√© instalado en el sistema de destino, **INDEPENDIENTEMENTE** de si se publican como self-contained o no.
 
-### **POR QU… FALLA:**
+### **POR QU√â FALLA:**
 1. **WinUI 3 no es portable:** Siempre depende de componentes del sistema
 2. **Windows App Runtime 1.8:** Debe estar instalado y registrado correctamente
 3. **Self-contained no resuelve esto:** Solo incluye .NET runtime, no Windows App Runtime
@@ -22,22 +22,22 @@ Las aplicaciones **WinUI 3** requieren **OBLIGATORIAMENTE** que el **Windows App
 
 ---
 
-## ? SOLUCI”N DEFINITIVA IMPLEMENTADA v1.0.3
+## ? SOLUCI√ìN DEFINITIVA IMPLEMENTADA v1.0.3
 
-### **VersiÛn mejorada creada:**
+### **Versi√≥n mejorada creada:**
 ```
 ?? GestionTime_Portable_v1.0.3_FINAL.zip
-? Sin trimming (m·xima compatibilidad)
+? Sin trimming (m√°xima compatibilidad)
 ? Todas las dependencias .NET incluidas
-? Script autom·tico MEJORADO con diagnÛstico
-? Script de diagnÛstico independiente
+? Script autom√°tico MEJORADO con diagn√≥stico
+? Script de diagn√≥stico independiente
 ? README actualizado con instrucciones
-? VerificaciÛn robusta de archivos y paths
+? Verificaci√≥n robusta de archivos y paths
 ```
 
 ### **Contenido del ZIP:**
-- `GestionTime.Desktop.exe` - AplicaciÛn principal
-- `INSTALAR_Y_EJECUTAR.bat` - **Script autom·tico mejorado**
+- `GestionTime.Desktop.exe` - Aplicaci√≥n principal
+- `INSTALAR_Y_EJECUTAR.bat` - **Script autom√°tico mejorado**
 - `DIAGNOSTICO.bat` - **Nuevo script para troubleshooting**
 - `README_GestionTime_Portable.txt` - Instrucciones detalladas
 - Todas las DLLs y dependencias necesarias
@@ -46,23 +46,23 @@ Las aplicaciones **WinUI 3** requieren **OBLIGATORIAMENTE** que el **Windows App
 
 ## ?? INSTRUCCIONES PARA USUARIOS
 
-### **MÈtodo 1: Autom·tico (Recomendado)**
+### **M√©todo 1: Autom√°tico (Recomendado)**
 
 1. **Extraer COMPLETAMENTE** `GestionTime_Portable_v1.0.3_FINAL.zip`
    - ?? **IMPORTANTE:** Extraer TODO el contenido a una carpeta
    - ?? **NO** ejecutar desde dentro del ZIP
    
-2. **Ir a la carpeta extraÌda** y ejecutar `INSTALAR_Y_EJECUTAR.bat` como Administrador
+2. **Ir a la carpeta extra√≠da** y ejecutar `INSTALAR_Y_EJECUTAR.bat` como Administrador
 
-3. El script autom·ticamente:
-   - ? Verifica la ubicaciÛn y archivos
+3. El script autom√°ticamente:
+   - ? Verifica la ubicaci√≥n y archivos
    - ? Instala Windows App Runtime si es necesario
-   - ? Ejecuta la aplicaciÛn con paths correctos
+   - ? Ejecuta la aplicaci√≥n con paths correctos
 
-### **MÈtodo 2: Si el autom·tico falla**
+### **M√©todo 2: Si el autom√°tico falla**
 
 1. **Ejecutar** `DIAGNOSTICO.bat` para identificar el problema
-2. **Seguir las recomendaciones** del diagnÛstico
+2. **Seguir las recomendaciones** del diagn√≥stico
 3. **Instalar manualmente** si es necesario:
 ```powershell
 winget install Microsoft.WindowsAppRuntime.1.8
@@ -73,20 +73,20 @@ winget install Microsoft.WindowsAppRuntime.1.8
 ## ??? MEJORAS EN v1.0.3
 
 ### **Script INSTALAR_Y_EJECUTAR.bat mejorado:**
-- ? **VerificaciÛn de directorio actual**
-- ? **DiagnÛstico de archivos faltantes**
-- ? **Mensajes de error m·s claros**
-- ? **Instrucciones especÌficas para cada problema**
+- ? **Verificaci√≥n de directorio actual**
+- ? **Diagn√≥stico de archivos faltantes**
+- ? **Mensajes de error m√°s claros**
+- ? **Instrucciones espec√≠ficas para cada problema**
 - ? **Uso de paths absolutos**
 - ? **Mejor manejo de errores de winget**
 
 ### **Nuevo script DIAGNOSTICO.bat:**
-- ? **VerificaciÛn completa del sistema**
+- ? **Verificaci√≥n completa del sistema**
 - ? **Check de arquitectura (x64)**
-- ? **VerificaciÛn de permisos**
-- ? **DetecciÛn de archivos bloqueados**
+- ? **Verificaci√≥n de permisos**
+- ? **Detecci√≥n de archivos bloqueados**
 - ? **Listado de todos los archivos**
-- ? **VerificaciÛn de Windows App Runtime**
+- ? **Verificaci√≥n de Windows App Runtime**
 - ? **Captura de logs del sistema**
 
 ---
@@ -95,35 +95,35 @@ winget install Microsoft.WindowsAppRuntime.1.8
 
 | Aspecto | Estado | Mejoras v1.0.3 |
 |:--------|:-------|:----------------|
-| **CompilaciÛn** | ? Exitosa | Sin cambios |
+| **Compilaci√≥n** | ? Exitosa | Sin cambios |
 | **Dependencias .NET** | ? Incluidas | Sin cambios |
 | **Windows App Runtime** | ?? Requerido | Script mejorado |
-| **Script instalador** | ? **MEJORADO** | **DiagnÛstico paths, errores claros** |
-| **Script diagnÛstico** | ? **NUEVO** | **Troubleshooting completo** |
-| **DocumentaciÛn** | ? Completa | Instrucciones m·s claras |
-| **DistribuciÛn** | ? Lista | ZIP final de 17.2MB |
+| **Script instalador** | ? **MEJORADO** | **Diagn√≥stico paths, errores claros** |
+| **Script diagn√≥stico** | ? **NUEVO** | **Troubleshooting completo** |
+| **Documentaci√≥n** | ? Completa | Instrucciones m√°s claras |
+| **Distribuci√≥n** | ? Lista | ZIP final de 17.2MB |
 
 ---
 
-## ?? COMPARACI”N DE VERSIONES
+## ?? COMPARACI√ìN DE VERSIONES
 
-| VersiÛn | Problema | SoluciÛn | Estado |
+| Versi√≥n | Problema | Soluci√≥n | Estado |
 |:--------|:---------|:---------|:-------|
 | v1.0.0 | ? Dependencias faltantes | - | Fallaba |
-| v1.0.1 | ? Mismo error | RepublicaciÛn | Fallaba |
-| v1.0.2 | ?? Script b·sico | Script autom·tico | Funcional pero b·sico |
-| **v1.0.3** | ? **Script robusto** | **DiagnÛstico completo** | ? **Altamente funcional** |
+| v1.0.1 | ? Mismo error | Republicaci√≥n | Fallaba |
+| v1.0.2 | ?? Script b√°sico | Script autom√°tico | Funcional pero b√°sico |
+| **v1.0.3** | ? **Script robusto** | **Diagn√≥stico completo** | ? **Altamente funcional** |
 
 ---
 
-## ?? DISTRIBUCI”N FINAL v1.0.3
+## ?? DISTRIBUCI√ìN FINAL v1.0.3
 
 ### **Archivo a distribuir:**
 ```
 GestionTime_Portable_v1.0.3_FINAL.zip (17.2 MB)
 ```
 
-### **UbicaciÛn:**
+### **Ubicaci√≥n:**
 ```
 C:\GestionTime\GestionTime.Desktop\GestionTime_Portable_v1.0.3_FINAL.zip
 ```
@@ -137,11 +137,11 @@ Adjunto: GestionTime_Portable_v1.0.3_FINAL.zip
 INSTRUCCIONES IMPORTANTES:
 1. EXTRAER COMPLETAMENTE el archivo ZIP a una carpeta
    (NO ejecutar desde dentro del ZIP)
-2. Ir a la carpeta extraÌda
+2. Ir a la carpeta extra√≠da
 3. Ejecutar "INSTALAR_Y_EJECUTAR.bat" como Administrador
 4. Si hay problemas, ejecutar "DIAGNOSTICO.bat" para troubleshooting
 
-NOTA: Primera conexiÛn puede tardar 30-60 segundos (normal).
+NOTA: Primera conexi√≥n puede tardar 30-60 segundos (normal).
 
 SOPORTE: Si hay errores, enviar la salida del DIAGNOSTICO.bat
 ```
@@ -150,21 +150,21 @@ SOPORTE: Si hay errores, enviar la salida del DIAGNOSTICO.bat
 
 ## ??? TROUBLESHOOTING MEJORADO
 
-### **Error: "No se encontrÛ GestionTime.Desktop.exe"**
+### **Error: "No se encontr√≥ GestionTime.Desktop.exe"**
 
-**CAUSA:** ZIP no extraÌdo completamente o script en directorio incorrecto
+**CAUSA:** ZIP no extra√≠do completamente o script en directorio incorrecto
 
-**SOLUCI”N:**
+**SOLUCI√ìN:**
 1. **Extraer TODO el contenido** del ZIP a una carpeta nueva
 2. **Verificar que existe** `GestionTime.Desktop.exe` en la carpeta
-3. **Ejecutar los scripts desde la MISMA carpeta** donde est· el EXE
-4. **Si est· bloqueado:** Click derecho ? Propiedades ? Desbloquear
+3. **Ejecutar los scripts desde la MISMA carpeta** donde est√° el EXE
+4. **Si est√° bloqueado:** Click derecho ? Propiedades ? Desbloquear
 
 ### **Error en winget install**
 
 **CAUSA:** Permisos insuficientes o winget no disponible
 
-**SOLUCI”N:**
+**SOLUCI√ìN:**
 1. **Ejecutar como Administrador**
 2. **Descarga manual:** https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe
 3. **Usar PowerShell:** 
@@ -172,7 +172,7 @@ SOPORTE: Si hay errores, enviar la salida del DIAGNOSTICO.bat
 winget install Microsoft.WindowsAppRuntime.1.8 --accept-source-agreements
 ```
 
-### **Script de diagnÛstico completo:**
+### **Script de diagn√≥stico completo:**
 ```batch
 # Ejecutar DIAGNOSTICO.bat para:
 ? Verificar archivos necesarios
@@ -184,26 +184,26 @@ winget install Microsoft.WindowsAppRuntime.1.8 --accept-source-agreements
 
 ---
 
-## ?? CONCLUSI”N v1.0.3
+## ?? CONCLUSI√ìN v1.0.3
 
 ```
 ??????????????????????????????????????????????????????????????
 ?  ? PROBLEMA COMPLETAMENTE RESUELTO                        ?
-?     CON DIAGN”STICO AVANZADO v1.0.3                       ?
+?     CON DIAGN√ìSTICO AVANZADO v1.0.3                       ?
 ?                                                            ?
-?  ?? VersiÛn final: v1.0.3 (M·s robusta)                   ?
-?  ??? Incluye: Scripts auto-instalador + diagnÛstico        ?
-?  ?? TamaÒo: 17.2 MB                                       ?
+?  ?? Versi√≥n final: v1.0.3 (M√°s robusta)                   ?
+?  ??? Incluye: Scripts auto-instalador + diagn√≥stico        ?
+?  ?? Tama√±o: 17.2 MB                                       ?
 ?  ?? Compatibilidad: Windows 10/11 x64                     ?
-?  ?? Troubleshooting: Completo y autom·tico                ?
+?  ?? Troubleshooting: Completo y autom√°tico                ?
 ?                                                            ?
-?  ? LISTO PARA DISTRIBUCI”N MASIVA CONFIABLE               ?
+?  ? LISTO PARA DISTRIBUCI√ìN MASIVA CONFIABLE               ?
 ??????????????????????????????????????????????????????????????
 ```
 
 ---
 
 **Problema resuelto:** ? 27/01/2025  
-**VersiÛn final:** v1.0.3 (Robusta)  
-**Estado:** Completamente funcional con diagnÛstico avanzado  
-**DistribuciÛn:** Lista para usuarios finales con soporte completo
+**Versi√≥n final:** v1.0.3 (Robusta)  
+**Estado:** Completamente funcional con diagn√≥stico avanzado  
+**Distribuci√≥n:** Lista para usuarios finales con soporte completo

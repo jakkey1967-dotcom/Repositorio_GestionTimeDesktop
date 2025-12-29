@@ -1,14 +1,14 @@
-# ? ACTUALIZACI”N COMPLETADA - API EN RENDER
+Ôªø# ? ACTUALIZACI√ìN COMPLETADA - API EN RENDER
 
 **Fecha:** 2025-01-27  
 **Estado:** ? COMPLETADO Y COMPILADO  
-**Prioridad:** ?? CRÕTICA
+**Prioridad:** ?? CR√çTICA
 
 ---
 
 ## ?? RESUMEN DE CAMBIOS
 
-Se ha actualizado la aplicaciÛn de escritorio GestionTime.Desktop para:
+Se ha actualizado la aplicaci√≥n de escritorio GestionTime.Desktop para:
 
 1. **Conectarse a la API en Render** (`https://gestiontimeapi.onrender.com`)
 2. **Manejar correctamente errores de respuestas con datos null o faltantes**
@@ -42,23 +42,23 @@ Se ha actualizado la aplicaciÛn de escritorio GestionTime.Desktop para:
 #### ? Mejoras en manejo de null y errores:
 
 **GetAsync<T>:**
-- ? DetecciÛn de respuestas vacÌas con log de advertencia
-- ? Manejo de errores de deserializaciÛn JSON sin romper la app
-- ? Log detallado cuando la deserializaciÛn resulta en null
+- ? Detecci√≥n de respuestas vac√≠as con log de advertencia
+- ? Manejo de errores de deserializaci√≥n JSON sin romper la app
+- ? Log detallado cuando la deserializaci√≥n resulta en null
 - ? Mensajes de error amigables para problemas de red
-- ? DistinciÛn entre timeout, conexiÛn rechazada y otros errores HTTP
+- ? Distinci√≥n entre timeout, conexi√≥n rechazada y otros errores HTTP
 
 **PostAsync<TReq, TRes> y PutAsync<TReq, TRes>:**
 - ? Las mismas mejoras que GetAsync
-- ? Retorno de `default` en lugar de excepciÛn para mantener app funcionando
+- ? Retorno de `default` en lugar de excepci√≥n para mantener app funcionando
 
 **PingAsync:**
-- ? Prueba m˙ltiples endpoints comunes (`/api/v1/health`, `/health`, `/api/health`, `/`)
+- ? Prueba m√∫ltiples endpoints comunes (`/api/v1/health`, `/health`, `/api/health`, `/`)
 - ? Retorna `true` si alguno responde correctamente
 - ? Manejo robusto de errores sin romper la app
 
 **SSL Validation:**
-- ?? **Deshabilitado el bypass de SSL** porque Render tiene certificados v·lidos
+- ?? **Deshabilitado el bypass de SSL** porque Render tiene certificados v√°lidos
 - ?? Comentario dejado por si se necesita en desarrollo local
 
 **LoginResponse - Propiedades seguras:**
@@ -82,7 +82,7 @@ public async Task<List<ParteDto>> GetPartesAsync()
         
         if (result == null)
         {
-            _log.LogWarning("GetPartesAsync devolviÛ null - retornando lista vacÌa");
+            _log.LogWarning("GetPartesAsync devolvi√≥ null - retornando lista vac√≠a");
             return new List<ParteDto>();
         }
         
@@ -91,7 +91,7 @@ public async Task<List<ParteDto>> GetPartesAsync()
         
         if (filteredResult.Count < result.Count)
         {
-            _log.LogWarning("GetPartesAsync contenÌa {count} elementos null - fueron filtrados", 
+            _log.LogWarning("GetPartesAsync conten√≠a {count} elementos null - fueron filtrados", 
                 result.Count - filteredResult.Count);
         }
         
@@ -99,17 +99,17 @@ public async Task<List<ParteDto>> GetPartesAsync()
     }
     catch (Exception ex)
     {
-        _log.LogError(ex, "Error obteniendo partes - retornando lista vacÌa");
+        _log.LogError(ex, "Error obteniendo partes - retornando lista vac√≠a");
         return new List<ParteDto>();
     }
 }
 ```
 
 **Mejoras:**
-- ? Retorna lista vacÌa si la API devuelve null
+- ? Retorna lista vac√≠a si la API devuelve null
 - ? Filtra elementos null de la lista
 - ? Log de advertencias cuando detecta datos null
-- ? No rompe la aplicaciÛn ante errores de la API
+- ? No rompe la aplicaci√≥n ante errores de la API
 
 ---
 
@@ -131,47 +131,47 @@ var userRole = res.UserRoleSafe;
 
 ## ?? COMPORTAMIENTO ANTE ERRORES
 
-### ?? **Errores de ConexiÛn**
+### ?? **Errores de Conexi√≥n**
 
 | Error | Mensaje al Usuario |
 |-------|-------------------|
 | Host no encontrado | "No se puede conectar: Servidor no encontrado. Verifica la URL del API." |
-| ConexiÛn rechazada | "ConexiÛn rechazada: El servidor no est· disponible." |
+| Conexi√≥n rechazada | "Conexi√≥n rechazada: El servidor no est√° disponible." |
 | Timeout | "Timeout: El servidor no responde a tiempo." |
 | 401 No autorizado | "Credenciales incorrectas (401 No autorizado)." |
 | 403 Prohibido | "Acceso denegado (403 Prohibido)." |
-| 404 No encontrado | "Endpoint no encontrado (404). Verifica la configuraciÛn del API." |
+| 404 No encontrado | "Endpoint no encontrado (404). Verifica la configuraci√≥n del API." |
 | 500 Error servidor | "Error del servidor (500). Contacta al administrador." |
-| 502 Bad Gateway | "Error de gateway (502). El servidor no est· accesible." |
-| 503 No disponible | "Servicio no disponible (503). El servidor est· temporalmente fuera de lÌnea." |
+| 502 Bad Gateway | "Error de gateway (502). El servidor no est√° accesible." |
+| 503 No disponible | "Servicio no disponible (503). El servidor est√° temporalmente fuera de l√≠nea." |
 
-### ?? **Respuestas Null/VacÌas de la API**
+### ?? **Respuestas Null/Vac√≠as de la API**
 
-| SituaciÛn | Comportamiento |
+| Situaci√≥n | Comportamiento |
 |-----------|---------------|
-| Body vacÌo en GET | Retorna `default`, log de advertencia |
-| Body vacÌo en POST/PUT | Retorna `default`, log de advertencia |
-| DeserializaciÛn resulta en null | Retorna `default`, log detallado del JSON recibido |
-| Error de deserializaciÛn JSON | Retorna `default`, log de error con el body |
-| Lista con elementos null | Elementos null filtrados autom·ticamente |
+| Body vac√≠o en GET | Retorna `default`, log de advertencia |
+| Body vac√≠o en POST/PUT | Retorna `default`, log de advertencia |
+| Deserializaci√≥n resulta en null | Retorna `default`, log detallado del JSON recibido |
+| Error de deserializaci√≥n JSON | Retorna `default`, log de error con el body |
+| Lista con elementos null | Elementos null filtrados autom√°ticamente |
 | LoginResponse con campos null | Usa propiedades seguras con valores por defecto |
 
 ---
 
 ## ? PRUEBAS REALIZADAS
 
-- ? CompilaciÛn exitosa (0 errores, 0 advertencias)
-- ? ConfiguraciÛn de URL actualizada
-- ? Manejo de null implementado en todos los mÈtodos HTTP
+- ? Compilaci√≥n exitosa (0 errores, 0 advertencias)
+- ? Configuraci√≥n de URL actualizada
+- ? Manejo de null implementado en todos los m√©todos HTTP
 - ? Propiedades seguras en LoginResponse
 - ? Filtrado de elementos null en listas
 - ? Mensajes de error amigables
 
 ---
 
-## ?? PR”XIMOS PASOS
+## ?? PR√ìXIMOS PASOS
 
-1. **Ejecutar la aplicaciÛn** y probar el login con Render
+1. **Ejecutar la aplicaci√≥n** y probar el login con Render
 2. **Verificar logs** en `C:\Logs\GestionTime\app_{fecha}.log`
 3. **Validar** que la API en Render responde correctamente
 4. **Probar** operaciones CRUD de partes
@@ -183,7 +183,7 @@ var userRole = res.UserRoleSafe;
 
 ### ?? **SSL en Render**
 
-Render proporciona certificados SSL v·lidos de Let's Encrypt, por lo que el bypass de SSL ha sido **deshabilitado**. Si necesitas probar en localhost con certificados autofirmados, descomenta esta lÌnea en `ApiClient.cs`:
+Render proporciona certificados SSL v√°lidos de Let's Encrypt, por lo que el bypass de SSL ha sido **deshabilitado**. Si necesitas probar en localhost con certificados autofirmados, descomenta esta l√≠nea en `ApiClient.cs`:
 
 ```csharp
 // ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
@@ -191,17 +191,17 @@ Render proporciona certificados SSL v·lidos de Let's Encrypt, por lo que el bypa
 
 ### ?? **Logs Detallados**
 
-Todos los mÈtodos HTTP ahora logean:
+Todos los m√©todos HTTP ahora logean:
 - ? Request (URL, payload)
-- ? Response (status code, duraciÛn)
+- ? Response (status code, duraci√≥n)
 - ?? Advertencias cuando reciben null
 - ? Errores con detalles del body recibido
 
 ### ??? **Robustez**
 
-La aplicaciÛn ahora es **tolerante a fallos**:
+La aplicaci√≥n ahora es **tolerante a fallos**:
 - No se rompe si la API devuelve null
-- No se rompe si hay errores de deserializaciÛn
+- No se rompe si hay errores de deserializaci√≥n
 - Siempre retorna valores por defecto seguros
 - Muestra mensajes de error claros al usuario
 
@@ -209,9 +209,9 @@ La aplicaciÛn ahora es **tolerante a fallos**:
 
 ## ?? RESULTADO FINAL
 
-**Estado:** ? **LISTO PARA PRODUCCI”N**
+**Estado:** ? **LISTO PARA PRODUCCI√ìN**
 
-La aplicaciÛn est· configurada para:
+La aplicaci√≥n est√° configurada para:
 - ? Conectarse a la API en Render
 - ? Manejar correctamente errores de red
 - ? Manejar respuestas null/faltantes de la API
@@ -222,5 +222,5 @@ La aplicaciÛn est· configurada para:
 ---
 
 **Actualizado:** 2025-01-27  
-**CompilaciÛn:** ? Exitosa  
+**Compilaci√≥n:** ? Exitosa  
 **Testing:** ?? Pendiente de pruebas con API real en Render

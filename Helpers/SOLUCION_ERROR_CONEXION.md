@@ -1,23 +1,23 @@
-# ?? SOLUCIÓN - ERROR DE CONEXIÓN A LOCALHOST
+ï»¿# ?? SOLUCIÃ“N - ERROR DE CONEXIÃ“N A LOCALHOST
 
 **Error visto:**
 ```
-Error: Error de conexión al servidor: No se puede establecer una conexión 
-ya que el equipo de destino denegó expresamente dicha conexión. (localhost:2501). 
-Verifica que la API esté accesible en https://localhost:2501
+Error: Error de conexiÃ³n al servidor: No se puede establecer una conexiÃ³n 
+ya que el equipo de destino denegÃ³ expresamente dicha conexiÃ³n. (localhost:2501). 
+Verifica que la API estÃ© accesible en https://localhost:2501
 ```
 
 ---
 
 ## ?? CAUSA DEL PROBLEMA
 
-La aplicación está intentando conectarse a `localhost:2501` en lugar de `https://gestiontimeapi.onrender.com`.
+La aplicaciÃ³n estÃ¡ intentando conectarse a `localhost:2501` en lugar de `https://gestiontimeapi.onrender.com`.
 
-**Esto ocurre porque el archivo `appsettings.json` no se está copiando a la carpeta de salida** cuando compilas la aplicación.
+**Esto ocurre porque el archivo `appsettings.json` no se estÃ¡ copiando a la carpeta de salida** cuando compilas la aplicaciÃ³n.
 
 ---
 
-## ? SOLUCIÓN APLICADA
+## ? SOLUCIÃ“N APLICADA
 
 He modificado `GestionTime.Desktop.csproj` para asegurar que `appsettings.json` se copie a la carpeta de salida:
 
@@ -37,13 +37,13 @@ He modificado `GestionTime.Desktop.csproj` para asegurar que `appsettings.json` 
 
 Necesitas hacer un **Clean** y **Rebuild** completo:
 
-#### **Opción A: Desde Visual Studio**
+#### **OpciÃ³n A: Desde Visual Studio**
 
-1. Menú: **Build** ? **Clean Solution**
-2. Menú: **Build** ? **Rebuild Solution**
+1. MenÃº: **Build** ? **Clean Solution**
+2. MenÃº: **Build** ? **Rebuild Solution**
 3. Presionar `F5` para ejecutar
 
-#### **Opción B: Desde Terminal**
+#### **OpciÃ³n B: Desde Terminal**
 
 ```powershell
 # Ir a la carpeta del proyecto
@@ -61,9 +61,9 @@ dotnet run
 
 ---
 
-### **2. Verificar que appsettings.json se Copió**
+### **2. Verificar que appsettings.json se CopiÃ³**
 
-Después de compilar, verificar que el archivo existe en la carpeta de salida:
+DespuÃ©s de compilar, verificar que el archivo existe en la carpeta de salida:
 
 ```powershell
 # Para Debug x64
@@ -72,7 +72,7 @@ dir "C:\GestionTime\GestionTime.Desktop\bin\x64\Debug\net8.0-windows10.0.19041.0
 # O la carpeta que uses (x86, ARM64, etc.)
 ```
 
-**Debe existir el archivo** con la configuración de Render.
+**Debe existir el archivo** con la configuraciÃ³n de Render.
 
 ---
 
@@ -96,27 +96,27 @@ type "C:\GestionTime\GestionTime.Desktop\bin\x64\Debug\net8.0-windows10.0.19041.
 
 ---
 
-## ?? VERIFICACIÓN EN LOGS
+## ?? VERIFICACIÃ“N EN LOGS
 
-Después de ejecutar la aplicación, revisar los logs en `C:\Logs\GestionTime\app_YYYYMMDD.log`:
+DespuÃ©s de ejecutar la aplicaciÃ³n, revisar los logs en `C:\Logs\GestionTime\app_YYYYMMDD.log`:
 
-### **Buscar estas líneas al inicio:**
+### **Buscar estas lÃ­neas al inicio:**
 
 ```
 [INF] App() inicializada. Log en: ...
 [INF] API BaseUrl=https://gestiontimeapi.onrender.com LoginPath=/api/v1/auth/login PartesPath=/api/v1/partes
 ```
 
-? **Si dice `gestiontimeapi.onrender.com`** ? Configuración correcta
-? **Si dice `localhost:2501`** ? El archivo no se cargó
+? **Si dice `gestiontimeapi.onrender.com`** ? ConfiguraciÃ³n correcta
+? **Si dice `localhost:2501`** ? El archivo no se cargÃ³
 
 ---
 
-## ??? SOLUCIÓN ALTERNATIVA (Si persiste el problema)
+## ??? SOLUCIÃ“N ALTERNATIVA (Si persiste el problema)
 
-Si después de rebuild sigue sin funcionar, puedes **hardcodear temporalmente** la URL en `App.xaml.cs`:
+Si despuÃ©s de rebuild sigue sin funcionar, puedes **hardcodear temporalmente** la URL en `App.xaml.cs`:
 
-### **Ubicación:** `App.xaml.cs` línea ~69
+### **UbicaciÃ³n:** `App.xaml.cs` lÃ­nea ~69
 
 **Cambiar de:**
 ```csharp
@@ -128,33 +128,33 @@ var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
 var baseUrl = "https://gestiontimeapi.onrender.com";  // ? FORZAR URL DE RENDER
 ```
 
-Esto **fuerza** la aplicación a usar Render sin importar el archivo de configuración.
+Esto **fuerza** la aplicaciÃ³n a usar Render sin importar el archivo de configuraciÃ³n.
 
-**?? IMPORTANTE:** Esto es temporal. La solución correcta es que `appsettings.json` se copie correctamente.
+**?? IMPORTANTE:** Esto es temporal. La soluciÃ³n correcta es que `appsettings.json` se copie correctamente.
 
 ---
 
-## ?? PRUEBA DESPUÉS DE SOLUCIONAR
+## ?? PRUEBA DESPUÃ‰S DE SOLUCIONAR
 
-1. **Ejecutar la aplicación** (`F5`)
+1. **Ejecutar la aplicaciÃ³n** (`F5`)
 
 2. **Intentar login** con tus credenciales
 
 3. **Resultado esperado:**
    - ? "Conectando con el servidor..."
    - ?? **Puede tardar 30-60 segundos la primera vez** (Render en plan gratuito se "duerme")
-   - ? Login exitoso o mensaje de error específico de la API
+   - ? Login exitoso o mensaje de error especÃ­fico de la API
 
 4. **Si tarda mucho:**
    - Es normal en el primer request a Render (cold start)
    - Esperar pacientemente
-   - Los siguientes requests serán más rápidos
+   - Los siguientes requests serÃ¡n mÃ¡s rÃ¡pidos
 
 ---
 
-## ?? DIAGNÓSTICO AVANZADO
+## ?? DIAGNÃ“STICO AVANZADO
 
-### **Ver qué URL está usando la app en tiempo real:**
+### **Ver quÃ© URL estÃ¡ usando la app en tiempo real:**
 
 Agregar temporalmente este log en `LoginPage.xaml.cs` antes del login:
 
@@ -163,11 +163,11 @@ Agregar temporalmente este log en `LoginPage.xaml.cs` antes del login:
 App.Log?.LogInformation("?? DEBUG: Intentando conectar a: {url}", App.Api.BaseUrl);
 ```
 
-Esto mostrará en logs exactamente a qué URL está intentando conectarse.
+Esto mostrarÃ¡ en logs exactamente a quÃ© URL estÃ¡ intentando conectarse.
 
 ---
 
-## ?? CHECKLIST DE SOLUCIÓN
+## ?? CHECKLIST DE SOLUCIÃ“N
 
 - [ ] Modificado `GestionTime.Desktop.csproj` con `<CopyToOutputDirectory>`
 - [ ] Ejecutado **Clean Solution**
@@ -175,28 +175,28 @@ Esto mostrará en logs exactamente a qué URL está intentando conectarse.
 - [ ] Verificado que `appsettings.json` existe en `bin\...\`
 - [ ] Verificado contenido de `appsettings.json` en `bin\...\`
 - [ ] Logs muestran URL de Render
-- [ ] Login funciona (o muestra error de la API, no de conexión)
+- [ ] Login funciona (o muestra error de la API, no de conexiÃ³n)
 
 ---
 
 ## ? RESULTADO ESPERADO
 
-Después de aplicar la solución:
+DespuÃ©s de aplicar la soluciÃ³n:
 
 ```
 ??????????????????????????????????????????????
-?  ? Aplicación se conecta a Render         ?
+?  ? AplicaciÃ³n se conecta a Render         ?
 ?                                            ?
 ?  ?? URL: gestiontimeapi.onrender.com      ?
 ?  ?? appsettings.json cargado correctamente ?
-?  ?? Primera conexión puede tardar ~60s    ?
+?  ?? Primera conexiÃ³n puede tardar ~60s    ?
 ?  ? Login funcional                        ?
 ??????????????????????????????????????????????
 ```
 
 ---
 
-## ?? SI AÚN NO FUNCIONA
+## ?? SI AÃšN NO FUNCIONA
 
 1. **Compartir logs completos:**
    ```powershell
@@ -211,10 +211,10 @@ Después de aplicar la solución:
 
 3. **Probar en navegador:**
    - Abrir: `https://gestiontimeapi.onrender.com/health`
-   - Debe responder (aunque sea con error 404, significa que está accesible)
+   - Debe responder (aunque sea con error 404, significa que estÃ¡ accesible)
 
 ---
 
 **Fecha:** 2025-01-27  
-**Estado:** ? Solución aplicada  
-**Próximo paso:** Clean + Rebuild + Run
+**Estado:** ? SoluciÃ³n aplicada  
+**PrÃ³ximo paso:** Clean + Rebuild + Run

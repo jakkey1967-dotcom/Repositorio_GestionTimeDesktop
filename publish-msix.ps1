@@ -1,17 +1,17 @@
-# Script de PublicaciÛn Autom·tica
+Ôªø# Script de Publicaci√≥n Autom√°tica
 # GestionTime Desktop - v1.0.0
 
 Write-Host "????????????????????????????????????????" -ForegroundColor Cyan
-Write-Host "  ?? GestionTime - PublicaciÛn MSIX" -ForegroundColor Cyan
+Write-Host "  ?? GestionTime - Publicaci√≥n MSIX" -ForegroundColor Cyan
 Write-Host "????????????????????????????????????????" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. ConfiguraciÛn
+# 1. Configuraci√≥n
 $projectPath = "C:\GestionTime\GestionTime.Desktop"
 $outputPath = "$projectPath\AppPackages"
 $publishPath = "$projectPath\publish\msix"
 
-Write-Host "?? ConfiguraciÛn:" -ForegroundColor Yellow
+Write-Host "?? Configuraci√≥n:" -ForegroundColor Yellow
 Write-Host "   Proyecto: $projectPath"
 Write-Host "   Salida: $outputPath"
 Write-Host ""
@@ -30,11 +30,11 @@ Write-Host "??? Compilando proyecto (Release)..." -ForegroundColor Yellow
 dotnet build --configuration Release --no-restore
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "? Error en compilaciÛn" -ForegroundColor Red
+    Write-Host "? Error en compilaci√≥n" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "? CompilaciÛn exitosa" -ForegroundColor Green
+Write-Host "? Compilaci√≥n exitosa" -ForegroundColor Green
 Write-Host ""
 
 # 5. Publicar MSIX
@@ -51,11 +51,11 @@ Write-Host "3. Seguir wizard (5 minutos)" -ForegroundColor White
 Write-Host ""
 
 # Alternativa: Publicar como self-contained portable
-Write-Host "?? Creando versiÛn portable como alternativa..." -ForegroundColor Yellow
+Write-Host "?? Creando versi√≥n portable como alternativa..." -ForegroundColor Yellow
 dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=false -o "$publishPath"
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "? VersiÛn portable creada en: $publishPath" -ForegroundColor Green
+    Write-Host "? Versi√≥n portable creada en: $publishPath" -ForegroundColor Green
     Write-Host ""
     Write-Host "?? Archivos generados:" -ForegroundColor Cyan
     Get-ChildItem $publishPath | Select-Object Name, Length | Format-Table
@@ -66,7 +66,7 @@ if ($LASTEXITCODE -eq 0) {
     Compress-Archive -Path "$publishPath\*" -DestinationPath $zipPath -Force
     Write-Host "? ZIP creado: $zipPath" -ForegroundColor Green
 } else {
-    Write-Host "? Error en publicaciÛn" -ForegroundColor Red
+    Write-Host "? Error en publicaci√≥n" -ForegroundColor Red
 }
 
 Write-Host ""
@@ -74,7 +74,7 @@ Write-Host "????????????????????????????????????????" -ForegroundColor Cyan
 Write-Host "  ? PROCESO COMPLETADO" -ForegroundColor Cyan
 Write-Host "????????????????????????????????????????" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "?? PrÛximos pasos:" -ForegroundColor Yellow
+Write-Host "?? Pr√≥ximos pasos:" -ForegroundColor Yellow
 Write-Host "1. Para MSIX: Usar Visual Studio (ver PASOS_PUBLICACION_CLICKS.md)" -ForegroundColor White
 Write-Host "2. Para Portable: Distribuir el ZIP generado" -ForegroundColor White
 Write-Host ""

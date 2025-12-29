@@ -268,6 +268,6 @@ Este proyecto es **privado** y propietario. Todos los derechos reservados.
 
 **Desarrollado con ❤️ usando .NET 8 y WinUI 3**
 
-![Footer](https://img.shields.io/badge/Made%20with-❤️%20in%20Spain-red?style=for-the-badge)
+![Footer](https://img.shields.io/badge/Made%20with-%20in%20Spain-red?style=for-the-badge)
 
 </div>

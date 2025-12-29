@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 echo ================================================================
 echo   CREAR INSTALADOR MSIX PARA GESTIONTIME DESKTOP
 echo ================================================================

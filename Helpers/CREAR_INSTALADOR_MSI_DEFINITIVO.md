@@ -1,7 +1,7 @@
-# ?? SOLUCIÓN DEFINITIVA: CREAR INSTALADOR MSI
+ï»¿# ?? SOLUCIÃ“N DEFINITIVA: CREAR INSTALADOR MSI
 
 **Problema:** Los scripts BAT no pueden instalar Windows App Runtime de manera confiable  
-**Solución:** Crear un instalador MSI profesional que incluya todo automáticamente
+**SoluciÃ³n:** Crear un instalador MSI profesional que incluya todo automÃ¡ticamente
 
 ---
 
@@ -20,17 +20,17 @@ Primero vamos a configurar el proyecto correctamente:
   <UseWinUI>true</UseWinUI>
   <EnableMsixTooling>true</EnableMsixTooling>
   
-  <!-- Configuración para instalador -->
+  <!-- ConfiguraciÃ³n para instalador -->
   <ApplicationManifest>app.manifest</ApplicationManifest>
   <Platforms>x64</Platforms>
   <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   <SelfContained>false</SelfContained>
   
-  <!-- Información del producto -->
+  <!-- InformaciÃ³n del producto -->
   <AssemblyTitle>GestionTime Desktop</AssemblyTitle>
   <Product>GestionTime Desktop</Product>
   <Company>Tu Empresa</Company>
-  <Copyright>© 2025 Tu Empresa</Copyright>
+  <Copyright>Â© 2025 Tu Empresa</Copyright>
   <AssemblyVersion>1.1.0.0</AssemblyVersion>
   <FileVersion>1.1.0.0</FileVersion>
 </PropertyGroup>
@@ -60,7 +60,7 @@ Primero vamos a configurar el proyecto correctamente:
     <DisplayName>GestionTime Desktop</DisplayName>
     <PublisherDisplayName>Tu Empresa</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
-    <Description>Aplicación de gestión de tiempo para partes de trabajo</Description>
+    <Description>AplicaciÃ³n de gestiÃ³n de tiempo para partes de trabajo</Description>
   </Properties>
 
   <Dependencies>
@@ -77,7 +77,7 @@ Primero vamos a configurar el proyecto correctamente:
       <uap:VisualElements DisplayName="GestionTime Desktop"
                           Square150x150Logo="Assets\Square150x150Logo.png"
                           Square44x44Logo="Assets\Square44x44Logo.png"
-                          Description="Gestión de partes de trabajo"
+                          Description="GestiÃ³n de partes de trabajo"
                           BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
@@ -96,7 +96,7 @@ Primero vamos a configurar el proyecto correctamente:
 
 ## ?? CREAR EL INSTALADOR MSI
 
-### **Método 1: Visual Studio (Recomendado)**
+### **MÃ©todo 1: Visual Studio (Recomendado)**
 
 1. **En Visual Studio 2022:**
    ```
@@ -112,15 +112,15 @@ Primero vamos a configurar el proyecto correctamente:
    ? Create
    ```
 
-2. **Resultado:** Se creará en `AppPackages\` folder:
+2. **Resultado:** Se crearÃ¡ en `AppPackages\` folder:
    ```
    GestionTime.Desktop_1.1.0.0_x64_Test\
    ??? GestionTime.Desktop_1.1.0.0_x64.msix
-   ??? Install.ps1 (script de instalación)
+   ??? Install.ps1 (script de instalaciÃ³n)
    ??? Dependencies\ (incluye Windows App Runtime)
    ```
 
-### **Método 2: WiX Toolset (Profesional)**
+### **MÃ©todo 2: WiX Toolset (Profesional)**
 
 Si necesitas un verdadero MSI, usar WiX Toolset:
 
@@ -179,10 +179,10 @@ Si necesitas un verdadero MSI, usar WiX Toolset:
 ## ?? VENTAJAS DEL INSTALADOR MSI/MSIX
 
 ### **MSIX (Recomendado):**
-- ? **Incluye Windows App Runtime automáticamente**
-- ? **Instalación limpia y segura**
-- ? **Actualizaciones automáticas**
-- ? **Desinstalación completa**
+- ? **Incluye Windows App Runtime automÃ¡ticamente**
+- ? **InstalaciÃ³n limpia y segura**
+- ? **Actualizaciones automÃ¡ticas**
+- ? **DesinstalaciÃ³n completa**
 - ? **Sandboxing de seguridad**
 
 ### **MSI Tradicional:**
@@ -193,12 +193,12 @@ Si necesitas un verdadero MSI, usar WiX Toolset:
 
 ---
 
-## ?? PRÓXIMOS PASOS INMEDIATOS
+## ?? PRÃ“XIMOS PASOS INMEDIATOS
 
-1. **Actualizar GestionTime.Desktop.csproj** con la configuración arriba
-2. **Crear Package.appxmanifest** en la raíz del proyecto  
+1. **Actualizar GestionTime.Desktop.csproj** con la configuraciÃ³n arriba
+2. **Crear Package.appxmanifest** en la raÃ­z del proyecto  
 3. **Generar el MSIX** usando Visual Studio
-4. **Probar la instalación** en una máquina limpia
+4. **Probar la instalaciÃ³n** en una mÃ¡quina limpia
 5. **Distribuir el MSIX** en lugar del ZIP portable
 
 ---
@@ -212,15 +212,15 @@ Si necesitas un verdadero MSI, usar WiX Toolset:
 1. Descargar GestionTimeDesktop_install.msix
 2. Doble-click para instalar
 3. Aceptar certificado si aparece
-4. ¡Listo! Buscar "GestionTime" en menú inicio
+4. Â¡Listo! Buscar "GestionTime" en menÃº inicio
 ```
 
 **Sin necesidad de:**
 - ? Scripts BAT complicados
-- ? Instalación manual de Windows App Runtime  
+- ? InstalaciÃ³n manual de Windows App Runtime  
 - ? Troubleshooting de dependencias
 - ? Extraer archivos ZIP
 
 ---
 
-¿Quieres que empecemos configurando el proyecto para crear el MSIX package?
+Â¿Quieres que empecemos configurando el proyecto para crear el MSIX package?
