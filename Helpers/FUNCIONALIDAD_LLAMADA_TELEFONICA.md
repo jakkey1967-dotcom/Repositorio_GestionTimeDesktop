@@ -1,0 +1,255 @@
+# ?? Nueva Funcionalidad: Llamada Telefónica Rápida
+
+## ? Cambios Implementados en DiarioPage
+
+### 1. **Reorganización del Layout** ??
+
+#### Antes:
+```
+??????????????????????????????????????????????????
+? Fecha: [___] ??  Buscar: [?? ___]  [Botones]  ?
+??????????????????????????????????????????????????
+```
+
+#### Después:
+```
+??????????????????????????????????????????????????
+? Fecha:                                         ?
+? [25-12-2025] ??                  [Botones ?]  ?
+?                                                ?
+? Buscar:                                        ?
+? [?? buscar cliente, ticket, acción...]        ?
+??????????????????????????????????????????????????
+```
+
+**Cambios:**
+- ? Búsqueda movida **debajo** de la fecha
+- ? Campo de búsqueda **más ancho** (ocupa todo el ancho disponible)
+- ? Placeholder más descriptivo: "buscar cliente, ticket, acción..."
+
+---
+
+### 2. **Nuevo Botón: Llamada Telefónica** ??
+
+**Ubicación:** Primer botón (izquierda) en la barra de herramientas
+
+**Características:**
+- ?? **Color verde** (#10B981) para distinguirlo visualmente
+- ?? **Icono de teléfono** (Glyph: &#xE717;)
+- ?? **Atajo:** `Ctrl + T`
+- ?? **Tooltip:** "Nueva llamada telefónica (Ctrl+T)"
+
+---
+
+### 3. **Funcionalidad de Llamada Telefónica** ??
+
+#### ¿Qué hace?
+Al hacer clic en el botón "Teléfono" o presionar `Ctrl+T`:
+
+1. **Crea automáticamente un parte** pre-configurado con:
+   - ? **Fecha:** Hoy
+   - ? **Hora inicio:** Hora actual
+   - ? **Ticket:** "TELEFONO"
+   - ? **Acción:** "Llamada telefónica"
+   - ? **Estado:** Abierto
+
+2. **Abre el editor** de parte con estos datos pre-completados
+
+3. El usuario solo necesita:
+   - Seleccionar el **cliente**
+   - Agregar **detalles adicionales** (opcional)
+   - **Guardar**
+
+#### Ventajas:
+- ? **Registro ultra-rápido** de llamadas
+- ??? **Identificación clara** con ticket "TELEFONO"
+- ?? **Aparece en estadísticas** pero no cuenta para tiempo general (según tu descripción)
+- ?? **Puede cerrarse** desde el estado como cualquier otro parte
+
+---
+
+### 4. **Atajos de Teclado Actualizados** ??
+
+| Atajo | Acción | Descripción |
+|-------|--------|-------------|
+| **`Ctrl + T`** | **Teléfono** | **Nueva llamada (NUEVO)** |
+| `Ctrl + N` | Nuevo | Crear nuevo parte |
+| `Ctrl + E` | Editar | Editar parte seleccionado |
+| `F8` | Gráfica | Ver gráfica del día |
+| `Delete` | Borrar | Borrar parte seleccionado |
+| `Ctrl + Q` | Salir | Cerrar sesión |
+| `F5` | Refrescar | Recargar lista |
+
+---
+
+### 5. **Orden de Botones** ??
+
+```
+???????????????????????????????????????????????????????????
+? ?? Teléfono | ? Nuevo | ?? Editar ? ?? Gráfica ? ??? Borrar | ?? Salir ?
+?   (Verde)   |         |          ?            ?           |           ?
+???????????????????????????????????????????????????????????
+```
+
+**Grupos separados por líneas verticales:**
+1. **Llamadas rápidas:** Teléfono
+2. **Acciones de parte:** Nuevo, Editar
+3. **Visualización:** Gráfica
+4. **Administración:** Borrar, Salir
+
+---
+
+## ?? Detalles Técnicos
+
+### Código Agregado (DiarioPage.xaml.cs):
+
+```csharp
+private async void OnNuevaLlamada(object sender, RoutedEventArgs e)
+{
+    try
+    {
+        App.Log?.LogInformation("?? NUEVA LLAMADA TELEFÓNICA - Creación rápida");
+        
+        var fechaLlamada = DateTime.Today;
+        var horaActual = DateTime.Now.ToString("HH:mm");
+
+        // Crear un parte pre-configurado para llamada telefónica
+        var parteLlamada = new ParteDto
+        {
+            Fecha = fechaLlamada,
+            HoraInicio = horaActual,
+            HoraFin = "",
+            Ticket = "TELEFONO",
+            Accion = "Llamada telefónica",
+            Cliente = "",
+            Tienda = "",
+            Grupo = "",
+            Tipo = "",
+            EstadoParte = ParteEstado.Abierto
+        };
+        
+        await OpenParteEditorAsync(parteLlamada, "?? Nueva Llamada Telefónica");
+    }
+    catch (Exception ex)
+    {
+        App.Log?.LogError(ex, "Error creando parte de llamada telefónica");
+        await ShowInfoAsync("? Error creando llamada. Revisa app.log.");
+    }
+}
+```
+
+---
+
+## ?? Flujo de Uso Típico
+
+### Escenario: Registrar una llamada telefónica
+
+1. **Usuario recibe llamada** ??
+2. **Presiona `Ctrl+T`** o click en botón "Teléfono"
+3. **Se abre editor** con datos pre-completados:
+   ```
+   Fecha: 25/12/2025
+   Hora inicio: 10:30
+   Ticket: TELEFONO
+   Acción: Llamada telefónica
+   Cliente: [vacío - seleccionar]
+   ```
+4. **Selecciona cliente** del dropdown
+5. **Opcionalmente agrega detalles** en acción
+6. **Click "Guardar"**
+7. **Llamada registrada** ?
+
+**Tiempo total:** ~10 segundos
+
+---
+
+## ?? Aspecto Visual
+
+### Barra de herramientas actualizada:
+
+```
+????????????????????????????????????????????????????????????????
+?  ????????????  ???????????  ??????????? ? ??????????? ? ... ?
+?  ?    ??    ?  ?    ?   ?  ?    ??   ? ? ?    ??   ? ?     ?
+?  ? Teléfono ?  ?  Nuevo  ?  ? Editar  ? ? ? Gráfica ? ?     ?
+?  ?  Verde   ?  ?         ?  ?         ? ? ?         ? ?     ?
+?  ????????????  ???????????  ??????????? ? ??????????? ?     ?
+????????????????????????????????????????????????????????????????
+```
+
+**Color destacado:** El botón de teléfono usa **verde (#10B981)** para diferenciarse visualmente
+
+---
+
+## ? Beneficios
+
+1. **Velocidad** ?
+   - Registro de llamadas en segundos
+   - Pre-relleno automático de campos
+
+2. **Claridad** ???
+   - Ticket "TELEFONO" identifica las llamadas
+   - Fácil filtrado y búsqueda posterior
+
+3. **Estadísticas** ??
+   - Las llamadas aparecen en reportes
+   - Puedes analizar tiempo dedicado a llamadas
+
+4. **Productividad** ??
+   - Menos clics necesarios
+   - Atajo de teclado rápido (Ctrl+T)
+
+5. **Consistencia** ??
+   - Mismo flujo de cierre que otros partes
+   - Integración perfecta con sistema existente
+
+---
+
+## ?? Notas Adicionales
+
+### ¿Por qué "TELEFONO" en el ticket?
+
+- ? **Identificación rápida** en la lista de partes
+- ? **Filtrado fácil** con búsqueda
+- ? **Reportes específicos** de llamadas
+- ? **Diferenciación clara** de otros tipos de trabajo
+
+### ¿Cómo cerrar una llamada?
+
+Igual que cualquier otro parte:
+1. Click en el **icono de estado** (columna derecha)
+2. Seleccionar **"? Cerrar"**
+3. Confirmar **hora fin**
+4. ? Llamada cerrada
+
+### ¿Las llamadas suman al tiempo total?
+
+Según tu descripción:
+- ? **Sí aparecen** en estadísticas
+- ? **No cuentan** para tiempo general de trabajo
+- ?? **Se pueden reportar** por separado
+
+(Nota: Esto requeriría configuración adicional en la lógica de cálculos de tiempo)
+
+---
+
+## ?? Personalización Futura
+
+### Posibles mejoras:
+
+1. **Campo de duración automática** para llamadas cortas
+2. **Selector de tipo de llamada** (entrante/saliente)
+3. **Integración con CRM** para autocompletar cliente
+4. **Templates de llamada** (soporte, consulta, venta)
+5. **Notificaciones** de llamadas pendientes de cerrar
+
+---
+
+## ?? Compilación
+
+? **Estado:** Compilación exitosa (0 errores)  
+?? **Warnings:** Solo warnings menores de nulabilidad (normales)
+
+---
+
+**?? Funcionalidad lista para usar!**

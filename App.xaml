@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="GestionTime.Desktop.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GestionTime.Desktop">
+
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <!-- WinUI default styles -->
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- ========================= -->
+            <!--  COLOR SYSTEM (Light/Dark) -->
+            <!-- ========================= -->
+            <ResourceDictionary.ThemeDictionaries>
+
+                <!-- LIGHT -->
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0B8C99"/>
+                    <SolidColorBrush x:Key="AppOnPrimaryBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="AppPrimaryContainerBrush" Color="#CFEFF3"/>
+                    <SolidColorBrush x:Key="AppOnPrimaryContainerBrush" Color="#00363C"/>
+
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F6FAFB"/>
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="AppSurfaceVariantBrush" Color="#E7F1F3"/>
+                    <SolidColorBrush x:Key="AppOnSurfaceBrush" Color="#0D1B1C"/>
+                    <SolidColorBrush x:Key="AppOnSurfaceMutedBrush" Color="#4B5B60"/>
+
+                    <SolidColorBrush x:Key="AppOutlineBrush" Color="#B8C8CA"/>
+                    <SolidColorBrush x:Key="AppRowAltBrush" Color="#F2FAFB"/>
+
+                    <SolidColorBrush x:Key="AppErrorBrush" Color="#B3261E"/>
+                    <SolidColorBrush x:Key="AppOnErrorBrush" Color="#FFFFFF"/>
+                </ResourceDictionary>
+
+                <!-- DARK -->
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0B8C99"/>
+                    <SolidColorBrush x:Key="AppOnPrimaryBrush" Color="#001E22"/>
+                    <SolidColorBrush x:Key="AppPrimaryContainerBrush" Color="#0A3A40"/>
+                    <SolidColorBrush x:Key="AppOnPrimaryContainerBrush" Color="#BDECF1"/>
+
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0B0F10"/>
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#12181A"/>
+                    <SolidColorBrush x:Key="AppSurfaceVariantBrush" Color="#1A2427"/>
+                    <SolidColorBrush x:Key="AppOnSurfaceBrush" Color="#E6F3F5"/>
+                    <SolidColorBrush x:Key="AppOnSurfaceMutedBrush" Color="#A8BCC0"/>
+
+                    <SolidColorBrush x:Key="AppOutlineBrush" Color="#324246"/>
+                    <SolidColorBrush x:Key="AppRowAltBrush" Color="#101618"/>
+
+                    <SolidColorBrush x:Key="AppErrorBrush" Color="#F2B8B5"/>
+                    <SolidColorBrush x:Key="AppOnErrorBrush" Color="#3A0A07"/>
+                </ResourceDictionary>
+
+            </ResourceDictionary.ThemeDictionaries>
+
+            <!-- Fallback por si acaso -->
+            <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0B8C99"/>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
