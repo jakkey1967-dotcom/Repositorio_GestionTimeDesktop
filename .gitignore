@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ===================================================
 # .gitignore para GestionTime Desktop (.NET 8 + WinUI 3)
 # Fecha: 28/01/2025
@@ -308,3 +309,27 @@ tokens.txt
 # !README.md (documentación principal)
 # !Helpers/*.md (documentación técnica)
 # !Doc/*.md (documentación del proyecto)
+=======
+### AL ###
+#Template for AL projects for Dynamics 365 Business Central
+#launch.json folder
+.vscode/
+#Cache folder
+.alcache/
+#Symbols folder
+.alpackages/
+#Snapshots folder
+.snapshots/
+#Testing Output folder
+.output/
+#Extension App-file
+*.app
+#Rapid Application Development File
+rad.json
+#Translation Base-file
+*.g.xlf
+#License-file
+*.flf
+#Test results file
+TestResults.xml
+>>>>>>> c790365f1c7d79359c3272bc7a45a1bf478f4d79
