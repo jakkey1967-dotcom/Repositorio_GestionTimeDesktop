@@ -59,51 +59,74 @@ public partial class App : Application
                 : Path.Combine(AppContext.BaseDirectory, settings.LogPath!)
             : ResolveLogPath();
 
-        Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+        // Crear directorio ANTES de inicializar logger
+        try
+        {
+            var logDir = Path.GetDirectoryName(logPath)!;
+            Directory.CreateDirectory(logDir);
+            
+            // Test básico de escritura
+            File.WriteAllText(Path.Combine(logDir, "test_startup.txt"), $"Startup test at {DateTime.Now}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error creando directorio log: {ex.Message}");
+            // Usar fallback
+            logPath = ResolveLogPath();
+        }
 
         // ===== SISTEMA DE LOGGING OPTIMIZADO =====
-        LogFactory = LoggerFactory.Create(builder =>
+        try
         {
+            LogFactory = LoggerFactory.Create(builder =>
+            {
+                #if DEBUG
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                #else
+                    builder.SetMinimumLevel(LogLevel.Information);
+                #endif
+                
+                // Logger unificado con rotación automática
+                builder.AddProvider(new RotatingFileLoggerProvider(
+                    logPath,
+                    maxFileSize: 10_000_000,  // 10MB
+                    maxFiles: 5               // 5 archivos históricos
+                ));
+            });
+
+            Log = LogFactory.CreateLogger("GestionTime");
+
+            // Inicializar loggers especializados
+            SpecializedLoggers.Initialize(LogFactory);
+
             #if DEBUG
-                builder.SetMinimumLevel(LogLevel.Debug);
+                Log.LogInformation("🛠️ MODO DEBUG: Logging verboso activado");
             #else
-                builder.SetMinimumLevel(LogLevel.Information);
+                Log.LogInformation("🏭 MODO RELEASE: Logging optimizado para producción");
             #endif
-            
-            // Logger unificado con rotación automática
-            // Solo uno para evitar duplicación de archivos
-            builder.AddProvider(new RotatingFileLoggerProvider(
-                logPath,
-                maxFileSize: 10_000_000,  // 10MB
-                maxFiles: 5               // 5 archivos históricos
-            ));
-        });
 
-        Log = LogFactory.CreateLogger("GestionTime");
+            Log.LogInformation("📊 Sistema de logging inicializado - Rotación: 10MB/5 archivos");
+            Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-        // Inicializar loggers especializados
-        SpecializedLoggers.Initialize(LogFactory);
+            var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
+            var loginPath = settings.LoginPath ?? "/api/v1/auth/login";
+            PartesPath = settings.PartesPath ?? PartesPath;
 
-        #if DEBUG
-            Log.LogInformation("🛠️ MODO DEBUG: Logging verboso activado");
-        #else
-            Log.LogInformation("🏭 MODO RELEASE: Logging optimizado para producción");
-        #endif
+            Api = new ApiClient(baseUrl, loginPath, Log);
 
-        Log.LogInformation("📊 Sistema de logging inicializado - Rotación: 10MB/5 archivos");
-        Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            HookGlobalExceptions();
 
-        var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
-        var loginPath = settings.LoginPath ?? "/api/v1/auth/login";
-        PartesPath = settings.PartesPath ?? PartesPath;
-
-        Api = new ApiClient(baseUrl, loginPath, Log);
-
-        HookGlobalExceptions();
-
-        Debug.WriteLine("LOG PATH = " + logPath);
-        Log.LogInformation("App() inicializada. Log en: {path}", logPath);
-        Log.LogInformation("API BaseUrl={baseUrl} LoginPath={loginPath} PartesPath={partesPath}", baseUrl, loginPath, PartesPath);
+            Debug.WriteLine("LOG PATH = " + logPath);
+            Log.LogInformation("App() inicializada. Log en: {path}", logPath);
+            Log.LogInformation("API BaseUrl={baseUrl} LoginPath={loginPath} PartesPath={partesPath}", baseUrl, loginPath, PartesPath);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error inicializando logging: {ex.Message}");
+            // Crear logger básico como fallback
+            LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug));
+            Log = LogFactory.CreateLogger("GestionTime");
+        }
     }
 
     private sealed record AppSettings(string? BaseUrl, string? LoginPath, string? PartesPath, string? LogPath);
