@@ -2,6 +2,7 @@
 using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.ViewModels;
 using GestionTime.Desktop.Services;
+using GestionTime.Desktop.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -335,11 +336,12 @@ public sealed partial class DiarioPage : Page
             var toDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
             var fromDate = toDate.AddDays(-30);
 
-            App.Log?.LogInformation("══════════════════════════════════════════════════════════════─");
-            App.Log?.LogInformation("📥 CARGA DE PARTES - Iniciando...");
-            App.Log?.LogInformation("📅 Rango: {from} -> {to}",
-                fromDate.ToString("yyyy-MM-dd"),
-                toDate.ToString("yyyy-MM-dd"));
+            using var loadScope = PerformanceLogger.BeginScope(SpecializedLoggers.Data, "LoadPartes", 
+                new { FromDate = fromDate, ToDate = toDate });
+
+            SpecializedLoggers.Data.LogInformation("══════════════════════════════════════════════════════════════─");
+            SpecializedLoggers.Data.LogInformation("📥 CARGA DE PARTES - Iniciando rango {DateRange}", 
+                $"{fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}");
 
             using var sem = new SemaphoreSlim(6);
 
@@ -354,36 +356,36 @@ public sealed partial class DiarioPage : Page
 
             _cache30dias = results.SelectMany(x => x ?? new List<ParteDto>()).ToList();
 
-            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
-            App.Log?.LogInformation("🔍 ANÁLISIS DE DATOS RECIBIDOS DE LA API");
-            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
-            App.Log?.LogInformation("📊 Total partes recibidos: {count}", _cache30dias.Count);
+            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
+            SpecializedLoggers.Data.LogInformation("🔍 ANÁLISIS DE DATOS RECIBIDOS DE LA API");
+            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
+            SpecializedLoggers.Data.LogInformation("📊 Total partes recibidos: {count}", _cache30dias.Count);
             
             // Contar por estado
             var porEstado = _cache30dias.GroupBy(p => p.EstadoParte).ToList();
-            App.Log?.LogInformation("📈 Distribución por EstadoParte:");
+            SpecializedLoggers.Data.LogInformation("📈 Distribución por EstadoParte:");
             foreach (var grupo in porEstado)
             {
-                App.Log?.LogInformation("   • {estado}: {count} partes", grupo.Key, grupo.Count());
+                SpecializedLoggers.Data.LogInformation("   • {estado}: {count} partes", grupo.Key, grupo.Count());
             }
             
             // Contar por IsAbierto
             var abiertos = _cache30dias.Count(p => p.IsAbierto);
             var cerrados = _cache30dias.Count(p => !p.IsAbierto);
-            App.Log?.LogInformation("📈 Distribución por IsAbierto:");
-            App.Log?.LogInformation("   • IsAbierto=true: {count}", abiertos);
-            App.Log?.LogInformation("   • IsAbierto=false: {count}", cerrados);
+            SpecializedLoggers.Data.LogInformation("📈 Distribución por IsAbierto:");
+            SpecializedLoggers.Data.LogInformation("   • IsAbierto=true: {count}", abiertos);
+            SpecializedLoggers.Data.LogInformation("   • IsAbierto=false: {count}", cerrados);
             
             // Contar por HoraFin vacío/no vacío
             var sinHoraFin = _cache30dias.Count(p => string.IsNullOrWhiteSpace(p.HoraFin));
             var conHoraFin = _cache30dias.Count(p => !string.IsNullOrWhiteSpace(p.HoraFin));
-            App.Log?.LogInformation("📈 Distribución por HoraFin:");
-            App.Log?.LogInformation("   • HoraFin vacío: {count}", sinHoraFin);
-            App.Log?.LogInformation("   • HoraFin con valor: {count}", conHoraFin);
+            SpecializedLoggers.Data.LogInformation("📈 Distribución por HoraFin:");
+            SpecializedLoggers.Data.LogInformation("   • HoraFin vacío: {count}", sinHoraFin);
+            SpecializedLoggers.Data.LogInformation("   • HoraFin con valor: {count}", conHoraFin);
             
-            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
-            App.Log?.LogInformation("📋 DETALLE DE PRIMEROS 10 REGISTROS:");
-            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
+            SpecializedLoggers.Data.LogInformation("📋 DETALLE DE PRIMEROS 10 REGISTROS:");
+            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
             
             // Ordenar primero para ver los más recientes
             var primeros = _cache30dias
@@ -394,7 +396,7 @@ public sealed partial class DiarioPage : Page
                 
             foreach (var p in primeros)
             {
-                App.Log?.LogInformation(
+                SpecializedLoggers.Data.LogInformation(
                     "   ID:{id} | {fecha} | Cliente:{cliente} | Grupo:'{grupo}' | Tipo:'{tipo}' | Estado:{estado}",
                     p.Id,
                     p.FechaText,
@@ -405,33 +407,17 @@ public sealed partial class DiarioPage : Page
                 );
             }
             
-            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
-            App.Log?.LogInformation("🔧 VERIFICACIÓN DE CAMPOS JSON:");
-            if (_cache30dias.Any())
-            {
-                var sample = _cache30dias.First();
-                try
-                {
-                    var jsonSample = JsonSerializer.Serialize(sample, new JsonSerializerOptions { WriteIndented = true });
-                    App.Log?.LogInformation("📄 Ejemplo de ParteDto serializado:\n{json}", Trim(jsonSample, 2000));
-                }
-                catch (Exception ex)
-                {
-                    App.Log?.LogWarning(ex, "Error serializando sample");
-                }
-            }
-            
-            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            SpecializedLoggers.Data.LogInformation("═══════════════════════════════════════════════════════════════");
 
             ApplyFilterToListView();
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogInformation("Carga de partes cancelada.");
+            SpecializedLoggers.Data.LogInformation("Carga de partes cancelada.");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "Error cargando partes (30 días)");
+            SpecializedLoggers.Data.LogError(ex, "Error cargando partes (30 días)");
             await ShowInfoAsync("Error cargando partes. Revisa app.log.");
         }
     }

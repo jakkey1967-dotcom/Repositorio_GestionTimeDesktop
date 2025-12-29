@@ -50,8 +50,6 @@ public partial class App : Application
     {
         InitializeComponent();
 
-      
-
         // Lee appsettings.json si existe (sin paquetes extra)
         var settings = LoadAppSettings();
 
@@ -61,24 +59,41 @@ public partial class App : Application
 
         Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
 
-
+        // ===== SISTEMA DE LOGGING OPTIMIZADO =====
         LogFactory = LoggerFactory.Create(builder =>
         {
-            builder.SetMinimumLevel(LogLevel.Debug);
-            builder.AddProvider(new DebugFileLoggerProvider(logPath));
+            #if DEBUG
+                builder.SetMinimumLevel(LogLevel.Debug);
+            #else
+                builder.SetMinimumLevel(LogLevel.Information);
+            #endif
+            
+            // Logger unificado con rotación automática
+            // Solo uno para evitar duplicación de archivos
+            builder.AddProvider(new RotatingFileLoggerProvider(
+                logPath,
+                maxFileSize: 10_000_000,  // 10MB
+                maxFiles: 5               // 5 archivos históricos
+            ));
         });
 
         Log = LogFactory.CreateLogger("GestionTime");
+
+        // Inicializar loggers especializados
+        SpecializedLoggers.Initialize(LogFactory);
+
+        #if DEBUG
+            Log.LogInformation("🛠️ MODO DEBUG: Logging verboso activado");
+        #else
+            Log.LogInformation("🏭 MODO RELEASE: Logging optimizado para producción");
+        #endif
+
+        Log.LogInformation("📊 Sistema de logging inicializado - Rotación: 10MB/5 archivos");
         Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-
-
 
         var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
         var loginPath = settings.LoginPath ?? "/api/v1/auth/login";
         PartesPath = settings.PartesPath ?? PartesPath;
-        //ClientesPath = settings.ClientesPath ?? ClientesPath;
-        //GruposPath   = settings.GruposPath   ?? GruposPath;
-        //TiposPath    = settings.TiposPath    ?? TiposPath;
 
         Api = new ApiClient(baseUrl, loginPath, Log);
 

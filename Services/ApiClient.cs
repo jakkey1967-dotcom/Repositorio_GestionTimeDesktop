@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using GestionTime.Desktop.Diagnostics;
 
 namespace GestionTime.Desktop.Services
 {
@@ -195,7 +196,9 @@ namespace GestionTime.Desktop.Services
             path = NormalizePath(path);
 
             var sw = Stopwatch.StartNew();
-            _log.LogInformation("HTTP GET {url}", path);
+            using var performanceScope = PerformanceLogger.BeginScope(SpecializedLoggers.Api, $"GET {path}");
+            
+            SpecializedLoggers.Api.LogInformation("HTTP GET {url}", path);
 
             try
             {
@@ -203,11 +206,11 @@ namespace GestionTime.Desktop.Services
                 var body = await resp.Content.ReadAsStringAsync(ct);
 
                 sw.Stop();
-                _log.LogInformation("HTTP GET {url} -> {code} en {ms}ms", path, (int)resp.StatusCode, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogInformation("HTTP GET {url} -> {code} en {ms}ms", path, (int)resp.StatusCode, sw.ElapsedMilliseconds);
 
                 if (!resp.IsSuccessStatusCode)
                 {
-                    _log.LogWarning("HTTP GET {url} ERROR {code}. Body: {body}", path, (int)resp.StatusCode, Trim(body, 1200));
+                    SpecializedLoggers.Api.LogWarning("HTTP GET {url} ERROR {code}. Body: {body}", path, (int)resp.StatusCode, LogSanitizer.Truncate(body, 1200));
                     
                     // Extraer mensaje de error del servidor
                     var (message, error) = ExtractErrorFromBody(body);
@@ -216,7 +219,7 @@ namespace GestionTime.Desktop.Services
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
-                    _log.LogWarning("HTTP GET {url} devolvió body vacío - retornando default", path);
+                    SpecializedLoggers.Api.LogWarning("HTTP GET {url} devolvió body vacío - retornando default", path);
                     return default;
                 }
 
@@ -227,14 +230,14 @@ namespace GestionTime.Desktop.Services
                     // Log si el resultado es null pero el body no estaba vacío
                     if (result == null && !string.IsNullOrWhiteSpace(body))
                     {
-                        _log.LogWarning("HTTP GET {url} deserialización resultó en null. Body: {body}", path, Trim(body, 500));
+                        SpecializedLoggers.Api.LogWarning("HTTP GET {url} deserialización resultó en null. Body: {body}", path, LogSanitizer.Truncate(body, 500));
                     }
                     
                     return result;
                 }
                 catch (JsonException jsonEx)
                 {
-                    _log.LogError(jsonEx, "HTTP GET {url} error deserializando JSON. Body: {body}", path, Trim(body, 1000));
+                    SpecializedLoggers.Api.LogError(jsonEx, "HTTP GET {url} error deserializando JSON. Body: {body}", path, LogSanitizer.Truncate(body, 1000));
                     
                     // Retornar default en lugar de lanzar excepción para mantener la aplicación funcionando
                     return default;
@@ -248,19 +251,19 @@ namespace GestionTime.Desktop.Services
             catch (HttpRequestException httpEx)
             {
                 sw.Stop();
-                _log.LogError(httpEx, "HTTP GET {url} error de conexión tras {ms}ms. Verifica conectividad de red y URL del servidor.", path, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogError(httpEx, "HTTP GET {url} error de conexión tras {ms}ms. Verifica conectividad de red y URL del servidor.", path, sw.ElapsedMilliseconds);
                 throw new Exception($"Error de conexión al servidor: {httpEx.Message}. Verifica que la API esté accesible en {BaseUrl}", httpEx);
             }
             catch (TaskCanceledException timeoutEx)
             {
                 sw.Stop();
-                _log.LogError(timeoutEx, "HTTP GET {url} timeout tras {ms}ms", path, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogError(timeoutEx, "HTTP GET {url} timeout tras {ms}ms", path, sw.ElapsedMilliseconds);
                 throw new Exception($"Tiempo de espera agotado conectando al servidor. La API puede estar lenta o inaccesible.", timeoutEx);
             }
             catch (Exception ex)
             {
                 sw.Stop();
-                _log.LogError(ex, "HTTP GET {url} EXCEPTION tras {ms}ms", path, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogError(ex, "HTTP GET {url} EXCEPTION tras {ms}ms", path, sw.ElapsedMilliseconds);
                 throw;
             }
         }
@@ -273,7 +276,9 @@ namespace GestionTime.Desktop.Services
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var sw = Stopwatch.StartNew();
-            _log.LogInformation("HTTP POST {url} Payload: {payload}", path, SafePayloadForLog(json));
+            using var performanceScope = PerformanceLogger.BeginScope(SpecializedLoggers.Api, $"POST {path}");
+            
+            SpecializedLoggers.Api.LogInformation("HTTP POST {url} Payload: {payload}", path, LogSanitizer.SanitizeJson(json));
 
             try
             {
@@ -281,11 +286,11 @@ namespace GestionTime.Desktop.Services
                 var body = await resp.Content.ReadAsStringAsync(ct);
 
                 sw.Stop();
-                _log.LogInformation("HTTP POST {url} -> {code} en {ms}ms", path, (int)resp.StatusCode, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogInformation("HTTP POST {url} -> {code} en {ms}ms", path, (int)resp.StatusCode, sw.ElapsedMilliseconds);
 
                 if (!resp.IsSuccessStatusCode)
                 {
-                    _log.LogWarning("HTTP POST {url} ERROR {code}. Body: {body}", path, (int)resp.StatusCode, Trim(body, 1200));
+                    SpecializedLoggers.Api.LogWarning("HTTP POST {url} ERROR {code}. Body: {body}", path, (int)resp.StatusCode, LogSanitizer.Truncate(body, 1200));
                     
                     // Extraer mensaje de error del servidor
                     var (message, error) = ExtractErrorFromBody(body);
@@ -294,7 +299,7 @@ namespace GestionTime.Desktop.Services
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
-                    _log.LogWarning("HTTP POST {url} devolvió body vacío - retornando default", path);
+                    SpecializedLoggers.Api.LogWarning("HTTP POST {url} devolvió body vacío - retornando default", path);
                     return default;
                 }
 
@@ -305,14 +310,14 @@ namespace GestionTime.Desktop.Services
                     // Log si el resultado es null pero el body no estaba vacío
                     if (result == null && !string.IsNullOrWhiteSpace(body))
                     {
-                        _log.LogWarning("HTTP POST {url} deserialización resultó en null. Body: {body}", path, Trim(body, 500));
+                        SpecializedLoggers.Api.LogWarning("HTTP POST {url} deserialización resultó en null. Body: {body}", path, LogSanitizer.Truncate(body, 500));
                     }
                     
                     return result;
                 }
                 catch (JsonException jsonEx)
                 {
-                    _log.LogError(jsonEx, "HTTP POST {url} error deserializando JSON. Body: {body}", path, Trim(body, 1000));
+                    SpecializedLoggers.Api.LogError(jsonEx, "HTTP POST {url} error deserializando JSON. Body: {body}", path, LogSanitizer.Truncate(body, 1000));
                     
                     // Retornar default en lugar de lanzar excepción para mantener la aplicación funcionando
                     return default;
@@ -326,19 +331,19 @@ namespace GestionTime.Desktop.Services
             catch (HttpRequestException httpEx)
             {
                 sw.Stop();
-                _log.LogError(httpEx, "HTTP POST {url} error de conexión tras {ms}ms. Verifica conectividad de red y URL del servidor.", path, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogError(httpEx, "HTTP POST {url} error de conexión tras {ms}ms. Verifica conectividad de red y URL del servidor.", path, sw.ElapsedMilliseconds);
                 throw new Exception($"Error de conexión al servidor: {httpEx.Message}. Verifica que la API esté accesible en {BaseUrl}", httpEx);
             }
             catch (TaskCanceledException timeoutEx)
             {
                 sw.Stop();
-                _log.LogError(timeoutEx, "HTTP POST {url} timeout tras {ms}ms", path, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogError(timeoutEx, "HTTP POST {url} timeout tras {ms}ms", path, sw.ElapsedMilliseconds);
                 throw new Exception($"Tiempo de espera agotado conectando al servidor. La API puede estar lenta o inaccesible.", timeoutEx);
             }
             catch (Exception ex)
             {
                 sw.Stop();
-                _log.LogError(ex, "HTTP POST {url} EXCEPTION tras {ms}ms", path, sw.ElapsedMilliseconds);
+                SpecializedLoggers.Api.LogError(ex, "HTTP POST {url} EXCEPTION tras {ms}ms", path, sw.ElapsedMilliseconds);
                 throw;
             }
         }
