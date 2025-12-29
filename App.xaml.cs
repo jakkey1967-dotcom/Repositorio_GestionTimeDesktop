@@ -108,6 +108,48 @@ public partial class App : Application
             Log.LogInformation("📊 Sistema de logging inicializado - Rotación: 10MB/5 archivos");
             Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
+            #if DEBUG
+            // Ejecutar pruebas automáticas del sistema de logging
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(1000); // Esperar a que el sistema esté completamente inicializado
+                
+                try
+                {
+                    Log.LogInformation("🧪 INICIANDO PRUEBAS AUTOMÁTICAS DEL SISTEMA DE LOGGING");
+                    
+                    var testResult = await LoggingTestUtilities.RunLoggingTestAsync(Log);
+                    var fileResult = LoggingTestUtilities.VerifyLogFiles(Log);
+                    
+                    Log.LogInformation("📊 RESULTADO DE PRUEBAS: {PassedTests}/{TotalTests} pruebas pasadas ({SuccessRate:F1}%)",
+                        testResult.PassedTests, testResult.TotalTests, testResult.SuccessRate);
+                    
+                    if (fileResult.Success)
+                    {
+                        Log.LogInformation("📁 ARCHIVOS DE LOG: {LogFiles} encontrados en {Directory}, {Recent} recientes",
+                            fileResult.LogFilesFound, fileResult.LogDirectory, fileResult.RecentLogFiles);
+                    }
+                    
+                    if (testResult.OverallSuccess && fileResult.Success)
+                    {
+                        Log.LogInformation("✅ SISTEMA DE LOGGING: FUNCIONANDO CORRECTAMENTE");
+                    }
+                    else
+                    {
+                        Log.LogWarning("⚠️ SISTEMA DE LOGGING: Algunos tests fallaron");
+                        if (!string.IsNullOrEmpty(testResult.ErrorMessage))
+                        {
+                            Log.LogError("Error en pruebas: {Error}", testResult.ErrorMessage);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError(ex, "❌ Error ejecutando pruebas automáticas del sistema de logging");
+                }
+            });
+            #endif
+
             var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
             var loginPath = settings.LoginPath ?? "/api/v1/auth/login";
             PartesPath = settings.PartesPath ?? PartesPath;
