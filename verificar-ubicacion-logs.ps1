@@ -2,6 +2,7 @@
 # VERIFICADOR DE UBICACIÓN DE LOGS - GESTIONTIME DESKTOP  
 # Fecha: 29/12/2025
 # Propósito: Encontrar y verificar archivos de log actuales
+# Configuración: C:\GestionTime\GestionTime.Desktop\logs\ (principal)
 # ================================================================
 
 Write-Host "================================================================" -ForegroundColor Cyan
@@ -9,14 +10,13 @@ Write-Host "   ?? VERIFICADOR DE UBICACIÓN DE LOGS" -ForegroundColor Cyan
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Rutas de búsqueda comunes
+# Rutas de búsqueda comunes - UNIFICADAS CON CONFIGURACIÓN DEL PROYECTO
 $searchPaths = @(
-    "C:\Logs\GestionTime",
+    "C:\GestionTime\GestionTime.Desktop\logs",                                    # ? PRINCIPAL: Configuración del proyecto
     "C:\GestionTime\GestionTime.Desktop\bin\Debug\net8.0-windows10.0.19041.0\logs",
     "C:\GestionTime\GestionTime.Desktop\bin\Release\net8.0-windows10.0.19041.0\logs", 
     "$env:LOCALAPPDATA\Packages\*GestionTime*\LocalState\logs",
-    "$env:TEMP\GestionTime\logs",
-    "C:\GestionTime\GestionTime.Desktop\logs"
+    "$env:TEMP\GestionTime\logs"
 )
 
 Write-Host "?? BUSCANDO ARCHIVOS DE LOG EN RUTAS COMUNES..." -ForegroundColor Yellow
@@ -205,6 +205,11 @@ Write-Host ""
 Write-Host "?? DOCUMENTACIÓN RELACIONADA:" -ForegroundColor Cyan
 Write-Host "   • Helpers/DIAGNOSTICO_CONFIGURACION_LOGS.md" -ForegroundColor Gray
 Write-Host "   • Helpers/OPTIMIZACION_LOGGING_INMEDIATA.md" -ForegroundColor Gray
+Write-Host ""
+Write-Host "?? CONFIGURACIÓN UNIFICADA:" -ForegroundColor Cyan
+Write-Host "   • Proyecto: C:\GestionTime\GestionTime.Desktop\logs\" -ForegroundColor Green
+Write-Host "   • appsettings.json: logs\app.log (relativa)" -ForegroundColor Gray
+Write-Host "   • Resultado: AppContext.BaseDirectory + logs\app.log" -ForegroundColor Gray
 Write-Host ""
 
 Read-Host "Presiona Enter para finalizar"

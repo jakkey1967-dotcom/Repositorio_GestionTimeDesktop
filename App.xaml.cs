@@ -54,7 +54,9 @@ public partial class App : Application
         var settings = LoadAppSettings();
 
         var logPath = !string.IsNullOrWhiteSpace(settings.LogPath)
-            ? settings.LogPath!
+            ? Path.IsPathRooted(settings.LogPath) 
+                ? settings.LogPath! 
+                : Path.Combine(AppContext.BaseDirectory, settings.LogPath!)
             : ResolveLogPath();
 
         Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
