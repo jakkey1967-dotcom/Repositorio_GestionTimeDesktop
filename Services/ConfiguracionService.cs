@@ -1,6 +1,8 @@
 using GestionTime.Desktop.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -12,6 +14,17 @@ public class ConfiguracionService
     private readonly ApplicationDataContainer _localSettings;
     private ConfiguracionModel _configuracion;
     private static readonly Lazy<ConfiguracionService> _instance = new(() => new ConfiguracionService());
+    
+    // ?? CONFIGURACIÓN DE LOGS
+    private const long MaxLogFileSizeBytes = 10 * 1024 * 1024; // 10 MB por defecto
+    private const int MaxLogFiles = 5; // Mantener máximo 5 archivos rotados
+    
+    // ?? Nombres de archivos de log
+    public const string MainLogFileName = "app.log";
+    public const string DebugLogFileName = "debug.log";
+    public const string HttpLogFileName = "http.log";
+    public const string ErrorLogFileName = "errors.log";
+    public const string PerformanceLogFileName = "performance.log";
 
     public static ConfiguracionService Instance => _instance.Value;
 
@@ -40,6 +53,9 @@ public class ConfiguracionService
             // 2. SOBRESCRIBIR CON CONFIGURACIÓN DE USUARIO (si existe)
             LoadFromUserSettings(config);
 
+            // 3. VALIDAR Y NORMALIZAR CONFIGURACIÓN
+            NormalizeConfiguration(config);
+
             // Subscribe to property changes
             config.PropertyChanged += OnConfigPropertyChanged;
 
@@ -47,8 +63,7 @@ public class ConfiguracionService
         }
         catch (Exception ex)
         {
-            // Log error and return default configuration
-            System.Diagnostics.Debug.WriteLine($"Error loading configuration: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"? Error loading configuration: {ex.Message}");
             return config;
         }
     }
@@ -57,76 +72,87 @@ public class ConfiguracionService
     {
         try
         {
-            // Leer appsettings.json desde la carpeta de la aplicación
             var appPath = System.AppDomain.CurrentDomain.BaseDirectory;
             var settingsPath = Path.Combine(appPath, "appsettings.json");
 
-            if (File.Exists(settingsPath))
+            if (!File.Exists(settingsPath))
             {
-                var jsonContent = File.ReadAllText(settingsPath);
-                using var document = JsonDocument.Parse(jsonContent);
-                var root = document.RootElement;
-
-                // Configuración de Logging
-                if (root.TryGetProperty("Logging", out var loggingSection))
-                {
-                    if (loggingSection.TryGetProperty("logPath", out var logPathProp))
-                    {
-                        var fullPath = logPathProp.GetString();
-                        if (!string.IsNullOrEmpty(fullPath))
-                        {
-                            // Extraer directorio de la ruta completa
-                            config.LogPath = Path.GetDirectoryName(fullPath) ?? config.LogPath;
-                        }
-                    }
-                }
-
-                // Configuración de GestionTime
-                if (root.TryGetProperty("GestionTime", out var gestionTimeSection))
-                {
-                    if (gestionTimeSection.TryGetProperty("EnableDebugLogs", out var enableDebug))
-                    {
-                        config.EnableLogging = enableDebug.GetBoolean();
-                        config.LogLevel = enableDebug.GetBoolean() ? LogLevel.Debug : LogLevel.Warning;
-                    }
-
-                    if (gestionTimeSection.TryGetProperty("LogDirectory", out var logDir))
-                    {
-                        var logDirectory = logDir.GetString();
-                        if (!string.IsNullOrEmpty(logDirectory))
-                        {
-                            config.LogPath = logDirectory.TrimEnd('\\');
-                        }
-                    }
-
-                    if (gestionTimeSection.TryGetProperty("MaxFileSizeMB", out var maxSize))
-                    {
-                        // Usar para configuración de rotación
-                        config.LogRotation = LogRotation.BySize;
-                    }
-
-                    if (gestionTimeSection.TryGetProperty("RetainedFileCountLimit", out var retainCount))
-                    {
-                        // Convertir a días aproximados (5 archivos ? 5 días)
-                        config.LogRetentionDays = retainCount.GetInt32();
-                    }
-                }
-
-                // Configuración de API
-                if (root.TryGetProperty("Api", out var apiSection))
-                {
-                    if (apiSection.TryGetProperty("BaseUrl", out var baseUrl))
-                    {
-                        var url = baseUrl.GetString();
-                        if (!string.IsNullOrEmpty(url))
-                        {
-                            config.ApiUrl = url;
-                        }
-                    }
-                }
-
-                System.Diagnostics.Debug.WriteLine($"? Configuración cargada desde appsettings.json: LogPath={config.LogPath}, ApiUrl={config.ApiUrl}");
+                System.Diagnostics.Debug.WriteLine("?? appsettings.json no encontrado - usando valores por defecto");
+                return;
             }
+
+            var jsonContent = File.ReadAllText(settingsPath);
+            using var document = JsonDocument.Parse(jsonContent);
+            var root = document.RootElement;
+
+            // ?? Configuración de Logging
+            if (root.TryGetProperty("Logging", out var loggingSection))
+            {
+                if (loggingSection.TryGetProperty("LogPath", out var logPathProp))
+                {
+                    var logPath = logPathProp.GetString();
+                    if (!string.IsNullOrEmpty(logPath))
+                    {
+                        // Si es una ruta completa con archivo, extraer solo el directorio
+                        config.LogPath = logPath.EndsWith(".log") 
+                            ? Path.GetDirectoryName(logPath) ?? config.LogPath
+                            : logPath;
+                    }
+                }
+            }
+
+            // ?? Configuración de GestionTime
+            if (root.TryGetProperty("GestionTime", out var gestionTimeSection))
+            {
+                if (gestionTimeSection.TryGetProperty("EnableDebugLogs", out var enableDebug))
+                {
+                    config.LogDebug = enableDebug.GetBoolean();
+                }
+
+                if (gestionTimeSection.TryGetProperty("EnableHttpLogs", out var enableHttp))
+                {
+                    config.LogHttp = enableHttp.GetBoolean();
+                }
+
+                if (gestionTimeSection.TryGetProperty("EnableErrorLogs", out var enableErrors))
+                {
+                    config.LogErrors = enableErrors.GetBoolean();
+                }
+
+                if (gestionTimeSection.TryGetProperty("LogDirectory", out var logDir))
+                {
+                    var logDirectory = logDir.GetString();
+                    if (!string.IsNullOrEmpty(logDirectory))
+                    {
+                        config.LogPath = logDirectory.TrimEnd('\\', '/');
+                    }
+                }
+
+                if (gestionTimeSection.TryGetProperty("MaxFileSizeMB", out var maxSize))
+                {
+                    config.LogRotation = LogRotation.BySize;
+                }
+
+                if (gestionTimeSection.TryGetProperty("RetainedFileCountLimit", out var retainCount))
+                {
+                    config.LogRetentionDays = retainCount.GetInt32();
+                }
+            }
+
+            // ?? Configuración de API
+            if (root.TryGetProperty("Api", out var apiSection))
+            {
+                if (apiSection.TryGetProperty("BaseUrl", out var baseUrl))
+                {
+                    config.ApiUrl = baseUrl.GetString() ?? config.ApiUrl;
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"?? Configuración cargada desde appsettings.json");
+            System.Diagnostics.Debug.WriteLine($"   ?? LogPath: {config.LogPath}");
+            System.Diagnostics.Debug.WriteLine($"   ?? LogDebug: {config.LogDebug}");
+            System.Diagnostics.Debug.WriteLine($"   ?? LogHttp: {config.LogHttp}");
+            System.Diagnostics.Debug.WriteLine($"   ?? ApiUrl: {config.ApiUrl}");
         }
         catch (Exception ex)
         {
@@ -138,7 +164,7 @@ public class ConfiguracionService
     {
         try
         {
-            // Connection Settings (solo sobrescribir si el usuario ha configurado algo)
+            // ?? Connection Settings
             if (_localSettings.Values.ContainsKey("ApiUrl"))
                 config.ApiUrl = GetSetting("ApiUrl", config.ApiUrl);
             
@@ -146,7 +172,7 @@ public class ConfiguracionService
             config.MaxRetries = GetSetting("MaxRetries", 3);
             config.IgnoreSSL = GetSetting("IgnoreSSL", true);
 
-            // Logging Settings (combinar con appsettings.json)
+            // ?? Logging Settings
             if (_localSettings.Values.ContainsKey("EnableLogging"))
                 config.EnableLogging = GetSetting("EnableLogging", config.EnableLogging);
             if (_localSettings.Values.ContainsKey("LogLevel"))
@@ -154,34 +180,59 @@ public class ConfiguracionService
             if (_localSettings.Values.ContainsKey("LogPath"))
                 config.LogPath = GetSetting("LogPath", config.LogPath);
             
+            // ?? Control granular de logs
             config.LogToFile = GetSetting("LogToFile", true);
-            config.LogHttp = GetSetting("LogHttp", false);
+            config.LogHttp = GetSetting("LogHttp", false); // HTTP OFF por defecto
             config.LogErrors = GetSetting("LogErrors", true);
-            config.LogDebug = GetSetting("LogDebug", config.LogLevel >= LogLevel.Debug);
-            config.LogRotation = (LogRotation)GetSetting("LogRotation", (int)config.LogRotation);
-            config.LogRetentionDays = GetSetting("LogRetentionDays", config.LogRetentionDays);
+            config.LogDebug = GetSetting("LogDebug", false); // Debug OFF por defecto
+            config.LogRotation = (LogRotation)GetSetting("LogRotation", (int)LogRotation.BySize);
+            config.LogRetentionDays = GetSetting("LogRetentionDays", 7);
 
-            // Application Settings
+            // ?? Application Settings
             config.AutoLogin = GetSetting("AutoLogin", false);
             config.StartMinimized = GetSetting("StartMinimized", false);
             config.MinimizeToTray = GetSetting("MinimizeToTray", false);
             config.AutoRefreshSeconds = GetSetting("AutoRefreshSeconds", 60);
             config.Theme = (AppTheme)GetSetting("Theme", (int)AppTheme.Auto);
 
-            // Debug Settings
+            // ?? Debug Settings
             config.DebugMode = GetSetting("DebugMode", false);
             config.ShowConsole = GetSetting("ShowConsole", false);
             config.DetailedErrors = GetSetting("DetailedErrors", true);
 
-            // Cache Settings
+            // ?? Cache Settings
             config.CacheTTLMinutes = GetSetting("CacheTTLMinutes", 5);
             config.MaxCacheItems = GetSetting("MaxCacheItems", 100);
 
-            System.Diagnostics.Debug.WriteLine($"? Configuración de usuario aplicada sobre configuración base");
+            System.Diagnostics.Debug.WriteLine($"? Configuración de usuario aplicada");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"?? Error cargando configuración de usuario: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Normaliza y valida la configuración
+    /// </summary>
+    private void NormalizeConfiguration(ConfiguracionModel config)
+    {
+        // Asegurar que LogPath no esté vacío
+        if (string.IsNullOrWhiteSpace(config.LogPath))
+        {
+            config.LogPath = GetDefaultLogPath();
+            System.Diagnostics.Debug.WriteLine($"?? LogPath vacío - usando por defecto: {config.LogPath}");
+        }
+
+        // Normalizar path (quitar barras al final)
+        config.LogPath = config.LogPath.TrimEnd('\\', '/');
+
+        // Validar que sea una ruta absoluta
+        if (!Path.IsPathRooted(config.LogPath))
+        {
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            config.LogPath = Path.Combine(localAppData, "GestionTime", config.LogPath);
+            System.Diagnostics.Debug.WriteLine($"?? Convertido a ruta absoluta: {config.LogPath}");
         }
     }
 
@@ -191,13 +242,15 @@ public class ConfiguracionService
         {
             var config = _configuracion;
 
-            // Connection Settings
+            System.Diagnostics.Debug.WriteLine("?? Iniciando guardado de configuración...");
+
+            // ?? Connection Settings
             SetSetting("ApiUrl", config.ApiUrl);
             SetSetting("TimeoutSeconds", config.TimeoutSeconds);
             SetSetting("MaxRetries", config.MaxRetries);
             SetSetting("IgnoreSSL", config.IgnoreSSL);
 
-            // Logging Settings
+            // ?? Logging Settings
             SetSetting("EnableLogging", config.EnableLogging);
             SetSetting("LogLevel", (int)config.LogLevel);
             SetSetting("LogPath", config.LogPath);
@@ -208,37 +261,417 @@ public class ConfiguracionService
             SetSetting("LogRotation", (int)config.LogRotation);
             SetSetting("LogRetentionDays", config.LogRetentionDays);
 
-            // Application Settings
+            // ?? Application Settings
             SetSetting("AutoLogin", config.AutoLogin);
             SetSetting("StartMinimized", config.StartMinimized);
             SetSetting("MinimizeToTray", config.MinimizeToTray);
             SetSetting("AutoRefreshSeconds", config.AutoRefreshSeconds);
             SetSetting("Theme", (int)config.Theme);
 
-            // Debug Settings
+            // ?? Debug Settings
             SetSetting("DebugMode", config.DebugMode);
             SetSetting("ShowConsole", config.ShowConsole);
             SetSetting("DetailedErrors", config.DetailedErrors);
 
-            // Cache Settings
+            // ?? Cache Settings
             SetSetting("CacheTTLMinutes", config.CacheTTLMinutes);
             SetSetting("MaxCacheItems", config.MaxCacheItems);
 
-            // Apply changes
+            // ?? Apply changes
             await ApplyConfigurationChanges();
 
-            // Sincronizar con appsettings.json
+            // ?? Sincronizar con appsettings.json
             await SaveToAppSettingsAsync();
 
-            // Notify listeners
+            // ?? Reconfigurar el logger con el nuevo path
+            var newLogPath = GetLogFilePath(MainLogFileName);
+            System.Diagnostics.Debug.WriteLine($"?? Reconfigurando logger: {newLogPath}");
+            App.ReconfigureLogger(newLogPath);
+
+            // ?? Notify listeners
             ConfiguracionChanged?.Invoke(this, new ConfiguracionChangedEventArgs(config));
+            
+            System.Diagnostics.Debug.WriteLine("? Configuración guardada exitosamente");
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"? Error guardando configuración: {ex.Message}");
             throw new InvalidOperationException($"Error saving configuration: {ex.Message}", ex);
         }
     }
 
+    private async Task ApplyConfigurationChanges()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(_configuracion.LogPath))
+            {
+                _configuracion.LogPath = GetDefaultLogPath();
+            }
+
+            // ?? Crear directorio de logs
+            Directory.CreateDirectory(_configuracion.LogPath);
+            System.Diagnostics.Debug.WriteLine($"? Directorio de logs: {_configuracion.LogPath}");
+
+            // ?? Limpiar logs antiguos si es necesario
+            await CleanupOldLogsAsync();
+
+            // ?? Rotar logs grandes
+            await RotateLogFilesAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"?? Error aplicando cambios: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Obtiene la ruta completa de un archivo de log
+    /// </summary>
+    public string GetLogFilePath(string logFileName)
+    {
+        return Path.Combine(_configuracion.LogPath, logFileName);
+    }
+
+    /// <summary>
+    /// Verifica si un archivo de log debe rotarse por tamaño
+    /// </summary>
+    public bool ShouldRotateLogFile(string logFileName)
+    {
+        if (_configuracion.LogRotation != LogRotation.BySize)
+            return false;
+
+        var filePath = GetLogFilePath(logFileName);
+        if (!File.Exists(filePath))
+            return false;
+
+        var fileInfo = new FileInfo(filePath);
+        var shouldRotate = fileInfo.Length >= MaxLogFileSizeBytes;
+        
+        if (shouldRotate)
+        {
+            System.Diagnostics.Debug.WriteLine($"?? {logFileName}: {fileInfo.Length / 1024 / 1024:F2} MB (límite: {MaxLogFileSizeBytes / 1024 / 1024} MB)");
+        }
+        
+        return shouldRotate;
+    }
+
+    /// <summary>
+    /// Rota un archivo de log cuando excede el tamaño máximo
+    /// </summary>
+    public async Task RotateLogFileAsync(string logFileName)
+    {
+        try
+        {
+            var filePath = GetLogFilePath(logFileName);
+            if (!File.Exists(filePath))
+                return;
+
+            var fileInfo = new FileInfo(filePath);
+            if (fileInfo.Length < MaxLogFileSizeBytes)
+                return;
+
+            System.Diagnostics.Debug.WriteLine($"?? Rotando archivo: {logFileName} ({fileInfo.Length / 1024 / 1024:F2} MB)");
+
+            // Renombrar archivo actual
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var backupFileName = $"{Path.GetFileNameWithoutExtension(logFileName)}_{timestamp}.log";
+            var backupPath = GetLogFilePath(backupFileName);
+
+            File.Move(filePath, backupPath);
+            System.Diagnostics.Debug.WriteLine($"? Archivo rotado: {backupFileName}");
+
+            // Limpiar archivos antiguos
+            await CleanupRotatedFilesAsync(logFileName);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"?? Error rotando {logFileName}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Rota todos los archivos de log que excedan el tamaño
+    /// </summary>
+    private async Task RotateLogFilesAsync()
+    {
+        var logFiles = new[] { MainLogFileName, DebugLogFileName, HttpLogFileName, ErrorLogFileName, PerformanceLogFileName };
+        
+        foreach (var logFile in logFiles)
+        {
+            if (ShouldRotateLogFile(logFile))
+            {
+                await RotateLogFileAsync(logFile);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Limpia archivos rotados antiguos, manteniendo solo los últimos N
+    /// </summary>
+    private async Task CleanupRotatedFilesAsync(string baseFileName)
+    {
+        try
+        {
+            var baseName = Path.GetFileNameWithoutExtension(baseFileName);
+            var directory = new DirectoryInfo(_configuracion.LogPath);
+            
+            if (!directory.Exists)
+                return;
+            
+            var rotatedFiles = directory.GetFiles($"{baseName}_*.log")
+                .OrderByDescending(f => f.LastWriteTime)
+                .ToList();
+
+            if (rotatedFiles.Count > MaxLogFiles)
+            {
+                var filesToDelete = rotatedFiles.Skip(MaxLogFiles);
+                foreach (var file in filesToDelete)
+                {
+                    try
+                    {
+                        file.Delete();
+                        System.Diagnostics.Debug.WriteLine($"??? Eliminado archivo antiguo: {file.Name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"?? No se pudo eliminar {file.Name}: {ex.Message}");
+                    }
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"?? Error limpiando archivos rotados: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Limpia logs antiguos basándose en la configuración de retención
+    /// </summary>
+    private async Task CleanupOldLogsAsync()
+    {
+        try
+        {
+            if (_configuracion.LogRetentionDays <= 0)
+                return;
+
+            var directory = new DirectoryInfo(_configuracion.LogPath);
+            if (!directory.Exists)
+                return;
+
+            var cutoffDate = DateTime.Now.AddDays(-_configuracion.LogRetentionDays);
+            var oldFiles = directory.GetFiles("*.log")
+                .Where(f => f.LastWriteTime < cutoffDate)
+                .ToList();
+
+            if (oldFiles.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"?? Limpiando {oldFiles.Count} archivos con más de {_configuracion.LogRetentionDays} días");
+            }
+
+            foreach (var file in oldFiles)
+            {
+                try
+                {
+                    file.Delete();
+                    System.Diagnostics.Debug.WriteLine($"??? Eliminado log antiguo: {file.Name}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"?? No se pudo eliminar {file.Name}: {ex.Message}");
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"?? Error limpiando logs antiguos: {ex.Message}");
+        }
+    }
+
+    public async Task SaveToAppSettingsAsync()
+    {
+        try
+        {
+            var appPath = System.AppDomain.CurrentDomain.BaseDirectory;
+            var settingsPath = Path.Combine(appPath, "appsettings.json");
+
+            // ?? LEER configuración existente primero
+            JsonDocument? existingDoc = null;
+            Dictionary<string, JsonElement>? apiSection = null;
+
+            if (File.Exists(settingsPath))
+            {
+                try
+                {
+                    var existingJson = await File.ReadAllTextAsync(settingsPath);
+                    existingDoc = JsonDocument.Parse(existingJson);
+                    
+                    // Preservar la sección Api completa si existe
+                    if (existingDoc.RootElement.TryGetProperty("Api", out var apiElement))
+                    {
+                        apiSection = new Dictionary<string, JsonElement>();
+                        foreach (var prop in apiElement.EnumerateObject())
+                        {
+                            apiSection[prop.Name] = prop.Value.Clone();
+                        }
+                        System.Diagnostics.Debug.WriteLine($"?? Preservando configuración de API existente con {apiSection.Count} propiedades");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"?? No se pudo leer appsettings.json existente: {ex.Message}");
+                }
+            }
+
+            // ?? Construir nueva configuración preservando Api
+            object appSettings;
+            
+            if (apiSection != null && apiSection.Count > 0)
+            {
+                // Reconstruir sección Api desde el JSON existente
+                var apiConfig = new Dictionary<string, object?>();
+                foreach (var kvp in apiSection)
+                {
+                    apiConfig[kvp.Key] = kvp.Value.ValueKind switch
+                    {
+                        JsonValueKind.String => kvp.Value.GetString(),
+                        JsonValueKind.Number => kvp.Value.GetInt32(),
+                        JsonValueKind.True => true,
+                        JsonValueKind.False => false,
+                        _ => kvp.Value.GetRawText()
+                    };
+                }
+
+                appSettings = new
+                {
+                    Logging = new
+                    {
+                        LogPath = _configuracion.LogPath
+                    },
+                    GestionTime = new
+                    {
+                        EnableDebugLogs = _configuracion.LogDebug,
+                        EnableHttpLogs = _configuracion.LogHttp,
+                        EnableErrorLogs = _configuracion.LogErrors,
+                        LogDirectory = _configuracion.LogPath,
+                        MaxFileSizeMB = (int)(MaxLogFileSizeBytes / 1024 / 1024),
+                        MaxLogFiles = MaxLogFiles,
+                        RetainedFileCountLimit = _configuracion.LogRetentionDays
+                    },
+                    Api = apiConfig
+                };
+            }
+            else
+            {
+                // Si no existe Api, usar solo BaseUrl como fallback
+                appSettings = new
+                {
+                    Logging = new
+                    {
+                        LogPath = _configuracion.LogPath
+                    },
+                    GestionTime = new
+                    {
+                        EnableDebugLogs = _configuracion.LogDebug,
+                        EnableHttpLogs = _configuracion.LogHttp,
+                        EnableErrorLogs = _configuracion.LogErrors,
+                        LogDirectory = _configuracion.LogPath,
+                        MaxFileSizeMB = (int)(MaxLogFileSizeBytes / 1024 / 1024),
+                        MaxLogFiles = MaxLogFiles,
+                        RetainedFileCountLimit = _configuracion.LogRetentionDays
+                    },
+                    Api = new
+                    {
+                        BaseUrl = _configuracion.ApiUrl
+                    }
+                };
+            }
+
+            var json = JsonSerializer.Serialize(appSettings, new JsonSerializerOptions 
+            { 
+                WriteIndented = true 
+            });
+
+            await File.WriteAllTextAsync(settingsPath, json, System.Text.Encoding.UTF8);
+            
+            existingDoc?.Dispose();
+            
+            System.Diagnostics.Debug.WriteLine($"? appsettings.json actualizado (API preservado)");
+            System.Diagnostics.Debug.WriteLine($"   ?? Debug Logs: {_configuracion.LogDebug}");
+            System.Diagnostics.Debug.WriteLine($"   ?? HTTP Logs: {_configuracion.LogHttp}");
+            System.Diagnostics.Debug.WriteLine($"   ?? Error Logs: {_configuracion.LogErrors}");
+            System.Diagnostics.Debug.WriteLine($"   ?? Max Size: {MaxLogFileSizeBytes / 1024 / 1024} MB");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"?? Error guardando appsettings.json: {ex.Message}");
+        }
+    }
+
+    private T GetSetting<T>(string key, T defaultValue)
+    {
+        try
+        {
+            if (_localSettings.Values.ContainsKey(key))
+            {
+                var value = _localSettings.Values[key];
+                
+                if (typeof(T) == typeof(bool) && value is bool boolValue)
+                    return (T)(object)boolValue;
+                
+                if (typeof(T) == typeof(int) && value is int intValue)
+                    return (T)(object)intValue;
+                
+                if (typeof(T) == typeof(string) && value is string strValue)
+                    return (T)(object)strValue;
+                
+                if (value is T directValue)
+                    return directValue;
+                
+                return (T)Convert.ChangeType(value, typeof(T));
+            }
+        }
+        catch { }
+        
+        return defaultValue;
+    }
+
+    private void SetSetting<T>(string key, T value)
+    {
+        _localSettings.Values[key] = value;
+    }
+
+    private string GetDefaultLogPath()
+    {
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Combine(localAppData, "GestionTime", "Logs");
+    }
+
+    private void OnConfigPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // Auto-save deshabilitado - solo guardar cuando el usuario lo solicite
+    }
+
+    public void ResetToDefaults()
+    {
+        try
+        {
+            _localSettings.Values.Clear();
+            _configuracion = LoadConfiguration();
+            System.Diagnostics.Debug.WriteLine("? Configuración restablecida a valores por defecto");
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Error resetting configuration: {ex.Message}", ex);
+        }
+    }
+
+    // ========== MÉTODOS PARA EXPORTAR/IMPORTAR ==========
     public async Task<string> ExportConfigurationAsync()
     {
         try
@@ -375,103 +808,6 @@ public class ConfiguracionService
         }
     }
 
-    public void ResetToDefaults()
-    {
-        try
-        {
-            // Clear all settings
-            _localSettings.Values.Clear();
-            
-            // Reload with defaults
-            _configuracion = LoadConfiguration();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Error resetting configuration: {ex.Message}", ex);
-        }
-    }
-
-    private T GetSetting<T>(string key, T defaultValue)
-    {
-        try
-        {
-            if (_localSettings.Values.ContainsKey(key))
-            {
-                var value = _localSettings.Values[key];
-                if (value is T directValue)
-                    return directValue;
-                
-                return (T)Convert.ChangeType(value, typeof(T));
-            }
-        }
-        catch
-        {
-            // Return default on any conversion error
-        }
-        
-        return defaultValue;
-    }
-
-    private void SetSetting<T>(string key, T value)
-    {
-        _localSettings.Values[key] = value;
-    }
-
-    private string GetDefaultLogPath()
-    {
-        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Combine(localAppData, "GestionTime", "Logs");
-    }
-
-    private void OnConfigPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        // Auto-save on property change (optional)
-        // await SaveConfigurationAsync();
-    }
-
-    private async Task ApplyConfigurationChanges()
-    {
-        try
-        {
-            // Apply API client settings
-            if (App.Api != null)
-            {
-                // Update ApiClient with new settings
-                // This would require modifying your ApiClient to accept configuration
-            }
-
-            // Apply logging settings - CREAR DIRECTORIO INMEDIATAMENTE
-            if (!string.IsNullOrEmpty(_configuracion.LogPath))
-            {
-                try
-                {
-                    // Crear directorio si no existe
-                    Directory.CreateDirectory(_configuracion.LogPath);
-                    
-                    // Crear directorio para subdirectorios de logs si es necesario
-                    var testFile = Path.Combine(_configuracion.LogPath, "test_write_permissions.tmp");
-                    await File.WriteAllTextAsync(testFile, "test");
-                    File.Delete(testFile);
-                    
-                    System.Diagnostics.Debug.WriteLine($"?? Directorio de logs creado/verificado: {_configuracion.LogPath}");
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"? Error creando directorio de logs: {ex.Message}");
-                    // Si falla, usar directorio por defecto
-                    _configuracion.LogPath = GetDefaultLogPath();
-                    Directory.CreateDirectory(_configuracion.LogPath);
-                }
-            }
-
-            await Task.CompletedTask;
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error applying configuration changes: {ex.Message}");
-        }
-    }
-
     public async Task CreateLogDirectoryAsync(string logPath)
     {
         try
@@ -485,7 +821,7 @@ public class ConfiguracionService
 
             // Crear directorio principal
             Directory.CreateDirectory(logPath);
-            System.Diagnostics.Debug.WriteLine($"?? Directorio creado/verificado: {logPath}");
+            System.Diagnostics.Debug.WriteLine($"? Directorio creado/verificado: {logPath}");
             
             // Verificar que el directorio realmente existe
             if (!Directory.Exists(logPath))
@@ -493,38 +829,19 @@ public class ConfiguracionService
                 throw new DirectoryNotFoundException($"El directorio no se pudo crear: {logPath}");
             }
 
-            // Verificar permisos de escritura con un archivo de prueba más detallado
-            var testFile = Path.Combine(logPath, $"test_permissions_{DateTime.Now:yyyyMMddHHmmss}_{Environment.TickCount}.tmp");
-            var testContent = $"PRUEBA DE PERMISOS - {DateTime.Now}\n" +
-                             $"Usuario: {Environment.UserName}\n" +
-                             $"Directorio: {logPath}\n" +
-                             $"Timestamp: {Environment.TickCount}\n";
-            
-            System.Diagnostics.Debug.WriteLine($"?? Creando archivo de prueba: {testFile}");
+            // Verificar permisos de escritura
+            var testFile = Path.Combine(logPath, $"test_permissions_{DateTime.Now:yyyyMMddHHmmss}.tmp");
             
             try
             {
-                await File.WriteAllTextAsync(testFile, testContent);
+                await File.WriteAllTextAsync(testFile, $"Test - {DateTime.Now}");
                 System.Diagnostics.Debug.WriteLine($"? Archivo de prueba escrito exitosamente");
                 
-                // Verificar que el archivo se creó
-                if (!File.Exists(testFile))
+                if (File.Exists(testFile))
                 {
-                    throw new UnauthorizedAccessException("El archivo de prueba no se pudo crear (verificación falló)");
+                    File.Delete(testFile);
+                    System.Diagnostics.Debug.WriteLine($"??? Archivo de prueba eliminado");
                 }
-                
-                // Leer el archivo para verificar permisos de lectura
-                var readContent = await File.ReadAllTextAsync(testFile);
-                if (string.IsNullOrEmpty(readContent))
-                {
-                    throw new UnauthorizedAccessException("No se pudo leer el archivo de prueba");
-                }
-                
-                System.Diagnostics.Debug.WriteLine($"? Archivo de prueba leído exitosamente ({readContent.Length} caracteres)");
-                
-                // Limpiar archivo de prueba
-                File.Delete(testFile);
-                System.Diagnostics.Debug.WriteLine($"??? Archivo de prueba eliminado");
             }
             catch (Exception fileEx)
             {
@@ -542,54 +859,6 @@ public class ConfiguracionService
         {
             System.Diagnostics.Debug.WriteLine($"? Error configurando directorio de logs: {ex.Message}");
             throw new InvalidOperationException($"Error configurando directorio de logs: {ex.Message}", ex);
-        }
-    }
-
-    public async Task SaveToAppSettingsAsync()
-    {
-        try
-        {
-            var appPath = System.AppDomain.CurrentDomain.BaseDirectory;
-            var settingsPath = Path.Combine(appPath, "appsettings.json");
-
-            // Crear estructura de configuración para appsettings.json
-            var appSettings = new
-            {
-                Logging = new
-                {
-                    logPath = Path.Combine(_configuracion.LogPath, "app.log")
-                },
-                GestionTime = new
-                {
-                    EnableDebugLogs = _configuracion.LogLevel >= LogLevel.Debug,
-                    LogDirectory = _configuracion.LogPath.EndsWith("\\") ? _configuracion.LogPath : _configuracion.LogPath + "\\",
-                    MaxFileSizeMB = _configuracion.LogRotation == LogRotation.BySize ? 10 : 50,
-                    RetainedFileCountLimit = _configuracion.LogRetentionDays
-                },
-                Api = new
-                {
-                    BaseUrl = _configuracion.ApiUrl,
-                    LoginPath = "/api/v1/auth/login",
-                    PartesPath = "/api/v1/partes", 
-                    ClientesPath = "/api/v1/catalog/clientes",
-                    GruposPath = "/api/v1/catalog/grupos",
-                    TiposPath = "/api/v1/catalog/tipos",
-                    MePath = "/api/v1/auth/me"
-                }
-            };
-
-            var json = JsonSerializer.Serialize(appSettings, new JsonSerializerOptions 
-            { 
-                WriteIndented = true 
-            });
-
-            await File.WriteAllTextAsync(settingsPath, json);
-            System.Diagnostics.Debug.WriteLine($"? Configuración sincronizada con appsettings.json");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"?? Error sincronizando appsettings.json: {ex.Message}");
-            // No lanzar excepción, solo registrar el error
         }
     }
 }

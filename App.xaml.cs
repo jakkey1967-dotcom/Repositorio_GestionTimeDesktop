@@ -52,6 +52,13 @@ public partial class App : Application
 
         // Lee appsettings.json si existe (sin paquetes extra)
         var settings = LoadAppSettings();
+        
+        // DEBUG: Log de configuración cargada
+        System.Diagnostics.Debug.WriteLine($"=== CONFIGURACIÓN DEBUG ===");
+        System.Diagnostics.Debug.WriteLine($"BaseDirectory: {AppContext.BaseDirectory}");
+        System.Diagnostics.Debug.WriteLine($"CurrentDirectory: {Environment.CurrentDirectory}");
+        System.Diagnostics.Debug.WriteLine($"settings.BaseUrl: '{settings.BaseUrl}'");
+        System.Diagnostics.Debug.WriteLine($"settings.LoginPath: '{settings.LoginPath}'");
 
         var logPath = !string.IsNullOrWhiteSpace(settings.LogPath)
             ? Path.IsPathRooted(settings.LogPath) 
@@ -64,9 +71,6 @@ public partial class App : Application
         {
             var logDir = Path.GetDirectoryName(logPath)!;
             Directory.CreateDirectory(logDir);
-            
-            // Test básico de escritura
-            File.WriteAllText(Path.Combine(logDir, "test_startup.txt"), $"Startup test at {DateTime.Now}");
         }
         catch (Exception ex)
         {
@@ -86,12 +90,8 @@ public partial class App : Application
                     builder.SetMinimumLevel(LogLevel.Information);
                 #endif
                 
-                // Logger unificado con rotación automática
-                builder.AddProvider(new RotatingFileLoggerProvider(
-                    logPath,
-                    maxFileSize: 10_000_000,  // 10MB
-                    maxFiles: 5               // 5 archivos históricos
-                ));
+                // TEMPORAL: Usar solo DebugFileLoggerProvider para debugging
+                builder.AddProvider(new DebugFileLoggerProvider(logPath));
             });
 
             Log = LogFactory.CreateLogger("GestionTime");
@@ -105,54 +105,18 @@ public partial class App : Application
                 Log.LogInformation("🏭 MODO RELEASE: Logging optimizado para producción");
             #endif
 
-            Log.LogInformation("📊 Sistema de logging inicializado - Rotación: 10MB/5 archivos");
+            Log.LogInformation("📊 Sistema de logging inicializado - TEMPORAL DEBUG VERSION");
             Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            #if DEBUG
-            // Ejecutar pruebas automáticas del sistema de logging
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(1000); // Esperar a que el sistema esté completamente inicializado
-                
-                try
-                {
-                    Log.LogInformation("🧪 INICIANDO PRUEBAS AUTOMÁTICAS DEL SISTEMA DE LOGGING");
-                    
-                    var testResult = await LoggingTestUtilities.RunLoggingTestAsync(Log);
-                    var fileResult = LoggingTestUtilities.VerifyLogFiles(Log);
-                    
-                    Log.LogInformation("📊 RESULTADO DE PRUEBAS: {PassedTests}/{TotalTests} pruebas pasadas ({SuccessRate:F1}%)",
-                        testResult.PassedTests, testResult.TotalTests, testResult.SuccessRate);
-                    
-                    if (fileResult.Success)
-                    {
-                        Log.LogInformation("📁 ARCHIVOS DE LOG: {LogFiles} encontrados en {Directory}, {Recent} recientes",
-                            fileResult.LogFilesFound, fileResult.LogDirectory, fileResult.RecentLogFiles);
-                    }
-                    
-                    if (testResult.OverallSuccess && fileResult.Success)
-                    {
-                        Log.LogInformation("✅ SISTEMA DE LOGGING: FUNCIONANDO CORRECTAMENTE");
-                    }
-                    else
-                    {
-                        Log.LogWarning("⚠️ SISTEMA DE LOGGING: Algunos tests fallaron");
-                        if (!string.IsNullOrEmpty(testResult.ErrorMessage))
-                        {
-                            Log.LogError("Error en pruebas: {Error}", testResult.ErrorMessage);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.LogError(ex, "❌ Error ejecutando pruebas automáticas del sistema de logging");
-                }
-            });
-            #endif
-
-            var baseUrl = settings.BaseUrl ?? "https://localhost:2501";
-            var loginPath = settings.LoginPath ?? "/api/v1/auth/login";
-            PartesPath = settings.PartesPath ?? PartesPath;
+            // TEMPORAL: Hardcode la URL para asegurar que no use localhost
+            var baseUrl = "https://gestiontimeapi.onrender.com";
+            var loginPath = "/api/v1/auth/login";
+            PartesPath = "/api/v1/partes";
+            
+            // DEBUG: Log de URLs forzadas
+            System.Diagnostics.Debug.WriteLine($"=== URLs HARDCODED ===");
+            System.Diagnostics.Debug.WriteLine($"baseUrl HARDCODED: '{baseUrl}'");
+            System.Diagnostics.Debug.WriteLine($"loginPath HARDCODED: '{loginPath}'");
 
             Api = new ApiClient(baseUrl, loginPath, Log);
 
@@ -168,6 +132,16 @@ public partial class App : Application
             // Crear logger básico como fallback
             LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug));
             Log = LogFactory.CreateLogger("GestionTime");
+            
+            // TEMPORAL: URLs hardcoded en fallback también
+            var baseUrl = "https://gestiontimeapi.onrender.com";
+            var loginPath = "/api/v1/auth/login";
+            
+            System.Diagnostics.Debug.WriteLine($"=== FALLBACK HARDCODED URLS ===");
+            System.Diagnostics.Debug.WriteLine($"baseUrl FALLBACK HARDCODED: '{baseUrl}'");
+            System.Diagnostics.Debug.WriteLine($"loginPath FALLBACK HARDCODED: '{loginPath}'");
+            
+            Api = new ApiClient(baseUrl, loginPath, Log);
         }
     }
 
@@ -182,6 +156,13 @@ public partial class App : Application
             Path.Combine(Environment.CurrentDirectory, "appsettings.json"),
         };
 
+        System.Diagnostics.Debug.WriteLine($"=== CARGANDO APPSETTINGS ===");
+        foreach (var candidate in candidates)
+        {
+            System.Diagnostics.Debug.WriteLine($"Probando: {candidate}");
+            System.Diagnostics.Debug.WriteLine($"Existe: {File.Exists(candidate)}");
+        }
+
         foreach (var file in candidates)
         {
             try
@@ -190,6 +171,8 @@ public partial class App : Application
                     continue;
 
                 var json = File.ReadAllText(file);
+                System.Diagnostics.Debug.WriteLine($"JSON leído desde {file}: {json}");
+                
                 using var doc = System.Text.Json.JsonDocument.Parse(json);
                 if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object)
                     continue;
@@ -214,19 +197,28 @@ public partial class App : Application
                 // compat: LogPath también en raíz
                 logPath ??= GetString(doc.RootElement, "LogPath");
 
-                return new AppSettings(
+                var result = new AppSettings(
                     BaseUrl: GetString(apiEl, "BaseUrl") ?? GetString(doc.RootElement, "BaseUrl"),
                     LoginPath: GetString(apiEl, "LoginPath") ?? GetString(doc.RootElement, "LoginPath"),
                     PartesPath: GetString(apiEl, "PartesPath") ?? GetString(doc.RootElement, "PartesPath"),
                     LogPath: logPath
                 );
+                
+                System.Diagnostics.Debug.WriteLine($"=== SETTINGS CARGADOS ===");
+                System.Diagnostics.Debug.WriteLine($"BaseUrl: '{result.BaseUrl}'");
+                System.Diagnostics.Debug.WriteLine($"LoginPath: '{result.LoginPath}'");
+                System.Diagnostics.Debug.WriteLine($"LogPath: '{result.LogPath}'");
+                
+                return result;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error cargando {file}: {ex.Message}");
                 // ignora y prueba siguiente
             }
         }
 
+        System.Diagnostics.Debug.WriteLine("=== NO SE ENCONTRÓ APPSETTINGS ===");
         return new AppSettings(null, null, null, null);
     }
 
@@ -295,5 +287,79 @@ public partial class App : Application
             Log.LogError(e.Exception, "UnobservedTaskException");
             e.SetObserved();
         };
+    }
+
+    // ===== RECONFIGURACIÓN DINÁMICA DEL LOGGER =====
+    /// <summary>
+    /// Reconfigura el sistema de logging con un nuevo path de archivo
+    /// </summary>
+    /// <param name="newLogPath">Ruta completa del nuevo archivo de log (incluyendo nombre de archivo)</param>
+    public static void ReconfigureLogger(string newLogPath)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"🔄 Reconfigurando logger con nuevo path: {newLogPath}");
+            
+            // Crear directorio si no existe
+            var logDir = Path.GetDirectoryName(newLogPath);
+            if (!string.IsNullOrWhiteSpace(logDir))
+            {
+                Directory.CreateDirectory(logDir);
+                System.Diagnostics.Debug.WriteLine($"📁 Directorio creado/verificado: {logDir}");
+            }
+            
+            // Disponer del LoggerFactory anterior
+            try
+            {
+                (LogFactory as IDisposable)?.Dispose();
+                System.Diagnostics.Debug.WriteLine("♻️ LoggerFactory anterior liberado");
+            }
+            catch (Exception disposeEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ Error liberando LoggerFactory: {disposeEx.Message}");
+            }
+            
+            // Recrear LoggerFactory con el nuevo path
+            LogFactory = LoggerFactory.Create(builder =>
+            {
+                #if DEBUG
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                #else
+                    builder.SetMinimumLevel(LogLevel.Information);
+                #endif
+                
+                builder.AddProvider(new DebugFileLoggerProvider(newLogPath));
+            });
+            
+            // Recrear logger principal
+            Log = LogFactory.CreateLogger("GestionTime");
+            
+            // Reinicializar loggers especializados
+            SpecializedLoggers.Initialize(LogFactory);
+            
+            System.Diagnostics.Debug.WriteLine($"✅ Logger reconfigurado exitosamente");
+            Log.LogInformation("═══════════════════════════════════════════════════════════════");
+            Log.LogInformation("🔄 SISTEMA DE LOGGING RECONFIGURADO");
+            Log.LogInformation("📁 Nuevo path de logs: {path}", newLogPath);
+            Log.LogInformation("⏰ Timestamp: {timestamp}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            Log.LogInformation("═══════════════════════════════════════════════════════════════");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ Error crítico reconfigurando logger: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Stack: {ex.StackTrace}");
+            
+            // Intentar crear un logger de emergencia
+            try
+            {
+                LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug));
+                Log = LogFactory.CreateLogger("GestionTime");
+                Log.LogError(ex, "Error reconfigurando logger - usando logger de emergencia");
+            }
+            catch
+            {
+                // Si todo falla, al menos tenemos el Debug.WriteLine
+            }
+        }
     }
 }

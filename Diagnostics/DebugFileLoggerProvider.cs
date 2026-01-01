@@ -13,11 +13,20 @@ public sealed class DebugFileLoggerProvider : ILoggerProvider
 
     public DebugFileLoggerProvider(string filePath)
     {
-        _filePath = filePath;
-
-        var dir = Path.GetDirectoryName(_filePath);
-        if (!string.IsNullOrWhiteSpace(dir))
-            Directory.CreateDirectory(dir);
+        // Si filePath es un directorio, crear un nombre de archivo
+        if (Directory.Exists(filePath) || (!File.Exists(filePath) && !Path.HasExtension(filePath)))
+        {
+            var directory = filePath;
+            Directory.CreateDirectory(directory);
+            _filePath = Path.Combine(directory, $"app-{DateTime.Now:yyyyMMdd}.log");
+        }
+        else
+        {
+            _filePath = filePath;
+            var dir = Path.GetDirectoryName(_filePath);
+            if (!string.IsNullOrWhiteSpace(dir))
+                Directory.CreateDirectory(dir);
+        }
     }
 
     public ILogger CreateLogger(string categoryName)
@@ -59,9 +68,16 @@ public sealed class DebugFileLoggerProvider : ILoggerProvider
             LogHub.Publish(line);
 
             // fichero
-            lock (_lock)
+            try
             {
-                File.AppendAllText(_filePath, line + Environment.NewLine, Encoding.UTF8);
+                lock (_lock)
+                {
+                    File.AppendAllText(_filePath, line + Environment.NewLine, Encoding.UTF8);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error escribiendo log a archivo: {ex.Message}");
             }
         }
     }
