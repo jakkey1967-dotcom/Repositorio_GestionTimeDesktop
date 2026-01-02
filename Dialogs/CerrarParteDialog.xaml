@@ -1,0 +1,318 @@
+﻿<ContentDialog
+    x:Class="GestionTime.Desktop.Dialogs.CerrarParteDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Cerrar Parte"
+    PrimaryButtonText="Cerrar"
+    CloseButtonText="Cancelar"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnPrimaryButtonClick"
+    CloseButtonClick="OnCloseButtonClick">
+
+    <ContentDialog.Resources>
+        <!-- Paleta de colores refinada -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#0FA7B6"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#14C5D6"/>
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#0C8A97"/>
+        
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="#252525"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#404040" Opacity="0.6"/>
+        
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="InputBorderBrush" Color="#505050" Opacity="0.55"/>
+        
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#B0B0B0"/>
+        <SolidColorBrush x:Key="TextTertiaryBrush" Color="#808080"/>
+        
+        <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
+        <SolidColorBrush x:Key="ErrorBrush" Color="#EF4444"/>
+        
+        <!-- Estilo para el botón primario con acento teal -->
+        <Style x:Key="AccentButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <!-- Estilo para el botón secundario -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="20,10"/>
+        </Style>
+    </ContentDialog.Resources>
+
+    <ContentDialog.Style>
+        <Style TargetType="ContentDialog">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+    </ContentDialog.Style>
+
+    <Grid Width="480" Padding="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Info del parte -->
+            <RowDefinition Height="12"/>   <!-- Separador reducido -->
+            <RowDefinition Height="Auto"/> <!-- Hora de cierre -->
+        </Grid.RowDefinitions>
+
+        <!-- ========================================== -->
+        <!-- CARD 1: INFORMACIÓN DEL PARTE (REFINADA) -->
+        <!-- ========================================== -->
+        <Border Grid.Row="0"
+                Background="{StaticResource CardBackgroundBrush}"
+                BorderBrush="{StaticResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="16">
+            <StackPanel Spacing="10">
+                <!-- Encabezado -->
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                    <FontIcon Glyph="&#xE8BC;" 
+                              FontSize="16" 
+                              Foreground="{StaticResource AccentBrush}"/>
+                    <TextBlock Text="Información del Parte"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AccentBrush}"/>
+                </StackPanel>
+
+                <!-- Grid de información compacto -->
+                <Grid ColumnSpacing="12" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Fecha -->
+                        <RowDefinition Height="Auto"/> <!-- Cliente -->
+                        <RowDefinition Height="Auto"/> <!-- Tienda -->
+                        <RowDefinition Height="Auto"/> <!-- Hora Inicio -->
+                        <RowDefinition Height="Auto"/> <!-- Detalles -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Fecha -->
+                    <FontIcon Grid.Row="0" Grid.Column="0"
+                              Glyph="&#xE787;"
+                              FontSize="14"
+                              Foreground="{StaticResource TextTertiaryBrush}"
+                              VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtFecha"
+                               Grid.Row="0" Grid.Column="1"
+                               Text="--/--/----"
+                               FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Cliente -->
+                    <FontIcon Grid.Row="1" Grid.Column="0"
+                              Glyph="&#xE77B;"
+                              FontSize="14"
+                              Foreground="{StaticResource TextTertiaryBrush}"
+                              VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtCliente"
+                               Grid.Row="1" Grid.Column="1"
+                               Text="(Sin cliente)"
+                               FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Tienda (opcional) -->
+                    <FontIcon x:Name="LblTienda"
+                              Grid.Row="2" Grid.Column="0"
+                              Glyph="&#xE8D1;"
+                              FontSize="14"
+                              Foreground="{StaticResource TextTertiaryBrush}"
+                              VerticalAlignment="Center"
+                              Visibility="Collapsed"/>
+                    <TextBlock x:Name="TxtTienda"
+                               Grid.Row="2" Grid.Column="1"
+                               Text=""
+                               FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               Visibility="Collapsed"/>
+
+                    <!-- Hora de Inicio (chip estilo) -->
+                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                Orientation="Horizontal" 
+                                Spacing="10"
+                                Margin="0,4,0,0">
+                        <FontIcon Glyph="&#xE823;"
+                                  FontSize="16"
+                                  Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="Inicio"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource InputBackgroundBrush}"
+                                BorderBrush="{StaticResource InputBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10,4">
+                            <TextBlock x:Name="TxtHoraInicio"
+                                       Text="--:--"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       FontFamily="Consolas"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Chips de detalles (compactos) -->
+                    <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                Margin="0,6,0,0">
+                        <!-- Ticket -->
+                        <Border x:Name="ChipTicket"
+                                Background="#2563EB"
+                                CornerRadius="10"
+                                Padding="8,3"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="TxtTicket"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+
+                        <!-- Grupo -->
+                        <Border x:Name="ChipGrupo"
+                                Background="#7C3AED"
+                                CornerRadius="10"
+                                Padding="8,3"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="TxtGrupo"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+
+                        <!-- Tipo -->
+                        <Border x:Name="ChipTipo"
+                                Background="#EA580C"
+                                CornerRadius="10"
+                                Padding="8,3"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="TxtTipo"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ========================================== -->
+        <!-- CARD 2: HORA DE CIERRE (REFINADA)         -->
+        <!-- ========================================== -->
+        <Border Grid.Row="2"
+                Background="{StaticResource CardBackgroundBrush}"
+                BorderBrush="{StaticResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="16">
+            <StackPanel Spacing="10">
+                <!-- Título -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE823;"
+                              FontSize="16"
+                              Foreground="{StaticResource AccentBrush}"/>
+                    <TextBlock Text="Hora de Cierre"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AccentBrush}"/>
+                </StackPanel>
+
+                <!-- Input + Botón "Ahora" -->
+                <Grid ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- TextBox hora de cierre -->
+                    <TextBox x:Name="TxtHoraCierre"
+                             Grid.Column="0"
+                             PlaceholderText="HH:mm"
+                             MaxLength="5"
+                             FontSize="15"
+                             FontFamily="Consolas"
+                             Padding="10,8"
+                             Background="{StaticResource InputBackgroundBrush}"
+                             BorderBrush="{StaticResource InputBorderBrush}"
+                             BorderThickness="1"
+                             CornerRadius="4"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Center"
+                             TextChanged="OnHoraCierreTextChanged"
+                             BeforeTextChanging="OnHoraCierreBeforeTextChanging"
+                             GotFocus="OnHoraCierreGotFocus"/>
+
+                    <!-- Botón "Ahora" con estilo acento -->
+                    <Button x:Name="BtnAhora"
+                            Grid.Column="1"
+                            Background="{StaticResource AccentBrush}"
+                            Foreground="White"
+                            Padding="16,8"
+                            FontWeight="SemiBold"
+                            BorderThickness="0"
+                            CornerRadius="4"
+                            VerticalAlignment="Stretch"
+                            Click="OnAhoraClick">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE823;" FontSize="14"/>
+                            <TextBlock Text="Ahora" FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- Texto de ayuda compacto -->
+                <TextBlock Text="Formato: HH:mm (ejemplo: 14:30)"
+                           FontSize="11"
+                           Foreground="{StaticResource TextTertiaryBrush}"
+                           Margin="0,2,0,0"/>
+
+                <!-- Mensaje de error COMPACTO -->
+                <StackPanel x:Name="ErrorBorder"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            Visibility="Collapsed"
+                            Margin="0,4,0,0">
+                    <FontIcon Glyph="&#xE783;"
+                              FontSize="12"
+                              Foreground="{StaticResource ErrorBrush}"/>
+                    <TextBlock x:Name="TxtError"
+                               Text="Formato de hora inválido"
+                               FontSize="11"
+                               Foreground="{StaticResource ErrorBrush}"/>
+                </StackPanel>
+
+                <!-- Mensaje de éxito COMPACTO (línea pequeña) -->
+                <StackPanel x:Name="SuccessBorder"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            Visibility="Collapsed"
+                            Margin="0,4,0,0">
+                    <FontIcon Glyph="&#xE73E;"
+                              FontSize="12"
+                              Foreground="{StaticResource SuccessBrush}"/>
+                    <TextBlock Text="Hora válida"
+                               FontSize="11"
+                               Foreground="{StaticResource SuccessBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</ContentDialog>

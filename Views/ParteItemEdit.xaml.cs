@@ -1,6 +1,7 @@
 ﻿using System;
 using GestionTime.Desktop.Models.Dtos;
 using GestionTime.Desktop.Helpers;
+using GestionTime.Desktop.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -81,12 +82,21 @@ public sealed partial class ParteItemEdit : Page
     // Flags para detectar si es la primera tecla después de recibir foco
     private bool _horaInicioFirstKey = false;
     private bool _horaFinFirstKey = false;
+    
+    // Sistema de timestamp automático para TxtAccion
+    private bool _suppressAccionTimestamp = false;
 
     public ParteItemEdit()
     {
         InitializeComponent();
         
-        App.Log?.LogInformation("?? ParteItemEdit constructor iniciado");
+        App.Log?.LogInformation("📝 ParteItemEdit constructor iniciado");
+        
+        // 🆕 NUEVO: Aplicar tema global
+        ThemeService.Instance.ApplyTheme(this);
+        
+        // 🆕 NUEVO: Suscribirse a cambios de tema globales
+        ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
         
         // Cargar información del usuario desde LocalSettings
         LoadUserInfo();
@@ -169,8 +179,8 @@ public sealed partial class ParteItemEdit : Page
         // Enter para navegar entre TextBox
         TxtTienda.KeyDown += OnTextBoxEnterKey;
         TxtHoraInicio.KeyDown += OnTextBoxEnterKey;
-        TxtHoraFin.KeyDown += OnTextBoxEnterKey;
-        TxtTicket.KeyDown += OnTextBoxEnterKey;
+		TxtHoraFin.KeyDown += OnTextBoxEnterKey;
+		TxtTicket.KeyDown += OnTextBoxEnterKey;
         
         // ComboBox: Enter para confirmar selección y avanzar
         CmbGrupo.KeyDown += OnComboBoxEnterKey;
@@ -290,8 +300,6 @@ public sealed partial class ParteItemEdit : Page
             { CmbTipo, "CmbTipo (ComboBox)" },
             { TxtDuracion, "TxtDuracion (TextBox ReadOnly)" },
             { TxtAccion, "TxtAccion (TextBox MultiLine)" },
-            { BtnCopiar, "BtnCopiar (Button)" },
-            { BtnPegar, "BtnPegar (Button)" },
             { BtnGuardar, "BtnGuardar (Button)" },
             { BtnCancelar, "BtnCancelar (Button)" },
             { BtnSalir, "BtnSalir (Button)" }
@@ -1071,7 +1079,6 @@ public sealed partial class ParteItemEdit : Page
         }
     }
 
-
     /// <summary>
     /// Mueve el foco al siguiente control según el orden de TabIndex
     /// </summary>
@@ -1113,13 +1120,11 @@ public sealed partial class ParteItemEdit : Page
             (CmbGrupo, CmbGrupo.TabIndex),
             (CmbTipo, CmbTipo.TabIndex),
             (TxtAccion, TxtAccion.TabIndex),
-            (BtnCopiar, BtnCopiar.TabIndex),
-            (BtnPegar, BtnPegar.TabIndex),
             (BtnGuardar, BtnGuardar.TabIndex),
             (BtnCancelar, BtnCancelar.TabIndex),
             (BtnSalir, BtnSalir.TabIndex)
         };
-        
+
         // Filtrar controles con TabIndex mayor al actual, ordenar y tomar el primero
         var nextControl = controls
             .Where(c => c.tabIndex > currentTabIndex && c.control.IsTabStop)
@@ -1144,6 +1149,195 @@ public sealed partial class ParteItemEdit : Page
         }
     }
 
+    private void OnAccionGotFocus(object sender, RoutedEventArgs e)
+    {
+        // Cuando TxtAccion recibe foco, simplemente posicionar el cursor
+        // No es necesario hacer nada especial aquí por ahora
+        App.Log?.LogDebug("? TxtAccion recibió foco");
+        
+        // Si el TextBox está vacío, insertar timestamp inicial
+        if (string.IsNullOrWhiteSpace(TxtAccion.Text))
+        {
+            InsertTimestampAtCursor();
+        }
+    }
+    
+    // ===================== TIMESTAMP AUTOMÁTICO EN ACCIÓN =====================
+    
+    /// <summary>
+    /// Intercepta teclas antes de que se procesen para manejar Enter y detectar inicio de línea
+    /// </summary>
+    private void OnAccionPreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (_suppressAccionTimestamp) return;
+        
+        var textBox = sender as TextBox;
+        if (textBox == null) return;
+        
+        // Interceptar Enter para añadir timestamp en nueva línea
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            e.Handled = true; // Prevenir comportamiento por defecto
+            
+            _suppressAccionTimestamp = true;
+            
+            var cursorPos = textBox.SelectionStart;
+            var text = textBox.Text ?? string.Empty;
+            
+            // Insertar salto de línea + timestamp
+            var timestamp = GetCurrentTimestamp();
+            var newText = text.Insert(cursorPos, "\r\n" + timestamp);
+            
+            textBox.Text = newText;
+            textBox.SelectionStart = cursorPos + 2 + timestamp.Length; // Posicionar después de "\r\nHH:mm "
+            
+            _suppressAccionTimestamp = false;
+            
+            App.Log?.LogDebug("? Enter en Acción - Timestamp insertado: {timestamp}", timestamp);
+            return;
+        }
+        
+        // Ctrl+Enter para guardar (comportamiento existente)
+        if (e.Key == Windows.System.VirtualKey.Enter && 
+            (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & 
+             Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down)
+        {
+            if (BtnGuardar.IsEnabled)
+            {
+                OnGuardarClick(sender, null);
+                e.Handled = true;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Se dispara cuando el texto está cambiando (antes de TextChanged)
+    /// Usado para detectar cuando el usuario empieza a escribir al inicio de una línea
+    /// </summary>
+    private void OnAccionTextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
+    {
+        if (_suppressAccionTimestamp) return;
+        
+        // Solo procesar si el cambio es por input del usuario (no programático)
+        if (!args.IsContentChanging) return;
+        
+        var cursorPos = sender.SelectionStart;
+        var text = sender.Text ?? string.Empty;
+        
+        // Verificar si estamos al inicio de una línea sin timestamp
+        if (IsAtStartOfLineWithoutTimestamp(text, cursorPos))
+        {
+            _suppressAccionTimestamp = true;
+            
+            // Insertar timestamp en la posición actual
+            var timestamp = GetCurrentTimestamp();
+            var lineStart = GetLineStartPosition(text, cursorPos);
+            
+            sender.Text = text.Insert(lineStart, timestamp);
+            sender.SelectionStart = lineStart + timestamp.Length;
+            
+            _suppressAccionTimestamp = false;
+            
+            App.Log?.LogDebug("? Inicio de línea sin timestamp - Insertado: {timestamp}", timestamp);
+        }
+    }
+    
+    /// <summary>
+    /// Inserta timestamp en la posición actual del cursor
+    /// </summary>
+    private void InsertTimestampAtCursor()
+    {
+        if (_suppressAccionTimestamp) return;
+        
+        _suppressAccionTimestamp = true;
+        
+        var timestamp = GetCurrentTimestamp();
+        var cursorPos = TxtAccion.SelectionStart;
+        var text = TxtAccion.Text ?? string.Empty;
+        
+        TxtAccion.Text = text.Insert(cursorPos, timestamp);
+        TxtAccion.SelectionStart = cursorPos + timestamp.Length;
+        
+        _suppressAccionTimestamp = false;
+        
+        App.Log?.LogDebug("? Timestamp insertado manualmente: {timestamp}", timestamp);
+    }
+    
+    /// <summary>
+    /// Obtiene el timestamp actual en formato "HH:mm "
+    /// </summary>
+    private string GetCurrentTimestamp()
+    {
+        return DateTime.Now.ToString("HH:mm") + " ";
+    }
+    
+    /// <summary>
+    /// Verifica si el cursor está al inicio de una línea sin timestamp
+    /// </summary>
+    private bool IsAtStartOfLineWithoutTimestamp(string text, int cursorPos)
+    {
+        if (string.IsNullOrEmpty(text)) return true;
+        
+        // Obtener el inicio de la línea actual
+        var lineStart = GetLineStartPosition(text, cursorPos);
+        
+        // Si estamos al inicio del texto
+        if (lineStart == 0 && cursorPos <= 6)
+        {
+            // Verificar si NO empieza con timestamp (patrón HH:mm)
+            return !HasTimestampAt(text, 0);
+        }
+        
+        // Si estamos al inicio de una línea después de un salto
+        if (lineStart > 0 && cursorPos == lineStart)
+        {
+            return !HasTimestampAt(text, lineStart);
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// Obtiene la posición de inicio de la línea actual
+    /// </summary>
+    private int GetLineStartPosition(string text, int cursorPos)
+    {
+        if (string.IsNullOrEmpty(text) || cursorPos == 0) return 0;
+        
+        // Buscar hacia atrás desde cursorPos hasta encontrar \n
+        for (int i = cursorPos - 1; i >= 0; i--)
+        {
+            if (text[i] == '\n')
+            {
+                return i + 1; // Retornar posición después del \n
+            }
+        }
+        
+        return 0; // Estamos en la primera línea
+    }
+    
+    /// <summary>
+    /// Verifica si hay un timestamp en la posición especificada
+    /// Formato esperado: "HH:mm " (5 caracteres + espacio)
+    /// </summary>
+    private bool HasTimestampAt(string text, int position)
+    {
+        if (string.IsNullOrEmpty(text)) return false;
+        if (position + 6 > text.Length) return false;
+        
+        var substring = text.Substring(position, 6);
+        
+        // Verificar patrón: DD:DD + espacio
+        if (substring.Length < 6) return false;
+        if (substring[2] != ':') return false;
+        if (substring[5] != ' ') return false;
+        
+        // Verificar que sean dígitos
+        return char.IsDigit(substring[0]) && 
+               char.IsDigit(substring[1]) && 
+               char.IsDigit(substring[3]) && 
+               char.IsDigit(substring[4]);
+    }
 
     public void SetParentWindow(Microsoft.UI.Xaml.Window window)
     {
@@ -1418,7 +1612,7 @@ public sealed partial class ParteItemEdit : Page
             {
                 // HoraFin vacío - usar hora actual como valor por defecto para partes nuevos
                 horaFin = Parte.Id > 0 ? "00:00" : DateTime.Now.ToString("HH:mm");
-                App.Log?.LogDebug("Parte sin hora_fin ? usando: {horaFin}", horaFin);
+                App.Log?.LogDebug("Parte sin hora_fin → usando: {horaFin}", horaFin);
             }
             else
             {
@@ -1441,7 +1635,7 @@ public sealed partial class ParteItemEdit : Page
             Parte.Tipo = CmbTipo.SelectedItem as string ?? string.Empty;
             
             App.Log?.LogInformation("---------------------------------------------------------------");
-            App.Log?.LogInformation("?? VALORES AL GUARDAR:");
+            App.Log?.LogInformation("🔧 VALORES AL GUARDAR:");
             App.Log?.LogInformation("   Cliente = '{cliente}'", Parte.Cliente);
             App.Log?.LogInformation("   Grupo = '{grupo}'", Parte.Grupo);
             App.Log?.LogInformation("   Tipo = '{tipo}'", Parte.Tipo);
@@ -1459,14 +1653,13 @@ public sealed partial class ParteItemEdit : Page
             var grupoId = grupoMatch?.Id_grupo;
             var tipoId = tipoMatch?.Id_tipo;
             
-            App.Log?.LogInformation("?? Mapeo de catálogos:");
-            App.Log?.LogInformation("   Cliente: '{nombre}' ? ID={id}", Parte.Cliente, clienteId);
-            App.Log?.LogInformation("   Grupo: '{nombre}' ? ID={id}", Parte.Grupo, grupoId?.ToString() ?? "(null)");
-            App.Log?.LogInformation("   Tipo: '{nombre}' ? ID={id}", Parte.Tipo, tipoId?.ToString() ?? "(null)");
+            App.Log?.LogInformation("📊 Mapeo de catálogos:");
+            App.Log?.LogInformation("   Cliente: '{nombre}' → ID={id}", Parte.Cliente, clienteId);
+            App.Log?.LogInformation("   Grupo: '{nombre}' → ID={id}", Parte.Grupo, grupoId?.ToString() ?? "null");
+            App.Log?.LogInformation("   Tipo: '{nombre}' → ID={id}", Parte.Tipo, tipoId?.ToString() ?? "null");
 
-            // IMPORTANTE: NO enviar estado al editar partes existentes
-            // El backend gestiona el estado automáticamente según las reglas de negocio
-            // Solo para partes NUEVOS no enviamos estado (el backend lo asigna como "Abierto")
+            // IMPORTANTE: Para partes NUEVOS, el backend debe asignar automáticamente estado=0 (Abierto)
+            // Para partes EXISTENTES, NO modificar el estado (el backend lo gestiona)
             var payload = new ParteRequest
             {
                 FechaTrabajo = Parte.Fecha.Date,
@@ -1477,34 +1670,112 @@ public sealed partial class ParteItemEdit : Page
                 IdGrupo = grupoId.HasValue && grupoId.Value > 0 ? grupoId : null,
                 IdTipo = tipoId.HasValue && tipoId.Value > 0 ? tipoId : null,
                 Accion = Parte.Accion,
-                Ticket = Parte.Ticket,
-                Estado = null  // No enviar estado - lo gestiona el backend
+                Ticket = Parte.Ticket
+                // ⚠️ NO enviar Estado - el backend lo gestiona automáticamente
             };
 
-            App.Log?.LogInformation("Guardando parte: HoraInicio={inicio}, HoraFin={fin}, Estado=null (gestionado por backend)", 
-                Parte.HoraInicio, Parte.HoraFin);
+            App.Log?.LogInformation("---------------------------------------------------------------");
+            App.Log?.LogInformation("💾 GUARDANDO PARTE:");
+            App.Log?.LogInformation("   • Es nuevo: {isNew}", Parte.Id == 0);
+            App.Log?.LogInformation("   • Fecha: {fecha}", Parte.Fecha.ToString("yyyy-MM-dd"));
+            App.Log?.LogInformation("   • Cliente: '{cliente}' (ID: {id})", Parte.Cliente, clienteId);
+            App.Log?.LogInformation("   • Tienda: '{tienda}'", Parte.Tienda);
+            App.Log?.LogInformation("   • HoraInicio: {inicio}", Parte.HoraInicio);
+            App.Log?.LogInformation("   • HoraFin: {fin}", Parte.HoraFin);
+            App.Log?.LogInformation("   • Acción: '{accion}'", Trim(Parte.Accion, 50));
+            App.Log?.LogInformation("   • Ticket: '{ticket}'", Parte.Ticket);
+            App.Log?.LogInformation("   • Grupo: '{grupo}' (ID: {id})", Parte.Grupo, grupoId?.ToString() ?? "null");
+            App.Log?.LogInformation("   • Tipo: '{tipo}' (ID: {id})", Parte.Tipo, tipoId?.ToString() ?? "null");
+            App.Log?.LogInformation("---------------------------------------------------------------");
 
             if (Parte.Id > 0)
             {
+                // Editar parte existente
                 App.Log?.LogInformation("PUT /api/v1/partes/{id} (edición)", Parte.Id);
                 await App.Api.PutAsync<ParteRequest, ParteDto>($"/api/v1/partes/{Parte.Id}", payload);
+                App.Log?.LogInformation("✅ Parte {id} actualizado correctamente", Parte.Id);
             }
             else
             {
-                App.Log?.LogInformation("POST /api/v1/partes (alta)");
-                await App.Api.PostAsync<ParteRequest, ParteDto>("/api/v1/partes", payload);
+                // Crear parte nuevo
+                App.Log?.LogInformation("POST /api/v1/partes (creación)");
+                var resultado = await App.Api.PostAsync<ParteRequest, ParteDto>("/api/v1/partes", payload);
+                
+                if (resultado != null)
+                {
+                    App.Log?.LogInformation("✅ Parte creado exitosamente con ID: {id}", resultado.Id);
+                }
+                else
+                {
+                    App.Log?.LogWarning("⚠️ Parte creado pero no se recibió confirmación del servidor");
+                }
             }
 
+            // 🆕 NUEVO: Invalidar el caché de partes después de guardar
+            App.Log?.LogInformation("🗑️ Invalidando caché de partes...");
+            InvalidatePartesCache(Parte.Fecha);
+            
             Guardado = true;
+            
+            App.Log?.LogInformation("---------------------------------------------------------------");
+            App.Log?.LogInformation("✅ GUARDADO COMPLETADO - Cerrando editor");
+            App.Log?.LogInformation("---------------------------------------------------------------");
+            
             _parentWindow?.Close();
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "Error guardando parte");
+            App.Log?.LogError(ex, "❌ ERROR guardando parte");
             await ShowErrorAsync($"Error guardando parte: {ex.Message}");
         }
     }
-
+    
+    /// <summary>
+    /// 🆕 NUEVO: Invalida las entradas de caché relacionadas con un parte
+    /// </summary>
+    private void InvalidatePartesCache(DateTime fecha)
+    {
+        try
+        {
+            // Invalidar el endpoint de rango que cubre ±30 días
+            var fromDate = fecha.AddDays(-30).ToString("yyyy-MM-dd");
+            var toDate = fecha.AddDays(30).ToString("yyyy-MM-dd");
+            
+            var rangePath = $"/api/v1/partes?created_from={fromDate}&created_to={toDate}";
+            App.Api.InvalidateCacheEntry(rangePath);
+            App.Log?.LogDebug("🗑️ Caché invalidado: {path}", rangePath);
+            
+            // También invalidar la fecha específica (para el método legacy)
+            var dayPath = $"/api/v1/partes?fecha={fecha:yyyy-MM-dd}";
+            App.Api.InvalidateCacheEntry(dayPath);
+            App.Log?.LogDebug("🗑️ Caché invalidado: {path}", dayPath);
+            
+            App.Log?.LogInformation("✅ Caché de partes invalidado correctamente");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogWarning(ex, "Error invalidando caché de partes");
+        }
+    }
+    
+    // ===================== GLOBAL =====================
+    
+    /// <summary>
+    /// Se dispara cuando el tema global cambia desde otra ventana
+    /// </summary>
+    private void OnGlobalThemeChanged(object? sender, ElementTheme newTheme)
+    {
+        // Aplicar el nuevo tema a esta página
+        this.RequestedTheme = newTheme;
+        
+        // Actualizar logo del banner
+        UpdateBannerLogo();
+        
+        App.Log?.LogInformation("🎨 ParteItemEdit - Tema global cambiado a: {theme}", newTheme);
+    }
+    
+    // ===================== MÉTODOS AUXILIARES =====================
+    
     private void OnFieldChanged(object sender, object e)
     {
         BtnGuardar.IsEnabled = true;
@@ -1520,12 +1791,12 @@ public sealed partial class ParteItemEdit : Page
             if (textBox.Name == "TxtHoraInicio")
             {
                 _horaInicioFirstKey = true;
-                App.Log?.LogDebug("?? HoraInicio recibió foco - próxima tecla borrará contenido");
+                App.Log?.LogDebug("⌨️ HoraInicio recibió foco - próxima tecla borrará contenido");
             }
             else if (textBox.Name == "TxtHoraFin")
             {
                 _horaFinFirstKey = true;
-                App.Log?.LogDebug("?? HoraFin recibió foco - próxima tecla borrará contenido");
+                App.Log?.LogDebug("⌨️ HoraFin recibió foco - próxima tecla borrará contenido");
             }
             
             // Seleccionar todo el texto para visualizar que se va a reemplazar
@@ -1545,11 +1816,11 @@ public sealed partial class ParteItemEdit : Page
         if ((txt.Name == "TxtHoraInicio" && _horaInicioFirstKey) ||
             (txt.Name == "TxtHoraFin" && _horaFinFirstKey))
         {
-            // Obtener solo elúltimo carácter escrito (el nuevo)
+            // Obtener solo el último carácter escrito (el nuevo)
             var text = txt.Text ?? string.Empty;
             var digits = new string(text.Where(char.IsDigit).ToArray());
             
-            // Si hay dígitos, tomar solo elúltimo
+            // Si hay dígitos, tomar solo el último
             if (digits.Length > 0)
             {
                 _suppressHoraFormatting = true;
@@ -1557,7 +1828,7 @@ public sealed partial class ParteItemEdit : Page
                 txt.SelectionStart = txt.Text.Length;
                 _suppressHoraFormatting = false;
                 
-                App.Log?.LogDebug("?? Campo de hora reiniciado con: {digit}", digits[^1]);
+                App.Log?.LogDebug("⌨️ Campo de hora reiniciado con: {digit}", digits[^1]);
             }
             
             // Resetear flags
@@ -1615,7 +1886,7 @@ public sealed partial class ParteItemEdit : Page
 
     private void OnPegarClick(object sender, RoutedEventArgs e)
     {
-        // TODO: Implementar funcionalidad de pagar
+        // TODO: Implementar funcionalidad de pegar
     }
 
     private void OnCancelarClick(object sender, RoutedEventArgs e)
@@ -1650,22 +1921,22 @@ public sealed partial class ParteItemEdit : Page
                 ? role 
                 : "Usuario";
             
-            App.Log?.LogInformation("?? Cargando información de usuario en ParteItemEdit:");
+            App.Log?.LogInformation("📋 Cargando información de usuario en ParteItemEdit:");
             App.Log?.LogInformation("   • UserName: {name}", userName);
             App.Log?.LogInformation("   • UserEmail: {email}", userEmail);
             App.Log?.LogInformation("   • UserRole: {role}", userRole);
             
             // Actualizar banner
-        TxtUserName.Text = userName;
-        TxtUserEmail.Text = userEmail;
-        TxtUserRole.Text = userRole;
+            TxtUserName.Text = userName;
+            TxtUserEmail.Text = userEmail;
+            TxtUserRole.Text = userRole;
         }
         catch (Exception ex)
         {
             App.Log?.LogWarning(ex, "Error cargando información del usuario en ParteItemEdit");
-        TxtUserName.Text = "Usuario";
-        TxtUserEmail.Text = "usuario@empresa.com";
-        TxtUserRole.Text = "Usuario";
+            TxtUserName.Text = "Usuario";
+            TxtUserEmail.Text = "usuario@empresa.com";
+            TxtUserRole.Text = "Usuario";
         }
     }
     
@@ -1748,79 +2019,7 @@ public sealed partial class ParteItemEdit : Page
         TxtEstadoParte.Text = textoEstado;
         BadgeEstado.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(colorBadge);
         
-        App.Log?.LogDebug("Badge de estado actualizado: {estado} (color: {color})", textoEstado, colorBadge);
-    }
-    
-    // ===================== AutoSuggestBox Cliente =====================
-    
-    /// <summary>
-    /// Se dispara cuando el usuario escribe en el campo Cliente
-    /// </summary>
-    private void OnClienteTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-    {
-        // Solo buscar si el usuario está escribiendo (no si selecciona una sugerencia)
-        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-        {
-            var query = sender.Text?.Trim() ?? string.Empty;
-            
-            App.Log?.LogDebug("?? Cliente texto cambiado: '{query}' (Reason: UserInput)", query);
-            
-            // Reiniciar timer de búsqueda (debounce)
-            _clienteSearchTimer?.Stop();
-            _clienteSearchTimer?.Start();
-        }
-    }
-    
-    /// <summary>
-    /// Se dispara cuando el usuario selecciona una sugerencia de la lista
-    /// </summary>
-    private void OnClienteSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
-    {
-        if (args.SelectedItem is string selectedCliente)
-        {
-            App.Log?.LogInformation("? Cliente seleccionado: {cliente}", selectedCliente);
-            sender.Text = selectedCliente;
-            OnFieldChanged(sender, null);
-        }
-    }
-    
-    /// <summary>
-    /// Se dispara cuando el usuario presiona Enter o selecciona definitivamente
-    /// </summary>
-    private void OnClienteQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-    {
-        string selectedCliente;
-        
-        if (args.ChosenSuggestion != null)
-        {
-            // Usuario seleccionó de la lista con Enter
-            selectedCliente = args.ChosenSuggestion.ToString() ?? string.Empty;
-            App.Log?.LogInformation("? Cliente confirmado desde lista: '{cliente}'", selectedCliente);
-        }
-        else
-        {
-            // Usuario escribió y presionó Enter
-            var queryText = args.QueryText?.Trim() ?? string.Empty;
-            
-            // ? NUEVO: Si hay sugerencias disponibles, usar la primera automáticamente
-            if (_clienteSuggestions.Count > 0)
-            {
-                selectedCliente = _clienteSuggestions[0];
-                App.Log?.LogInformation("? Auto-seleccionada primera sugerencia: '{cliente}'", selectedCliente);
-            }
-            else
-            {
-                // No hay sugerencias, usar texto libre
-                selectedCliente = queryText;
-                App.Log?.LogInformation("?? Cliente texto libre: '{cliente}'", selectedCliente);
-            }
-        }
-        
-        sender.Text = selectedCliente;
-        OnFieldChanged(sender, null);
-        
-        // Mover foco al siguiente campo (Tienda)
-        TxtTienda.Focus(FocusState.Keyboard);
+ App.Log?.LogDebug("Badge de estado actualizado: {estado} (color: {color})", textoEstado, colorBadge);
     }
     
     /// <summary>
@@ -1834,14 +2033,14 @@ public sealed partial class ParteItemEdit : Page
         if (string.IsNullOrWhiteSpace(query))
         {
             _clienteSuggestions.Clear();
-            App.Log?.LogDebug("?? Búsqueda vacía - sugerencias limpiadas");
+            App.Log?.LogDebug("🔍 Búsqueda vacía - sugerencias limpiadas");
             return;
         }
         
         // Evitar búsquedas duplicadas
         if (query.Equals(_lastClienteQuery, StringComparison.OrdinalIgnoreCase))
         {
-            App.Log?.LogDebug("?? Query igual a la anterior, saltando búsqueda");
+            App.Log?.LogDebug("🔍 Query igual a la anterior, saltando búsqueda");
             return;
         }
         
@@ -1854,7 +2053,7 @@ public sealed partial class ParteItemEdit : Page
             _clienteSearchCts = new CancellationTokenSource();
             var ct = _clienteSearchCts.Token;
             
-            App.Log?.LogInformation("?? Buscando clientes: '{query}'", query);
+            App.Log?.LogInformation("🔍 Buscando clientes: '{query}'", query);
             
             // Llamar a la API con el parámetro de búsqueda
             var path = $"/api/v1/catalog/clientes?q={Uri.EscapeDataString(query)}&limit=20&offset=0";
@@ -1872,14 +2071,13 @@ public sealed partial class ParteItemEdit : Page
                     }
                 }
                 
-                App.Log?.LogInformation("? Encontrados {count} clientes para '{query}'", _clienteSuggestions.Count, query);
+                App.Log?.LogInformation("✅ Encontrados {count} clientes para '{query}'", _clienteSuggestions.Count, query);
                 
-                // ? NUEVO: Si hay una sola sugerencia o el texto coincide exactamente,
-                // actualizar automáticamente el campo
+                // Si hay una sola sugerencia o el texto coincide exactamente, actualizar automáticamente
                 if (_clienteSuggestions.Count == 1)
                 {
                     var onlySuggestion = _clienteSuggestions[0];
-                    App.Log?.LogDebug("? Una sola sugerencia encontrada: '{suggestion}'", onlySuggestion);
+                    App.Log?.LogDebug("💡 Una sola sugerencia encontrada: '{suggestion}'", onlySuggestion);
                     
                     // Si el usuario escribió texto que coincide parcialmente, completar
                     if (onlySuggestion.StartsWith(query, StringComparison.OrdinalIgnoreCase) &&
@@ -1887,23 +2085,106 @@ public sealed partial class ParteItemEdit : Page
                     {
                         // Actualizar el texto con la sugerencia completa
                         TxtCliente.Text = onlySuggestion;
-                        App.Log?.LogDebug("? Auto-completado: '{query}' ? '{suggestion}'", query, onlySuggestion);
+                        App.Log?.LogDebug("✨ Auto-completado: '{query}' → '{suggestion}'", query, onlySuggestion);
                     }
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogDebug("? Búsqueda de clientes cancelada");
+            App.Log?.LogDebug("🚫 Búsqueda de clientes cancelada");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "? Error buscando clientes");
+            App.Log?.LogError(ex, "❌ Error buscando clientes");
             _clienteSuggestions.Clear();
         }
     }
+    
+    // ===================== AUTOCOMPLETE CLIENTE =====================
+    
+    /// <summary>
+    /// Se dispara cuando el usuario escribe en el campo Cliente
+    /// </summary>
+    private void OnClienteTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        // Solo buscar si el usuario está escribiendo (no si selecciona una sugerencia)
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            var query = sender.Text?.Trim() ?? string.Empty;
+            
+            App.Log?.LogDebug("📝 Cliente texto cambiado: '{query}' (Reason: UserInput)", query);
+            
+            // Reiniciar timer de búsqueda (debounce)
+            _clienteSearchTimer?.Stop();
+            _clienteSearchTimer?.Start();
+        }
+    }
+    
+    /// <summary>
+    /// Se dispara cuando el usuario selecciona una sugerencia de la lista
+    /// </summary>
+    private void OnClienteSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        if (args.SelectedItem is string selectedCliente)
+        {
+            App.Log?.LogInformation("✅ Cliente seleccionado: {cliente}", selectedCliente);
+            sender.Text = selectedCliente;
+            OnFieldChanged(sender, null);
+        }
+    }
+    
+    /// <summary>
+    /// Se dispara cuando el usuario presiona Enter o selecciona definitivamente
+    /// </summary>
+    private void OnClienteQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        string selectedCliente;
+        
+        if (args.ChosenSuggestion != null)
+        {
+            // Usuario seleccionó de la lista con Enter
+            selectedCliente = args.ChosenSuggestion.ToString() ?? string.Empty;
+            App.Log?.LogInformation("✅ Cliente confirmado desde lista: '{cliente}'", selectedCliente);
+        }
+        else
+        {
+            // Usuario escribió y presionó Enter
+            var queryText = args.QueryText?.Trim() ?? string.Empty;
+            
+            // Si hay sugerencias disponibles, usar la primera automáticamente
+            if (_clienteSuggestions.Count > 0)
+            {
+                selectedCliente = _clienteSuggestions[0];
+                App.Log?.LogInformation("✨ Auto-seleccionada primera sugerencia: '{cliente}'", selectedCliente);
+            }
+            else
+            {
+                // No hay sugerencias, usar texto libre
+                selectedCliente = queryText;
+                App.Log?.LogInformation("📝 Cliente texto libre: '{cliente}'", selectedCliente);
+            }
+        }
+        
+        sender.Text = selectedCliente;
+        OnFieldChanged(sender, null);
+        
+        // Mover foco al siguiente campo (Tienda)
+        TxtTienda.Focus(FocusState.Keyboard);
+    }
+    
+    /// <summary>
+    /// Helper para truncar strings en logs
+    /// </summary>
+    private static string Trim(string? s, int maxLen)
+    {
+        if (string.IsNullOrEmpty(s)) return "(vacío)";
+        if (s.Length <= maxLen) return s;
+        return s.Substring(0, maxLen) + "...";
+    }
+}
 
-}   
+// ==================== DTOs DE RESPUESTA DEL API ====================
 
 // Clase DTO para respuesta de clientes
 public class ClienteResponse
@@ -1934,12 +2215,3 @@ public class TipoResponse
     [JsonPropertyName("nombre")]
     public string Nombre { get; set; } = string.Empty;
 }
-
-
-
-
-
-
-
-
-

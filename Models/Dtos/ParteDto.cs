@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using GestionTime.Desktop.Helpers;  // 🆕 NUEVO: Para DateOnlyJsonConverter
 
 namespace GestionTime.Desktop.Models.Dtos;
 
@@ -21,6 +22,7 @@ public sealed class ParteDto
     public int Id { get; set; }
 
     [JsonPropertyName("fecha")]
+    [JsonConverter(typeof(DateOnlyJsonConverter))]  // 🆕 NUEVO: Converter para fechas
     public DateTime Fecha { get; set; }
 
     [JsonIgnore]

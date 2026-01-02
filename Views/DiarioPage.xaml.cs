@@ -3,6 +3,7 @@ using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.ViewModels;
 using GestionTime.Desktop.Services;
 using GestionTime.Desktop.Diagnostics;
+using GestionTime.Desktop.Dialogs;  // 🆕 NUEVO: Agregar para usar CerrarParteDialog
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -27,6 +28,8 @@ public sealed partial class DiarioPage : Page
     private List<ParteDto> _cache30dias = new();
     private DispatcherTimer? _debounce;
     private CancellationTokenSource? _loadCts;
+    private bool _isLoading = false; // 🆕 NUEVO: Flag para evitar llamadas concurrentes
+    private bool _isInitialLoad = true; // 🆕 NUEVO: Flag para evitar carga automática en constructor
 
     public DiarioViewModel ViewModel { get; } = new();
 
@@ -36,8 +39,15 @@ public sealed partial class DiarioPage : Page
         this.DataContext = ViewModel;
 
         LvPartes.ItemsSource = Partes;
-        SetTheme(ElementTheme.Default);
+        
+        // 🆕 NUEVO: Aplicar tema global
+        ThemeService.Instance.ApplyTheme(this);
+        
+        // 🆕 CORREGIDO: Establecer fecha SIN disparar el evento DateChanged
         DpFiltroFecha.Date = DateTimeOffset.Now;
+        
+        // 🆕 NUEVO: Suscribir el evento DESPUÉS de establecer la fecha inicial
+        DpFiltroFecha.DateChanged += OnFiltroFechaChanged;
 
         _debounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(350) };
         _debounce.Tick += (_, __) =>
@@ -49,79 +59,89 @@ public sealed partial class DiarioPage : Page
         InitializeIcons();
         InitializeKeyboardAccelerators();
         
-        LvPartes.ContainerContentChanging += OnListViewContainerContentChanging;
+        // 🆕 NUEVO: Suscribirse a cambios de tema globales
+        ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
         
         this.Unloaded += OnPageUnloaded;
     }
     
     /// <summary>
-    /// Implementa zebra rows (filas alternadas) aplicando fondo basado en el índice del item
+    /// 🆕 NUEVO: Manejador de cambios de tema globales
     /// </summary>
-    private void OnListViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+    private void OnGlobalThemeChanged(object? sender, ElementTheme theme)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            this.RequestedTheme = theme;
+            UpdateThemeAssets(theme);
+            UpdateThemeCheckmarks();
+            App.Log?.LogDebug("🎨 DiarioPage: Tema actualizado por cambio global a {theme}", theme);
+        });
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Aplica zebra rows dinámicamente usando e.ItemIndex
+    /// Se ejecuta en cada render/reciclado para mantener el patrón correcto con virtualización
+    /// </summary>
+    private void OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
         if (args.ItemContainer is ListViewItem container)
         {
-            // Remover handler anterior si existe para evitar duplicados
-            container.Loaded -= OnContainerLoaded;
+            // Aplicar Background según el índice (par/impar)
+            var isEvenRow = args.ItemIndex % 2 == 0;
             
-            // Aplicar inmediatamente
-            ApplyZebraRowBackground(sender, container);
+            if (isEvenRow)
+            {
+                // Fila par: Transparente
+                container.Background = Resources["EvenRowBrush"] as SolidColorBrush;
+            }
+            else
+            {
+                // Fila impar: Turquesa 40%
+                container.Background = Resources["OddRowBrush"] as SolidColorBrush;
+            }
             
-            // También aplicar cuando el container se cargue completamente
-            container.Loaded += OnContainerLoaded;
+            // Log para debug (solo en modo Debug)
+            #if DEBUG
+            if (args.ItemIndex < 10)
+            {
+                App.Log?.LogDebug("🎨 Zebra: ItemIndex={index}, IsEven={isEven}, Background={bg}", 
+                    args.ItemIndex, isEvenRow, isEvenRow ? "Transparent" : "Turquesa");
+            }
+            #endif
         }
     }
     
     /// <summary>
-    /// Se ejecuta cuando un container individual se ha cargado completamente
+    /// OBSOLETO: Ya no usamos OnListViewContainerContentChanging (se reemplaza por OnContainerContentChanging)
+    /// </summary>
+    private void OnListViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+    {
+        // Ya no se usa - el nuevo método OnContainerContentChanging lo reemplaza
+    }
+    
+    /// <summary>
+    /// OBSOLETO: Ya no necesitamos OnContainerLoaded
     /// </summary>
     private void OnContainerLoaded(object sender, RoutedEventArgs e)
     {
-        if (sender is ListViewItem container && container.Parent is ListViewBase listView)
-        {
-            ApplyZebraRowBackground(listView, container);
-        }
+        // Ya no se usa - zebra rows se aplican en OnContainerContentChanging
     }
     
     /// <summary>
-    /// Aplica el fondo de zebra row basado en el índice del container
+    /// OBSOLETO: Ya no necesitamos ApplyZebraRowBackground
     /// </summary>
     private void ApplyZebraRowBackground(ListViewBase listView, ListViewItem container)
     {
-        var index = listView.IndexFromContainer(container);
-        
-        if (index < 0) return; // Container no encontrado en la lista
-        
-        // Aplicar fondo alterno: par = transparente, impar = TURQUESA 40% (MUY VISIBLE)
-        if (index % 2 == 0)
-        {
-            // Fila par - Transparente
-            container.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
-        }
-        else
-        {
-            // Fila impar - TURQUESA 40% VISIBLE (#66 = 102 = 40% opacidad)
-            // Aumentado de 20% a 40% para máxima visibilidad sobre fondo oscuro
-            container.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(102, 11, 140, 153));
-        }
+        // Ya no se usa - zebra rows se aplican en OnContainerContentChanging
     }
     
     /// <summary>
-    /// Refresca las zebra rows de todos los containers visibles en el ListView
+    /// OBSOLETO: Ya no necesitamos RefreshAllZebraRows
     /// </summary>
     private void RefreshAllZebraRows()
     {
-        if (LvPartes?.Items == null) return;
-        
-        // Iterar por todos los items visibles y aplicar zebra rows
-        for (int i = 0; i < LvPartes.Items.Count; i++)
-        {
-            var container = LvPartes.ContainerFromIndex(i) as ListViewItem;
-            if (container != null)
-            {
-                ApplyZebraRowBackground(LvPartes, container);
-            }
-        }
+        // Ya no se usa - zebra rows se aplican automáticamente con ItemIndex
     }
     
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
@@ -131,6 +151,9 @@ public sealed partial class DiarioPage : Page
         
         // Limpiar timer de debounce
         _debounce?.Stop();
+        
+        // 🆕 NUEVO: Desuscribir eventos de tema para evitar memory leaks
+        ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
         
         App.Log?.LogInformation("DiarioPage Unloaded - Recursos limpiados");
     }
@@ -316,134 +339,332 @@ public sealed partial class DiarioPage : Page
             storyboard.Children.Add(fadeIn);
             storyboard.Begin();
             
+            // 🆕 NUEVO: Cargar datos y DESPUÉS habilitar el evento de fecha
             await LoadPartesAsync();
+            
+            // Habilitar el evento de cambio de fecha DESPUÉS de la carga inicial
+            _isInitialLoad = false;
+            App.Log?.LogDebug("✅ Carga inicial completada - Evento de fecha habilitado");
         }
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "Error en OnPageLoaded()");
-            await ShowInfoAsync("Error cargando Diario. Revisa app.log.");
         }
     }
 
     private async Task LoadPartesAsync()
     {
-        _loadCts?.Cancel();
-        _loadCts = new CancellationTokenSource();
-        var ct = _loadCts.Token;
+        // 🆕 NUEVO: Protección contra llamadas concurrentes
+        if (_isLoading)
+        {
+            App.Log?.LogDebug("⚠️ Carga ya en proceso, ignorando nueva petición");
+            return;
+        }
+
+        _isLoading = true;
 
         try
         {
-            var toDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
-            var fromDate = toDate.AddDays(-30);
+            // 🔒 Cancelar cualquier carga previa
+            _loadCts?.Cancel();
+            _loadCts?.Dispose();
+            _loadCts = new CancellationTokenSource();
+            var ct = _loadCts.Token;
+
+            var selectedDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
+            
+            // 🆕 OPTIMIZACIÓN: Determinar si el usuario seleccionó HOY o una fecha específica
+            var isToday = selectedDate.Date == DateTime.Today;
+            
+            DateTime fromDate;
+            DateTime toDate = selectedDate;
+            
+            if (isToday)
+            {
+                // Vista por defecto: Últimos 7 días (no 30)
+                fromDate = selectedDate.AddDays(-7);
+                App.Log?.LogInformation("📅 Carga INICIAL: Últimos 7 días (desde {from} hasta HOY)", fromDate.ToString("yyyy-MM-dd"));
+            }
+            else
+            {
+                // Fecha específica: SOLO ese día
+                fromDate = selectedDate;
+                App.Log?.LogInformation("📅 Carga FILTRADA: Solo día {date}", selectedDate.ToString("yyyy-MM-dd"));
+            }
 
             using var loadScope = PerformanceLogger.BeginScope(SpecializedLoggers.Data, "LoadPartes", 
-                new { FromDate = fromDate, ToDate = toDate });
+                new { FromDate = fromDate, ToDate = toDate, IsFiltered = !isToday });
 
             SpecializedLoggers.Data.LogInformation("══════════════════════════════════════════════════════════════─");
-            SpecializedLoggers.Data.LogInformation("📥 CARGA DE PARTES - Iniciando rango {DateRange}", 
-                $"{fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}");
+            SpecializedLoggers.Data.LogInformation("📥 CARGA DE PARTES");
+            SpecializedLoggers.Data.LogInformation("   • Fecha inicio: {from}", fromDate.ToString("yyyy-MM-dd"));
+            SpecializedLoggers.Data.LogInformation("   • Fecha fin: {to}", toDate.ToString("yyyy-MM-dd"));
+            
+            // 🆕 CORREGIDO: Cálculo preciso de días
+            var totalDays = isToday ? 7 : 1;  // Simplificado: 7 días para HOY, 1 para fecha específica
+            SpecializedLoggers.Data.LogInformation("   • Días a cargar: {days}", totalDays);
+            SpecializedLoggers.Data.LogInformation("   • Tipo: {type}", isToday ? "Vista inicial (últimos 7 días)" : "Fecha específica");
 
-            using var sem = new SemaphoreSlim(6);
+            // 🆕 Usar método con estrategia dual (rango + fallback)
+            await LoadPartesAsync_Legacy();
+        }
+        catch (OperationCanceledException)
+        {
+            SpecializedLoggers.Data.LogInformation("Carga de partes cancelada por el usuario.");
+        }
+        catch (Exception ex)
+        {
+            SpecializedLoggers.Data.LogError(ex, "Error cargando partes");
+            
+            // NO mostrar diálogo de error, solo loguear
+            SpecializedLoggers.Data.LogWarning("La lista quedará vacía. El usuario puede intentar refrescar (F5).");
+        }
+        finally
+        {
+            _isLoading = false; // 🆕 NUEVO: Liberar flag
+        }
+    }
 
-            var tasks = new List<Task<List<ParteDto>>>();
-            for (var d = fromDate; d <= toDate; d = d.AddDays(1))
+    // 🔄 MÉTODO CON ESTRATEGIA DUAL
+    private async Task LoadPartesAsync_Legacy()
+    {
+        var ct = _loadCts?.Token ?? CancellationToken.None;
+        
+        try
+        {
+            // 🆕 CORREGIDO: Usar las fechas que ya calculamos en LoadPartesAsync()
+            var selectedDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
+            var isToday = selectedDate.Date == DateTime.Today;
+            
+            DateTime fromDate;
+            DateTime toDate = selectedDate;
+            
+            if (isToday)
             {
-                var day = d;
-                tasks.Add(FetchDayLimitedAsync(day, sem, ct));
+                // Vista por defecto: Últimos 7 días
+                fromDate = selectedDate.AddDays(-7);
+            }
+            else
+            {
+                // Fecha específica: SOLO ese día
+                fromDate = selectedDate;
             }
 
-            var results = await Task.WhenAll(tasks);
-
-            _cache30dias = results.SelectMany(x => x ?? new List<ParteDto>()).ToList();
-
-            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
-            SpecializedLoggers.Data.LogInformation("🔍 ANÁLISIS DE DATOS RECIBIDOS DE LA API");
-            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
-            SpecializedLoggers.Data.LogInformation("📊 Total partes recibidos: {count}", _cache30dias.Count);
+            // ✅ ESTRATEGIA DUAL: Intentar endpoint de rango primero, fallback a peticiones individuales
+            SpecializedLoggers.Data.LogInformation("🔄 Intentando carga con endpoint de rango (1 petición)...");
             
-            // Contar por estado
-            var porEstado = _cache30dias.GroupBy(p => p.EstadoParte).ToList();
-            SpecializedLoggers.Data.LogInformation("📈 Distribución por EstadoParte:");
-            foreach (var grupo in porEstado)
+            var usedRangeEndpoint = await TryLoadWithRangeEndpointAsync(fromDate, toDate, ct);
+            
+            if (usedRangeEndpoint)
             {
-                SpecializedLoggers.Data.LogInformation("   • {estado}: {count} partes", grupo.Key, grupo.Count());
+                SpecializedLoggers.Data.LogInformation("✅ Endpoint de rango exitoso - {count} partes cargados", _cache30dias.Count);
+                ApplyFilterToListView();
+                return;
             }
             
-            // Contar por IsAbierto
-            var abiertos = _cache30dias.Count(p => p.IsAbierto);
-            var cerrados = _cache30dias.Count(p => !p.IsAbierto);
-            SpecializedLoggers.Data.LogInformation("📈 Distribución por IsAbierto:");
-            SpecializedLoggers.Data.LogInformation("   • IsAbierto=true: {count}", abiertos);
-            SpecializedLoggers.Data.LogInformation("   • IsAbierto=false: {count}", cerrados);
+            // Si el endpoint de rango falló, usar método de peticiones individuales
+            SpecializedLoggers.Data.LogWarning("⚠️ Endpoint de rango no disponible - Usando fallback a peticiones individuales");
+            await LoadWithIndividualRequestsAsync(fromDate, toDate, ct);
             
-            // Contar por HoraFin vacío/no vacío
-            var sinHoraFin = _cache30dias.Count(p => string.IsNullOrWhiteSpace(p.HoraFin));
-            var conHoraFin = _cache30dias.Count(p => !string.IsNullOrWhiteSpace(p.HoraFin));
-            SpecializedLoggers.Data.LogInformation("📈 Distribución por HoraFin:");
-            SpecializedLoggers.Data.LogInformation("   • HoraFin vacío: {count}", sinHoraFin);
-            SpecializedLoggers.Data.LogInformation("   • HoraFin con valor: {count}", conHoraFin);
-            
-            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
-            SpecializedLoggers.Data.LogInformation("📋 DETALLE DE PRIMEROS 10 REGISTROS:");
-            SpecializedLoggers.Data.LogInformation("───────────────────────────────────────────────────────────────");
-            
-            // Ordenar primero para ver los más recientes
-            var primeros = _cache30dias
-                .OrderByDescending(p => p.Fecha)
-                .ThenByDescending(p => ParseTime(p.HoraInicio))
-                .Take(10)
-                .ToList();
-                
-            foreach (var p in primeros)
-            {
-                SpecializedLoggers.Data.LogInformation(
-                    "   ID:{id} | {fecha} | Cliente:{cliente} | Grupo:'{grupo}' | Tipo:'{tipo}' | Estado:{estado}",
-                    p.Id,
-                    p.FechaText,
-                    Trim(p.Cliente ?? "", 12),
-                    p.Grupo ?? "(null)",
-                    p.Tipo ?? "(null)",
-                    p.EstadoInt
-                );
-            }
-            
-            SpecializedLoggers.Data.LogInformation("═══════════════════════════════════════════════════════════════");
-
             ApplyFilterToListView();
         }
         catch (OperationCanceledException)
         {
-            SpecializedLoggers.Data.LogInformation("Carga de partes cancelada.");
+            SpecializedLoggers.Data.LogInformation("Carga de partes cancelada");
+            throw;
         }
         catch (Exception ex)
         {
-            SpecializedLoggers.Data.LogError(ex, "Error cargando partes (30 días)");
-            await ShowInfoAsync("Error cargando partes. Revisa app.log.");
+            SpecializedLoggers.Data.LogError(ex, "Error en método de carga");
+            
+            // Asegurar que al menos haya una lista vacía
+            _cache30dias = new List<ParteDto>();
+            ApplyFilterToListView();
+            
+            throw;
         }
     }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Intenta cargar con endpoint de rango (1 sola petición)
+    /// Retorna true si fue exitoso, false si necesita fallback
+    /// </summary>
+    private async Task<bool> TryLoadWithRangeEndpointAsync(DateTime fromDate, DateTime toDate, CancellationToken ct)
+    {
+        try
+        {
+            // ✅ USAR NUEVOS PARÁMETROS: fechaInicio y fechaFin
+            // El backend ahora soporta filtrado por fecha_trabajo (NO por created_at)
+            var path = $"/api/v1/partes?fechaInicio={fromDate:yyyy-MM-dd}&fechaFin={toDate:yyyy-MM-dd}";
+            
+            SpecializedLoggers.Data.LogInformation("📡 Endpoint: GET {path}", path);
+            SpecializedLoggers.Data.LogInformation("   • Fecha inicio: {from}", fromDate.ToString("yyyy-MM-dd"));
+            SpecializedLoggers.Data.LogInformation("   • Fecha fin: {to}", toDate.ToString("yyyy-MM-dd"));
+            SpecializedLoggers.Data.LogInformation("   ℹ️ Usando endpoint de rango por fecha_trabajo (fechaInicio/fechaFin)");
+            
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = await App.Api.GetAsync<List<ParteDto>>(path, ct);
+            sw.Stop();
+            
+            if (result == null)
+            {
+                SpecializedLoggers.Data.LogWarning("⚠️ Endpoint de rango devolvió null - Necesita fallback");
+                return false;
+            }
+            
+            if (result.Count == 0)
+            {
+                // Verificar si realmente no hay datos o si el endpoint no está implementado
+                SpecializedLoggers.Data.LogInformation("ℹ️ Endpoint de rango devolvió 0 registros - Verificando si es correcto...");
+                
+                var testPath = $"/api/v1/partes?fecha={toDate:yyyy-MM-dd}";
+                var testResult = await App.Api.GetAsync<List<ParteDto>>(testPath, ct);
+                
+                if (testResult != null && testResult.Count > 0)
+                {
+                    SpecializedLoggers.Data.LogWarning("⚠️ El endpoint de un día SÍ tiene datos, pero el de rango devolvió vacío");
+                    SpecializedLoggers.Data.LogWarning("   → Endpoint de rango probablemente NO implementado correctamente");
+                    return false; // Necesita fallback
+                }
+                else
+                {
+                    SpecializedLoggers.Data.LogInformation("✅ Endpoint de rango correcto - Realmente no hay datos en este periodo");
+                    _cache30dias = new List<ParteDto>();
+                    return true; // No hay datos, pero el endpoint funciona
+                }
+            }
+            
+            _cache30dias = result;
+            SpecializedLoggers.Data.LogInformation("✅ Petición exitosa en {ms}ms - {count} partes cargados", 
+                sw.ElapsedMilliseconds, _cache30dias.Count);
+            
+            // Log de estadísticas por estado
+            var estadoStats = _cache30dias
+                .GroupBy(p => p.EstadoTexto)
+                .Select(g => $"{g.Key}: {g.Count()}")
+                .ToList();
+            
+            if (estadoStats.Any())
+            {
+                SpecializedLoggers.Data.LogInformation("📊 Estados: {estados}", string.Join(", ", estadoStats));
+            }
+            
+            return true; // Éxito
+        }
+        catch (ApiException apiEx)
+        {
+            SpecializedLoggers.Data.LogWarning("⚠️ Endpoint de rango falló - StatusCode: {status}, Message: {msg}", 
+                apiEx.StatusCode, apiEx.Message);
+            
+            // Si es 404 o 400, el endpoint probablemente no existe
+            if (apiEx.StatusCode == System.Net.HttpStatusCode.NotFound || 
+                apiEx.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                SpecializedLoggers.Data.LogWarning("   → Endpoint probablemente no implementado en backend");
+                return false; // Necesita fallback
+            }
+            
+            // Para otros errores, re-lanzar
+            throw;
+        }
+        catch (Exception ex)
+        {
+            SpecializedLoggers.Data.LogWarning(ex, "⚠️ Error inesperado con endpoint de rango - Usando fallback");
+            return false; // Necesita fallback
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Carga con 31 peticiones individuales (fallback)
+    /// </summary>
+    private async Task LoadWithIndividualRequestsAsync(DateTime fromDate, DateTime toDate, CancellationToken ct)
+    {
+        SpecializedLoggers.Data.LogInformation("🔄 Cargando partes día por día ({days} peticiones)", (toDate - fromDate).Days + 1);
+        
+        using var sem = new SemaphoreSlim(6); // 6 peticiones concurrentes
+        var tasks = new List<Task<List<ParteDto>>>();
+        
+        for (var d = fromDate; d <= toDate; d = d.AddDays(1))
+        {
+            var day = d;
+            tasks.Add(FetchDayLimitedAsync(day, sem, ct));
+        }
 
+        var results = await Task.WhenAll(tasks);
+        _cache30dias = results
+            .Where(x => x != null)
+            .SelectMany(x => x)
+            .ToList();
+
+        SpecializedLoggers.Data.LogInformation("✅ {count} partes cargados correctamente (método individual)", _cache30dias.Count);
+    }
+    
+    /// <summary>
+    /// Helper para cargar un día específico con semáforo y retry
+    /// </summary>
     private async Task<List<ParteDto>> FetchDayLimitedAsync(DateTime day, SemaphoreSlim sem, CancellationToken ct)
     {
-        await sem.WaitAsync(ct);
+        var waitSuccessful = await sem.WaitAsync(TimeSpan.FromSeconds(30), ct);
+        
+        if (!waitSuccessful)
+        {
+            App.Log?.LogWarning("⚠️ Timeout esperando slot del semáforo para {fecha} - Saltando...", 
+                day.ToString("yyyy-MM-dd"));
+            return new List<ParteDto>();
+        }
+        
         try
         {
             var path = "/api/v1/partes?fecha=" + Uri.EscapeDataString(day.ToString("yyyy-MM-dd"));
-            App.Log?.LogDebug("GET {path}", path);
-
-            var result = await App.Api.GetAsync<List<ParteDto>>(path, ct) ?? new List<ParteDto>();
             
-            // Log detallado por día si hay resultados
-            if (result.Count > 0)
+            var maxRetries = 3;
+            var retryDelay = 500;
+            Exception? lastException = null;
+            
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                App.Log?.LogDebug("📅 {fecha}: {count} partes recibidos", day.ToString("yyyy-MM-dd"), result.Count);
-                
-                // Log del primer registro de este día para ver datos raw
-                var first = result.First();
-                App.Log?.LogDebug("   └─ Primer registro: ID={id}, EstadoParte={ep}, IsAbierto={ia}, HoraFin='{hf}'",
-                    first.Id, first.EstadoParte, first.IsAbierto, first.HoraFin ?? "(vacío)");
+                try
+                {
+                    if (attempt > 1)
+                    {
+                        App.Log?.LogDebug("🔄 Reintento {attempt}/{max} - GET {path}", 
+                            attempt, maxRetries, path);
+                    }
+
+                    var result = await App.Api.GetAsync<List<ParteDto>>(path, ct) ?? new List<ParteDto>();
+                    
+                    if (result.Count > 0 && attempt == 1)
+                    {
+                        App.Log?.LogDebug("📅 {fecha}: {count} partes", day.ToString("yyyy-MM-dd"), result.Count);
+                    }
+                    
+                    if (attempt > 1)
+                    {
+                        App.Log?.LogInformation("✅ Exitoso en intento {attempt} para {fecha}", attempt, day.ToString("yyyy-MM-dd"));
+                    }
+                    
+                    return result;
+                }
+                catch (Exception ex) when (attempt < maxRetries && !ct.IsCancellationRequested)
+                {
+                    lastException = ex;
+                    
+                    App.Log?.LogWarning("⚠️ Intento {attempt}/{max} fallido para {fecha} - {error}", 
+                        attempt, maxRetries, day.ToString("yyyy-MM-dd"), ex.Message);
+                    
+                    await Task.Delay(retryDelay, ct);
+                    retryDelay *= 2;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
             }
             
-            return result;
+            App.Log?.LogWarning("❌ Todos los intentos ({max}) fallaron para {fecha}", 
+                maxRetries, day.ToString("yyyy-MM-dd"));
+            
+            return new List<ParteDto>();
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
@@ -488,32 +709,8 @@ public sealed partial class DiarioPage : Page
         var estadosEnLista = Partes.GroupBy(p => p.EstadoTexto).Select(g => $"{g.Key}:{g.Count()}");
         App.Log?.LogInformation("📊 Estados en ListView: {estados}", string.Join(", ", estadosEnLista));
         
-        // ✅ REFRESH ESTRATÉGICO de zebra rows con delays aumentados
-        // El ListView virtualizado tarda en crear containers, usar delays más largos
-        
-        // 1. Con DispatcherQueue Low (después del layout inicial)
-        DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-        {
-            RefreshAllZebraRows();
-        });
-        
-        // 2. Con delay de 250ms (garantía para containers completos)
-        _ = Task.Delay(250).ContinueWith(_ =>
-        {
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                RefreshAllZebraRows();
-            });
-        });
-        
-        // 3. Con delay de 500ms (garantía final para scroll y virtualización)
-        _ = Task.Delay(500).ContinueWith(_ =>
-        {
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                RefreshAllZebraRows();
-            });
-        });
+        // 🆕 NUEVO: Actualizar tooltip de cobertura de tiempo
+        UpdateTimeCoverageTooltip();
     }
 
     private static bool Has(string? s, string q)
@@ -525,7 +722,17 @@ public sealed partial class DiarioPage : Page
     // ===================== Filtros =====================
 
     private async void OnFiltroFechaChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
-        => await LoadPartesAsync();
+    {
+        // 🆕 NUEVO: NO cargar si es la inicialización automática
+        if (_isInitialLoad)
+        {
+            App.Log?.LogDebug("🚫 OnFiltroFechaChanged - Ignorando carga inicial automática");
+            return;
+        }
+        
+        App.Log?.LogInformation("📅 Usuario cambió fecha manualmente - Recargando...");
+        await LoadPartesAsync();
+    }
 
     private void OnFiltroQChanged(object sender, TextChangedEventArgs e)
     {
@@ -534,7 +741,21 @@ public sealed partial class DiarioPage : Page
     }
 
     private async void OnRefrescar(object sender, RoutedEventArgs e)
-        => await LoadPartesAsync();
+    {
+        App.Log?.LogInformation("🔄 Botón REFRESCAR presionado - Restaurando vista inicial");
+        
+        // Deshabilitar temporalmente el evento de fecha
+        _isInitialLoad = true;
+        
+        // Restaurar fecha a HOY
+        DpFiltroFecha.Date = DateTimeOffset.Now;
+        
+        // Recargar partes (se cargará últimos 7 días automáticamente)
+        await LoadPartesAsync();
+        
+        // Rehabilitar el evento de fecha
+        _isInitialLoad = false;
+    }
 
     private void OnPartesSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -551,7 +772,10 @@ public sealed partial class DiarioPage : Page
 
     private void SetTheme(ElementTheme theme)
     {
-        RequestedTheme = theme;
+        // 🆕 NUEVO: Usar ThemeService para cambiar el tema globalmente
+        ThemeService.Instance.SetTheme(theme);
+        
+        // Actualizar checks del menú
         ThemeSystemItem.IsChecked = theme == ElementTheme.Default;
         ThemeLightItem.IsChecked = theme == ElementTheme.Light;
         ThemeDarkItem.IsChecked = theme == ElementTheme.Dark;
@@ -559,11 +783,18 @@ public sealed partial class DiarioPage : Page
         // Actualizar logo y fondo según el tema
         UpdateThemeAssets(theme);
         
-        // ✅ Refrescar zebra rows después de cambiar tema
-        DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-        {
-            RefreshAllZebraRows();
-        });
+        App.Log?.LogInformation("🎨 DiarioPage - Tema cambiado a: {theme} (guardado en configuración)", theme);
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Actualiza los checkmarks del menú de tema
+    /// </summary>
+    private void UpdateThemeCheckmarks()
+    {
+        var currentTheme = ThemeService.Instance.CurrentTheme;
+        ThemeSystemItem.IsChecked = currentTheme == ElementTheme.Default;
+        ThemeLightItem.IsChecked = currentTheme == ElementTheme.Light;
+        ThemeDarkItem.IsChecked = currentTheme == ElementTheme.Dark;
     }
 
     private void UpdateThemeAssets(ElementTheme theme)
@@ -581,20 +812,26 @@ public sealed partial class DiarioPage : Page
                 : ElementTheme.Light;
         }
 
-        // Actualizar logo
+        // Actualizar logo del banner
         if (effectiveTheme == ElementTheme.Dark)
         {
             LogoImageBanner.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/LogoOscuro.png"));
+            
+            // Fondo oscuro: imagen visible
             BackgroundImageBrush.ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/diario_bg_dark.png"));
+            BackgroundImageBrush.Opacity = 1.0;
         }
         else
         {
             LogoImageBanner.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/LogoClaro.png"));
+            
+            // Fondo claro: imagen muy sutil (casi transparente)
             BackgroundImageBrush.ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/Diario_bg_claro.png"));
+            BackgroundImageBrush.Opacity = 0.15;
         }
         
         App.Log?.LogDebug("Tema actualizado: {theme} (efectivo: {effective})", theme, effectiveTheme);
@@ -606,7 +843,10 @@ public sealed partial class DiarioPage : Page
     {
         var window = new Microsoft.UI.Xaml.Window { Title = title };
         var editPage = new ParteItemEdit();
-        editPage.RequestedTheme = this.RequestedTheme;
+        
+        // 🆕 NUEVO: Aplicar tema global a la ventana de edición
+        ThemeService.Instance.ApplyTheme(editPage);
+        
         editPage.SetParentWindow(window);
         window.Content = editPage;
         ConfigureChildWindow(window);
@@ -627,28 +867,12 @@ public sealed partial class DiarioPage : Page
 
     private void ConfigureChildWindow(Microsoft.UI.Xaml.Window window)
     {
-        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-        var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-
-        if (appWindow != null)
-        {
-            var displayArea = Microsoft.UI.Windowing.DisplayArea.Primary;
-            var workArea = displayArea.WorkArea;
-
-            int width = 1650;
-            int height = 750;
-            int x = workArea.X + (workArea.Width - width) / 2;
-            int y = workArea.Y + (workArea.Height - height) / 2;
-
-            appWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, width, height));
-
-            if (appWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
-            {
-                presenter.IsResizable = false;
-                presenter.IsMaximizable = false;
-            }
-        }
+        // ✅ Usar WindowSizeManager para ParteItemEdit
+        WindowSizeManager.SetChildWindowSize(window, 
+            WindowSizeManager.ParteEditSize.Width, 
+            WindowSizeManager.ParteEditSize.Height,
+            resizable: false,
+            maximizable: false);
     }
 
     private async void OnNuevo(object sender, RoutedEventArgs e)
@@ -770,6 +994,10 @@ public sealed partial class DiarioPage : Page
             };
             
             var graficaPage = new GraficaDiaPage();
+            
+            // 🆕 NUEVO: Aplicar tema global a la ventana de gráfica
+            ThemeService.Instance.ApplyTheme(graficaPage);
+            
             graficaPage.ViewModel.FechaSeleccionada = fecha;
             
             window.Content = graficaPage;
@@ -786,28 +1014,12 @@ public sealed partial class DiarioPage : Page
     
     private void ConfigureGraficaWindow(Microsoft.UI.Xaml.Window window)
     {
-        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-        var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-
-        if (appWindow != null)
-        {
-            var displayArea = Microsoft.UI.Windowing.DisplayArea.Primary;
-            var workArea = displayArea.WorkArea;
-
-            int width = 1200;
-            int height = 800;
-            int x = workArea.X + (workArea.Width - width) / 2;
-            int y = workArea.Y + (workArea.Height - height) / 2;
-
-            appWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, width, height));
-
-            if (appWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
-            {
-                presenter.IsResizable = true;
-                presenter.IsMaximizable = true;
-            }
-        }
+        // ✅ Usar WindowSizeManager para GraficaPage
+        WindowSizeManager.SetChildWindowSize(window,
+            WindowSizeManager.GraficaSize.Width,
+            WindowSizeManager.GraficaSize.Height,
+            resizable: true,
+            maximizable: true);
     }
 
     private async void OnBorrar(object sender, RoutedEventArgs e)
@@ -838,9 +1050,27 @@ public sealed partial class DiarioPage : Page
             await App.Api.DeleteAsync($"/api/v1/partes/{parte.Id}");
             
             App.Log?.LogWarning("✅ Parte {id} ELIMINADO FÍSICAMENTE de la base de datos", parte.Id);
+            
+            // 🆕 NUEVO: Invalidar caché después de eliminar
+            App.Log?.LogInformation("🗑️ Invalidando caché de partes...");
+            InvalidatePartesCache(parte.Fecha);
+            
+            // 🆕 MEJORADO: Eliminar inmediatamente de la caché local
+            var removedFromCache = _cache30dias.RemoveAll(p => p.Id == parte.Id);
+            App.Log?.LogInformation("🗑️ Eliminados {count} registros de la caché local", removedFromCache);
+            
+            // 🆕 MEJORADO: Eliminar de la ObservableCollection inmediatamente
+            var parteEnLista = Partes.FirstOrDefault(p => p.Id == parte.Id);
+            if (parteEnLista != null)
+            {
+                Partes.Remove(parteEnLista);
+                App.Log?.LogInformation("🗑️ Parte eliminado de la lista visible");
+            }
+            
             await ShowInfoAsync($"✅ Parte {parte.Id} eliminado definitivamente.");
             
-            await LoadPartesAsync();
+            // Opcional: Recargar desde el servidor para asegurar sincronización
+            // await LoadPartesAsync();
         }
         catch (Exception ex)
         {
@@ -878,6 +1108,10 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogInformation("✅ Parte {id} pausado correctamente", parteId);
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             
+            // 🆕 NUEVO: Invalidar caché después de pausar
+            App.Log?.LogInformation("🗑️ Invalidando caché de partes...");
+            InvalidatePartesCache(parte.Fecha);
+            
             await LoadPartesAsync();
         }
         catch (Exception ex)
@@ -905,6 +1139,11 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogInformation("▶️ REANUDAR PARTE - ID: {id}", parteId);
             await App.Api.PostAsync($"/api/v1/partes/{parteId}/resume");
             App.Log?.LogInformation("✅ Parte {id} reanudado correctamente", parteId);
+            
+            // 🆕 NUEVO: Invalidar caché después de reanudar
+            App.Log?.LogInformation("🗑️ Invalidando caché de partes...");
+            InvalidatePartesCache(parte.Fecha);
+            
             await LoadPartesAsync();
         }
         catch (Exception ex)
@@ -918,160 +1157,310 @@ public sealed partial class DiarioPage : Page
     {
         if (sender is not MenuFlyoutItem menuItem || menuItem.Tag is not int parteId)
         {
+            App.Log?.LogWarning("⚠️ OnCerrarClick: Tag inválido - Type={type}", 
+                (sender as MenuFlyoutItem)?.Tag?.GetType()?.Name ?? "null");
             return;
         }
 
         var parte = Partes.FirstOrDefault(p => p.Id == parteId);
         if (parte == null || !parte.CanCerrar)
         {
+            App.Log?.LogWarning("⚠️ OnCerrarClick: Parte {id} no encontrado o no se puede cerrar (CanCerrar={can})", 
+                parteId, parte?.CanCerrar ?? false);
             return;
         }
 
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
         try
         {
-            App.Log?.LogInformation("🔒 CERRAR PARTE - ID: {id}", parteId);
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("🔒 CERRAR PARTE - INICIO DEL PROCESO");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("📋 DATOS DEL PARTE A CERRAR:");
+            App.Log?.LogInformation("   • ID: {id}", parteId);
+            App.Log?.LogInformation("   • Cliente: {cliente}", parte.Cliente ?? "(sin cliente)");
+            App.Log?.LogInformation("   • Fecha: {fecha}", parte.Fecha.ToString("yyyy-MM-dd"));
+            App.Log?.LogInformation("   • Estado ACTUAL: {estado} (EstadoInt={int}, IsAbierto={abierto})", 
+                parte.EstadoTexto, parte.EstadoInt, parte.IsAbierto);
+            App.Log?.LogInformation("   • HoraInicio: {inicio}", parte.HoraInicio ?? "(vacío)");
+            App.Log?.LogInformation("   • HoraFin ANTES: '{fin}'", string.IsNullOrEmpty(parte.HoraFin) ? "(vacío)" : parte.HoraFin);
+            App.Log?.LogInformation("   • Ticket: {ticket}", parte.Ticket ?? "(sin ticket)");
+            App.Log?.LogInformation("   • Acción: {accion}", TrimForLog(parte.Accion, 50));
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
             
-            // Preguntar hora de cierre al usuario
-            var horaFin = await AskHoraCierreAsync(parte.HoraInicio);
+            // 🆕 NUEVO: Pasar el objeto parte completo al diálogo
+            App.Log?.LogInformation("🎯 PASO 1: Abrir diálogo para solicitar hora de cierre...");
+            var dialogStart = System.Diagnostics.Stopwatch.StartNew();
+            
+            var horaFin = await AskHoraCierreAsync(parte);
+            
+            dialogStart.Stop();
+            App.Log?.LogInformation("   ⏱️ Diálogo completado en {ms}ms", dialogStart.ElapsedMilliseconds);
             
             if (string.IsNullOrEmpty(horaFin))
             {
-                App.Log?.LogInformation("Usuario canceló el cierre del parte");
+                App.Log?.LogInformation("❌ Usuario CANCELÓ el cierre del parte");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
                 return;
             }
             
+            App.Log?.LogInformation("✅ Hora de cierre capturada del usuario: '{hora}'", horaFin);
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            App.Log?.LogInformation("🎯 PASO 2: Enviar petición de cierre al backend...");
+            App.Log?.LogInformation("   📤 PARÁMETROS DE CIERRE:");
+            App.Log?.LogInformation("      • Parte ID: {id}", parteId);
+            App.Log?.LogInformation("      • Hora Fin: '{horaFin}'", horaFin);
+            App.Log?.LogInformation("      • Estado objetivo: 2 (Cerrado)");
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            
+            // 🆕 CORREGIDO: Intentar POST /close PRIMERO (más confiable)
+            var cierreCorrecto = false;
+            var metodoUsado = "";
+            var requestStart = System.Diagnostics.Stopwatch.StartNew();
+            
             try
             {
-                await App.Api.PostAsync($"/api/v1/partes/{parteId}/close?horaFin={Uri.EscapeDataString(horaFin)}");
-                App.Log?.LogInformation("✅ Parte {id} cerrado correctamente usando POST con HoraFin={hora}", parteId, horaFin);
+                // Método 1: POST /api/v1/partes/{id}/close?horaFin=HH:mm
+                var endpoint = $"/api/v1/partes/{parteId}/close?horaFin={Uri.EscapeDataString(horaFin)}";
+                var fullUrl = $"{App.Api.BaseUrl}{endpoint}";
+                
+                App.Log?.LogInformation("🔄 MÉTODO 1: Intentando POST /close");
+                App.Log?.LogInformation("   📡 Endpoint: POST {endpoint}", endpoint);
+                App.Log?.LogInformation("   🌐 URL completa: {url}", fullUrl);
+                App.Log?.LogInformation("   📦 Query params:");
+                App.Log?.LogInformation("      - horaFin={hora} (URL encoded: {encoded})", 
+                    horaFin, Uri.EscapeDataString(horaFin));
+                App.Log?.LogInformation("   ⏳ Enviando petición...");
+                
+                var postStart = System.Diagnostics.Stopwatch.StartNew();
+                
+                await App.Api.PostAsync(endpoint);
+                
+                postStart.Stop();
+                
+                App.Log?.LogInformation("✅ POST /close EXITOSO");
+                App.Log?.LogInformation("   ⏱️ Tiempo de respuesta: {ms}ms", postStart.ElapsedMilliseconds);
+                App.Log?.LogInformation("   📥 Parte {id} cerrado correctamente", parteId);
+                App.Log?.LogInformation("   🕐 Hora de fin aplicada: {hora}", horaFin);
+                
+                cierreCorrecto = true;
+                metodoUsado = "POST /close";
             }
-            catch (ApiException apiEx) when (apiEx.StatusCode == System.Net.HttpStatusCode.MethodNotAllowed)
+            catch (ApiException postEx)
             {
-                App.Log?.LogWarning("POST /close no permitido, intentando con PUT...");
-                await App.Api.PutAsync<object, object>($"/api/v1/partes/{parteId}", new 
-                { 
-                    HoraFin = horaFin,
-                    EstadoInt = 2
-                });
-                App.Log?.LogInformation("✅ Parte {id} cerrado correctamente usando PUT con HoraFin={hora}", parteId, horaFin);
+                App.Log?.LogWarning("⚠️ POST /close FALLÓ - Código: {status}", postEx.StatusCode);
+                App.Log?.LogWarning("   💬 Mensaje: {message}", postEx.Message);
+                App.Log?.LogWarning("   📄 Mensaje del servidor: {serverMsg}", 
+                    TrimForLog(postEx.ServerMessage ?? postEx.ServerError ?? "(sin respuesta)", 200));
+                App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+                App.Log?.LogInformation("🔄 MÉTODO 2 (FALLBACK): Intentando PUT completo...");
+                
+                try
+                {
+                    // Método 2 (fallback): PUT /api/v1/partes/{id} con payload completo
+                    var putEndpoint = $"/api/v1/partes/{parteId}";
+                    var fullPutUrl = $"{App.Api.BaseUrl}{putEndpoint}";
+                    
+                    var putPayload = new 
+                    {
+                        fecha_trabajo = parte.Fecha.ToString("yyyy-MM-dd"),
+                        hora_inicio = parte.HoraInicio,
+                        hora_fin = horaFin,
+                        id_cliente = parte.IdCliente,
+                        tienda = parte.Tienda ?? "",
+                        id_grupo = parte.IdGrupo,
+                        id_tipo = parte.IdTipo,
+                        accion = parte.Accion ?? "",
+                        ticket = parte.Ticket ?? "",
+                        estado = 2  // Cerrado
+                    };
+                    
+                    App.Log?.LogInformation("   📡 Endpoint: PUT {endpoint}", putEndpoint);
+                    App.Log?.LogInformation("   🌐 URL completa: {url}", fullPutUrl);
+                    App.Log?.LogInformation("   📦 Payload JSON:");
+                    App.Log?.LogInformation("      - fecha_trabajo: {fecha}", putPayload.fecha_trabajo);
+                    App.Log?.LogInformation("      - hora_inicio: {inicio}", putPayload.hora_inicio);
+                    App.Log?.LogInformation("      - hora_fin: {fin}", putPayload.hora_fin);
+                    App.Log?.LogInformation("      - id_cliente: {id}", putPayload.id_cliente);
+                    App.Log?.LogInformation("      - tienda: '{tienda}'", putPayload.tienda);
+                    App.Log?.LogInformation("      - id_grupo: {id}", putPayload.id_grupo?.ToString() ?? "null");
+                    App.Log?.LogInformation("      - id_tipo: {id}", putPayload.id_tipo?.ToString() ?? "null");
+                    App.Log?.LogInformation("      - accion: '{accion}'", TrimForLog(putPayload.accion, 50));
+                    App.Log?.LogInformation("      - ticket: '{ticket}'", putPayload.ticket);
+                    App.Log?.LogInformation("      - estado: {estado} (Cerrado)", putPayload.estado);
+                    App.Log?.LogDebug("   📋 Payload completo: {@payload}", putPayload);
+                    App.Log?.LogInformation("   ⏳ Enviando petición...");
+                    
+                    var putStart = System.Diagnostics.Stopwatch.StartNew();
+                    
+                    await App.Api.PutAsync<object, object>(putEndpoint, putPayload);
+                    
+                    putStart.Stop();
+                    
+                    App.Log?.LogInformation("✅ PUT EXITOSO");
+                    App.Log?.LogInformation("   ⏱️ Tiempo de respuesta: {ms}ms", putStart.ElapsedMilliseconds);
+                    App.Log?.LogInformation("   📥 Parte {id} cerrado correctamente", parteId);
+                    App.Log?.LogInformation("   🕐 Hora de fin aplicada: {hora}", horaFin);
+                    
+                    cierreCorrecto = true;
+                    metodoUsado = "PUT /partes/{id}";
+                }
+                catch (ApiException putEx)
+                {
+                    App.Log?.LogError("❌ PUT TAMBIÉN FALLÓ - Código: {status}", putEx.StatusCode);
+                    App.Log?.LogError("   💬 Mensaje: {message}", putEx.Message);
+                    App.Log?.LogError("   📄 Mensaje del servidor: {serverMsg}", 
+                        TrimForLog(putEx.ServerMessage ?? putEx.ServerError ?? "(sin respuesta)", 500));
+                    App.Log?.LogError("   🔍 Stack trace: {stack}", putEx.StackTrace);
+                    throw;
+                }
+                catch (Exception putGenEx)
+                {
+                    App.Log?.LogError(putGenEx, "❌ PUT falló con error inesperado");
+                    throw;
+                }
+            }
+            catch (Exception postGenEx)
+            {
+                App.Log?.LogError(postGenEx, "❌ POST /close falló con error inesperado");
+                throw;
+            }
+            finally
+            {
+                requestStart.Stop();
+                App.Log?.LogInformation("   ⏱️ Tiempo total de peticiones HTTP: {ms}ms", requestStart.ElapsedMilliseconds);
             }
             
+            // Verificar que el cierre fue exitoso
+            if (!cierreCorrecto)
+            {
+                App.Log?.LogError("❌ CIERRE FALLIDO: No se pudo cerrar el parte {id}", parteId);
+                App.Log?.LogError("   ⚠️ Ambos métodos (POST y PUT) fallaron");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                await ShowInfoAsync($"❌ Error: No se pudo cerrar el parte.\n\nRevisa los logs para más detalles.");
+                return;
+            }
+            
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            App.Log?.LogInformation("✅ CIERRE EXITOSO usando: {metodo}", metodoUsado);
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            App.Log?.LogInformation("🎯 PASO 3: Post-procesamiento...");
+            
+            // 🆕 NUEVO: Invalidar caché después de cerrar el parte
+            App.Log?.LogInformation("   🗑️ Invalidando caché de partes...");
+            var cacheStart = System.Diagnostics.Stopwatch.StartNew();
+            
+            InvalidatePartesCache(parte.Fecha);
+            
+            cacheStart.Stop();
+            App.Log?.LogInformation("   ✅ Caché invalidado en {ms}ms", cacheStart.ElapsedMilliseconds);
+            
+            // CRUCIAL: Esperar un momento antes de recargar para asegurar que el backend procesó el cambio
+            App.Log?.LogInformation("   ⏳ Esperando 500ms para sincronización del backend...");
+            await Task.Delay(500);
+            
+            App.Log?.LogInformation("   🔄 Recargando lista de partes desde el servidor...");
+            var reloadStart = System.Diagnostics.Stopwatch.StartNew();
+            
             await LoadPartesAsync();
+            
+            reloadStart.Stop();
+            App.Log?.LogInformation("   ✅ Lista recargada en {ms}ms", reloadStart.ElapsedMilliseconds);
+            
+            stopwatch.Stop();
+            
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("✅ PROCESO COMPLETADO EXITOSAMENTE");
+            App.Log?.LogInformation("   ⏱️ Tiempo total: {ms}ms ({seconds:F2}s)", 
+                stopwatch.ElapsedMilliseconds, stopwatch.Elapsed.TotalSeconds);
+            App.Log?.LogInformation("   📊 Resumen:");
+            App.Log?.LogInformation("      • Método usado: {metodo}", metodoUsado);
+            App.Log?.LogInformation("      • Parte ID: {id}", parteId);
+            App.Log?.LogInformation("      • Hora de cierre: {hora}", horaFin);
+            App.Log?.LogInformation("      • Estado final: Cerrado (2)");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+        }
+        catch (ApiException apiEx)
+        {
+            stopwatch.Stop();
+            
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("❌ ERROR API AL CERRAR PARTE {id}", parteId);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("🔴 DETALLES DEL ERROR:");
+            App.Log?.LogError("   • Tipo: ApiException");
+            App.Log?.LogError("   • StatusCode: {status} ({statusInt})", apiEx.StatusCode, (int)apiEx.StatusCode);
+            App.Log?.LogError("   • Mensaje: {message}", apiEx.Message);
+            App.Log?.LogError("   • Path: {path}", apiEx.Path);
+            App.Log?.LogError("   • Mensaje del servidor: {serverMsg}", apiEx.ServerMessage ?? "(sin mensaje)");
+            App.Log?.LogError("   • Error del servidor: {serverError}", 
+                TrimForLog(apiEx.ServerError ?? "(sin error)", 1000));
+            App.Log?.LogError("   • Stack trace: {stack}", apiEx.StackTrace);
+            App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            
+            await ShowInfoAsync($"❌ Error cerrando parte:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}\n\nRevisa los logs para más detalles.");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "Error cerrando parte {id}", parteId);
-            await ShowInfoAsync($"❌ Error cerrando parte: {ex.Message}");
+            stopwatch.Stop();
+            
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("❌ ERROR INESPERADO AL CERRAR PARTE {id}", parteId);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("🔴 DETALLES DEL ERROR:");
+            App.Log?.LogError("   • Tipo: {type}", ex.GetType().Name);
+            App.Log?.LogError("   • Mensaje: {message}", ex.Message);
+            App.Log?.LogError("   • Stack trace: {stack}", ex.StackTrace);
+            if (ex.InnerException != null)
+            {
+                App.Log?.LogError("   • Inner exception: {inner}", ex.InnerException.Message);
+                App.Log?.LogError("   • Inner stack: {stack}", ex.InnerException.StackTrace);
+            }
+            App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            
+            await ShowInfoAsync($"❌ Error inesperado cerrando parte:\n\n{ex.Message}\n\nRevisa los logs para más detalles.");
         }
     }
-
-    private async Task<string?> AskHoraCierreAsync(string horaInicio)
+    
+    /// <summary>
+    /// Muestra el diálogo mejorado para cerrar un parte
+    /// </summary>
+    private async Task<string?> AskHoraCierreAsync(ParteDto parte)
     {
-        var horaActual = DateTime.Now.ToString("HH:mm");
-        
-        var stackPanel = new StackPanel { Spacing = 15 };
-        
-        // Hora de inicio (solo lectura)
-        stackPanel.Children.Add(new TextBlock
+        try
         {
-            Text = "🕐 Hora de inicio:",
-            FontSize = 13,
-            Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 168, 176, 184))
-        });
-        
-        var txtHoraInicio = new TextBox
-        {
-            Text = horaInicio,
-            IsReadOnly = true,
-            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 40, 40, 40)),
-            Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 168, 176, 184)),
-            BorderThickness = new Thickness(0),
-            Padding = new Thickness(12, 8, 12, 8),
-            FontSize = 14
-        };
-        stackPanel.Children.Add(txtHoraInicio);
-        
-        // Hora de fin (editable)
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "⏰ Hora de cierre:",
-            FontSize = 13,
-            Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 237, 239, 242)),
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-            Margin = new Thickness(0, 10, 0, 0)
-        });
-
-        var horaFinGrid = new Grid { ColumnSpacing = 10 };
-        horaFinGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        horaFinGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        var txtHoraFin = new TextBox
-        {
-            Text = horaActual,
-            PlaceholderText = "HH:mm",
-            MaxLength = 5,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Padding = new Thickness(12, 8, 12, 8),
-            FontSize = 14
-        };
-        Grid.SetColumn(txtHoraFin, 0);
-        horaFinGrid.Children.Add(txtHoraFin);
-
-        var btnHoraActual = new Button
-        {
-            Content = "🕐 Ahora",
-            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 11, 140, 153)),
-            Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255)),
-            Padding = new Thickness(20, 8, 20, 8),
-            VerticalAlignment = VerticalAlignment.Stretch
-        };
-        btnHoraActual.Click += (s, e) =>
-        {
-            txtHoraFin.Text = DateTime.Now.ToString("HH:mm");
-        };
-        Grid.SetColumn(btnHoraActual, 1);
-        horaFinGrid.Children.Add(btnHoraActual);
-
-        stackPanel.Children.Add(horaFinGrid);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "💡 Formato: HH:mm (ejemplo: 14:30)",
-            FontSize = 11,
-            Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 168, 176, 184)),
-            Opacity = 0.7,
-            Margin = new Thickness(0, 5, 0, 0)
-        });
-
-        var dialog = new ContentDialog
-        {
-            Title = "⏰ Cerrar Parte",
-            Content = stackPanel,
-            PrimaryButtonText = "✅ Cerrar",
-            CloseButtonText = "❌ Cancelar",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot
-        };
-
-        var result = await dialog.ShowAsync();
-        
-        if (result == ContentDialogResult.Primary)
-        {
-            var horaFin = txtHoraFin.Text?.Trim();
-            
-            // Validar formato HH:mm
-            if (!string.IsNullOrEmpty(horaFin) && TimeSpan.TryParse(horaFin, out _))
+            // Crear instancia del diálogo mejorado
+            var dialog = new CerrarParteDialog(parte)
             {
-                return horaFin;
+                XamlRoot = this.XamlRoot
+            };
+            
+            App.Log?.LogInformation("🔒 Abriendo diálogo de cierre para parte ID: {id}", parte.Id);
+            
+            // Mostrar diálogo
+            var result = await dialog.ShowAsync();
+            
+            // Verificar resultado
+            if (result == ContentDialogResult.Primary && !string.IsNullOrEmpty(dialog.HoraCierreConfirmada))
+            {
+                App.Log?.LogInformation("✅ Hora de cierre confirmada: {hora}", dialog.HoraCierreConfirmada);
+                return dialog.HoraCierreConfirmada;
             }
             else
             {
-                await ShowInfoAsync("⚠️ Formato de hora inválido. Use HH:mm (ejemplo: 14:30)");
+                App.Log?.LogInformation("❌ Usuario canceló el cierre del parte");
                 return null;
             }
         }
-
-        return null;
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error mostrando diálogo de cierre");
+            await ShowInfoAsync("Error mostrando diálogo. Intenta nuevamente.");
+            return null;
+        }
     }
 
     private async void OnDuplicarClick(object sender, RoutedEventArgs e)
@@ -1170,11 +1559,35 @@ public sealed partial class DiarioPage : Page
             var result = await confirmDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
+                // 🆕 LIMPIEZA COMPLETA al hacer logout
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                App.Log?.LogInformation("🚪 LOGOUT - Limpiando sesión y datos");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                
+                // 1. Limpiar LocalSettings
                 var settings = Windows.Storage.ApplicationData.Current.LocalSettings;
                 settings.Values.Remove("UserToken");
                 settings.Values.Remove("UserName");
                 settings.Values.Remove("UserEmail");
                 settings.Values.Remove("UserRole");
+                App.Log?.LogInformation("✅ LocalSettings limpiado");
+                
+                // 2. 🆕 NUEVO: Limpiar token del ApiClient
+                App.Api.ClearToken();
+                App.Log?.LogInformation("✅ Token de autenticación eliminado");
+                
+                // 3. 🆕 NUEVO: Limpiar caché de GET requests
+                App.Api.ClearGetCache();
+                App.Log?.LogInformation("✅ Caché de peticiones limpiado");
+                
+                // 4. 🆕 NUEVO: Limpiar caché local de partes
+                _cache30dias.Clear();
+                Partes.Clear();
+                App.Log?.LogInformation("✅ Caché local de partes limpiado");
+                
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                App.Log?.LogInformation("✅ LOGOUT COMPLETADO - Navegando al login");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
                 
                 if (App.MainWindowInstance?.Navigator != null)
                 {
@@ -1205,7 +1618,7 @@ public sealed partial class DiarioPage : Page
             {
                 Title = "⚠️ Hay partes abiertos",
                 Content = $"Hay {abiertos.Count} parte(s) abierto(s) en la fecha {fecha:dd/MM/yyyy}.\n\n" +
-                         "¿Qué deseas hacer?",
+                         "¿Qué deseos hacer?",
                 PrimaryButtonText = "Cerrar anteriores",
                 SecondaryButtonText = "Mantener abiertos",
                 CloseButtonText = "Cancelar",
@@ -1234,7 +1647,7 @@ public sealed partial class DiarioPage : Page
         {
             foreach (var parte in abiertos)
             {
-                await App.Api.PutAsync<object, object>($"/api/v1/partes/{parte.Id}/close", new { HoraFin = horaFin });
+                await App.Api.PostAsync($"/api/v1/partes/{parte.Id}/close?horaFin={Uri.EscapeDataString(horaFin)}");
                 App.Log?.LogInformation("Parte {id} cerrado automáticamente con HoraFin={hora}", parte.Id, horaFin);
             }
         }
@@ -1261,7 +1674,7 @@ public sealed partial class DiarioPage : Page
         catch { }
     }
 
-    private static string Trim(string s, int max)
+    private static string TrimForLog(string s, int max)
     {
         if (string.IsNullOrEmpty(s)) return "";
         if (s.Length <= max) return s;
@@ -1271,5 +1684,147 @@ public sealed partial class DiarioPage : Page
     private async void OnSalir(object sender, RoutedEventArgs e)
     {
         OnLogout(sender, e);
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Invalida las entradas de caché relacionadas con un parte en una fecha específica
+    /// </summary>
+    private void InvalidatePartesCache(DateTime fecha)
+    {
+        try
+        {
+            // Invalidar el endpoint de rango que cubre ±30 días
+            var fromDate = fecha.AddDays(-30).ToString("yyyy-MM-dd");
+            var toDate = fecha.AddDays(30).ToString("yyyy-MM-dd");
+            
+            var rangePath = $"/api/v1/partes?created_from={fromDate}&created_to={toDate}";
+            App.Api.InvalidateCacheEntry(rangePath);
+            App.Log?.LogDebug("🗑️ Caché invalidado: {path}", rangePath);
+            
+            // También invalidar la fecha específica (para el método legacy)
+            var dayPath = $"/api/v1/partes?fecha={fecha:yyyy-MM-dd}";
+            App.Api.InvalidateCacheEntry(dayPath);
+            App.Log?.LogDebug("🗑️ Caché invalidado: {path}", dayPath);
+            
+            // También invalidar la fecha actual (por si estamos trabajando con la fecha de hoy)
+            if (fecha.Date != DateTime.Today)
+            {
+                var todayPath = $"/api/v1/partes?fecha={DateTime.Today:yyyy-MM-dd}";
+                App.Api.InvalidateCacheEntry(todayPath);
+                App.Log?.LogDebug("🗑️ Caché invalidado (hoy): {path}", todayPath);
+            }
+            
+            App.Log?.LogInformation("✅ Caché de partes invalidado correctamente");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogWarning(ex, "Error invalidando caché de partes");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Calcula y actualiza el tooltip de cobertura de tiempo sin solapamiento
+    /// </summary>
+    private void UpdateTimeCoverageTooltip()
+    {
+        try
+        {
+            var intervals = Partes
+                .Where(p => !string.IsNullOrWhiteSpace(p.HoraInicio))
+                .Select(p =>
+                {
+                    if (!TimeSpan.TryParse(p.HoraInicio, out var inicio))
+                        return null;
+                    
+                    var startTime = p.Fecha.Date.Add(inicio);
+                    
+                    DateTime endTime;
+                    if (!string.IsNullOrWhiteSpace(p.HoraFin) && TimeSpan.TryParse(p.HoraFin, out var fin))
+                    {
+                        endTime = p.Fecha.Date.Add(fin);
+                    }
+                    else
+                    {
+                        endTime = DateTime.Now;
+                    }
+                    
+                    if (endTime <= startTime)
+                        return null;
+                    
+                    return new IntervalMerger.Interval(startTime, endTime);
+                })
+                .Where(i => i != null)
+                .Cast<IntervalMerger.Interval>()
+                .ToList();
+            
+            if (!intervals.Any())
+            {
+                UpdateDuracionHeaderTooltip(null);
+                return;
+            }
+            
+            var coverage = IntervalMerger.ComputeCoverage(intervals);
+            UpdateDuracionHeaderTooltip(coverage);
+            
+            App.Log?.LogInformation("⏱️ Cobertura: {covered}, Solapado: {overlap}",
+                IntervalMerger.FormatDuration(coverage.TotalCovered),
+                IntervalMerger.FormatDuration(coverage.TotalOverlap));
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error calculando cobertura");
+            UpdateDuracionHeaderTooltip(null);
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Actualiza el tooltip del header "Dur."
+    /// </summary>
+    private void UpdateDuracionHeaderTooltip(IntervalMerger.CoverageResult? coverage)
+    {
+        try
+        {
+            if (DuracionHeader == null)
+                return;
+            
+            if (coverage == null || !coverage.MergedIntervals.Any())
+            {
+                ToolTipService.SetToolTip(DuracionHeader, "No hay datos de tiempo disponibles");
+                return;
+            }
+            
+            var tooltipText = BuildCoverageTooltipText(coverage);
+            ToolTipService.SetToolTip(DuracionHeader, tooltipText);
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error actualizando tooltip");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Construye el texto del tooltip
+    /// </summary>
+    private static string BuildCoverageTooltipText(IntervalMerger.CoverageResult coverage)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("⏱️ TIEMPO REAL OCUPADO (SIN SOLAPAMIENTO)");
+        sb.AppendLine();
+        sb.AppendLine($"📊 Cubierto: {IntervalMerger.FormatDuration(coverage.TotalCovered)}");
+        
+        if (coverage.TotalOverlap.TotalMinutes > 0)
+            sb.AppendLine($"⚠️ Solapado: {IntervalMerger.FormatDuration(coverage.TotalOverlap)}");
+        
+        sb.AppendLine();
+        sb.AppendLine($"🕐 Intervalos cubiertos ({coverage.MergedIntervals.Count}):");
+        
+        foreach (var interval in coverage.MergedIntervals)
+        {
+            var formatted = IntervalMerger.FormatInterval(interval);
+            var duration = IntervalMerger.FormatDuration(interval.Duration);
+            sb.AppendLine($"   • {formatted} ({duration})");
+        }
+        
+        return sb.ToString().TrimEnd();
     }
 }

@@ -5,523 +5,498 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="using:GestionTime.Desktop.Helpers"
+    xmlns:media="using:Microsoft.UI.Xaml.Media"
     mc:Ignorable="d"
     Background="Transparent">
 
-    <!-- ===================== THEME + PALETA ===================== -->
+    <!-- ===================== RESOURCES - PALETA EXACTA PANTALLAZO ===================== -->
     <Page.Resources>
         <ResourceDictionary>
-
-            <ResourceDictionary.ThemeDictionaries>
-
-                <!-- OSCURO -->
-                <ResourceDictionary x:Key="Default">
-                    <SolidColorBrush x:Key="AppBgFallback" Color="#0F1113"/>
-                    <ImageBrush x:Key="AppBg" ImageSource="ms-appx:///Assets/diario_bg_dark.png" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center" Opacity="1"/>
-                    <SolidColorBrush x:Key="SurfaceBg" Color="#1A1D21"/>
-                    <SolidColorBrush x:Key="Stroke" Color="#30363D"/>
-                    <SolidColorBrush x:Key="TextMain" Color="#EDEFF2"/>
-                    <SolidColorBrush x:Key="TextMuted" Color="#A8B0B8"/>
-                    <SolidColorBrush x:Key="Accent" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="AccentDark" Color="#08707A"/>
-                    <SolidColorBrush x:Key="CardBg" Color="#121416"/>
-                    <SolidColorBrush x:Key="InputBg" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="InputText" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="ButtonBg" Color="#1E2328"/>
-                    <SolidColorBrush x:Key="ButtonStroke" Color="#30363D"/>
-                    <SolidColorBrush x:Key="BannerBg" Color="#0B8C99"/>
-                    <BitmapImage x:Key="LogoImage" UriSource="ms-appx:///Assets/LogoOscuro.png"/>
-                </ResourceDictionary>
-
-                <!-- CLARO -->
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="AppBg" Color="#F5F7F9"/>
-                    <ImageBrush x:Key="AppBgImage" ImageSource="ms-appx:///Assets/Diario_bg_claro.png" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center" Opacity="1"/>
-                    <SolidColorBrush x:Key="SurfaceBg" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="Stroke" Color="#D6DEE6"/>
-                    <SolidColorBrush x:Key="TextMain" Color="#111315"/>
-                    <SolidColorBrush x:Key="TextMuted" Color="#5A6B74"/>
-                    <SolidColorBrush x:Key="Accent" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="AccentDark" Color="#08707A"/>
-                    <SolidColorBrush x:Key="CardBg" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="InputBg" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="InputText" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="ButtonBg" Color="#F3F6F9"/>
-                    <SolidColorBrush x:Key="ButtonStroke" Color="#D6DEE6"/>
-                    <SolidColorBrush x:Key="BannerBg" Color="#0B8C99"/>
-                    <BitmapImage x:Key="LogoImage" UriSource="ms-appx:///Assets/LogoClaro.png"/>
-                </ResourceDictionary>
-
-            </ResourceDictionary.ThemeDictionaries>
-
-            <Style TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ThemeResource TextMain}"/>
-            </Style>
-
-            <Style x:Key="MutedText" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ThemeResource TextMuted}"/>
-            </Style>
-
-            <Style x:Key="PanelBorder" TargetType="Border">
-                <Setter Property="Background" Value="{ThemeResource CardBg}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource Stroke}"/>
+            <!-- 🎨 PALETA DE COLORES EXACTA DEL PANTALLAZO -->
+            <SolidColorBrush x:Key="AccentBrush" Color="#16A8B8"/>
+            <SolidColorBrush x:Key="BackgroundBrush" Color="#0F1419"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1A2332"/>
+            <SolidColorBrush x:Key="CardBorderBrush" Color="#2D3E50"/>
+            <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0D1117"/>
+            <SolidColorBrush x:Key="InputBorderBrush" Color="#30363D"/>
+            <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#16A8B8"/>
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E6EDF3"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#AAB4BF"/>
+            <SolidColorBrush x:Key="TextPlaceholderBrush" Color="#484F58"/>
+            <SolidColorBrush x:Key="HeaderBrush" Color="#16A8B8"/>
+            <SolidColorBrush x:Key="FooterBackgroundBrush" Color="#0D1117"/>
+            <SolidColorBrush x:Key="BadgeGreenBrush" Color="#238636"/>
+            
+            <!-- 📝 ESTILO TEXTBOX -->
+            <Style x:Key="ModernTextBox" TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Height" Value="38"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
-
+            
+            <!-- 📝 ESTILO AUTOSUGGESTBOX -->
+            <Style x:Key="ModernAutoSuggestBox" TargetType="AutoSuggestBox">
+                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Height" Value="38"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="TextMemberPath" Value=""/>
+                <Setter Property="TextBoxStyle">
+                    <Setter.Value>
+                        <Style TargetType="TextBox">
+                            <Setter Property="TextAlignment" Value="Left"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            
+            <!-- 📅 ESTILO DATEPICKER -->
+            <Style x:Key="ModernDatePicker" TargetType="CalendarDatePicker">
+                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Height" Value="38"/>
+            </Style>
+            
+            <!-- 🔽 ESTILO COMBOBOX -->
+            <Style x:Key="ModernComboBox" TargetType="ComboBox">
+                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Height" Value="38"/>
+            </Style>
+            
+            <!-- 🔘 BOTÓN PRIMARIO (GRABAR) -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Padding" Value="20,10"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="MinWidth" Value="100"/>
+                <Setter Property="Height" Value="40"/>
+            </Style>
+            
+            <!-- 🔘 BOTÓN SECUNDARIO (ANULAR/SALIR) -->
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Padding" Value="20,10"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="MinWidth" Value="100"/>
+                <Setter Property="Height" Value="40"/>
+            </Style>
+            
+            <!-- 📌 LABEL CAMPO -->
             <Style x:Key="FieldLabel" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
-                <Setter Property="Foreground" Value="{ThemeResource TextMuted}"/>
-                <Setter Property="Margin" Value="0,0,8,0"/>
-                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
             </Style>
-
-            <Style x:Key="FieldTextBox" TargetType="TextBox">
-                <Setter Property="Background" Value="{ThemeResource InputBg}"/>
-                <Setter Property="Foreground" Value="{ThemeResource InputText}"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="CornerRadius" Value="4"/>
-                <Setter Property="Padding" Value="10,6"/>
-                <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Height" Value="32"/>
-                <Setter Property="VerticalAlignment" Value="Center"/>
+            
+            <!-- 🏷️ SECTION TITLE -->
+            <Style x:Key="SectionTitle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Margin" Value="0,0,0,8"/>
             </Style>
-
-            <Style x:Key="FieldComboBox" TargetType="ComboBox">
-                <Setter Property="Background" Value="{ThemeResource InputBg}"/>
-                <Setter Property="Foreground" Value="{ThemeResource InputText}"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="CornerRadius" Value="4"/>
-                <Setter Property="Height" Value="32"/>
-                <Setter Property="VerticalAlignment" Value="Center"/>
-            </Style>
-
-            <Style x:Key="ToolbarButton" TargetType="Button">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource Accent}"/>
-                <Setter Property="Width" Value="80"/>
-                <Setter Property="Height" Value="70"/>
-                <Setter Property="Padding" Value="8"/>
-                <Setter Property="CornerRadius" Value="6"/>
-            </Style>
-
-            <Style x:Key="ThemeButton" TargetType="Button">
-                <Setter Property="Background" Value="{ThemeResource SurfaceBg}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource Stroke}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="10,8"/>
-            </Style>
-
         </ResourceDictionary>
     </Page.Resources>
 
-    <!-- ===================== LAYOUT ===================== -->
-    <Grid x:Name="RootGrid" 
-          Background="{ThemeResource AppBg}" 
-          Padding="10" 
-          RowSpacing="10"
-          Opacity="0">
+    <!-- ===================== MAIN GRID CON FONDO OSCURO ===================== -->
+    <Grid x:Name="RootGrid" Padding="6" RowSpacing="6" Opacity="0">
+        <!-- FONDO OSCURO SÓLIDO (sin textura) -->
+        <Grid.Background>
+            <SolidColorBrush Color="#0F1419"/>
+        </Grid.Background>
+        
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>   <!-- Header -->
+            <RowDefinition Height="*"/>      <!-- Content -->
+            <RowDefinition Height="Auto"/>   <!-- Footer -->
         </Grid.RowDefinitions>
 
-        <!-- ===================== BANNER (logo + título + info usuario) ===================== -->
-        <Border Grid.Row="0" Background="{ThemeResource BannerBg}" CornerRadius="10" Padding="16">
-            <Grid ColumnSpacing="16">
+        <!-- ===================== HEADER - BANNER TEAL ===================== -->
+        <Border Grid.Row="0" 
+                Background="{StaticResource HeaderBrush}" 
+                CornerRadius="6" 
+                Padding="10">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- Logo -->
-                <Border Grid.Column="0" Background="Transparent" CornerRadius="6" VerticalAlignment="Center">
-                    <Image x:Name="LogoImageBanner" 
-                           Source="ms-appx:///Assets/LogoOscuro.png" 
-                           Stretch="Uniform"
-                           MaxHeight="60"
-                           HorizontalAlignment="Left"/>
-                </Border>
+                <!-- LOGO -->
+                <Image x:Name="LogoImageBanner" 
+                       Grid.Column="0"
+                       Source="ms-appx:///Assets/LogoOscuro.png" 
+                       Stretch="Uniform"
+                       MaxHeight="50"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
                 
-                <!-- Título + Info de Usuario -->
+                <!-- TÍTULO + USUARIO -->
                 <StackPanel Grid.Column="1" 
                             VerticalAlignment="Center" 
-                            Spacing="4"
+                            Spacing="1"
                             Margin="8,0,0,0">
-                    <!-- Título Principal con Estado -->
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock x:Name="TxtTituloParte" 
-                                   Text="Editar Parte"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"
-                                   Foreground="White"/>
-                        <!-- Badge de Estado -->
-                        <Border x:Name="BadgeEstado"
-                                Background="#10B981"
-                                CornerRadius="12"
-                                Padding="12,4"
-                                VerticalAlignment="Center">
-                            <TextBlock x:Name="TxtEstadoParte" 
-                                       Text="Abierto"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="White"/>
-                        </Border>
-                    </StackPanel>
+                    <!-- Título -->
+                    <TextBlock x:Name="TxtTituloParte" 
+                               Text="Nuevo Parte"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="White"/>
                     
-                    <!-- Usuario -->
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE77B;" 
-                                  FontSize="14" 
+                    <!-- Usuario: Icono + Nombre • Rol + Email -->
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                  Glyph="&#xE77B;" 
+                                  FontSize="12" 
                                   Foreground="White" 
                                   Opacity="0.9"
                                   VerticalAlignment="Center"/>
-                        <StackPanel Spacing="2">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock x:Name="TxtUserName" 
-                                           Text="Usuario"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"/>
-                                <TextBlock Text="•" 
-                                           FontSize="14"
-                                           Foreground="White"
-                                           Opacity="0.6"/>
-                                <TextBlock x:Name="TxtUserRole" 
-                                           Text="Usuario"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"
-                                           Opacity="0.9"/>
-                            </StackPanel>
-                            <TextBlock x:Name="TxtUserEmail" 
-                                       Text="usuario@empresa.com"
-                                       FontSize="12"
-                                       Foreground="White"
-                                       Opacity="0.8"/>
-                        </StackPanel>
+                        <TextBlock x:Name="TxtUserName" 
+                                   Text="Francisco Santos"
+                                   FontSize="12"
+                                   Foreground="White"
+                                   Opacity="0.95"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="•" 
+                                   FontSize="12"
+                                   Foreground="White"
+                                   Opacity="0.6"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtUserRole" 
+                                   Text="Usuario"
+                                   FontSize="12"
+                                   Foreground="White"
+                                   Opacity="0.9"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
+                    
+                    <!-- Email -->
+                    <TextBlock x:Name="TxtUserEmail" 
+                               Text="msn@tdkportal.com"
+                               FontSize="11"
+                               Foreground="White"
+                               Opacity="0.75"/>
                 </StackPanel>
+                
+                <!-- BADGE ESTADO -->
+                <Border x:Name="BadgeEstado"
+                        Grid.Column="2"
+                        Background="{StaticResource BadgeGreenBrush}"
+                        CornerRadius="4"
+                        Padding="10,4"
+                        VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtEstadoParte" 
+                               Text="Abierto"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="White"/>
+                </Border>
             </Grid>
         </Border>
 
-        <!-- Contenido del formulario -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,12">
-            <StackPanel Spacing="10" MaxWidth="1600">
-
-                <!-- Fila 1: Fecha | Cliente | Tienda -->
-                <Grid ColumnSpacing="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="350"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="Fecha" Style="{StaticResource FieldLabel}"/>
-                    <CalendarDatePicker Grid.Column="1" 
-                                        x:Name="DpFecha"
-                                        Background="{ThemeResource InputBg}"
-                                        Foreground="{ThemeResource InputText}"
-                                        BorderThickness="0"
-                                        CornerRadius="4"
-                                        Height="32"
-                                        VerticalAlignment="Center"
-                                        TabIndex="1"
-                                        DateFormat="{}{day.integer}/{month.integer}/{year.full}"
-                                        DateChanged="OnFieldChanged"/>
-                    
-                    <TextBlock Grid.Column="2" Text="Cliente" Style="{StaticResource FieldLabel}"/>
-                    <AutoSuggestBox Grid.Column="3" 
-                                    x:Name="TxtCliente"
-                                    Background="{ThemeResource InputBg}"
-                                    Foreground="{ThemeResource InputText}"
-                                    BorderThickness="0"
-                                    CornerRadius="4"
-                                    Height="32"
-                                    MinWidth="350"
-                                    TabIndex="2"
-                                    PlaceholderText="Escriba para buscar cliente..."
-                                    TextChanged="OnClienteTextChanged"
-                                    SuggestionChosen="OnClienteSuggestionChosen"
-                                    QuerySubmitted="OnClienteQuerySubmitted"/>
-                    
-                    <TextBlock Grid.Column="4" Text="Tienda" Style="{StaticResource FieldLabel}"/>
-                    <TextBox Grid.Column="5"
-                             x:Name="TxtTienda" 
-                             Style="{StaticResource FieldTextBox}"
-                             MinWidth="350"
-                             TabIndex="3"
-                             TextChanged="OnFieldChanged"/>
-                    <Button Grid.Column="6"
-                            Background="{ThemeResource InputBg}"
-                            BorderThickness="0"
-                            CornerRadius="4"
-                            Width="32"
-                            Height="32"
-                            Padding="0"
-                            Visibility="Collapsed"
-                            IsTabStop="False"
-                            Margin="8,0,0,0">
-                        <!-- IconHelper.Person -->
-                        <FontIcon Glyph="&#xE77B;" FontSize="16" Foreground="White"/>
-                    </Button>
-                    <Button Grid.Column="7"
-                            Background="{ThemeResource InputBg}"
-                            BorderThickness="0"
-                            CornerRadius="4"
-                            Width="32"
-                            Height="32"
-                            Padding="0"
-                            Visibility="Collapsed"
-                            IsTabStop="False"
-                            Margin="8,0,0,0">
-                        <!-- IconHelper.Add -->
-                        <FontIcon Glyph="&#xE710;" FontSize="16" Foreground="White"/>
-                    </Button>
-                </Grid>
-
-                <!-- Fila 2: Hora ini. | Hora fin. | Nº Ticket | Grupo | Tipo | Duración -->
-                <Grid ColumnSpacing="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>   <!-- Label Hora ini -->
-                        <ColumnDefinition Width="60"/>     <!-- Hora inicio (6 caracteres) -->
-                        <ColumnDefinition Width="Auto"/>   <!-- Label Hora fin -->
-                        <ColumnDefinition Width="60"/>     <!-- Hora fin (6 caracteres) -->
-                        <ColumnDefinition Width="Auto"/>   <!-- Label Ticket -->
-                        <ColumnDefinition Width="120"/>    <!-- Ticket (10 caracteres) -->
-                        <ColumnDefinition Width="Auto"/>   <!-- Label Grupo -->
-                        <ColumnDefinition Width="120"/>    <!-- Grupo (30 caracteres) -->
-                        <ColumnDefinition Width="Auto"/>   <!-- Label Tipo -->
-                        <ColumnDefinition Width="120"/>  <!-- Tipo (30 caracteres) -->
-                        <ColumnDefinition Width="Auto"/>   <!-- Label Duración -->
-                        <ColumnDefinition Width="80"/>     <!-- Duración (5 caracteres) -->
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0" 
-                               Text="Hora ini." 
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0,0,4,0"/>
-                    <TextBox Grid.Column="1"
-                             x:Name="TxtHoraInicio" 
-                             Style="{StaticResource FieldTextBox}"
-                             TabIndex="4"
-                             MaxLength="5"
-                             PlaceholderText="HH:mm"
-                             TextChanged="OnHoraTextChanged"/>
-
-                    <TextBlock Grid.Column="2" 
-                               Text="Hora fin." 
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0,0,4,0"/>
-                    <TextBox Grid.Column="3"
-                             x:Name="TxtHoraFin" 
-                             Style="{StaticResource FieldTextBox}"
-                             TabIndex="5"
-                             MaxLength="5"
-                             PlaceholderText="HH:mm"
-                             TextChanged="OnHoraTextChanged"/>
-
-                    <TextBlock Grid.Column="4" 
-                               Text="Ticket" 
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0,0,4,0"/>
-                    <TextBox Grid.Column="5"
-                             x:Name="TxtTicket" 
-                             Style="{StaticResource FieldTextBox}"
-                             TabIndex="6"
-                             MaxLength="10"
-                             TextChanged="OnFieldChanged"/>
-
-                    <TextBlock Grid.Column="6" 
-                               Text="Grupo" 
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0,0,4,0"/>
-                    <ComboBox Grid.Column="7"
-                              x:Name="CmbGrupo"
-                              Style="{StaticResource FieldComboBox}"
-                              IsEditable="True"
-                              TabIndex="7"
-                              HorizontalAlignment="Stretch"
-                              SelectionChanged="OnFieldChanged">
-                    </ComboBox>
-
-                    <TextBlock Grid.Column="8" 
-                               Text="Tipo" 
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0,0,4,0"/>
-                    <ComboBox Grid.Column="9"
-                              x:Name="CmbTipo"
-                              Style="{StaticResource FieldComboBox}"
-                              IsEditable="True"
-                              TabIndex="8"
-                              HorizontalAlignment="Stretch">
-                    </ComboBox>
-
-                    <TextBlock Grid.Column="10" 
-                               Text="Duración" 
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0,0,4,0"/>
-                    <TextBox Grid.Column="11"
-                             x:Name="TxtDuracion" 
-                             Style="{StaticResource FieldTextBox}"
-                             TabIndex="9"
-                             MaxLength="5"
-                             IsReadOnly="True"
-                             IsTabStop="False"
-                             TextChanged="OnFieldChanged"/>
-                </Grid>
-
-                <!-- Fila 3: Acción (campo grande multilinea) -->
-                <Grid ColumnSpacing="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Grid Grid.Column="0" VerticalAlignment="Top" Margin="0,8,0,0">
+        <!-- ===================== CONTENT - 3 CARDS CON GRID ===================== -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto" 
+                      Padding="0,6,0,6">
+            <Grid MaxWidth="1400" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>   <!-- Card 1: Datos Generales -->
+                    <RowDefinition Height="Auto"/>   <!-- Card 2: Información de Tiempo -->
+                    <RowDefinition Height="*"/>      <!-- Card 3: Descripción/Acción (estirable) -->
+                </Grid.RowDefinitions>
+                
+                <!-- ========== CARD 1: DATOS GENERALES ========== -->
+                <Border Grid.Row="0"
+                        Background="{StaticResource CardBackgroundBrush}"
+                        BorderBrush="{StaticResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12">
+                    <StackPanel Spacing="10">
+                        <!-- Título Sección -->
+                        <TextBlock Text="DATOS GENERALES" 
+                                   Style="{StaticResource SectionTitle}"/>
+                        
+                        <!-- Grid 3 columnas: Fecha | Cliente | Tienda -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- FECHA -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Fecha" Style="{StaticResource FieldLabel}"/>
+                                <CalendarDatePicker x:Name="DpFecha"
+                                                    Style="{StaticResource ModernDatePicker}"
+                                                    TabIndex="1"
+                                                    DateFormat="{}{day.integer}/{month.integer}/{year.full}"
+                                                    DateChanged="OnFieldChanged"/>
+                            </StackPanel>
+                            
+                            <!-- CLIENTE -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Cliente" Style="{StaticResource FieldLabel}"/>
+                                <AutoSuggestBox x:Name="TxtCliente"
+                                                Style="{StaticResource ModernAutoSuggestBox}"
+                                                TabIndex="2"
+                                                PlaceholderText="Escriba para buscar cliente..."
+                                                TextChanged="OnClienteTextChanged"
+                                                SuggestionChosen="OnClienteSuggestionChosen"
+                                                QuerySubmitted="OnClienteQuerySubmitted"
+                                                HorizontalContentAlignment="Left"/>
+                            </StackPanel>
+                            
+                            <!-- TIENDA -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Tienda" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="TxtTienda" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         TabIndex="3"
+                                         TextChanged="OnFieldChanged"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- ========== CARD 2: INFORMACIÓN DE TIEMPO ========== -->
+                <Border Grid.Row="1"
+                        Background="{StaticResource CardBackgroundBrush}"
+                        BorderBrush="{StaticResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12">
+                    <StackPanel Spacing="10">
+                        <!-- Título Sección -->
+                        <TextBlock Text="INFORMACIÓN DE TIEMPO" 
+                                   Style="{StaticResource SectionTitle}"/>
+                        
+                        <!-- Grid 5 columnas: Hora Ini | Hora Fin | Ticket | Grupo | Tipo -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- HORA INICIO -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Hora ini." Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="TxtHoraInicio" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         TabIndex="4"
+                                         MaxLength="5"
+                                         PlaceholderText="HH:mm"
+                                         TextChanged="OnHoraTextChanged"/>
+                            </StackPanel>
+                            
+                            <!-- HORA FIN -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Hora fin." Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="TxtHoraFin" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         TabIndex="5"
+                                         MaxLength="5"
+                                         PlaceholderText="HH:mm"
+                                         TextChanged="OnHoraTextChanged"/>
+                            </StackPanel>
+                            
+                            <!-- TICKET -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Ticket" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="TxtTicket" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         TabIndex="6"
+                                         TextChanged="OnFieldChanged"/>
+                            </StackPanel>
+                            
+                            <!-- GRUPO -->
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="Grupo" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="CmbGrupo"
+                                          Style="{StaticResource ModernComboBox}"
+                                          IsEditable="True"
+                                          TabIndex="7"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OnFieldChanged"/>
+                            </StackPanel>
+                            
+                            <!-- TIPO -->
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Tipo" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="CmbTipo"
+                                          Style="{StaticResource ModernComboBox}"
+                                          IsEditable="True"
+                                          TabIndex="8"
+                                          HorizontalAlignment="Stretch"
+                                          SelectionChanged="OnFieldChanged"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- ========== CARD 3: DESCRIPCIÓN / ACCIÓN (ESTIRABLE) ========== -->
+                <Border Grid.Row="2"
+                        Background="{StaticResource CardBackgroundBrush}"
+                        BorderBrush="{StaticResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        VerticalAlignment="Stretch">
+                    <Grid RowSpacing="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>    <!-- Título -->
+                            <RowDefinition Height="*"/>       <!-- TextBox estirable -->
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" 
-                                   Text="Accion" 
-                                   Style="{StaticResource FieldLabel}"
-                                   Margin="0,0,8,4"/>
-                        <Button Grid.Row="1"
-                                Background="{ThemeResource InputBg}"
-                                BorderThickness="0"
-                                CornerRadius="4"
-                                Width="32"
-                                Height="32"
-                                Padding="0"
-                                IsTabStop="False"
-                                Margin="0,4,0,0">
-                            <!-- IconHelper.Settings -->
-                            <FontIcon Glyph="&#xE90F;" FontSize="16" Foreground="White"/>
-                        </Button>
+                        
+                        <!-- Título Sección -->
+                        <TextBlock Grid.Row="0"
+                                   Text="DESCRIPCIÓN / ACCIÓN" 
+                                   Style="{StaticResource SectionTitle}"/>
+                        
+                        <!-- Campo grande multiline (ESTIRABLE) -->
+                        <TextBox Grid.Row="1"
+                                 x:Name="TxtAccion" 
+                                 Background="{StaticResource InputBackgroundBrush}"
+                                 Foreground="{StaticResource TextPrimaryBrush}"
+                                 BorderBrush="{StaticResource InputBorderBrush}"
+                                 BorderThickness="1"
+                                 CornerRadius="6"
+                                 Padding="12,10"
+                                 FontSize="14"
+                                 TextWrapping="Wrap" 
+                                 AcceptsReturn="True"
+                                 MinHeight="120"
+                                 VerticalAlignment="Stretch"
+                                 VerticalContentAlignment="Top"
+                                 TabIndex="9"
+                                 PlaceholderText="Describe la acción realizada..."
+                                 TextChanged="OnFieldChanged"
+                                 PreviewKeyDown="OnAccionPreviewKeyDown"
+                                 TextChanging="OnAccionTextChanging"
+                                 GotFocus="OnAccionGotFocus"/>
                     </Grid>
-
-                    <TextBox Grid.Column="1" 
-                             x:Name="TxtAccion" 
-                             Background="{ThemeResource InputBg}"
-                             Foreground="{ThemeResource InputText}"
-                             BorderThickness="0"
-                             CornerRadius="4"
-                             Padding="10,8"
-                             FontSize="13"
-                             TextWrapping="Wrap" 
-                             AcceptsReturn="True"
-                             Height="100"
-                             VerticalAlignment="Stretch"
-                             TabIndex="10"
-                             TextChanged="OnFieldChanged"/>
-                </Grid>
-
-                <!-- Campos ocultos para compatibilidad -->
-                <TextBox x:Name="TxtGrupo" Visibility="Collapsed" IsTabStop="False"/>
-                <TextBox x:Name="TxtTipo" Visibility="Collapsed" IsTabStop="False"/>
-                <TextBox x:Name="TxtTecnico" Visibility="Collapsed" IsTabStop="False"/>
-                <TextBox x:Name="TxtEstado" Visibility="Collapsed" IsTabStop="False"/>
-                <Button x:Name="BtnAccionGrabar" Visibility="Collapsed" IsTabStop="False"/>
-
-            </StackPanel>
+                </Border>
+                
+                <!-- CAMPOS OCULTOS (compatibilidad) -->
+                <StackPanel Grid.Row="3" Visibility="Collapsed">
+                    <TextBox x:Name="TxtDuracion" IsTabStop="False"/>
+                    <TextBox x:Name="TxtGrupo" IsTabStop="False"/>
+                    <TextBox x:Name="TxtTipo" IsTabStop="False"/>
+                    <TextBox x:Name="TxtTecnico" IsTabStop="False"/>
+                    <TextBox x:Name="TxtEstado" IsTabStop="False"/>
+                    <Button x:Name="BtnAccionGrabar" IsTabStop="False"/>
+                </StackPanel>
+                
+            </Grid>
         </ScrollViewer>
 
-        <!-- Toolbar inferior con iconos -->
+        <!-- ===================== FOOTER - BOTONERA FIJA ===================== -->
         <Border Grid.Row="2" 
-                BorderBrush="{ThemeResource Accent}" 
-                BorderThickness="2" 
-                Padding="8" 
-                CornerRadius="6" 
-                Background="Transparent">
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                Background="{StaticResource FooterBackgroundBrush}"
+                Padding="16,12">
+            <StackPanel Orientation="Horizontal" 
+                        Spacing="12"
+                        HorizontalAlignment="Right">
                 
-                <!-- Copiar -->
-                <Button x:Name="BtnCopiar" 
-                        Style="{StaticResource ToolbarButton}"
-                        TabIndex="11"
-                        Click="OnCopiarClick"
-                        PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited"
-                        ToolTipService.ToolTip="Copiar (Ctrl+C)">
-                    <StackPanel Spacing="4">
-                        <!-- IconHelper.Copy -->
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8C8;" FontSize="24" Foreground="#3B82F6"/>
-                        <TextBlock Text="Copiar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-
-                <!-- Pegar -->
-                <Button x:Name="BtnPegar" 
-                        Style="{StaticResource ToolbarButton}"
-                        TabIndex="12"
-                        Click="OnPegarClick"
-                        IsEnabled="False"
-                        PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited"
-                        ToolTipService.ToolTip="Pegar (Ctrl+V)">
-                    <StackPanel Spacing="4">
-                        <!-- IconHelper.Paste -->
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE77F;" FontSize="24" Foreground="{ThemeResource TextMuted}"/>
-                        <TextBlock Text="Pegar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-
-                <!-- Guardar -->
+                <!-- GRABAR (PRIMARIO - TEAL) -->
                 <Button x:Name="BtnGuardar" 
-                        Style="{StaticResource ToolbarButton}"
-                        TabIndex="13"
+                        Style="{StaticResource PrimaryButton}"
+                        TabIndex="12"
                         Click="OnGuardarClick"
                         IsEnabled="False"
+                        Width="80"
+                        Height="70"
                         PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited"
-                        ToolTipService.ToolTip="Guardar (Ctrl+S)">
+                        PointerExited="OnButtonPointerExited">
                     <StackPanel Spacing="4">
-                        <!-- IconHelper.Save -->
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;" FontSize="24" Foreground="{ThemeResource TextMuted}"/>
-                        <TextBlock Text="Grabar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                  Glyph="&#xE74E;" 
+                                  FontSize="24"
+                                  Foreground="White"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Grabar" 
+                                   FontSize="11" 
+                                   Foreground="White" 
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-
-                <!-- Cancelar -->
+                
+                <!-- ANULAR (SECUNDARIO) -->
                 <Button x:Name="BtnCancelar" 
-                        Style="{StaticResource ToolbarButton}"
-                        TabIndex="14"
+                        Style="{StaticResource SecondaryButton}"
+                        TabIndex="13"
                         Click="OnCancelarClick"
+                        Width="80"
+                        Height="70"
                         PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited"
-                        ToolTipService.ToolTip="Cancelar (Esc)">
+                        PointerExited="OnButtonPointerExited">
                     <StackPanel Spacing="4">
-                        <!-- IconHelper.Cancel -->
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;" FontSize="24" Foreground="#F59E0B"/>
-                        <TextBlock Text="Anular" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                  Glyph="&#xE711;" 
+                                  FontSize="24"
+                                  Foreground="#F59E0B"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Anular" 
+                                   FontSize="11" 
+                                   Foreground="{StaticResource TextPrimaryBrush}" 
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-
-                <!-- Salir -->
+                
+                <!-- SALIR (SECUNDARIO) -->
                 <Button x:Name="BtnSalir" 
-                        Style="{StaticResource ToolbarButton}"
-                        TabIndex="15"
+                        Style="{StaticResource SecondaryButton}"
+                        TabIndex="14"
                         Click="OnSalirClick"
+                        Width="80"
+                        Height="70"
                         PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited"
-                        ToolTipService.ToolTip="Salir (Alt+F4)">
+                        PointerExited="OnButtonPointerExited">
                     <StackPanel Spacing="4">
-                        <!-- IconHelper.Exit -->
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7E8;" FontSize="24" Foreground="#EF4444"/>
-                        <TextBlock Text="Salir" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                  Glyph="&#xE7E8;" 
+                                  FontSize="24"
+                                  Foreground="#EF4444"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Salir" 
+                                   FontSize="11" 
+                                   Foreground="{StaticResource TextPrimaryBrush}" 
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-
+                
             </StackPanel>
         </Border>
 

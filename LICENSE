@@ -1,0 +1,142 @@
+﻿# License
+
+**LICENCIA DE SOFTWARE PROPIETARIO**
+
+Copyright © 2025 Global Retail Group. Todos los derechos reservados.
+
+---
+
+## TÉRMINOS Y CONDICIONES
+
+### 1. DEFINICIONES
+
+- **"Software"** se refiere a GestionTime Desktop en todas sus formas y versiones.
+- **"Licenciante"** se refiere a Global Retail Group.
+- **"Licenciatario"** se refiere a la entidad o persona que ha recibido acceso al Software.
+
+### 2. CONCESIÓN DE LICENCIA
+
+Global Retail Group concede al Licenciatario una licencia **no exclusiva, no transferible y revocable** para:
+
+- Usar el Software internamente dentro de su organización
+- Instalar el Software en equipos propiedad del Licenciatario
+- Realizar copias de seguridad del Software
+
+### 3. RESTRICCIONES
+
+El Licenciatario **NO PUEDE**:
+
+- ❌ Distribuir, sublicenciar o transferir el Software a terceros
+- ❌ Modificar, descompilar o realizar ingeniería inversa
+- ❌ Crear trabajos derivados basados en el Software
+- ❌ Eliminar o alterar marcas de copyright, marcas comerciales u otros avisos
+- ❌ Usar el Software para propósitos comerciales fuera de su organización
+- ❌ Publicar benchmarks o resultados de pruebas del Software
+
+### 4. PROPIEDAD INTELECTUAL
+
+El Software y todos los derechos de propiedad intelectual relacionados son y permanecerán propiedad exclusiva de Global Retail Group. Esta licencia no constituye una venta del Software ni ninguna parte de este.
+
+### 5. CONFIDENCIALIDAD
+
+El Licenciatario reconoce que el Software contiene información confidencial y de propiedad exclusiva. El Licenciatario acepta:
+
+- Mantener la confidencialidad del Software
+- No divulgar el Software a terceros sin consentimiento previo por escrito
+- Proteger el Software con el mismo nivel de cuidado que usa para su propia información confidencial
+
+### 6. SOPORTE Y MANTENIMIENTO
+
+El soporte técnico y las actualizaciones se proporcionan según lo acordado por separado. No existe garantía implícita de soporte continuo.
+
+### 7. GARANTÍA LIMITADA
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A:
+
+- Garantías de comerciabilidad
+- Idoneidad para un propósito particular
+- No infracción
+
+Global Retail Group no garantiza que:
+- El Software funcione sin interrupciones o errores
+- Los defectos serán corregidos
+- El Software cumplirá con los requisitos del Licenciatario
+
+### 8. LIMITACIÓN DE RESPONSABILIDAD
+
+EN NINGÚN CASO GLOBAL RETAIL GROUP SERÁ RESPONSABLE POR:
+
+- Daños indirectos, incidentales, especiales o consecuentes
+- Pérdida de beneficios, datos o uso
+- Interrupción del negocio
+- Cualquier daño que supere el valor pagado por el Software
+
+### 9. TERMINACIÓN
+
+Esta licencia es efectiva hasta que se termine. Se terminará automáticamente sin aviso si el Licenciatario incumple cualquier término.
+
+Al terminar, el Licenciatario debe:
+- Cesar inmediatamente todo uso del Software
+- Destruir todas las copias del Software
+- Certificar por escrito la destrucción del Software
+
+### 10. CUMPLIMIENTO DE EXPORTACIÓN
+
+El Licenciatario acepta cumplir con todas las leyes y regulaciones de exportación aplicables y no exportar ni re-exportar el Software en violación de dichas leyes.
+
+### 11. LEY APLICABLE
+
+Esta licencia se rige por las leyes de España, sin consideración a conflictos de principios legales.
+
+### 12. ACUERDO COMPLETO
+
+Esta licencia constituye el acuerdo completo entre las partes con respecto al Software y reemplaza todos los acuerdos anteriores, orales o escritos.
+
+### 13. MODIFICACIONES
+
+Global Retail Group se reserva el derecho de modificar estos términos en cualquier momento. El uso continuado del Software después de tales modificaciones constituye aceptación de los nuevos términos.
+
+### 14. DIVISIBILIDAD
+
+Si alguna disposición de esta licencia se considera inválida o inaplicable, las disposiciones restantes permanecerán en pleno vigor y efecto.
+
+---
+
+## CONTACTO
+
+Para consultas sobre licenciamiento:
+
+**Global Retail Group**  
+Email: legal@globalretailgroup.com  
+Web: https://www.globalretailgroup.com
+
+---
+
+## RECONOCIMIENTOS
+
+Este Software utiliza componentes de terceros bajo las siguientes licencias:
+
+### Microsoft .NET Runtime
+- Licencia: MIT License
+- https://github.com/dotnet/runtime/blob/main/LICENSE.TXT
+
+### Windows App SDK
+- Licencia: MIT License
+- https://github.com/microsoft/WindowsAppSDK/blob/main/LICENSE
+
+### CommunityToolkit.Mvvm
+- Licencia: MIT License
+- https://github.com/CommunityToolkit/dotnet/blob/main/License.md
+
+### FluentAssertions
+- Licencia: Apache License 2.0
+- https://github.com/fluentassertions/fluentassertions/blob/develop/LICENSE
+
+---
+
+**ÚLTIMA ACTUALIZACIÓN:** 27 de Enero de 2025  
+**VERSIÓN DEL DOCUMENTO:** 1.0
+
+---
+
+Al usar este Software, usted reconoce que ha leído, entendido y acepta estar sujeto a los términos y condiciones de esta licencia.

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -30,6 +32,17 @@ namespace GestionTime.Desktop.Services
         public string LoginPath { get; }
 
         public string? AccessToken { get; private set; }
+        public string? RefreshToken { get; private set; }
+        
+        // 🆕 NUEVO: Tracking de expiración del token
+        private DateTime? _tokenExpiresAt;
+        private readonly SemaphoreSlim _refreshLock = new(1, 1);
+        private bool _isRefreshing = false;
+        
+        // 🆕 NUEVO: Caché simple para GET requests (key = path, value = (response, timestamp))
+        private readonly Dictionary<string, (string response, DateTime timestamp)> _getCache = new();
+        private readonly TimeSpan _getCacheDuration = TimeSpan.FromMinutes(5); // Caché válido 5 minutos
+        private readonly SemaphoreSlim _cacheLock = new(1, 1);
 
         public ApiClient(string baseUrl, string loginPath, ILogger log)
         {
@@ -59,7 +72,14 @@ namespace GestionTime.Desktop.Services
                 // ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
             };
             var pipeline = new HttpLoggingHandler(_log, maxBodyChars: 200000) { InnerHandler = handler };
-            _http = new HttpClient(pipeline) { BaseAddress = new Uri(BaseUrl) };
+            _http = new HttpClient(pipeline) 
+            { 
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromSeconds(120) // ✅ TIMEOUT aumentado a 120 segundos (2 minutos) para manejar latencias altas
+            };
+            
+            _log.LogInformation("🌐 ApiClient inicializado - BaseUrl: {url}, Timeout: {timeout}s", 
+                BaseUrl, _http.Timeout.TotalSeconds);
         }
 
         // =========================
@@ -81,7 +101,7 @@ namespace GestionTime.Desktop.Services
             // CASO 1: Token en la respuesta JSON (AccessToken)
             if (res != null && !string.IsNullOrWhiteSpace(res.AccessToken))
             {
-                SetBearerToken(res.AccessToken!);
+                SetBearerToken(res.AccessToken!, res.RefreshToken);
                 _log.LogInformation("Token extraído de JSON response ✅");
             }
             // CASO 2: Token en cookies (autenticación basada en cookies)
@@ -110,23 +130,267 @@ namespace GestionTime.Desktop.Services
             return await PostAsync<ChangePasswordRequest, ChangePasswordResponse>("/api/v1/auth/change-password", req, ct);
         }
 
-        public void SetBearerToken(string token)
+        public void SetBearerToken(string accessToken, string? refreshToken = null)
         {
-            AccessToken = token;
-            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            _log.LogInformation("AUTH: Bearer token seteado (len={len}).", token.Length);
+            AccessToken = accessToken;
+            RefreshToken = refreshToken;
+            
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            
+            // 🆕 NUEVO: Calcular cuándo expira el token (decodificando JWT)
+            try
+            {
+                var tokenExpiry = GetTokenExpiration(accessToken);
+                if (tokenExpiry.HasValue)
+                {
+                    _tokenExpiresAt = tokenExpiry.Value;
+                    var minutesUntilExpiry = (tokenExpiry.Value - DateTime.UtcNow).TotalMinutes;
+                    _log.LogInformation("AUTH: Token expira en {minutes:F1} minutos (a las {time})", 
+                        minutesUntilExpiry, tokenExpiry.Value.ToLocalTime().ToString("HH:mm:ss"));
+                }
+                else
+                {
+                    // Si no podemos decodificar, asumir 1 hora
+                    _tokenExpiresAt = DateTime.UtcNow.AddHours(1);
+                    _log.LogWarning("AUTH: No se pudo decodificar expiración del token, asumiendo 1 hora");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning(ex, "Error decodificando token JWT, asumiendo 1 hora de validez");
+                _tokenExpiresAt = DateTime.UtcNow.AddHours(1);
+            }
+            
+            _log.LogInformation("AUTH: Bearer token seteado (len={len}, refreshToken={hasRefresh}).", 
+                accessToken.Length, refreshToken != null);
         }
 
         public void ClearToken()
         {
             AccessToken = null;
+            RefreshToken = null;
+            _tokenExpiresAt = null;
             _http.DefaultRequestHeaders.Authorization = null;
             _log.LogInformation("AUTH: token limpiado.");
+        }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Obtiene la fecha de expiración de un token JWT
+        /// </summary>
+        private DateTime? GetTokenExpiration(string token)
+        {
+            try
+            {
+                // JWT tiene 3 partes separadas por puntos: header.payload.signature
+                var parts = token.Split('.');
+                if (parts.Length != 3)
+                    return null;
+                
+                // Decodificar el payload (segunda parte)
+                var payload = parts[1];
+                
+                // Agregar padding si es necesario
+                switch (payload.Length % 4)
+                {
+                    case 2: payload += "=="; break;
+                    case 3: payload += "="; break;
+                }
+                
+                var payloadBytes = Convert.FromBase64String(payload);
+                var payloadJson = Encoding.UTF8.GetString(payloadBytes);
+                
+                // Parsear JSON para obtener 'exp' (expiration timestamp)
+                using var doc = JsonDocument.Parse(payloadJson);
+                if (doc.RootElement.TryGetProperty("exp", out var expElement))
+                {
+                    var expSeconds = expElement.GetInt64();
+                    // 'exp' es Unix timestamp (segundos desde 1970)
+                    return DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogDebug(ex, "Error decodificando token JWT");
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Verifica si el token está próximo a expirar y lo refresca si es necesario
+        /// </summary>
+        private async Task<bool> EnsureTokenValidAsync(CancellationToken ct = default)
+        {
+            // Si no tenemos token o refresh token, no podemos refrescar
+            if (string.IsNullOrEmpty(AccessToken) || string.IsNullOrEmpty(RefreshToken))
+                return true; // Dejar que la petición falle con 401
+            
+            // Si ya estamos refrescando en otro thread, esperar
+            if (_isRefreshing)
+            {
+                await _refreshLock.WaitAsync(ct);
+                _refreshLock.Release();
+                return true; // Ya se refrescó
+            }
+            
+            // Si el token no está próximo a expirar (más de 5 minutos), está OK
+            if (_tokenExpiresAt.HasValue && _tokenExpiresAt.Value > DateTime.UtcNow.AddMinutes(5))
+                return true;
+            
+            // Token próximo a expirar o ya expirado, refrescar
+            await _refreshLock.WaitAsync(ct);
+            try
+            {
+                _isRefreshing = true;
+                
+                _log.LogInformation("🔄 Token próximo a expirar, refrescando...");
+                
+                var refreshRequest = new { refreshToken = RefreshToken };
+                var json = JsonSerializer.Serialize(refreshRequest, _jsonWrite);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                using var response = await _http.PostAsync("/api/v1/auth/refresh", content, ct);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _log.LogWarning("❌ Error refrescando token: {statusCode}", response.StatusCode);
+                    
+                    // Si el refresh falló con 401, el refresh token también expiró
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        _log.LogWarning("⚠️ Refresh token expirado, usuario debe hacer login nuevamente");
+                        ClearToken();
+                        
+                        // Notificar a la UI que debe redirigir al login
+                        TokenExpired?.Invoke(this, EventArgs.Empty);
+                    }
+                    
+                    return false;
+                }
+                
+                var body = await response.Content.ReadAsStringAsync(ct);
+                var refreshResponse = JsonSerializer.Deserialize<RefreshTokenResponse>(body, _jsonRead);
+                
+                if (refreshResponse != null && !string.IsNullOrEmpty(refreshResponse.AccessToken))
+                {
+                    SetBearerToken(refreshResponse.AccessToken, refreshResponse.RefreshToken ?? RefreshToken);
+                    _log.LogInformation("✅ Token refrescado exitosamente");
+                    return true;
+                }
+                
+                _log.LogWarning("❌ Respuesta de refresh no contiene token válido");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Error refrescando token");
+                return false;
+            }
+            finally
+            {
+                _isRefreshing = false;
+                _refreshLock.Release();
+            }
+        }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Evento que se dispara cuando el token expira definitivamente
+        /// </summary>
+        public event EventHandler? TokenExpired;
+        
+        /// <summary>
+        /// 🆕 NUEVO: Limpia el caché de GET requests
+        /// </summary>
+        public void ClearGetCache()
+        {
+            _cacheLock.Wait();
+            try
+            {
+                var count = _getCache.Count;
+                _getCache.Clear();
+                _log.LogInformation("🗑️ Caché de GET limpiado ({count} entradas eliminadas)", count);
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
+        }
+    
+        /// <summary>
+        /// 🆕 NUEVO: Invalida una entrada específica del caché
+        /// </summary>
+        public void InvalidateCacheEntry(string path)
+        {
+            path = NormalizePath(path);
+            _cacheLock.Wait();
+            try
+            {
+                if (_getCache.Remove(path))
+                {
+                    _log.LogDebug("🗑️ Entrada de caché invalidada: {path}", path);
+                }
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
+        }
+    
+        /// <summary>
+        /// 🆕 NUEVO: Invalida automáticamente las entradas de caché relacionadas después de un POST/PUT/DELETE
+        /// </summary>
+        private void InvalidateRelatedCache(string modifiedPath, string method)
+        {
+            _cacheLock.Wait();
+            try
+            {
+                // Extraer el path base sin query string
+                var basePath = modifiedPath.Split('?')[0];
+                
+                // Encontrar todas las entradas de caché que empiezan con el mismo path base
+                var allKeys = new List<string>(_getCache.Keys);
+                var keysToRemove = allKeys
+                    .Where(key => key.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                
+                foreach (var key in keysToRemove)
+                {
+                    _getCache.Remove(key);
+                    _log.LogDebug("🗑️ Caché invalidado por {method}: {path}", method, key);
+                }
+                
+                if (keysToRemove.Count > 0)
+                {
+                    _log.LogInformation("✅ {count} entrada(s) de caché invalidadas por {method} a {path}", 
+                        keysToRemove.Count, method, basePath);
+                }
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
         }
 
         // =========================
         // UTIL - EXTRACCIÓN DE ERRORES
         // =========================
+
+        /// <summary>
+        /// Detecta si un texto contiene HTML
+        /// </summary>
+        private static bool IsHtmlContent(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+            
+            return text.Contains("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) ||
+                   text.Contains("<html", StringComparison.OrdinalIgnoreCase) ||
+                   text.Contains("<HTML", StringComparison.OrdinalIgnoreCase) ||
+                   text.Contains("<head>", StringComparison.OrdinalIgnoreCase) ||
+                   text.Contains("<body>", StringComparison.OrdinalIgnoreCase) ||
+                   text.Contains("<meta", StringComparison.OrdinalIgnoreCase) ||
+                   (text.TrimStart().StartsWith("<") && text.Contains("</"));
+        }
 
         /// <summary>
         /// Extrae el mensaje de error del body de respuesta del servidor
@@ -135,6 +399,13 @@ namespace GestionTime.Desktop.Services
         {
             if (string.IsNullOrWhiteSpace(body))
                 return (null, null);
+
+            // 🆕 Si el body es HTML, no intentar parsearlo como JSON
+            if (IsHtmlContent(body))
+            {
+                _log.LogDebug("ExtractErrorFromBody: Detectado HTML en lugar de JSON, retornando null");
+                return (null, null);
+            }
 
             try
             {
@@ -180,10 +451,16 @@ namespace GestionTime.Desktop.Services
 
                 return (message, error);
             }
+            catch (JsonException jsonEx)
+            {
+                // Si falla el parsing JSON, loguear y retornar null
+                _log.LogDebug(jsonEx, "ExtractErrorFromBody: Error parseando JSON, body no es JSON válido");
+                return (null, null);
+            }
             catch
             {
-                // Si falla el parsing, devolver el body completo (truncado)
-                return (Trim(body, 200), null);
+                // Cualquier otro error, retornar null
+                return (null, null);
             }
         }
 
@@ -193,7 +470,45 @@ namespace GestionTime.Desktop.Services
 
         public async Task<T?> GetAsync<T>(string path, CancellationToken ct = default)
         {
+            // 🆕 NUEVO: Verificar y refrescar token si es necesario
+            await EnsureTokenValidAsync(ct);
+            
             path = NormalizePath(path);
+
+            // 🆕 NUEVO: Verificar caché primero
+            await _cacheLock.WaitAsync(ct);
+            try
+            {
+                if (_getCache.TryGetValue(path, out var cached))
+                {
+                    var age = DateTime.UtcNow - cached.timestamp;
+                    if (age < _getCacheDuration)
+                    {
+                        SpecializedLoggers.Api.LogDebug("💾 GET {url} - Usando CACHÉ (edad: {age:F1}s)", path, age.TotalSeconds);
+                        
+                        try
+                        {
+                            var cachedResult = JsonSerializer.Deserialize<T>(cached.response, _jsonRead);
+                            return cachedResult;
+                        }
+                        catch (JsonException)
+                        {
+                            // Si falla deserialización del caché, continuar con petición normal
+                            _getCache.Remove(path);
+                        }
+                    }
+                    else
+                    {
+                        // Caché expirado, eliminar
+                        _getCache.Remove(path);
+                        SpecializedLoggers.Api.LogDebug("🗑️ GET {url} - Caché expirado (edad: {age:F1}s)", path, age.TotalSeconds);
+                    }
+                }
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
 
             var sw = Stopwatch.StartNew();
             using var performanceScope = PerformanceLogger.BeginScope(SpecializedLoggers.Api, $"GET {path}");
@@ -221,6 +536,18 @@ namespace GestionTime.Desktop.Services
                 {
                     SpecializedLoggers.Api.LogWarning("HTTP GET {url} devolvió body vacío - retornando default", path);
                     return default;
+                }
+
+                // 🆕 NUEVO: Guardar en caché antes de deserializar
+                await _cacheLock.WaitAsync(ct);
+                try
+                {
+                    _getCache[path] = (body, DateTime.UtcNow);
+                    SpecializedLoggers.Api.LogDebug("💾 GET {url} - Guardado en CACHÉ", path);
+                }
+                finally
+                {
+                    _cacheLock.Release();
                 }
 
                 try
@@ -270,6 +597,9 @@ namespace GestionTime.Desktop.Services
 
         public async Task<TRes?> PostAsync<TReq, TRes>(string path, TReq payload, CancellationToken ct = default)
         {
+            // 🆕 NUEVO: Verificar y refrescar token si es necesario
+            await EnsureTokenValidAsync(ct);
+            
             path = NormalizePath(path);
 
             var json = JsonSerializer.Serialize(payload, _jsonWrite);
@@ -296,6 +626,9 @@ namespace GestionTime.Desktop.Services
                     var (message, error) = ExtractErrorFromBody(body);
                     throw new ApiException(resp.StatusCode, path, message, error);
                 }
+
+                // 🆕 NUEVO: POST exitoso - invalidar caché de GET relacionados
+                InvalidateRelatedCache(path, "POST");
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
@@ -350,6 +683,9 @@ namespace GestionTime.Desktop.Services
 
         public async Task<TRes?> PutAsync<TReq, TRes>(string path, TReq payload, CancellationToken ct = default)
         {
+            // 🆕 NUEVO: Verificar y refrescar token si es necesario
+            await EnsureTokenValidAsync(ct);
+            
             path = NormalizePath(path);
 
             var json = JsonSerializer.Serialize(payload, _jsonWrite);
@@ -374,6 +710,9 @@ namespace GestionTime.Desktop.Services
                     var (message, error) = ExtractErrorFromBody(body);
                     throw new ApiException(resp.StatusCode, path, message, error);
                 }
+
+                // 🆕 NUEVO: PUT exitoso - invalidar caché de GET relacionados
+                InvalidateRelatedCache(path, "PUT");
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
@@ -453,6 +792,9 @@ namespace GestionTime.Desktop.Services
                     var (message, error) = ExtractErrorFromBody(body);
                     throw new ApiException(resp.StatusCode, path, message, error);
                 }
+                
+                // 🆕 NUEVO: POST exitoso - invalidar caché de GET relacionados
+                InvalidateRelatedCache(path, "POST");
             }
             catch (ApiException)
             {
@@ -493,6 +835,9 @@ namespace GestionTime.Desktop.Services
                     var (message, error) = ExtractErrorFromBody(body);
                     throw new ApiException(resp.StatusCode, path, message, error);
                 }
+                
+                // 🆕 NUEVO: DELETE exitoso - invalidar caché de GET relacionados
+                InvalidateRelatedCache(path, "DELETE");
             }
             catch (ApiException)
             {
@@ -618,7 +963,7 @@ namespace GestionTime.Desktop.Services
         }
 
         // =========================
-        // MODELOS MINIMOS (puedes moverlos a Models/Requests y Models/Dtos)
+        // MODELOS MINIMOS
         // =========================
 
         public sealed class LoginRequest
@@ -673,6 +1018,12 @@ namespace GestionTime.Desktop.Services
             public bool Success { get; set; }
             public string? Message { get; set; }
             public string? Error { get; set; }
+        }
+
+        public sealed class RefreshTokenResponse
+        {
+            public string? AccessToken { get; set; }
+            public string? RefreshToken { get; set; }
         }
     }
 }

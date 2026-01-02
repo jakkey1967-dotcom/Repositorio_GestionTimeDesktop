@@ -1,4 +1,4 @@
-<Page
+﻿<Page
     x:Class="GestionTime.Desktop.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -23,7 +23,11 @@
                     <SolidColorBrush x:Key="TealPrimary" Color="#098ca3"/>
                     <SolidColorBrush x:Key="TealDark" Color="#076b7d"/>
                     <SolidColorBrush x:Key="TealLight" Color="#0bb3cf"/>
-                    <ImageBrush x:Key="BackgroundImage" ImageSource="ms-appx:///Assets/login_fondoOscuro.png" Stretch="UniformToFill"/>
+                    <ImageBrush x:Key="BackgroundImage" 
+                                ImageSource="ms-appx:///Assets/login_fondoOscuro.png" 
+                                Stretch="UniformToFill"
+                                AlignmentX="Center"
+                                AlignmentY="Center"/>
                 </ResourceDictionary>
                 
                 <!-- TEMA CLARO -->
@@ -37,7 +41,11 @@
                     <SolidColorBrush x:Key="TealPrimary" Color="#098ca3"/>
                     <SolidColorBrush x:Key="TealDark" Color="#076b7d"/>
                     <SolidColorBrush x:Key="TealLight" Color="#0bb3cf"/>
-                    <ImageBrush x:Key="BackgroundImage" ImageSource="ms-appx:///Assets/login_fondoClaro.png" Stretch="UniformToFill"/>
+                    <ImageBrush x:Key="BackgroundImage" 
+                                ImageSource="ms-appx:///Assets/login_fondoClaro.png" 
+                                Stretch="UniformToFill"
+                                AlignmentX="Center"
+                                AlignmentY="Center"/>
                 </ResourceDictionary>
                 
             </ResourceDictionary.ThemeDictionaries>
@@ -339,14 +347,16 @@
                                      Style="{StaticResource ModernPasswordBox}"
                                      PlaceholderText="••••••••"
                                      Height="36"
-                                     Visibility="Visible"/>
+                                     Visibility="Visible"
+                                     KeyDown="OnPasswordKeyDown"/>
                         
                         <!-- TextBox para mostrar contraseña (oculto por defecto) -->
                         <TextBox x:Name="TxtPassVisible"
                                  Style="{StaticResource ModernTextBox}"
                                  PlaceholderText="••••••••"
                                  Height="36"
-                                 Visibility="Collapsed"/>
+                                 Visibility="Collapsed"
+                                 KeyDown="OnPasswordKeyDown"/>
                         
                         <!-- Botón para mostrar/ocultar contraseña -->
                         <Button x:Name="BtnTogglePassword"
@@ -464,6 +474,12 @@
         </Border>
     </Grid>
 </Page>
+
+
+
+
+
+
 
 
 

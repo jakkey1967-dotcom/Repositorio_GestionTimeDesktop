@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.Extensions.Logging;
 using Windows.Storage;
 using GestionTime.Desktop.Services;
@@ -15,47 +16,93 @@ namespace GestionTime.Desktop.Views
     public sealed partial class LoginPage : Page
     {
         private bool _isPasswordVisible = false;
+        private DispatcherTimer? _messageTimer; // 🆕 Timer para ocultar mensaje automáticamente
 
         public LoginPage()
         {
             InitializeComponent();
             
-            // Cargar tema guardado
-            LoadSavedTheme();
+            // 🆕 NUEVO: Cargar y aplicar tema global
+            ThemeService.Instance.ApplyTheme(this);
+            UpdateThemeCheckmarks();
+            
+            // 🆕 NUEVO: Suscribirse a cambios de tema globales
+            ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
             
             LoadRememberedEmail();
             
             // Iniciar fade in cuando se carga la página
             this.Loaded += OnPageLoaded;
+            
+            // 🆕 Inicializar timer para mensajes
+            _messageTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(10)
+            };
+            _messageTimer.Tick += (s, e) =>
+            {
+                _messageTimer.Stop();
+                HideMessage();
+            };
         }
 
-        private void OnPageLoaded(object sender, RoutedEventArgs e)
+        private async void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            this.Loaded -= OnPageLoaded;
-            
-            try
+            ((FrameworkElement)sender).Loaded -= OnPageLoaded;
+
+            App.Log?.LogInformation("LoginPage cargado");
+
+            // Animación de entrada
+            var fadeIn = new DoubleAnimation
             {
-                // Crear animación de fade in
-                var fadeIn = new DoubleAnimation
-                {
-                    From = 0,
-                    To = 1,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(500)),
-                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-                };
-                
-                Storyboard.SetTarget(fadeIn, PageRootGrid);
-                Storyboard.SetTargetProperty(fadeIn, "Opacity");
-                
-                var storyboard = new Storyboard();
-                storyboard.Children.Add(fadeIn);
-                storyboard.Begin();
+                From = 0,
+                To = 1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(500)),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            Storyboard.SetTarget(fadeIn, PageRootGrid);
+            Storyboard.SetTargetProperty(fadeIn, "Opacity");
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(fadeIn);
+            storyboard.Begin();
+
+            // Cargar correo guardado
+            var settings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            var savedEmail = settings.Values["SavedEmail"] as string;
+            if (!string.IsNullOrEmpty(savedEmail))
+            {
+                TxtUser.Text = savedEmail;
+                ChkRemember.IsChecked = true;
+                App.Log?.LogInformation("📧 Correo guardado restaurado: {email}", savedEmail);
             }
-            catch (Exception ex)
+
+            // 🆕 FOCUS INICIAL INTELIGENTE
+            await Task.Delay(100); // Pequeño delay para asegurar que la UI esté lista
+            
+            if (string.IsNullOrWhiteSpace(TxtUser.Text))
             {
-                App.Log?.LogWarning(ex, "Error en animación de fade in");
-                // Fallback: mostrar página inmediatamente
-                PageRootGrid.Opacity = 1;
+                // Si el correo está vacío, focus en correo
+                TxtUser.Focus(FocusState.Programmatic);
+                App.Log?.LogDebug("🎯 Focus inicial: Correo (vacío)");
+            }
+            else
+            {
+                // Si el correo ya está rellenado, focus en contraseña
+                TxtPass.Focus(FocusState.Programmatic);
+                App.Log?.LogDebug("🎯 Focus inicial: Contraseña (correo pre-rellenado)");
+            }
+        }
+
+        // 🆕 MÉTODO PARA MANEJAR ENTER EN CONTRASEÑA
+        private void OnPasswordKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                App.Log?.LogDebug("⌨️ Enter presionado en contraseña, iniciando login...");
+                e.Handled = true;
+                OnLoginClick(sender, new RoutedEventArgs());
             }
         }
 
@@ -152,8 +199,12 @@ namespace GestionTime.Desktop.Views
                 return;
             }
 
+            // 🆕 MEJORADO: Mostrar indicador de carga de inmediato y ANTES de cualquier operación
             SetBusy(true, "Conectando con el servidor...");
             HideMessage();
+            
+            // 🆕 NUEVO: Pequeño delay para asegurar que el indicador sea visible
+            await Task.Delay(100);
 
             try
             {
@@ -175,6 +226,9 @@ namespace GestionTime.Desktop.Views
                     }
                     return;
                 }
+
+                // 🆕 MEJORADO: Actualizar mensaje durante la petición
+                SetBusy(true, "Validando credenciales...");
 
                 // Llamada real al API
                 ApiClient.LoginResponse? res = null;
@@ -217,6 +271,16 @@ namespace GestionTime.Desktop.Views
                
                 sw.Stop();
 
+                // 🆕 MEJORADO: Si la respuesta fue muy rápida (< 300ms), agregar un pequeño delay
+                // para que el usuario vea el indicador de carga
+                if (sw.ElapsedMilliseconds < 300)
+                {
+                    var remainingTime = 300 - (int)sw.ElapsedMilliseconds;
+                    App.Log?.LogDebug("Login muy rápido ({ms}ms), agregando delay de {delay}ms para UX", 
+                        sw.ElapsedMilliseconds, remainingTime);
+                    await Task.Delay(remainingTime);
+                }
+
                 App.Log?.LogInformation("Respuesta de login recibida en {ms}ms. Res: {res}, Token: {hasToken}", 
                     sw.ElapsedMilliseconds, 
                     res != null, 
@@ -251,6 +315,9 @@ namespace GestionTime.Desktop.Views
                     return;
                 }
 
+                // 🆕 MEJORADO: Actualizar mensaje al guardar sesión
+                SetBusy(true, "Guardando sesión...");
+
                 SaveRememberedEmail();
                 
                 // Guardar información del usuario
@@ -268,6 +335,9 @@ namespace GestionTime.Desktop.Views
                     if (string.IsNullOrEmpty(res.UserName) || string.IsNullOrEmpty(res.UserRole))
                     {
                         App.Log?.LogInformation("🔄 LoginResponse no incluye userName/userRole, intentando obtener de /api/v1/users/me...");
+                        
+                        // 🆕 MEJORADO: Actualizar mensaje
+                        SetBusy(true, "Obteniendo perfil de usuario...");
                         
                         try
                         {
@@ -307,8 +377,11 @@ namespace GestionTime.Desktop.Views
 
                 ShowMessage($"Inicio de sesión exitoso ({sw.ElapsedMilliseconds}ms)", MessageType.Success);
 
-                // Pequeña pausa para mostrar el mensaje de éxito
-                await Task.Delay(500);
+                // 🆕 MEJORADO: Mensaje antes de navegar
+                SetBusy(true, "Preparando...");
+
+                // Pausa para mostrar el mensaje de éxito y preparación
+                await Task.Delay(800);
 
                 App.Log?.LogInformation("Navegando a DiarioPage...");
 
@@ -379,57 +452,144 @@ namespace GestionTime.Desktop.Views
         {
             var innerMsg = ex.InnerException?.Message ?? ex.Message;
             
+            // 🆕 MEJORADO: Detectar errores HTML (respuestas no JSON) - Más robusto
+            if (innerMsg.Contains("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("<html", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("<HTML", StringComparison.OrdinalIgnoreCase) ||
+                innerMsg.Contains("<head>", StringComparison.OrdinalIgnoreCase) ||
+                innerMsg.Contains("<meta", StringComparison.OrdinalIgnoreCase) ||
+                innerMsg.Contains("ServiceUnavailable", StringComparison.OrdinalIgnoreCase))
+            {
+                // El servidor devolvió HTML en lugar de JSON
+                if (ex.StatusCode != null)
+                {
+                    return ex.StatusCode switch
+                    {
+                        System.Net.HttpStatusCode.ServiceUnavailable => 
+                            "⚠️ Servicio no disponible: El servidor está temporalmente fuera de línea o en mantenimiento. Por favor, intenta más tarde.",
+                        System.Net.HttpStatusCode.TooManyRequests => 
+                            "⏱️ Servidor saturado: Demasiadas peticiones. Espera un momento e intenta nuevamente.",
+                        System.Net.HttpStatusCode.BadGateway => 
+                            "🚫 Error de conexión: No se puede acceder al servidor. Verifica que el servidor esté funcionando.",
+                        System.Net.HttpStatusCode.InternalServerError => 
+                            "❌ Error interno del servidor: Problema en el servicio. Contacta al administrador.",
+                        System.Net.HttpStatusCode.GatewayTimeout => 
+                            "⏳ Tiempo de espera agotado: El servidor tardó demasiado en responder.",
+                        _ => $"⚠️ Error del servidor ({(int)ex.StatusCode}): El servicio no está respondiendo correctamente. Intenta más tarde."
+                    };
+                }
+                
+                return "⚠️ Servicio no disponible: El servidor no está respondiendo correctamente. Verifica que el servidor esté funcionando o intenta más tarde.";
+            }
+            
             // Detectar tipos comunes de errores de conexión
-            if (innerMsg.Contains("No such host is known") || 
-                innerMsg.Contains("nodename nor servname provided"))
+            if (innerMsg.Contains("No such host is known", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("nodename nor servname provided", StringComparison.OrdinalIgnoreCase))
             {
-                return "No se puede conectar: Servidor no encontrado. Verifica la URL del API.";
+                return "🌐 Servidor no encontrado: Verifica la URL del servidor en la configuración.";
             }
             
-            if (innerMsg.Contains("Connection refused") ||
-                innerMsg.Contains("actively refused"))
+            if (innerMsg.Contains("Connection refused", StringComparison.OrdinalIgnoreCase) ||
+                innerMsg.Contains("actively refused", StringComparison.OrdinalIgnoreCase))
             {
-                return "Conexión rechazada: El servidor no está disponible.";
+                return "🚫 Conexión rechazada: El servidor no está disponible o no acepta conexiones.";
             }
             
-            if (innerMsg.Contains("Connection timed out") ||
-                innerMsg.Contains("timeout"))
+            if (innerMsg.Contains("Connection timed out", StringComparison.OrdinalIgnoreCase) ||
+                innerMsg.Contains("timeout", StringComparison.OrdinalIgnoreCase))
             {
-                return "Timeout: El servidor no responde a tiempo.";
+                return "⏳ Tiempo de espera agotado: El servidor no responde a tiempo. Verifica tu conexión.";
             }
             
-            if (innerMsg.Contains("401"))
+            // 🆕 MEJORADO: Detectar errores HTTP por código de estado
+            if (ex.StatusCode != null)
             {
-                return "Credenciales incorrectas (401 No autorizado).";
+                return ex.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.Unauthorized => 
+                        "🔒 Credenciales incorrectas: Usuario o contraseña incorrectos.",
+                    System.Net.HttpStatusCode.Forbidden => 
+                        "⛔ Acceso denegado: No tienes permisos para acceder.",
+                    System.Net.HttpStatusCode.NotFound => 
+                        "🔍 Endpoint no encontrado: Verifica la configuración del servidor.",
+                    System.Net.HttpStatusCode.InternalServerError => 
+                        "❌ Error interno del servidor: Problema en el servicio. Contacta al administrador.",
+                    System.Net.HttpStatusCode.BadGateway => 
+                        "🚫 Error de gateway: El servidor no está accesible.",
+                    System.Net.HttpStatusCode.ServiceUnavailable => 
+                        "⚠️ Servicio no disponible: El servidor está temporalmente fuera de línea o en mantenimiento.",
+                    System.Net.HttpStatusCode.GatewayTimeout => 
+                        "⏳ Tiempo de espera agotado: El servidor tardó demasiado en responder.",
+                    System.Net.HttpStatusCode.TooManyRequests => 
+                        "⏱️ Servidor saturado: Demasiadas peticiones. Espera un momento e intenta nuevamente.",
+                    _ => $"⚠️ Error del servidor ({(int)ex.StatusCode}): {GetShortErrorMessage(innerMsg)}"
+                };
             }
             
-            if (innerMsg.Contains("403"))
+            // Detectar errores HTTP por contenido del mensaje (método antiguo - fallback)
+            if (innerMsg.Contains("401", StringComparison.OrdinalIgnoreCase))
             {
-                return "Acceso denegado (403 Prohibido).";
+                return "🔒 Credenciales incorrectas (401): Usuario o contraseña incorrectos.";
             }
             
-            if (innerMsg.Contains("404"))
+            if (innerMsg.Contains("403", StringComparison.OrdinalIgnoreCase))
             {
-                return "Endpoint no encontrado (404). Verifica la configuración del API.";
+                return "⛔ Acceso denegado (403): No tienes permisos.";
             }
             
-            if (innerMsg.Contains("500") || innerMsg.Contains("Internal Server Error"))
+            if (innerMsg.Contains("404", StringComparison.OrdinalIgnoreCase))
             {
-                return "Error del servidor (500). Contacta al administrador.";
+                return "🔍 Endpoint no encontrado (404): Verifica la configuración del servidor.";
             }
             
-            if (innerMsg.Contains("502") || innerMsg.Contains("Bad Gateway"))
+            if (innerMsg.Contains("500", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("Internal Server Error", StringComparison.OrdinalIgnoreCase))
             {
-                return "Error de gateway (502). El servidor no está accesible.";
+                return "❌ Error interno del servidor (500): Contacta al administrador.";
             }
             
-            if (innerMsg.Contains("503") || innerMsg.Contains("Service Unavailable"))
+            if (innerMsg.Contains("502", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("Bad Gateway", StringComparison.OrdinalIgnoreCase))
             {
-                return "Servicio no disponible (503). El servidor está temporalmente fuera de línea.";
+                return "🚫 Error de gateway (502): El servidor no está accesible.";
+            }
+            
+            if (innerMsg.Contains("503", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("Service Unavailable", StringComparison.OrdinalIgnoreCase))
+            {
+                return "⚠️ Servicio no disponible (503): El servidor está temporalmente fuera de línea.";
+            }
+            
+            if (innerMsg.Contains("504", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("Gateway Timeout", StringComparison.OrdinalIgnoreCase))
+            {
+                return "⏳ Tiempo de espera agotado (504): El servidor tardó demasiado en responder.";
+            }
+            
+            if (innerMsg.Contains("429", StringComparison.OrdinalIgnoreCase) || 
+                innerMsg.Contains("Too Many Requests", StringComparison.OrdinalIgnoreCase))
+            {
+                return "⏱️ Servidor saturado (429): Demasiadas peticiones. Espera un momento.";
             }
             
             // Error genérico
-            return $"Error de conexión: {innerMsg}";
+            return $"⚠️ Error de conexión: {GetShortErrorMessage(innerMsg)}";
+        }
+
+        /// <summary>
+        /// Obtiene una versión corta y amigable de un mensaje de error técnico
+        /// </summary>
+        private static string GetShortErrorMessage(string message)
+        {
+            // Si el mensaje es muy largo o contiene HTML, devolver un mensaje genérico
+            if (message.Length > 100 || 
+                message.Contains("<", StringComparison.OrdinalIgnoreCase) || 
+                message.Contains(">", StringComparison.OrdinalIgnoreCase))
+            {
+                return "El servidor no está respondiendo correctamente.";
+            }
+            
+            return message;
         }
 
         /// <summary>
@@ -444,15 +604,20 @@ namespace GestionTime.Desktop.Views
             
             if (ex is TaskCanceledException)
             {
-                return "Operación cancelada o timeout.";
+                return "⏳ Operación cancelada o timeout: El servidor tardó demasiado en responder.";
             }
             
             if (ex is System.Net.Sockets.SocketException)
             {
-                return "Error de red: No se puede establecer conexión.";
+                return "🌐 Error de red: No se puede establecer conexión con el servidor.";
             }
             
-            return $"Error: {ex.Message}";
+            if (ex is ApiException apiEx)
+            {
+                return $"❌ Error del servidor: {apiEx.Message}";
+            }
+            
+            return $"⚠️ Error inesperado: {GetShortErrorMessage(ex.Message)}";
         }
 
         private void SetBusy(bool busy, string status)
@@ -479,6 +644,9 @@ namespace GestionTime.Desktop.Views
 
         private void ShowMessage(string text, MessageType type)
         {
+            // 🆕 Detener timer anterior si existe
+            _messageTimer?.Stop();
+            
             MsgBox.Visibility = Visibility.Visible;
             LblMsg.Text = text;
 
@@ -517,10 +685,16 @@ namespace GestionTime.Desktop.Views
                     MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 59, 130, 246));
                     break;
             }
+            
+            // 🆕 Iniciar timer para ocultar automáticamente después de 10 segundos
+            _messageTimer?.Start();
         }
 
         private void HideMessage()
         {
+            // 🆕 Detener timer si está activo
+            _messageTimer?.Stop();
+            
             MsgBox.Visibility = Visibility.Collapsed;
         }
 
@@ -529,87 +703,42 @@ namespace GestionTime.Desktop.Views
         /// </summary>
         private void LoadSavedTheme()
         {
-            try
-            {
-                var settings = ApplicationData.Current.LocalSettings.Values;
-                
-                ElementTheme theme = ElementTheme.Dark; // Por defecto oscuro
-                
-                if (settings.TryGetValue("AppTheme", out var themeObj) && themeObj is string themeName)
-                {
-                    App.Log?.LogInformation("Cargando tema guardado: {theme}", themeName);
-                    
-                    theme = themeName switch
-                    {
-                        "Light" => ElementTheme.Light,
-                        "Dark" => ElementTheme.Dark,
-                        "Default" => ElementTheme.Default,
-                        _ => ElementTheme.Dark
-                    };
-                }
-                else
-                {
-                    App.Log?.LogInformation("No hay tema guardado, usando tema oscuro por defecto");
-                    SaveTheme(ElementTheme.Dark);
-                }
-                
-                SetTheme(theme);
-            }
-            catch (Exception ex)
-            {
-                App.Log?.LogWarning(ex, "Error cargando tema guardado");
-                SetTheme(ElementTheme.Dark);
-            }
+            // Ya no necesitamos cargar aquí, ThemeService lo hace
+            // Solo aplicamos el tema actual
+            ThemeService.Instance.ApplyTheme(this);
+            UpdateThemeCheckmarks();
         }
 
         /// <summary>
-        /// Guardar el tema seleccionado
+        /// 🆕 MODIFICADO: Usar ThemeService para guardar tema
         /// </summary>
         private void SaveTheme(ElementTheme theme)
         {
-            try
-            {
-                var settings = ApplicationData.Current.LocalSettings.Values;
-                var themeName = theme switch
-                {
-                    ElementTheme.Light => "Light",
-                    ElementTheme.Dark => "Dark",
-                    ElementTheme.Default => "Default",
-                    _ => "Dark"
-                };
-                
-                settings["AppTheme"] = themeName;
-                App.Log?.LogInformation("Tema guardado: {theme}", themeName);
-            }
-            catch (Exception ex)
-            {
-                App.Log?.LogWarning(ex, "Error guardando tema");
-            }
+            // Delegar al servicio centralizado
+            ThemeService.Instance.SetTheme(theme);
         }
 
         /// <summary>
-        /// Aplicar tema y actualizar checkmarks del menú
+        /// 🆕 MODIFICADO: Usar ThemeService para aplicar tema
         /// </summary>
         private void SetTheme(ElementTheme theme)
         {
-            this.RequestedTheme = theme;
+            // Delegar al servicio centralizado (notificará a todos los componentes)
+            ThemeService.Instance.SetTheme(theme);
             
-            // Actualizar checkmarks del menú
-            ThemeSystemItem.IsChecked = theme == ElementTheme.Default;
-            ThemeLightItem.IsChecked = theme == ElementTheme.Light;
-            ThemeDarkItem.IsChecked = theme == ElementTheme.Dark;
-            
-            SaveTheme(theme);
-            
-            var themeName = theme switch
-            {
-                ElementTheme.Default => "sistema",
-                ElementTheme.Light => "claro",
-                ElementTheme.Dark => "oscuro",
-                _ => "desconocido"
-            };
-            
-            App.Log?.LogInformation("Tema aplicado: {theme}", themeName);
+            // Actualizar checkmarks localmente
+            UpdateThemeCheckmarks();
+        }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Actualiza los checkmarks del menú de tema
+        /// </summary>
+        private void UpdateThemeCheckmarks()
+        {
+            var currentTheme = ThemeService.Instance.CurrentTheme;
+            ThemeSystemItem.IsChecked = currentTheme == ElementTheme.Default;
+            ThemeLightItem.IsChecked = currentTheme == ElementTheme.Light;
+            ThemeDarkItem.IsChecked = currentTheme == ElementTheme.Dark;
         }
 
         /// <summary>
@@ -844,6 +973,19 @@ namespace GestionTime.Desktop.Views
             {
                 SetBusy(false, "");
             }
+        }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Manejador de cambios de tema globales
+        /// </summary>
+        private void OnGlobalThemeChanged(object? sender, ElementTheme theme)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                this.RequestedTheme = theme;
+                UpdateThemeCheckmarks();
+                App.Log?.LogDebug("🎨 LoginPage: Tema actualizado por cambio global a {theme}", theme);
+            });
         }
     }
     

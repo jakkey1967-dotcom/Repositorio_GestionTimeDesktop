@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="GestionTime Desktop" 
+           Version="1.0.0" 
+           Manufacturer="Global Retail Group"
+           UpgradeCode="ABCDEF01-2345-6789-ABCD-EF0123456789"
+           Language="1033"
+           Codepage="1252">
+    
+    <MajorUpgrade DowngradeErrorMessage="Una versión más nueva ya está instalada." />
+    
+    <MediaTemplate EmbedCab="yes" />
+    
+    <Feature Id="ProductFeature" Title="GestionTime Desktop" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+    
+    <!-- UI Personalizada -->
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="Assets\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="Assets\dialog.bmp" />
+    
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="GestionTime">
+        <Directory Id="AssetsFolder" Name="Assets" />
+      </Directory>
+    </StandardDirectory>
+    
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="GestionTime Desktop"/>
+    </StandardDirectory>
+    
+    <StandardDirectory Id="DesktopFolder" />
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Ejecutable principal -->
+      <Component Id="MainExecutable" Guid="11111111-1111-1111-1111-111111111111">
+        <File Id="GestionTimeExe" 
+              Source="publish\GestionTime.Desktop.exe" 
+              KeyPath="yes"
+              Checksum="yes">
+          <Shortcut Id="StartMenuShortcut"
+                    Directory="ApplicationProgramsFolder"
+                    Name="GestionTime Desktop"
+                    Description="Gestor de partes de trabajo"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="ProductIcon.exe"
+                    IconIndex="0"
+                    Advertise="yes" />
+        </File>
+      </Component>
+      
+      <!-- Configuración -->
+      <Component Id="AppSettings" Guid="22222222-2222-2222-2222-222222222222">
+        <File Id="AppSettingsJson" Source="publish\appsettings.json" KeyPath="yes" />
+      </Component>
+      
+      <!-- DLLs principales (solo las más importantes para no hacer el XML muy largo) -->
+      <Component Id="CoreLibraries" Guid="33333333-3333-3333-3333-333333333333">
+        <File Source="publish\GestionTime.Desktop.dll" />
+        <File Source="publish\Microsoft.Extensions.Logging.dll" />
+        <File Source="publish\Microsoft.UI.Xaml.dll" />
+      </Component>
+      
+      <!-- Resto de archivos en un solo componente -->
+      <Component Id="AllOtherFiles" Guid="44444444-4444-4444-4444-444444444444">
+        <File Source="publish\*" Exclude="GestionTime.Desktop.exe;GestionTime.Desktop.dll;appsettings.json;Microsoft.Extensions.Logging.dll;Microsoft.UI.Xaml.dll" />
+      </Component>
+    </ComponentGroup>
+    
+    <!-- Assets -->
+    <ComponentGroup Id="AssetComponents" Directory="AssetsFolder">
+      <Component Id="AssetsFiles" Guid="55555555-5555-5555-5555-555555555555">
+        <File Source="publish\Assets\*" />
+      </Component>
+    </ComponentGroup>
+    
+    <!-- Acceso directo en Menú Inicio -->
+    <Component Id="ApplicationShortcut" Directory="ApplicationProgramsFolder" Guid="66666666-6666-6666-6666-666666666666">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="GestionTime Desktop"
+                Description="Gestor de partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="ProductIcon.exe" />
+      <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+      <RegistryValue Root="HKCU" Key="Software\Global Retail Group\GestionTime Desktop" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+    </Component>
+    
+    <!-- Acceso directo en Escritorio -->
+    <Component Id="DesktopShortcut" Directory="DesktopFolder" Guid="77777777-7777-7777-7777-777777777777">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="GestionTime Desktop"
+                Description="Gestor de partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="ProductIcon.exe" />
+      <RegistryValue Root="HKCU" Key="Software\Global Retail Group\GestionTime Desktop" Name="desktop" Type="integer" Value="1" KeyPath="yes"/>
+    </Component>
+  </Fragment>
+  
+  <!-- Icono del instalador -->
+  <Fragment>
+    <Icon Id="ProductIcon.exe" SourceFile="publish\GestionTime.Desktop.exe" />
+  </Fragment>
+</Wix>

@@ -1216,19 +1216,17 @@ public sealed class ConfiguracionWindow
 
             await App.ConfiguracionService.SaveConfigurationAsync();
 
-            // Aplicar tema inmediatamente en la página padre
-            if (_parentPage != null)
+            // 🆕 Aplicar tema GLOBALMENTE usando ThemeService
+            var theme = _cmbTheme.SelectedIndex switch
             {
-                var theme = _cmbTheme.SelectedIndex switch
-                {
-                    0 => ElementTheme.Default,
-                    1 => ElementTheme.Light,
-                    2 => ElementTheme.Dark,
-                    _ => ElementTheme.Default
-                };
-                // Actualizar tema en la página padre
-                _parentPage.RequestedTheme = theme;
-            }
+                0 => ElementTheme.Default,
+                1 => ElementTheme.Light,
+                2 => ElementTheme.Dark,
+                _ => ElementTheme.Default
+            };
+            
+            // 🔥 CLAVE: Usar ThemeService para que el cambio se propague a TODAS las ventanas
+            Services.ThemeService.Instance.SetTheme(theme);
 
             _btnSave.Content = "✅ Guardado";
             _txtConfigStatus.Text = "Configuración guardada correctamente";

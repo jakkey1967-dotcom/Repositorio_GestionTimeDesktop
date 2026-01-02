@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <ResourceDictionary>
+            <!-- ✅ SOLO CONVERTERS Y ESTILOS - Los temas ahora están en App.xaml -->
             <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <helpers:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <helpers:BoolToColorConverter x:Key="BoolToColorConverter"/>
@@ -38,6 +39,7 @@
                 </helpers:AlternationIndexToBrushConverter.OddBrush>
             </helpers:AlternationIndexToBrushConverter>
 
+            <!-- ✅ ESTILOS (usan ThemeResource de App.xaml) -->
             <Style x:Key="MutedText" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{ThemeResource TextMuted}"/>
             </Style>
@@ -112,42 +114,6 @@
                 <Setter Property="MinHeight" Value="0"/>
             </Style>
 
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Default">
-                    <SolidColorBrush x:Key="AppBgFallback" Color="#0F1113"/>
-                    <ImageBrush x:Key="AppBg" ImageSource="ms-appx:///Assets/diario_bg_dark.png" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center" Opacity="1"/>
-                    <SolidColorBrush x:Key="SurfaceBg" Color="#1A1D21"/>
-                    <SolidColorBrush x:Key="Stroke" Color="#30363D"/>
-                    <SolidColorBrush x:Key="TextMain" Color="#EDEFF2"/>
-                    <SolidColorBrush x:Key="TextMuted" Color="#A8B0B8"/>
-                    <SolidColorBrush x:Key="Accent" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="AccentDark" Color="#08707A"/>
-                    <SolidColorBrush x:Key="CardBg" Color="#121416"/>
-                    <SolidColorBrush x:Key="InputBg" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="InputText" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="ButtonBg" Color="#1E2328"/>
-                    <SolidColorBrush x:Key="ButtonStroke" Color="#30363D"/>
-                    <SolidColorBrush x:Key="BannerBg" Color="#0B8C99"/>
-                    <BitmapImage x:Key="LogoImage" UriSource="ms-appx:///Assets/LogoOscuro.png"/>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="AppBg" Color="#F5F7F9"/>
-                    <ImageBrush x:Key="AppBgImage" ImageSource="ms-appx:///Assets/Diario_bg_claro.png" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center" Opacity="1"/>
-                    <SolidColorBrush x:Key="SurfaceBg" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="Stroke" Color="#D6DEE6"/>
-                    <SolidColorBrush x:Key="TextMain" Color="#111315"/>
-                    <SolidColorBrush x:Key="TextMuted" Color="#5A6B74"/>
-                    <SolidColorBrush x:Key="Accent" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="AccentDark" Color="#08707A"/>
-                    <SolidColorBrush x:Key="CardBg" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="InputBg" Color="#0B8C99"/>
-                    <SolidColorBrush x:Key="InputText" Color="#FFFFFF"/>
-                    <SolidColorBrush x:Key="ButtonBg" Color="#F3F6F9"/>
-                    <SolidColorBrush x:Key="ButtonStroke" Color="#D6DEE6"/>
-                    <SolidColorBrush x:Key="BannerBg" Color="#0B8C99"/>
-                    <BitmapImage x:Key="LogoImage" UriSource="ms-appx:///Assets/LogoClaro.png"/>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Page.Resources>
 
@@ -318,9 +284,17 @@
                     <!-- Fecha -->
                     <TextBlock Text="Fecha" Style="{StaticResource MutedText}"/>
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <CalendarDatePicker x:Name="DpFiltroFecha" Style="{StaticResource TealCalendar}" Width="180" DateChanged="OnFiltroFechaChanged" DateFormat="{}{day.integer(2)}-{month.integer(2)}-{year.full}"/>
-                        <Button Style="{StaticResource MiniIconButton}" Click="OnRefrescar" ToolTipService.ToolTip="Refrescar (F5)" Height="38">
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72C;" Foreground="{ThemeResource Accent}"/>
+                        <CalendarDatePicker x:Name="DpFiltroFecha" 
+                                            Style="{StaticResource TealCalendar}" 
+                                            Width="180" 
+                                            DateFormat="{}{day.integer(2)}-{month.integer(2)}-{year.full}"/>
+                        <Button Style="{StaticResource MiniIconButton}" 
+                                Click="OnRefrescar" 
+                                ToolTipService.ToolTip="Refrescar (F5)" 
+                                Height="38">
+                            <FontIcon FontFamily="Segoe Fluent Icons" 
+                                      Glyph="&#xE72C;" 
+                                      Foreground="{ThemeResource Accent}"/>
                         </Button>
                     </StackPanel>
                     
@@ -438,7 +412,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Cabecera -->
-                <Grid Background="{ThemeResource AccentDark}" Padding="8" CornerRadius="8,8,0,0">
+                <Grid x:Name="HeaderGrid" Background="{ThemeResource AccentDark}" Padding="8" CornerRadius="8,8,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70"/>
                         <ColumnDefinition Width="90"/>
@@ -458,7 +432,15 @@
                     <TextBlock Grid.Column="3" Text="Acción" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="4" Text="Inicio" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="5" Text="Fin" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="6" Text="Dur." Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <!-- 🆕 Header "Dur." con tooltip dinámico -->
+                    <TextBlock x:Name="DuracionHeader" 
+                               Grid.Column="6" 
+                               Text="Dur." 
+                               Foreground="White" 
+                               FontWeight="SemiBold" 
+                               FontSize="12"
+                               ToolTipService.ToolTip="Pasa el ratón para ver estadísticas de tiempo"
+                               ToolTipService.Placement="Bottom"/>
                     <TextBlock Grid.Column="7" Text="Ticket" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="8" Text="Grupo" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="9" Text="Tipo" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
@@ -614,5 +596,21 @@
                 </ListView>
             </Grid>
         </Border>
+        
+        <!-- 🆕 OVERLAY DE CARGA - Solo ProgressRing centrado más abajo -->
+        <Grid x:Name="LoadingOverlay"
+              Grid.RowSpan="3"
+              Background="#80000000"
+              Visibility="Collapsed"
+              Canvas.ZIndex="1000">
+            <ProgressRing x:Name="LoadingRing"
+                          IsActive="False"
+                          Width="80"
+                          Height="80"
+                          Foreground="{ThemeResource Accent}"
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Center"
+                          Margin="0,100,0,0"/>
+        </Grid>
     </Grid>
 </Page>

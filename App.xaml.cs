@@ -110,7 +110,7 @@ public partial class App : Application
 
             // TEMPORAL: Hardcode la URL para asegurar que no use localhost
             var baseUrl = "https://gestiontimeapi.onrender.com";
-            var loginPath = "/api/v1/auth/login";
+            var loginPath = "/api/v1/auth/login-desktop";  // CAMBIADO: endpoint específico de desktop
             PartesPath = "/api/v1/partes";
             
             // DEBUG: Log de URLs forzadas
@@ -119,6 +119,9 @@ public partial class App : Application
             System.Diagnostics.Debug.WriteLine($"loginPath HARDCODED: '{loginPath}'");
 
             Api = new ApiClient(baseUrl, loginPath, Log);
+            
+            // 🆕 NUEVO: Suscribirse al evento de token expirado
+            Api.TokenExpired += OnTokenExpired;
 
             HookGlobalExceptions();
 
@@ -135,7 +138,7 @@ public partial class App : Application
             
             // TEMPORAL: URLs hardcoded en fallback también
             var baseUrl = "https://gestiontimeapi.onrender.com";
-            var loginPath = "/api/v1/auth/login";
+            var loginPath = "/api/v1/auth/login-desktop";  // CAMBIADO: endpoint específico de desktop
             
             System.Diagnostics.Debug.WriteLine($"=== FALLBACK HARDCODED URLS ===");
             System.Diagnostics.Debug.WriteLine($"baseUrl FALLBACK HARDCODED: '{baseUrl}'");
@@ -360,6 +363,69 @@ public partial class App : Application
             {
                 // Si todo falla, al menos tenemos el Debug.WriteLine
             }
+        }
+    }
+
+    /// <summary>
+    /// Maneja el evento cuando el token expira completamente (refresh también expiró)
+    /// </summary>
+    private void OnTokenExpired(object? sender, EventArgs e)
+    {
+        Log?.LogWarning("⚠️ Token expirado completamente, mostrando diálogo al usuario...");
+        
+        // Redirigir al login en el thread de UI
+        if (MainWindowInstance?.DispatcherQueue != null)
+        {
+            MainWindowInstance.DispatcherQueue.TryEnqueue(async () =>
+            {
+                try
+                {
+                    // Mostrar diálogo explicativo al usuario
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "🔐 Sesión Expirada",
+                        Content = "Tu sesión ha expirado por motivos de seguridad.\n\n" +
+                                 "Por favor, vuelve a iniciar sesión para continuar trabajando.",
+                        PrimaryButtonText = "Iniciar Sesión",
+                        DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Primary,
+                        XamlRoot = MainWindowInstance.Content.XamlRoot
+                    };
+                    
+                    await dialog.ShowAsync();
+                    
+                    // Limpiar sesión del usuario
+                    var settings = ApplicationData.Current.LocalSettings;
+                    settings.Values.Remove("UserToken");
+                    settings.Values.Remove("UserName");
+                    settings.Values.Remove("UserEmail");
+                    settings.Values.Remove("UserRole");
+                    
+                    Log?.LogInformation("Sesión limpiada después de expiración de token");
+                    
+                    // Navegar al login
+                    if (MainWindowInstance?.Navigator != null)
+                    {
+                        MainWindowInstance.Navigator.Navigate(typeof(Views.LoginPage));
+                        Log?.LogInformation("Usuario redirigido al login por token expirado");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log?.LogError(ex, "Error redirigiendo al login después de token expirado");
+                    
+                    // Fallback: redirigir sin diálogo si hay error
+                    try
+                    {
+                        var settings = ApplicationData.Current.LocalSettings;
+                        settings.Values.Remove("UserToken");
+                        MainWindowInstance?.Navigator?.Navigate(typeof(Views.LoginPage));
+                    }
+                    catch (Exception fallbackEx)
+                    {
+                        Log?.LogError(fallbackEx, "Error en fallback de redirect al login");
+                    }
+                }
+            });
         }
     }
 }

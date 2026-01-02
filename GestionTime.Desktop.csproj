@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+ï»¿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -20,14 +20,17 @@
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
     
-    <!-- Información del producto para el instalador -->
+    <!-- Icono de la aplicaciÃ³n -->
+    <ApplicationIcon>Assets\app_logo.ico</ApplicationIcon>
+    
+    <!-- InformaciÃ³n del producto para el instalador -->
     <AssemblyTitle>GestionTime Desktop</AssemblyTitle>
     <Product>GestionTime Desktop</Product>
     <Company>GestionTime Solutions</Company>
-    <Copyright>© 2025 GestionTime Solutions</Copyright>
+    <Copyright>Â© 2025 GestionTime Solutions</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
-    <Description>Aplicación de gestión de tiempo para partes de trabajo</Description>
+    <Description>AplicaciÃ³n de gestiÃ³n de tiempo para partes de trabajo</Description>
   </PropertyGroup>
   
   <ItemGroup>
@@ -60,15 +63,10 @@
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
-  <!--
-    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-    Tools extension to be activated for this project even if the Windows App SDK Nuget
-    package has not yet been restored.
-  -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
@@ -79,7 +77,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -111,6 +109,9 @@
     <Page Include="Views\GraficaDiaPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialogs\CerrarParteDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   
   <ItemGroup>
@@ -118,16 +119,10 @@
     <Folder Include="Tests\Integration\" />
   </ItemGroup>
   
-  <!--
-    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
-    Explorer "Package and Publish" context menu entry to be enabled for this project even if
-    the Windows App SDK Nuget package has not yet been restored.
-  -->
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
 
-  <!-- Publish Properties -->
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
