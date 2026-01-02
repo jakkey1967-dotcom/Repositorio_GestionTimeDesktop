@@ -21,6 +21,7 @@ public partial class App : Application
     public static ConfiguracionService ConfiguracionService => Services.ConfiguracionService.Instance;
     public static ApiClient Api { get; private set; } = null!;
     public static string PartesPath { get; private set; } = "/api/v1/partes";
+    
     public static void ApplyThemeFromSettings()
     {
         try
@@ -48,7 +49,29 @@ public partial class App : Application
 
     public App()
     {
-        InitializeComponent();
+        // ===== LOG CRÍTICO DE INICIO =====
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+        System.Diagnostics.Debug.WriteLine($"🚀 GESTIONTIME DESKTOP - INICIO DE APLICACIÓN");
+        System.Diagnostics.Debug.WriteLine($"📅 Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        System.Diagnostics.Debug.WriteLine($"💻 OS: {Environment.OSVersion}");
+        System.Diagnostics.Debug.WriteLine($"🔢 .NET: {Environment.Version}");
+        System.Diagnostics.Debug.WriteLine($"📁 BaseDirectory: {AppContext.BaseDirectory}");
+        System.Diagnostics.Debug.WriteLine($"📂 CurrentDirectory: {Environment.CurrentDirectory}");
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+
+        try
+        {
+            InitializeComponent();
+            System.Diagnostics.Debug.WriteLine("✅ InitializeComponent() completado");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ ERROR CRÍTICO en InitializeComponent: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Stack: {ex.StackTrace}");
+            // Escribir en un archivo de emergencia
+            WriteEmergencyLog($"InitializeComponent failed: {ex}");
+            throw;
+        }
 
         // Lee appsettings.json si existe (sin paquetes extra)
         var settings = LoadAppSettings();
@@ -71,12 +94,14 @@ public partial class App : Application
         {
             var logDir = Path.GetDirectoryName(logPath)!;
             Directory.CreateDirectory(logDir);
+            System.Diagnostics.Debug.WriteLine($"✅ Directorio de logs creado: {logDir}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error creando directorio log: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"⚠️ Error creando directorio log: {ex.Message}");
             // Usar fallback
             logPath = ResolveLogPath();
+            System.Diagnostics.Debug.WriteLine($"   Usando fallback: {logPath}");
         }
 
         // ===== SISTEMA DE LOGGING OPTIMIZADO =====
@@ -107,6 +132,8 @@ public partial class App : Application
 
             Log.LogInformation("📊 Sistema de logging inicializado - TEMPORAL DEBUG VERSION");
             Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            Log.LogInformation("OS: {OS}, .NET: {Version}", Environment.OSVersion, Environment.Version);
+            Log.LogInformation("BaseDirectory: {BaseDir}", AppContext.BaseDirectory);
 
             // TEMPORAL: Hardcode la URL para asegurar que no use localhost
             var baseUrl = "https://gestiontimeapi.onrender.com";
@@ -128,10 +155,14 @@ public partial class App : Application
             Debug.WriteLine("LOG PATH = " + logPath);
             Log.LogInformation("App() inicializada. Log en: {path}", logPath);
             Log.LogInformation("API BaseUrl={baseUrl} LoginPath={loginPath} PartesPath={partesPath}", baseUrl, loginPath, PartesPath);
+            
+            System.Diagnostics.Debug.WriteLine("✅ App() constructor completado exitosamente");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error inicializando logging: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"⚠️ Error inicializando logging: {ex.Message}");
+            WriteEmergencyLog($"Logging init failed: {ex}");
+            
             // Crear logger básico como fallback
             LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug));
             Log = LogFactory.CreateLogger("GestionTime");
@@ -227,11 +258,61 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        Log.LogInformation("OnLaunched()");
-        MainWindowInstance = new MainWindow();
-        MainWindowInstance.Activate();
-        ApplyThemeFromSettings();
-
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+        System.Diagnostics.Debug.WriteLine("🚀 OnLaunched() - Iniciando ventana principal");
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+        
+        try
+        {
+            Log.LogInformation("OnLaunched() - Iniciando aplicación");
+            
+            System.Diagnostics.Debug.WriteLine("   Creando MainWindow...");
+            MainWindowInstance = new MainWindow();
+            System.Diagnostics.Debug.WriteLine("   ✅ MainWindow creada");
+            
+            System.Diagnostics.Debug.WriteLine("   Activando ventana...");
+            MainWindowInstance.Activate();
+            System.Diagnostics.Debug.WriteLine("   ✅ Ventana activada");
+            
+            System.Diagnostics.Debug.WriteLine("   Aplicando tema...");
+            ApplyThemeFromSettings();
+            System.Diagnostics.Debug.WriteLine("   ✅ Tema aplicado");
+            
+            Log.LogInformation("✅ Aplicación iniciada correctamente");
+            System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+            System.Diagnostics.Debug.WriteLine("✅ OnLaunched() completado exitosamente");
+            System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+            System.Diagnostics.Debug.WriteLine($"❌ ERROR CRÍTICO en OnLaunched(): {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Tipo: {ex.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"   Stack: {ex.StackTrace}");
+            
+            if (ex.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"   Inner Exception: {ex.InnerException.Message}");
+                System.Diagnostics.Debug.WriteLine($"   Inner Stack: {ex.InnerException.StackTrace}");
+            }
+            System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
+            
+            Log?.LogCritical(ex, "ERROR CRÍTICO en OnLaunched - La aplicación no puede iniciar");
+            WriteEmergencyLog($"OnLaunched failed: {ex}");
+            
+            // Intentar mostrar un diálogo de error al usuario
+            try
+            {
+                ShowCriticalErrorDialog(ex);
+            }
+            catch
+            {
+                // Si ni siquiera podemos mostrar el diálogo, escribir en archivo
+                WriteEmergencyLog("Failed to show error dialog");
+            }
+            
+            throw; // Re-throw para que Windows registre el error
+        }
     }
 
     private static string ResolveLogPath()
@@ -426,6 +507,77 @@ public partial class App : Application
                     }
                 }
             });
+        }
+    }
+
+    /// <summary>
+    /// Escribe un log de emergencia cuando el sistema normal de logging falla
+    /// </summary>
+    private static void WriteEmergencyLog(string message)
+    {
+        try
+        {
+            var emergencyLogPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "GestionTime",
+                "emergency.log"
+            );
+            
+            Directory.CreateDirectory(Path.GetDirectoryName(emergencyLogPath)!);
+            
+            var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] EMERGENCY: {message}\n";
+            File.AppendAllText(emergencyLogPath, logEntry);
+            
+            System.Diagnostics.Debug.WriteLine($"📝 Emergency log escrito en: {emergencyLogPath}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ No se pudo escribir emergency log: {ex.Message}");
+            // Último recurso: Event Log de Windows
+            try
+            {
+                System.Diagnostics.EventLog.WriteEntry(
+                    "Application",
+                    $"GestionTime Desktop - Emergency: {message}",
+                    System.Diagnostics.EventLogEntryType.Error
+                );
+            }
+            catch
+            {
+                // Si todo falla, al menos quedó en Debug output
+            }
+        }
+    }
+
+    /// <summary>
+    /// Muestra un diálogo crítico de error al usuario
+    /// </summary>
+    private static async void ShowCriticalErrorDialog(Exception ex)
+    {
+        try
+        {
+            await Task.Delay(100); // Dar tiempo para que la UI se inicialice
+            
+            var dialog = new ContentDialog
+            {
+                Title = "❌ Error Crítico de Inicio",
+                Content = $"La aplicación no pudo iniciarse correctamente.\n\n" +
+                         $"Error: {ex.Message}\n\n" +
+                         $"Por favor, verifica:\n" +
+                         $"• Windows App Runtime está instalado\n" +
+                         $"• Los archivos no están bloqueados\n" +
+                         $"• Tienes permisos de escritura\n\n" +
+                         $"Consulta emergency.log en:\n" +
+                         $"{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GestionTime")}",
+                CloseButtonText = "Cerrar"
+            };
+            
+            // Si MainWindow no se pudo crear, no podemos mostrar el diálogo
+            // así que simplemente lo ignoramos
+        }
+        catch
+        {
+            // Ignorar errores al mostrar el diálogo
         }
     }
 }
