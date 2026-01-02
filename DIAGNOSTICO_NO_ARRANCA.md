@@ -6,6 +6,54 @@ La aplicación **GestionTime Desktop** se instala correctamente, crea la carpeta
 
 ---
 
+## ⚠️ ATENCIÓN: Instalación en Program Files
+
+Si tu aplicación está instalada en **`C:\Program Files\GestionTime`**, hay consideraciones especiales:
+
+### 🔐 Problema de Permisos en Program Files
+
+Windows protege la carpeta `Program Files` con permisos especiales. Las aplicaciones necesitan permisos de Administrador para:
+- Crear carpetas (ej: `logs`)
+- Escribir archivos (logs, configuración temporal)
+- Modificar archivos existentes
+
+**Síntomas específicos:**
+- La aplicación no arranca silenciosamente
+- No se crea la carpeta `logs`
+- Emergency log aparece en `%LOCALAPPDATA%\GestionTime\emergency.log` con errores de permisos
+
+### ✅ Solución Rápida para Program Files
+
+**Opción 1: Ejecutar como Administrador (Primera Vez)**
+```powershell
+# 1. Navegar a la carpeta
+cd "C:\Program Files\GestionTime"
+
+# 2. Ejecutar script de diagnóstico
+.\Diagnostico-Program-Files.ps1
+
+# 3. O ejecutar la aplicación directamente
+Start-Process ".\GestionTime.Desktop.exe" -Verb RunAs
+```
+
+**Opción 2: Ejecutar desde Interfaz**
+1. Click derecho en `GestionTime.Desktop.exe`
+2. Seleccionar **"Ejecutar como administrador"**
+3. Aceptar UAC (Control de Cuentas de Usuario)
+4. La aplicación creará carpetas necesarias
+5. Ejecuciones futuras: ya no necesita Admin
+
+**Opción 3: Mover a Ubicación sin Restricciones** (RECOMENDADO)
+```powershell
+# Mover toda la carpeta a ubicación de usuario
+Move-Item "C:\Program Files\GestionTime" "$env:USERPROFILE\GestionTime"
+
+# O a disco local
+Move-Item "C:\Program Files\GestionTime" "D:\GestionTime"
+```
+
+---
+
 ## 🎯 Causas Más Comunes
 
 ### 1. ⚠️ **Windows App Runtime No Instalado** (CAUSA #1 - MÁS PROBABLE)
