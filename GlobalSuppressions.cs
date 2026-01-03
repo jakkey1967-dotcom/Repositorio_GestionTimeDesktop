@@ -19,3 +19,12 @@ using System.Diagnostics.CodeAnalysis;
 // Suprimir advertencias de publicación NETSDK1198 (perfiles de publicación faltantes)
 [assembly: SuppressMessage("Build", "NETSDK1198:A publish profile with the name 'win-ARM64.pubxml' was not found in the project", 
     Justification = "Solo publicamos para x64. ARM64 no es necesario para esta aplicación.")]
+
+// Suprimir advertencias CS8633 en ILogger implementations (restricciones de nulabilidad)
+[assembly: SuppressMessage("Style", "CS8633:Nullability of 'TState' type parameter constraints doesn't match the constraints for type parameter 'TState' from interface method", 
+    Scope = "member", Target = "~M:GestionTime.Desktop.Diagnostics.DebugFileLoggerProvider.DebugFileLogger.BeginScope``1(``0)",
+    Justification = "Las restricciones de nullability de ILogger son compatibles con nuestro uso.")]
+
+[assembly: SuppressMessage("Style", "CS8633:Nullability of 'TState' type parameter constraints doesn't match the constraints for type parameter 'TState' from interface method", 
+    Scope = "member", Target = "~M:GestionTime.Desktop.Diagnostics.RotatingFileLoggerProvider.RotatingFileLogger.BeginScope``1(``0)",
+    Justification = "Las restricciones de nullability de ILogger son compatibles con nuestro uso.")]

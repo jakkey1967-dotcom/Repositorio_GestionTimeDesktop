@@ -16,6 +16,8 @@
     <Utf8Output>true</Utf8Output>
     <Platform>x64</Platform>
     <PlatformTarget>x64</PlatformTarget>
+    
+    <!-- Configuración de trimming corregida para WinUI 3 -->
     <PublishTrimmed>false</PublishTrimmed>
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
@@ -125,9 +127,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <!-- Configuraciones específicas de Release/Debug sin trimming automático -->
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Release'">true</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">false</PublishReadyToRun>
+    
+    <!-- WinUI 3 no es compatible con trimming, mantener desactivado -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <RuntimeIdentifier Condition="'$(Configuration)' == 'Release'">win-x64</RuntimeIdentifier>
   </PropertyGroup>
 </Project>

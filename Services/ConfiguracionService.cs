@@ -652,7 +652,7 @@ public class ConfiguracionService
         return Path.Combine(localAppData, "GestionTime", "Logs");
     }
 
-    private void OnConfigPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void OnConfigPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         // Auto-save deshabilitado - solo guardar cuando el usuario lo solicite
     }
