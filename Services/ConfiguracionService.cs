@@ -1,4 +1,4 @@
-using GestionTime.Desktop.Models;
+ï»¿using GestionTime.Desktop.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,14 +12,14 @@ namespace GestionTime.Desktop.Services;
 public class ConfiguracionService
 {
     private readonly ApplicationDataContainer _localSettings;
-    private ConfiguracionModel _configuracion;
+    private ConfiguracionModel _configuracion = null!; // CS8618 Fix: SerÃ¡ inicializado en el constructor
     private static readonly Lazy<ConfiguracionService> _instance = new(() => new ConfiguracionService());
     
-    // ?? CONFIGURACIÓN DE LOGS
+    // ðŸ”§ CONFIGURACIÃ“N DE LOGS
     private const long MaxLogFileSizeBytes = 10 * 1024 * 1024; // 10 MB por defecto
-    private const int MaxLogFiles = 5; // Mantener máximo 5 archivos rotados
+    private const int MaxLogFiles = 5; // Mantener mÃ¡ximo 5 archivos rotados
     
-    // ?? Nombres de archivos de log
+    // ðŸ“ Nombres de archivos de log
     public const string MainLogFileName = "app.log";
     public const string DebugLogFileName = "debug.log";
     public const string HttpLogFileName = "http.log";
@@ -33,7 +33,7 @@ public class ConfiguracionService
         get => _configuracion ??= LoadConfiguration(); 
     }
 
-    public event EventHandler<ConfiguracionChangedEventArgs> ConfiguracionChanged;
+    public event EventHandler<ConfiguracionChangedEventArgs>? ConfiguracionChanged;
 
     private ConfiguracionService()
     {
@@ -50,10 +50,10 @@ public class ConfiguracionService
             // 1. CARGAR DESDE APPSETTINGS.JSON PRIMERO
             LoadFromAppSettings(config);
 
-            // 2. SOBRESCRIBIR CON CONFIGURACIÓN DE USUARIO (si existe)
+            // 2. SOBRESCRIBIR CON CONFIGURACIÃ“N DE USUARIO (si existe)
             LoadFromUserSettings(config);
 
-            // 3. VALIDAR Y NORMALIZAR CONFIGURACIÓN
+            // 3. VALIDAR Y NORMALIZAR CONFIGURACIÃ“N
             NormalizeConfiguration(config);
 
             // Subscribe to property changes
@@ -85,7 +85,7 @@ public class ConfiguracionService
             using var document = JsonDocument.Parse(jsonContent);
             var root = document.RootElement;
 
-            // ?? Configuración de Logging
+            // ?? ConfiguraciÃ³n de Logging
             if (root.TryGetProperty("Logging", out var loggingSection))
             {
                 if (loggingSection.TryGetProperty("LogPath", out var logPathProp))
@@ -101,7 +101,7 @@ public class ConfiguracionService
                 }
             }
 
-            // ?? Configuración de GestionTime
+            // ?? ConfiguraciÃ³n de GestionTime
             if (root.TryGetProperty("GestionTime", out var gestionTimeSection))
             {
                 if (gestionTimeSection.TryGetProperty("EnableDebugLogs", out var enableDebug))
@@ -139,7 +139,7 @@ public class ConfiguracionService
                 }
             }
 
-            // ?? Configuración de API
+            // ?? ConfiguraciÃ³n de API
             if (root.TryGetProperty("Api", out var apiSection))
             {
                 if (apiSection.TryGetProperty("BaseUrl", out var baseUrl))
@@ -148,7 +148,7 @@ public class ConfiguracionService
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine($"?? Configuración cargada desde appsettings.json");
+            System.Diagnostics.Debug.WriteLine($"?? ConfiguraciÃ³n cargada desde appsettings.json");
             System.Diagnostics.Debug.WriteLine($"   ?? LogPath: {config.LogPath}");
             System.Diagnostics.Debug.WriteLine($"   ?? LogDebug: {config.LogDebug}");
             System.Diagnostics.Debug.WriteLine($"   ?? LogHttp: {config.LogHttp}");
@@ -204,24 +204,24 @@ public class ConfiguracionService
             config.CacheTTLMinutes = GetSetting("CacheTTLMinutes", 5);
             config.MaxCacheItems = GetSetting("MaxCacheItems", 100);
 
-            System.Diagnostics.Debug.WriteLine($"? Configuración de usuario aplicada");
+            System.Diagnostics.Debug.WriteLine($"? ConfiguraciÃ³n de usuario aplicada");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"?? Error cargando configuración de usuario: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"?? Error cargando configuraciÃ³n de usuario: {ex.Message}");
         }
     }
 
     /// <summary>
-    /// Normaliza y valida la configuración
+    /// Normaliza y valida la configuraciÃ³n
     /// </summary>
     private void NormalizeConfiguration(ConfiguracionModel config)
     {
-        // Asegurar que LogPath no esté vacío
+        // Asegurar que LogPath no estÃ© vacÃ­o
         if (string.IsNullOrWhiteSpace(config.LogPath))
         {
             config.LogPath = GetDefaultLogPath();
-            System.Diagnostics.Debug.WriteLine($"?? LogPath vacío - usando por defecto: {config.LogPath}");
+            System.Diagnostics.Debug.WriteLine($"?? LogPath vacÃ­o - usando por defecto: {config.LogPath}");
         }
 
         // Normalizar path (quitar barras al final)
@@ -242,7 +242,7 @@ public class ConfiguracionService
         {
             var config = _configuracion;
 
-            System.Diagnostics.Debug.WriteLine("?? Iniciando guardado de configuración...");
+            System.Diagnostics.Debug.WriteLine("?? Iniciando guardado de configuraciÃ³n...");
 
             // ?? Connection Settings
             SetSetting("ApiUrl", config.ApiUrl);
@@ -291,11 +291,11 @@ public class ConfiguracionService
             // ?? Notify listeners
             ConfiguracionChanged?.Invoke(this, new ConfiguracionChangedEventArgs(config));
             
-            System.Diagnostics.Debug.WriteLine("? Configuración guardada exitosamente");
+            System.Diagnostics.Debug.WriteLine("? ConfiguraciÃ³n guardada exitosamente");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"? Error guardando configuración: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"? Error guardando configuraciÃ³n: {ex.Message}");
             throw new InvalidOperationException($"Error saving configuration: {ex.Message}", ex);
         }
     }
@@ -334,7 +334,7 @@ public class ConfiguracionService
     }
 
     /// <summary>
-    /// Verifica si un archivo de log debe rotarse por tamaño
+    /// Verifica si un archivo de log debe rotarse por tamaÃ±o
     /// </summary>
     public bool ShouldRotateLogFile(string logFileName)
     {
@@ -350,14 +350,14 @@ public class ConfiguracionService
         
         if (shouldRotate)
         {
-            System.Diagnostics.Debug.WriteLine($"?? {logFileName}: {fileInfo.Length / 1024 / 1024:F2} MB (límite: {MaxLogFileSizeBytes / 1024 / 1024} MB)");
+            System.Diagnostics.Debug.WriteLine($"?? {logFileName}: {fileInfo.Length / 1024 / 1024:F2} MB (lÃ­mite: {MaxLogFileSizeBytes / 1024 / 1024} MB)");
         }
         
         return shouldRotate;
     }
 
     /// <summary>
-    /// Rota un archivo de log cuando excede el tamaño máximo
+    /// Rota un archivo de log cuando excede el tamaÃ±o mÃ¡ximo
     /// </summary>
     public async Task RotateLogFileAsync(string logFileName)
     {
@@ -391,7 +391,7 @@ public class ConfiguracionService
     }
 
     /// <summary>
-    /// Rota todos los archivos de log que excedan el tamaño
+    /// Rota todos los archivos de log que excedan el tamaÃ±o
     /// </summary>
     private async Task RotateLogFilesAsync()
     {
@@ -407,7 +407,7 @@ public class ConfiguracionService
     }
 
     /// <summary>
-    /// Limpia archivos rotados antiguos, manteniendo solo los últimos N
+    /// Limpia archivos rotados antiguos, manteniendo solo los Ãºltimos N
     /// </summary>
     private async Task CleanupRotatedFilesAsync(string baseFileName)
     {
@@ -449,7 +449,7 @@ public class ConfiguracionService
     }
 
     /// <summary>
-    /// Limpia logs antiguos basándose en la configuración de retención
+    /// Limpia logs antiguos basÃ¡ndose en la configuraciÃ³n de retenciÃ³n
     /// </summary>
     private async Task CleanupOldLogsAsync()
     {
@@ -469,7 +469,7 @@ public class ConfiguracionService
 
             if (oldFiles.Count > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"?? Limpiando {oldFiles.Count} archivos con más de {_configuracion.LogRetentionDays} días");
+                System.Diagnostics.Debug.WriteLine($"?? Limpiando {oldFiles.Count} archivos con mÃ¡s de {_configuracion.LogRetentionDays} dÃ­as");
             }
 
             foreach (var file in oldFiles)
@@ -500,7 +500,7 @@ public class ConfiguracionService
             var appPath = System.AppDomain.CurrentDomain.BaseDirectory;
             var settingsPath = Path.Combine(appPath, "appsettings.json");
 
-            // ?? LEER configuración existente primero
+            // ?? LEER configuraciÃ³n existente primero
             JsonDocument? existingDoc = null;
             Dictionary<string, JsonElement>? apiSection = null;
 
@@ -511,7 +511,7 @@ public class ConfiguracionService
                     var existingJson = await File.ReadAllTextAsync(settingsPath);
                     existingDoc = JsonDocument.Parse(existingJson);
                     
-                    // Preservar la sección Api completa si existe
+                    // Preservar la secciÃ³n Api completa si existe
                     if (existingDoc.RootElement.TryGetProperty("Api", out var apiElement))
                     {
                         apiSection = new Dictionary<string, JsonElement>();
@@ -519,7 +519,7 @@ public class ConfiguracionService
                         {
                             apiSection[prop.Name] = prop.Value.Clone();
                         }
-                        System.Diagnostics.Debug.WriteLine($"?? Preservando configuración de API existente con {apiSection.Count} propiedades");
+                        System.Diagnostics.Debug.WriteLine($"?? Preservando configuraciÃ³n de API existente con {apiSection.Count} propiedades");
                     }
                 }
                 catch (Exception ex)
@@ -528,12 +528,12 @@ public class ConfiguracionService
                 }
             }
 
-            // ?? Construir nueva configuración preservando Api
+            // ?? Construir nueva configuraciÃ³n preservando Api
             object appSettings;
             
             if (apiSection != null && apiSection.Count > 0)
             {
-                // Reconstruir sección Api desde el JSON existente
+                // Reconstruir secciÃ³n Api desde el JSON existente
                 var apiConfig = new Dictionary<string, object?>();
                 foreach (var kvp in apiSection)
                 {
@@ -663,7 +663,7 @@ public class ConfiguracionService
         {
             _localSettings.Values.Clear();
             _configuracion = LoadConfiguration();
-            System.Diagnostics.Debug.WriteLine("? Configuración restablecida a valores por defecto");
+            System.Diagnostics.Debug.WriteLine("? ConfiguraciÃ³n restablecida a valores por defecto");
         }
         catch (Exception ex)
         {
@@ -671,7 +671,7 @@ public class ConfiguracionService
         }
     }
 
-    // ========== MÉTODOS PARA EXPORTAR/IMPORTAR ==========
+    // ========== MÃ‰TODOS PARA EXPORTAR/IMPORTAR ==========
     public async Task<string> ExportConfigurationAsync()
     {
         try
@@ -814,10 +814,10 @@ public class ConfiguracionService
         {
             if (string.IsNullOrEmpty(logPath))
             {
-                throw new ArgumentException("La ruta del directorio no puede estar vacía", nameof(logPath));
+                throw new ArgumentException("La ruta del directorio no puede estar vacÃ­a", nameof(logPath));
             }
 
-            System.Diagnostics.Debug.WriteLine($"?? Iniciando creación de directorio: {logPath}");
+            System.Diagnostics.Debug.WriteLine($"?? Iniciando creaciÃ³n de directorio: {logPath}");
 
             // Crear directorio principal
             Directory.CreateDirectory(logPath);
@@ -849,7 +849,7 @@ public class ConfiguracionService
                 throw new UnauthorizedAccessException($"Error de permisos en el directorio: {fileEx.Message}", fileEx);
             }
             
-            // Actualizar configuración
+            // Actualizar configuraciÃ³n
             _configuracion.LogPath = logPath;
             await SaveConfigurationAsync();
             

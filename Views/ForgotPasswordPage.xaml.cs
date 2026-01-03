@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -14,7 +14,7 @@ namespace GestionTime.Desktop.Views
 {
     public sealed partial class ForgotPasswordPage : Page
     {
-        private string? _codigoEnviado;
+        // ‚úÖ CORREGIDO: Eliminado campo _codigoEnviado que nunca se usaba (CS0169)
         private string? _emailIngresado;
 
         public ForgotPasswordPage()
@@ -47,7 +47,7 @@ namespace GestionTime.Desktop.Views
             }
             catch (Exception ex)
             {
-                App.Log?.LogWarning(ex, "Error en animaciÛn de fade in");
+                App.Log?.LogWarning(ex, "Error en animaci√≥n de fade in");
                 PageRootGrid.Opacity = 1;
             }
         }
@@ -119,7 +119,7 @@ namespace GestionTime.Desktop.Views
         private void OnThemeDark(object sender, RoutedEventArgs e) => SetTheme(ElementTheme.Dark);
 
         // =========================
-        // NavegaciÛn
+        // Navegaci√≥n
         // =========================
 
         private async void OnBackClick(object sender, RoutedEventArgs e)
@@ -159,7 +159,7 @@ namespace GestionTime.Desktop.Views
         }
 
         // =========================
-        // Recuperar contraseÒa - PASO 1: Solicitar CÛdigo
+        // Recuperar contrase√±a - PASO 1: Solicitar C√≥digo
         // =========================
 
         private async void OnSolicitarCodigoClick(object sender, RoutedEventArgs e)
@@ -169,13 +169,13 @@ namespace GestionTime.Desktop.Views
             // Validaciones
             if (string.IsNullOrWhiteSpace(email))
             {
-                ShowMessage("Por favor, ingrese su correo electrÛnico.", MessageType.Warning);
+                ShowMessage("Por favor, ingrese su correo electr√≥nico.", MessageType.Warning);
                 return;
             }
 
             if (!IsValidEmail(email))
             {
-                ShowMessage("Por favor, ingrese un correo electrÛnico v·lido.", MessageType.Warning);
+                ShowMessage("Por favor, ingrese un correo electr√≥nico v√°lido.", MessageType.Warning);
                 return;
             }
 
@@ -185,10 +185,10 @@ namespace GestionTime.Desktop.Views
             try
             {
                 App.Log?.LogInformation("????????????????????????????????????????");
-                App.Log?.LogInformation("?? RECUPERAR CONTRASE—A - PASO 1: Solicitar CÛdigo");
+                App.Log?.LogInformation("?? RECUPERAR CONTRASE√ëA - PASO 1: Solicitar C√≥digo");
                 App.Log?.LogInformation("   Email: {email}", email);
 
-                // Llamar al endpoint para solicitar cÛdigo
+                // Llamar al endpoint para solicitar c√≥digo
                 var payload = new ForgotPasswordRequestStep1
                 {
                     Email = email
@@ -215,32 +215,32 @@ namespace GestionTime.Desktop.Views
                     return;
                 }
 
-                // …xito: guardar email y mostrar paso 2
+                // √âxito: guardar email y mostrar paso 2
                 _emailIngresado = email;
-                App.Log?.LogInformation("? CÛdigo enviado exitosamente");
-                ShowMessage($"? {result.Message ?? "CÛdigo enviado a tu correo. Revisa tu bandeja de entrada."}", MessageType.Success);
+                App.Log?.LogInformation("? C√≥digo enviado exitosamente");
+                ShowMessage($"? {result.Message ?? "C√≥digo enviado a tu correo. Revisa tu bandeja de entrada."}", MessageType.Success);
                 
-                // Mostrar campos de verificaciÛn
+                // Mostrar campos de verificaci√≥n
                 MostrarPasoVerificacion();
 
             }
             catch (HttpRequestException httpEx)
             {
-                App.Log?.LogError(httpEx, "Error HTTP durante solicitud de cÛdigo");
+                App.Log?.LogError(httpEx, "Error HTTP durante solicitud de c√≥digo");
                 
                 var statusCode = httpEx.StatusCode;
                 string errorMsg = statusCode switch
                 {
-                    System.Net.HttpStatusCode.Unauthorized => "Error 401: Endpoint no disponible o requiere configuraciÛn.",
+                    System.Net.HttpStatusCode.Unauthorized => "Error 401: Endpoint no disponible o requiere configuraci√≥n.",
                     System.Net.HttpStatusCode.NotFound => "Error 404: El endpoint no existe en el servidor.",
-                    _ => "Error de conexiÛn. Verifique su red e intente nuevamente."
+                    _ => "Error de conexi√≥n. Verifique su red e intente nuevamente."
                 };
                 
                 ShowMessage(errorMsg, MessageType.Error);
             }
             catch (Exception ex)
             {
-                App.Log?.LogError(ex, "Error inesperado durante solicitud de cÛdigo");
+                App.Log?.LogError(ex, "Error inesperado durante solicitud de c√≥digo");
                 ShowMessage($"Error: {ex.Message}", MessageType.Error);
             }
             finally
@@ -250,7 +250,7 @@ namespace GestionTime.Desktop.Views
         }
 
         // =========================
-        // Recuperar contraseÒa - PASO 2: Verificar CÛdigo y Cambiar ContraseÒa
+        // Recuperar contrase√±a - PASO 2: Verificar C√≥digo y Cambiar Contrase√±a
         // =========================
 
         private async void OnCambiarPasswordClick(object sender, RoutedEventArgs e)
@@ -262,37 +262,37 @@ namespace GestionTime.Desktop.Views
             // Validaciones
             if (string.IsNullOrWhiteSpace(codigo))
             {
-                ShowMessage("Por favor, ingrese el cÛdigo de verificaciÛn.", MessageType.Warning);
+                ShowMessage("Por favor, ingrese el c√≥digo de verificaci√≥n.", MessageType.Warning);
                 return;
             }
 
             if (codigo.Length != 6 || !IsNumeric(codigo))
             {
-                ShowMessage("El cÛdigo debe ser de 6 dÌgitos numÈricos.", MessageType.Warning);
+                ShowMessage("El c√≥digo debe ser de 6 d√≠gitos num√©ricos.", MessageType.Warning);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ShowMessage("Por favor, ingrese la nueva contraseÒa.", MessageType.Warning);
+                ShowMessage("Por favor, ingrese la nueva contrase√±a.", MessageType.Warning);
                 return;
             }
 
             if (password.Length < 6)
             {
-                ShowMessage("La contraseÒa debe tener al menos 6 caracteres.", MessageType.Warning);
+                ShowMessage("La contrase√±a debe tener al menos 6 caracteres.", MessageType.Warning);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(confirmPassword))
             {
-                ShowMessage("Por favor, confirme la contraseÒa.", MessageType.Warning);
+                ShowMessage("Por favor, confirme la contrase√±a.", MessageType.Warning);
                 return;
             }
 
             if (password != confirmPassword)
             {
-                ShowMessage("Las contraseÒas no coinciden.", MessageType.Warning);
+                ShowMessage("Las contrase√±as no coinciden.", MessageType.Warning);
                 return;
             }
 
@@ -302,10 +302,10 @@ namespace GestionTime.Desktop.Views
             try
             {
                 App.Log?.LogInformation("????????????????????????????????????????");
-                App.Log?.LogInformation("?? RECUPERAR CONTRASE—A - PASO 2: Validar CÛdigo y Cambiar ContraseÒa");
-                App.Log?.LogInformation("   CÛdigo: {codigo}", codigo);
+                App.Log?.LogInformation("?? RECUPERAR CONTRASE√ëA - PASO 2: Validar C√≥digo y Cambiar Contrase√±a");
+                App.Log?.LogInformation("   C√≥digo: {codigo}", codigo);
 
-                // Llamar al endpoint para resetear con cÛdigo
+                // Llamar al endpoint para resetear con c√≥digo
                 var payload = new ResetPasswordRequest
                 {
                     Token = codigo,
@@ -320,7 +320,7 @@ namespace GestionTime.Desktop.Views
 
                 if (result == null)
                 {
-                    ShowMessage("Error al cambiar la contraseÒa. Intente nuevamente.", MessageType.Error);
+                    ShowMessage("Error al cambiar la contrase√±a. Intente nuevamente.", MessageType.Error);
                     App.Log?.LogError("Respuesta nula del servidor");
                     SetBusyCambiar(false);
                     return;
@@ -329,13 +329,13 @@ namespace GestionTime.Desktop.Views
                 if (!string.IsNullOrEmpty(result.Error))
                 {
                     ShowMessage($"Error: {result.Error}", MessageType.Error);
-                    App.Log?.LogWarning("Error en cambio de contraseÒa: {error}", result.Error);
+                    App.Log?.LogWarning("Error en cambio de contrase√±a: {error}", result.Error);
                     SetBusyCambiar(false);
                     return;
                 }
 
-                App.Log?.LogInformation("? ContraseÒa cambiada exitosamente");
-                ShowMessage($"? {result.Message ?? "ContraseÒa actualizada correctamente. Ya puedes iniciar sesiÛn."}", MessageType.Success);
+                App.Log?.LogInformation("? Contrase√±a cambiada exitosamente");
+                ShowMessage($"? {result.Message ?? "Contrase√±a actualizada correctamente. Ya puedes iniciar sesi√≥n."}", MessageType.Success);
 
                 // Esperar 2 segundos y volver al login
                 await Task.Delay(2000);
@@ -344,22 +344,22 @@ namespace GestionTime.Desktop.Views
             }
             catch (HttpRequestException httpEx)
             {
-                App.Log?.LogError(httpEx, "Error HTTP durante cambio de contraseÒa");
+                App.Log?.LogError(httpEx, "Error HTTP durante cambio de contrase√±a");
                 
                 var statusCode = httpEx.StatusCode;
                 string errorMsg = statusCode switch
                 {
-                    System.Net.HttpStatusCode.BadRequest => "CÛdigo inv·lido o expirado. Solicita uno nuevo.",
-                    System.Net.HttpStatusCode.Unauthorized => "Error de autorizaciÛn. Verifica el cÛdigo.",
+                    System.Net.HttpStatusCode.BadRequest => "C√≥digo inv√°lido o expirado. Solicita uno nuevo.",
+                    System.Net.HttpStatusCode.Unauthorized => "Error de autorizaci√≥n. Verifica el c√≥digo.",
                     System.Net.HttpStatusCode.NotFound => "Error 404: El endpoint no existe en el servidor.",
-                    _ => "Error de conexiÛn. Verifique su red e intente nuevamente."
+                    _ => "Error de conexi√≥n. Verifique su red e intente nuevamente."
                 };
                 
                 ShowMessage(errorMsg, MessageType.Error);
             }
             catch (Exception ex)
             {
-                App.Log?.LogError(ex, "Error inesperado durante cambio de contraseÒa");
+                App.Log?.LogError(ex, "Error inesperado durante cambio de contrase√±a");
                 ShowMessage($"Error: {ex.Message}", MessageType.Error);
             }
             finally
@@ -379,13 +379,13 @@ namespace GestionTime.Desktop.Views
             BtnSolicitarCodigo.IsEnabled = false;
 
             // Cambiar instrucciones
-            TxtInstrucciones.Text = "Paso 2: Ingresa el cÛdigo que recibiste por correo y tu nueva contraseÒa.";
+            TxtInstrucciones.Text = "Paso 2: Ingresa el c√≥digo que recibiste por correo y tu nueva contrase√±a.";
 
-            // Mostrar separador y campos de verificaciÛn
+            // Mostrar separador y campos de verificaci√≥n
             Separador.Visibility = Visibility.Visible;
             PanelVerificacion.Visibility = Visibility.Visible;
 
-            // Focus en el campo de cÛdigo
+            // Focus en el campo de c√≥digo
             TxtCodigo.Focus(FocusState.Programmatic);
         }
 
@@ -497,7 +497,7 @@ namespace GestionTime.Desktop.Views
         // DTOs
         // =========================
 
-        // PASO 1: Solicitar cÛdigo
+        // PASO 1: Solicitar c√≥digo
         private sealed class ForgotPasswordRequestStep1
         {
             public string Email { get; set; } = string.Empty;
@@ -510,7 +510,7 @@ namespace GestionTime.Desktop.Views
             public string? Error { get; set; }
         }
 
-        // PASO 2: Validar cÛdigo y cambiar contraseÒa
+        // PASO 2: Validar c√≥digo y cambiar contrase√±a
         private sealed class ResetPasswordRequest
         {
             public string Token { get; set; } = string.Empty;

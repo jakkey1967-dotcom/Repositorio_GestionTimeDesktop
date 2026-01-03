@@ -42,7 +42,7 @@ public sealed partial class ParteItemEdit : Page
     private CancellationTokenSource? _clienteSearchCts;
     private string _lastClienteQuery = string.Empty;
     
-    // Items de Cliente originales (ya no se usan)
+    // Items de Cliente originales
     private ObservableCollection<string> _clienteItems = new();
     private CancellationTokenSource? _clienteLoadCts;
     private bool _clientesLoaded = false;
@@ -56,19 +56,16 @@ public sealed partial class ParteItemEdit : Page
     private CancellationTokenSource? _tipoLoadCts;
     
     // Flag para evitar abrir dropdown al recibir foco por Tab
-    private bool _clienteDropDownOpenedByUser = false;
     private bool _grupoDropDownOpenedByUser = false;
     private bool _tipoDropDownOpenedByUser = false;
     private bool _gruposLoaded = false;
     private bool _tiposLoaded = false;
     
     // Flags temporales para evitar bucle después de seleccionar
-    private bool _clienteJustSelected = false;
     private bool _grupoJustSelected = false;
     private bool _tipoJustSelected = false;
     
     // Flags para detectar navegación activa (Tab/Escape)
-    private bool _clienteNavigatingAway = false;
     private bool _grupoNavigatingAway = false;
     private bool _tipoNavigatingAway = false;
     
@@ -115,39 +112,39 @@ public sealed partial class ParteItemEdit : Page
             await SearchClientesAsync();
         };
         
-        App.Log?.LogDebug("? AutoSuggestBox Cliente configurado con búsqueda dinámica");
+        App.Log?.LogDebug("✅ AutoSuggestBox Cliente configurado com búsqueda dinâmica");
         
         // Configurar ComboBox de Grupo (solo lectura)
         CmbGrupo.ItemsSource = _grupoItems;
-        App.Log?.LogDebug("? CmbGrupo.ItemsSource configurado con ObservableCollection vacía");
+        App.Log?.LogDebug("✅ CmbGrupo.ItemsSource configurado con ObservableCollection vacía");
         
         // Configurar ComboBox de Tipo (solo lectura)
         CmbTipo.ItemsSource = _tipoItems;
-        App.Log?.LogDebug("? CmbTipo.ItemsSource configurado con ObservableCollection vacía");
+        App.Log?.LogDebug("✅ CmbTipo.ItemsSource configurado con ObservableCollection vacía");
         
-        // Configurar navegación por Enter en campos de texto
+        // Configurar navegación por Enter en fields de texto
         ConfigureKeyboardNavigation();
         
         // Agregar evento Loaded para fade in
         this.Loaded += OnPageLoaded;
         
-        // Eventos de foco para campos de hora
+        // Eventos de foco para fields de hora
         TxtHoraInicio.GotFocus += OnHoraGotFocus;
         TxtHoraFin.GotFocus += OnHoraGotFocus;
         
-        App.Log?.LogInformation("? ParteItemEdit constructor completado");
+        App.Log?.LogInformation("✅ ParteItemEdit constructor completado");
     }
 
-    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    private void OnPageLoaded(object? sender, RoutedEventArgs e)
     {
         // Remover evento para evitar doble ejecución
         this.Loaded -= OnPageLoaded;
         
         try
         {
-            App.Log?.LogInformation("ParteItemEdit Loaded ?");
+            App.Log?.LogInformation("ParteItemEdit Loaded ✅");
             
-            // Actualizar logo menurut tema
+            // Actualizar logo según tema
             UpdateBannerLogo();
             
             // Iniciar animación de fade in
@@ -192,7 +189,7 @@ public sealed partial class ParteItemEdit : Page
         CmbGrupo.PreviewKeyDown += OnGrupoPreviewKeyDown;
         CmbGrupo.SelectionChanged += OnGrupoSelectionChanged;
         
-        App.Log?.LogDebug("? Eventos de Grupo configurados");
+        App.Log?.LogDebug("✅ Eventos de Grupo configurados");
         
         // Tipo: cargar todos al recibir foco
         CmbTipo.GotFocus += OnTipoGotFocus;
@@ -200,17 +197,17 @@ public sealed partial class ParteItemEdit : Page
         CmbTipo.PreviewKeyDown += OnTipoPreviewKeyDown;
         CmbTipo.SelectionChanged += OnTipoSelectionChanged;
         
-        App.Log?.LogDebug("? Eventos de Tipo configurados");
+        App.Log?.LogDebug("✅ Eventos de Tipo configurados");
         
         // Acción: Ctrl+Enter para guardar desde el campo
         TxtAccion.KeyDown += OnAccionKeyDown;
         
-        App.Log?.LogDebug("? Navegación de teclado configurada");
+        App.Log?.LogDebug("✅ Navegación de teclado configurada");
     }
     
     // ===================== Animaciones Hover =====================
     
-    private void OnButtonPointerEntered(object sender, PointerRoutedEventArgs e)
+    private void OnButtonPointerEntered(object? sender, PointerRoutedEventArgs e)
     {
         if (sender is Button button && button.IsEnabled)
         {
@@ -218,7 +215,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
 
-    private void OnButtonPointerExited(object sender, PointerRoutedEventArgs e)
+    private void OnButtonPointerExited(object? sender, PointerRoutedEventArgs e)
     {
         if (sender is Button button)
         {
@@ -285,7 +282,7 @@ public sealed partial class ParteItemEdit : Page
     /// </summary>
     private void RegisterFocusTracking()
     {
-        App.Log?.LogInformation("?? Iniciando sistema de tracking de foco...");
+        App.Log?.LogInformation("🔍 Iniciando sistema de tracking de foco...");
         
         // Lista de controles a monitorear
         var controls = new Dictionary<Control, string>
@@ -317,7 +314,7 @@ public sealed partial class ParteItemEdit : Page
             control.LostFocus += (s, e) => OnControlLostFocus(name, e);
         }
         
-        App.Log?.LogInformation("? Sistema de tracking configurado para {count} controles", controls.Count);
+        App.Log?.LogInformation("✅ Sistema de tracking configurado para {count} controles", controls.Count);
     }
     
     /// <summary>
@@ -329,7 +326,7 @@ public sealed partial class ParteItemEdit : Page
         var elapsed = (DateTime.Now - _lastFocusChangeTime).TotalMilliseconds;
         
         App.Log?.LogInformation(
-            "?? [{counter}] FOCO EN ? {control} (desde: {from}, {ms:F0}ms)", 
+            "🔍 [{counter}] FOCO EN ➡ {control} (desde: {from}, {ms:F0}ms)", 
             _focusChangeCounter,
             controlName,
             string.IsNullOrEmpty(_lastFocusedControl) ? "Inicio" : _lastFocusedControl,
@@ -341,53 +338,48 @@ public sealed partial class ParteItemEdit : Page
     }
     
     /// <summary>
-    /// Handler para quando um controle PERDE foco
+    /// Handler para cuando un control PIERDE foco
     /// </summary>
     private void OnControlLostFocus(string controlName, RoutedEventArgs e)
     {
         var elapsed = (DateTime.Now - _lastFocusChangeTime).TotalMilliseconds;
         
         App.Log?.LogDebug(
-            "?? FOCO PERDIDO ? {control} ({ms:F0}ms desde cambio)", 
+            "🔍 FOCO PERDIDO ⬅ {control} ({ms:F0}ms desde cambio)", 
             controlName,
             elapsed
         );
     }
     
-    
-    /// <summary>
-    /// Determina si la tecla presionada es un carácter alfanumérico
-    /// </summary>
-    
-    
-    
-    
     // ===================== GRUPO =====================
     
+    /// <summary>
+    /// Método para OnGrupoGotFocus
+    /// </summary>
     private async void OnGrupoGotFocus(object sender, RoutedEventArgs e)
     {
-        App.Log?.LogInformation("?? CmbGrupo GotFocus - _gruposLoaded={loaded}, IsDropDownOpen={open}, JustSelected={just}, NavigatingAway={nav}", 
+        App.Log?.LogInformation("🔧 CmbGrupo GotFocus - _gruposLoaded={loaded}, IsDropDownOpen={open}, JustSelected={just}, NavigatingAway={nav}", 
             _gruposLoaded, CmbGrupo.IsDropDownOpen, _grupoJustSelected, _grupoNavigatingAway);
         
-        // ?? NO abrir si el usuario está navegando con Tab/Escape
+        // ⚠️ NO abrir si el usuario está navegando con Tab/Escape
         if (_grupoNavigatingAway)
         {
-            App.Log?.LogDebug("?? Usuario navegando, NO abrir dropdown");
+            App.Log?.LogDebug("🔧 Usuario navegando, NO abrir dropdown");
             _grupoNavigatingAway = false; // Resetear flag
             return;
         }
         
-        // ?? NO abrir si ya está abierto (evita bucle infinito)
+        // ⚠️ NO abrir si ya está abierto (evita bucle infinito)
         if (CmbGrupo.IsDropDownOpen)
         {
-            App.Log?.LogDebug("?? Dropdown ya abierto, saltando...");
+            App.Log?.LogDebug("🔧 Dropdown ya abierto, saltando...");
             return;
         }
         
-        // ?? NO abrir si acabamos de seleccionar o confirmar con Enter (el foco vuelve después del cierre)
+        // ⚠️ NO abrir si acabamos de selecionar o confirmar con Enter (el foco vuelve después del cierre)
         if (_grupoJustSelected)
         {
-            App.Log?.LogDebug("?? Recién seleccionado/confirmado, NO abrir automáticamente");
+            App.Log?.LogDebug("🔧 Recién seleccionado/confirmado, NO abrir automáticamente");
             _grupoJustSelected = false; // Resetear flag
             return;
         }
@@ -395,45 +387,45 @@ public sealed partial class ParteItemEdit : Page
         // Cargar grupos si aún no se han cargado
         if (!_gruposLoaded)
         {
-            App.Log?.LogInformation("? Cargando grupos al recibir foco...");
+            App.Log?.LogInformation("📊 Cargando grupos al recibir foco...");
             await LoadGruposAsync();
             
             // Después de cargar, abrir el dropdown automáticamente SOLO si es la primera vez
             if (sender is ComboBox combo && _grupoItems.Count > 0 && combo.SelectedIndex < 0)
             {
-                App.Log?.LogDebug("?? Abriendo dropdown automáticamente con {count} items (sin selección previa)", _grupoItems.Count);
+                App.Log?.LogDebug("🔧 Abriendo dropdown automáticamente con {count} items (sin selección previa)", _grupoItems.Count);
                 _grupoDropDownOpenedByUser = true; // Marcar como apertura válida
                 combo.IsDropDownOpen = true;
             }
         }
         else
         {
-            App.Log?.LogDebug("? Grupos ya cargados ({count} items), abriendo dropdown", _grupoItems.Count);
+            App.Log?.LogDebug("✅ Grupos ya cargados ({count} items), abriendo dropdown", _grupoItems.Count);
             
             // Si ya están cargados, abrir directamente SOLO si no hay selección previa
             if (sender is ComboBox combo && _grupoItems.Count > 0 && combo.SelectedIndex < 0)
             {
                 _grupoDropDownOpenedByUser = true; // Marcar como apertura válida
                 combo.IsDropDownOpen = true;
-                App.Log?.LogDebug("?? Dropdown abierto (sin selección previa)");
+                App.Log?.LogDebug("🔧 Dropdown abierto (sin selección previa)");
             }
             else if (sender is ComboBox combo2 && combo2.SelectedIndex >= 0)
             {
-                App.Log?.LogDebug("?? Ya hay selección (index: {index}), NO abrir automáticamente", combo2.SelectedIndex);
+                App.Log?.LogDebug("🔧 Ya hay selección (index: {index}), NO abrir automáticamente", combo2.SelectedIndex);
             }
         }
     }
-
+    
     private void OnGrupoPreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        App.Log?.LogDebug("?? CmbGrupo PreviewKeyDown - Key={key}", e.Key);
+        App.Log?.LogDebug("🔧 CmbGrupo PreviewKeyDown - Key={key}", e.Key);
         
         // ? INTERCEPTAR ENTER AQUÍ para confirmar y avanzar
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
             if (sender is ComboBox comboGrupo)
             {
-                App.Log?.LogInformation("? Enter en Grupo - Cerrando y avanzando");
+                App.Log?.LogInformation("📥 Enter en Grupo - Cerrando y avanzando");
                 
                 // Cerrar dropdown si está abierto
                 if (comboGrupo.IsDropDownOpen)
@@ -445,7 +437,7 @@ public sealed partial class ParteItemEdit : Page
                 _grupoJustSelected = true;
                 
                 // Marcar como modificado
-                OnFieldChanged(comboGrupo, null);
+                OnFieldChanged(comboGrupo, null!);
                 
                 // Navegar al siguiente control
                 MoveToNextControl(comboGrupo);
@@ -459,7 +451,7 @@ public sealed partial class ParteItemEdit : Page
         if (e.Key == Windows.System.VirtualKey.Tab || 
             e.Key == Windows.System.VirtualKey.Escape)
         {
-            App.Log?.LogDebug("?? Usuario navegando con {key}, marcar flag", e.Key);
+            App.Log?.LogDebug("🔧 Usuario navegando con {key}, marcar flag", e.Key);
             _grupoNavigatingAway = true;
             
             // Cerrar dropdown si está abierto
@@ -480,20 +472,20 @@ public sealed partial class ParteItemEdit : Page
                 !combo.IsDropDownOpen)
             {
                 _grupoDropDownOpenedByUser = true;
-                App.Log?.LogDebug("? Dropdown de grupo marcado como apertura manual");
+                App.Log?.LogDebug("🔧 Dropdown de grupo marcado como apertura manual");
             }
         }
     }
 
-    private async void OnGrupoDropDownOpened(object sender, object e)
+    private async void OnGrupoDropDownOpened(object? sender, object e)
     {
-        App.Log?.LogInformation("?? CmbGrupo DropDownOpened - _grupoDropDownOpenedByUser={manual}, _gruposLoaded={loaded}, Items={items}", 
+        App.Log?.LogInformation("🔧 CmbGrupo DropDownOpened - _grupoDropDownOpenedByUser={manual}, _gruposLoaded={loaded}, Items={items}", 
             _grupoDropDownOpenedByUser, _gruposLoaded, _grupoItems.Count);
         
         // Si no hay items y no están cargados, cargar ahora
         if (!_gruposLoaded)
         {
-            App.Log?.LogInformation("? Cargando grupos desde dropdown...");
+            App.Log?.LogInformation("📊 Cargando grupos desde dropdown...");
             await LoadGruposAsync();
         }
         
@@ -506,7 +498,7 @@ public sealed partial class ParteItemEdit : Page
         // Cuando el usuario selecciona un grupo
         if (sender is ComboBox combo && combo.SelectedItem is string selectedGrupo)
         {
-            App.Log?.LogInformation("? Grupo seleccionado: {grupo}", selectedGrupo);
+            App.Log?.LogInformation("✅ Grupo seleccionado: {grupo}", selectedGrupo);
             
             // Marcar que acabamos de seleccionar (para evitar bucle en GotFocus)
             _grupoJustSelected = true;
@@ -522,12 +514,12 @@ public sealed partial class ParteItemEdit : Page
 
     private async Task LoadGruposAsync()
     {
-        App.Log?.LogInformation("?? LoadGruposAsync iniciado - Cache válido: {valid}", IsGruposCacheValid());
+        App.Log?.LogInformation("🔄 LoadGruposAsync iniciado - Cache válido: {valid}", IsGruposCacheValid());
         
         // Si ya está cargado o el cache es válido, no recargar
         if (_gruposLoaded && IsGruposCacheValid())
         {
-            App.Log?.LogDebug("? Usando cache de grupos ({count} items, cargado hace {age})",
+            App.Log?.LogDebug("✅ Usando cache de grupos ({count} items, cargado hace {age})",
                 _gruposCache!.Count,
                 DateTime.Now - _gruposCacheLoadedAt);
             return;
@@ -542,11 +534,11 @@ public sealed partial class ParteItemEdit : Page
             
             // Llamar a la API
             var path = "/api/v1/catalog/grupos";
-            App.Log?.LogInformation("?? Llamando a API: {path}", path);
+            App.Log?.LogInformation("🔄 Llamando a API: {path}", path);
             
             var response = await App.Api.GetAsync<GrupoResponse[]>(path, ct);
             
-            App.Log?.LogInformation("?? Respuesta recibida: {isNull}, Cancelado: {cancelled}", 
+            App.Log?.LogInformation("✅ Respuesta recibida: {isNull}, Cancelado: {cancelled}", 
                 response == null ? "NULL" : $"{response.Length} items", 
                 ct.IsCancellationRequested);
             
@@ -554,10 +546,10 @@ public sealed partial class ParteItemEdit : Page
             {
                 // ?? LOG DETALLADO: Ver qué viene en cada item del JSON
                 App.Log?.LogInformation("---------------------------------------------------------------");
-                App.Log?.LogInformation("?? ANÁLISIS DETALLADO DE GRUPOS RECIBIDOS:");
+                App.Log?.LogInformation("🔍 ANÁLISIS DETALLADO DE GRUPOS RECIBIDOS:");
                 foreach (var g in response.Take(10))
                 {
-                    App.Log?.LogInformation("   ? Id_grupo={id}, Nombre='" + 
+                    App.Log?.LogInformation("   - Id_grupo={id}, Nombre='" + 
                         g.Id_grupo + "");
 
                 }
@@ -567,7 +559,7 @@ public sealed partial class ParteItemEdit : Page
                 _gruposCache = response.ToList();
                 _gruposCacheLoadedAt = DateTime.Now;
                 
-                App.Log?.LogInformation("?? Cache de grupos guardado: {count} items", _gruposCache.Count);
+                App.Log?.LogInformation("✅ Cache de grupos guardado: {count} items", _gruposCache.Count);
                 
                 // Actualizar items de la UI
                 _grupoItems.Clear();
@@ -578,7 +570,7 @@ public sealed partial class ParteItemEdit : Page
                     .OrderBy(g => g.Nombre)
                     .ToList();
                 
-                App.Log?.LogInformation("?? Grupos válidos (con nombre): {count} de {total}", 
+                App.Log?.LogInformation("✅ Grupos válidos (con nombre): {count} de {total}", 
                     gruposValidos.Count, _gruposCache.Count);
                 
                 foreach (var grupo in gruposValidos)
@@ -589,20 +581,20 @@ public sealed partial class ParteItemEdit : Page
                 
                 _gruposLoaded = true;
                 
-                App.Log?.LogInformation("? Cache de grupos actualizado: {count} registros en UI", _grupoItems.Count);
+                App.Log?.LogInformation("📊 Cache de grupos actualizado: {count} registros en UI", _grupoItems.Count);
             }
             else
             {
-                App.Log?.LogWarning("?? No se pudieron cargar grupos (response null o cancelado)");
+                App.Log?.LogWarning("⚠️ No se pudieron cargar grupos (response null o cancelado)");
             }
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogDebug("?? Carga de grupos cancelada");
+            App.Log?.LogDebug("🚫 Carga de grupos cancelada");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "? Error cargando catálogo de grupos");
+            App.Log?.LogError(ex, "❌ Error cargando catálogo de grupos");
         }
     }
 
@@ -629,28 +621,28 @@ public sealed partial class ParteItemEdit : Page
     
     private async void OnTipoGotFocus(object sender, RoutedEventArgs e)
     {
-        App.Log?.LogInformation("?? CmbTipo GotFocus - _tiposLoaded={loaded}, IsDropDownOpen={open}, JustSelected={just}, NavigatingAway={nav}", 
+        App.Log?.LogInformation("🔧 CmbTipo GotFocus - _tiposLoaded={loaded}, IsDropDownOpen={open}, JustSelected={just}, NavigatingAway={nav}", 
             _tiposLoaded, CmbTipo.IsDropDownOpen, _tipoJustSelected, _tipoNavigatingAway);
         
-        // ?? NO abrir si el usuario está navegando con Tab/Escape
+        // ⚠️ NO abrir si el usuario está navegando con Tab/Escape
         if (_tipoNavigatingAway)
         {
-            App.Log?.LogDebug("?? Usuario navegando, NO abrir dropdown");
+            App.Log?.LogDebug("🔧 Usuario navegando, NO abrir dropdown");
             _tipoNavigatingAway = false; // Resetear flag
             return;
         }
         
-        // ?? NO abrir si ya está abierto (evita bucle infinito)
+        // ⚠️ NO abrir si ya está abierto (evita bucle infinito)
         if (CmbTipo.IsDropDownOpen)
         {
-            App.Log?.LogDebug("?? Dropdown ya abierto, saltando...");
+            App.Log?.LogDebug("🔧 Dropdown ya abierto, saltando...");
             return;
         }
         
-        // ?? NO abrir si acabamos de seleccionar o confirmar con Enter (el foco vuelve después del cierre)
+        // ⚠️ NO abrir si acabamos de seleccionar o confirmar con Enter (el foco vuelve después del cierre)
         if (_tipoJustSelected)
         {
-            App.Log?.LogDebug("?? Recién seleccionado/confirmado, NO abrir automáticamente");
+            App.Log?.LogDebug("🔧 Recién seleccionado/confirmado, NO abrir automáticamente");
             _tipoJustSelected = false; // Resetear flag
             return;
         }
@@ -658,45 +650,45 @@ public sealed partial class ParteItemEdit : Page
         // Cargar tipos si aún no se han cargado
         if (!_tiposLoaded)
         {
-            App.Log?.LogInformation("? Cargando tipos al recibir foco...");
+            App.Log?.LogInformation("📊 Cargando tipos al recibir foco...");
             await LoadTiposAsync();
             
             // Después de cargar, abrir el dropdown automáticamente SOLO si es la primera vez
             if (sender is ComboBox combo && _tipoItems.Count > 0 && combo.SelectedIndex < 0)
             {
-                App.Log?.LogDebug("?? Abriendo dropdown automáticamente con {count} items (sin selección previa)", _tipoItems.Count);
+                App.Log?.LogDebug("🔧 Abriendo dropdown automáticamente con {count} items (sin selección previa)", _tipoItems.Count);
                 _tipoDropDownOpenedByUser = true; // Marcar como apertura válida
                 combo.IsDropDownOpen = true;
             }
         }
         else
         {
-            App.Log?.LogDebug("? Tipos ya cargados ({count} items), abriendo dropdown", _tipoItems.Count);
+            App.Log?.LogDebug("✅ Tipos ya cargados ({count} items), abriendo dropdown", _tipoItems.Count);
             
             // Si ya están cargados, abrir directamente SOLO si no hay selección previa
             if (sender is ComboBox combo && _tipoItems.Count > 0 && combo.SelectedIndex < 0)
             {
                 _tipoDropDownOpenedByUser = true; // Marcar como apertura válida
                 combo.IsDropDownOpen = true;
-                App.Log?.LogDebug("?? Dropdown abierto (sin selección previa)");
+                App.Log?.LogDebug("🔧 Dropdown abierto (sin selección previa)");
             }
             else if (sender is ComboBox combo2 && combo2.SelectedIndex >= 0)
             {
-                App.Log?.LogDebug("?? Ya hay selección (index: {index}), NO abrir automáticamente", combo2.SelectedIndex);
+                App.Log?.LogDebug("🔧 Ya hay selección (index: {index}), NO abrir automáticamente", combo2.SelectedIndex);
             }
         }
     }
 
     private void OnTipoPreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        App.Log?.LogDebug("?? CmbTipo PreviewKeyDown - Key={key}", e.Key);
+        App.Log?.LogDebug("🔧 CmbTipo PreviewKeyDown - Key={key}", e.Key);
         
         // ? INTERCEPTAR ENTER AQUÍ para confirmar y avanzar
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
             if (sender is ComboBox comboTipo)
             {
-                App.Log?.LogInformation("? Enter en Tipo - Cerrando y avanzando");
+                App.Log?.LogInformation("📥 Enter en Tipo - Cerrando y avanzando");
                 
                 // Cerrar dropdown si está abierto
                 if (comboTipo.IsDropDownOpen)
@@ -708,7 +700,7 @@ public sealed partial class ParteItemEdit : Page
                 _tipoJustSelected = true;
                 
                 // Marcar como modificado
-                OnFieldChanged(comboTipo, null);
+                OnFieldChanged(comboTipo, null!);
                 
                 // Navegar al siguiente control
                 MoveToNextControl(comboTipo);
@@ -722,7 +714,7 @@ public sealed partial class ParteItemEdit : Page
         if (e.Key == Windows.System.VirtualKey.Tab || 
             e.Key == Windows.System.VirtualKey.Escape)
         {
-            App.Log?.LogDebug("?? Usuario navegando con {key}, marcar flag", e.Key);
+            App.Log?.LogDebug("🔧 Usuario navegando con {key}, marcar flag", e.Key);
             _tipoNavigatingAway = true;
             
             // Cerrar dropdown si está abierto
@@ -743,20 +735,20 @@ public sealed partial class ParteItemEdit : Page
                 !combo.IsDropDownOpen)
             {
                 _tipoDropDownOpenedByUser = true;
-                App.Log?.LogDebug("? Dropdown de tipo marcado como apertura manual");
+                App.Log?.LogDebug("🔧 Dropdown de tipo marcado como apertura manual");
             }
         }
     }
 
-    private async void OnTipoDropDownOpened(object sender, object e)
+    private async void OnTipoDropDownOpened(object? sender, object e)
     {
-        App.Log?.LogInformation("?? CmbTipo DropDownOpened - _tipoDropDownOpenedByUser={manual}, _tiposLoaded={loaded}, Items={items}", 
+        App.Log?.LogInformation("🔧 CmbTipo DropDownOpened - _tipoDropDownOpenedByUser={manual}, _tiposLoaded={loaded}, Items={items}", 
             _tipoDropDownOpenedByUser, _tiposLoaded, _tipoItems.Count);
         
         // Si no hay items y no están cargados, cargar ahora
         if (!_tiposLoaded)
         {
-            App.Log?.LogInformation("? Cargando tipos desde dropdown...");
+            App.Log?.LogInformation("📊 Cargando tipos desde dropdown...");
             await LoadTiposAsync();
         }
         
@@ -769,7 +761,7 @@ public sealed partial class ParteItemEdit : Page
         // Cuando el usuario selecciona un tipo
         if (sender is ComboBox combo && combo.SelectedItem is string selectedTipo)
         {
-            App.Log?.LogInformation("? Tipo seleccionado: {tipo}", selectedTipo);
+            App.Log?.LogInformation("✅ Tipo seleccionado: {tipo}", selectedTipo);
             
             // Marcar que acabamos de seleccionar (para evitar bucle en GotFocus)
             _tipoJustSelected = true;
@@ -785,12 +777,12 @@ public sealed partial class ParteItemEdit : Page
 
     private async Task LoadTiposAsync()
     {
-        App.Log?.LogInformation("?? LoadTiposAsync iniciado - Cache válido: {valid}", IsTiposCacheValid());
+        App.Log?.LogInformation("🔄 LoadTiposAsync iniciado - Cache válido: {valid}", IsTiposCacheValid());
         
         // Si ya está cargado o el cache es válido, no recargar
         if (_tiposLoaded && IsTiposCacheValid())
         {
-            App.Log?.LogDebug("? Usando cache de tipos ({count} items, cargado hace {age})",
+            App.Log?.LogDebug("✅ Usando cache de tipos ({count} items, cargado hace {age})",
                 _tiposCache!.Count,
                 DateTime.Now - _tiposCacheLoadedAt);
             return;
@@ -805,11 +797,11 @@ public sealed partial class ParteItemEdit : Page
             
             // Llamar a la API
             var path = "/api/v1/catalog/tipos";
-            App.Log?.LogInformation("?? Llamando a API: {path}", path);
+            App.Log?.LogInformation("🔄 Llamando a API: {path}", path);
             
             var response = await App.Api.GetAsync<TipoResponse[]>(path, ct);
             
-            App.Log?.LogInformation("?? Respuesta recibida: {isNull}, Cancelado: {cancelled}", 
+            App.Log?.LogInformation("✅ Respuesta recibida: {isNull}, Cancelado: {cancelled}", 
                 response == null ? "NULL" : $"{response.Length} items", 
                 ct.IsCancellationRequested);
             
@@ -817,10 +809,10 @@ public sealed partial class ParteItemEdit : Page
             {
                 // ?? LOG DETALLADO: Ver qué viene en cada item del JSON
                 App.Log?.LogInformation("---------------------------------------------------------------");
-                App.Log?.LogInformation("?? ANÁLISIS DETALLADO DE TIPOS RECIBIDOS:");
+                App.Log?.LogInformation("🔍 ANÁLISIS DETALLADO DE TIPOS RECIBIDOS:");
                 foreach (var t in response.Take(10))
                 {
-                    App.Log?.LogInformation("   ? Id_tipo={id}, Nombre='{nombre}'", 
+                    App.Log?.LogInformation("   - Id_tipo={id}, Nombre='{nombre}'", 
                         t.Id_tipo, 
                         t.Nombre ?? "(null)");
                 }
@@ -830,7 +822,7 @@ public sealed partial class ParteItemEdit : Page
                 _tiposCache = response.ToList();
                 _tiposCacheLoadedAt = DateTime.Now;
                 
-                App.Log?.LogInformation("?? Cache de tipos guardado: {count} items", _tiposCache.Count);
+                App.Log?.LogInformation("✅ Cache de tipos guardado: {count} items", _tiposCache.Count);
                 
                 // Actualizar items de la UI
                 _tipoItems.Clear();
@@ -841,7 +833,7 @@ public sealed partial class ParteItemEdit : Page
                     .OrderBy(t => t.Nombre)
                     .ToList();
                 
-                App.Log?.LogInformation("?? Tipos válidos (con nombre): {count} de {total}", 
+                App.Log?.LogInformation("✅ Tipos válidos (con nombre): {count} de {total}", 
                     tiposValidos.Count, _tiposCache.Count);
                 
                 foreach (var tipo in tiposValidos)
@@ -852,20 +844,20 @@ public sealed partial class ParteItemEdit : Page
                 
                 _tiposLoaded = true;
                 
-                App.Log?.LogInformation("? Cache de tipos actualizado: {count} registros en UI", _tipoItems.Count);
+                App.Log?.LogInformation("📊 Cache de tipos actualizado: {count} registros en UI", _tipoItems.Count);
             }
             else
             {
-                App.Log?.LogWarning("?? No se pudieron cargar tipos (response null o cancelado)");
+                App.Log?.LogWarning("⚠️ No se pudieron cargar tipos (response null o cancelado)");
             }
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogDebug("?? Carga de tipos cancelada");
+            App.Log?.LogDebug("🚫 Carga de tipos cancelada");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "? Error cargando catálogo de tipos");
+            App.Log?.LogError(ex, "❌ Error cargando catálogo de tipos");
         }
     }
 
@@ -895,11 +887,11 @@ public sealed partial class ParteItemEdit : Page
     /// </summary>
     private async Task LoadClientesAsync()
     {
-        App.Log?.LogInformation("?? LoadClientesAsync iniciado - Cache válido: {valid}", IsCacheValid());
+        App.Log?.LogInformation("🔄 LoadClientesAsync iniciado - Cache válido: {valid}", IsCacheValid());
         
         if (_clientesLoaded && IsCacheValid())
         {
-            App.Log?.LogDebug("? Usando cache de clientes ({count} items)",
+            App.Log?.LogDebug("✅ Usando cache de clientes ({count} items)",
                 _clientesCache!.Count);
             return;
         }
@@ -911,7 +903,7 @@ public sealed partial class ParteItemEdit : Page
             var ct = _clienteLoadCts.Token;
             
             var path = "/api/v1/catalog/clientes?limit=200&offset=0";
-            App.Log?.LogInformation("?? Llamando a API: {path}", path);
+            App.Log?.LogInformation("🔄 Llamando a API: {path}", path);
             
             var response = await App.Api.GetAsync<ClienteResponse[]>(path, ct);
             
@@ -920,7 +912,7 @@ public sealed partial class ParteItemEdit : Page
                 _clientesCache = response.ToList();
                 _cacheLoadedAt = DateTime.Now;
                 
-                App.Log?.LogInformation("?? Cache de clientes guardado: {count} items", _clientesCache.Count);
+                App.Log?.LogInformation("✅ Cache de clientes guardado: {count} items", _clientesCache.Count);
                 
                 _clienteItems.Clear();
                 
@@ -936,16 +928,16 @@ public sealed partial class ParteItemEdit : Page
                 
                 _clientesLoaded = true;
                 
-                App.Log?.LogInformation("? Cache de clientes actualizado: {count} registros en UI", _clienteItems.Count);
+                App.Log?.LogInformation("📊 Cache de clientes actualizado: {count} registros en UI", _clienteItems.Count);
             }
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogDebug("?? Carga de clientes cancelada");
+            App.Log?.LogDebug("🚫 Carga de clientes cancelada");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "? Error cargando catálogo de clientes");
+            App.Log?.LogError(ex, "❌ Error cargando catálogo de clientes");
         }
     }
 
@@ -971,7 +963,7 @@ public sealed partial class ParteItemEdit : Page
         App.Log?.LogInformation("Cache de clientes invalidado");
     }
 
-    private async void OnTextBoxEnterKey(object sender, KeyRoutedEventArgs e)
+    private async void OnTextBoxEnterKey(object? sender, KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
@@ -1017,20 +1009,20 @@ public sealed partial class ParteItemEdit : Page
         }
     }
 
-    private async void OnComboBoxEnterKey(object sender, KeyRoutedEventArgs e)
+    private async void OnComboBoxEnterKey(object? sender, KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
             if (sender is ComboBox combo)
             {
-                App.Log?.LogDebug("? Enter presionado en ComboBox: {name}", combo.Name);
+                App.Log?.LogDebug("📥 Enter presionado en ComboBox: {name}", combo.Name);
                 
                 // Si el dropdown está abierto y hay un item seleccionado en la lista, usarlo
                 if (combo.IsDropDownOpen && combo.SelectedItem != null)
                 {
                     // Ya hay un item seleccionado, cerrarlo
                     combo.IsDropDownOpen = false;
-                    App.Log?.LogDebug("? Dropdown cerrado, item ya seleccionado");
+                    App.Log?.LogDebug("📥 Dropdown cerrado, item ya seleccionado");
                 }
                 else if (combo.IsDropDownOpen)
                 {
@@ -1046,7 +1038,7 @@ public sealed partial class ParteItemEdit : Page
                         if (matchingItem != null)
                         {
                             combo.SelectedItem = matchingItem;
-                            App.Log?.LogDebug("? Item encontrado por texto: {item}", matchingItem);
+                            App.Log?.LogDebug("📥 Item encontrado por texto: {item}", matchingItem);
                         }
                     }
                     combo.IsDropDownOpen = false;
@@ -1054,23 +1046,23 @@ public sealed partial class ParteItemEdit : Page
                 else
                 {
                     // Dropdown cerrado, simplemente validar que hay un valor
-                    App.Log?.LogDebug("? Dropdown cerrado, valor actual: {value}", combo.SelectedItem ?? combo.Text);
+                    App.Log?.LogDebug("📥 Dropdown cerrado, valor actual: {value}", combo.SelectedItem ?? combo.Text);
                 }
                 
-                // ?? CLAVE: Marcar como "recién seleccionado" para evitar reapertura
+                // 🔧 CLAVE: Marcar como "recién seleccionado" para evitar reapertura
                 if (combo.Name == "CmbGrupo")
                 {
                     _grupoJustSelected = true;
-                    App.Log?.LogDebug("? Grupo marcado como justSelected");
+                    App.Log?.LogDebug("📥 Grupo marcado como justSelected");
                 }
                 else if (combo.Name == "CmbTipo")
                 {
                     _tipoJustSelected = true;
-                    App.Log?.LogDebug("? Tipo marcado como justSelected");
+                    App.Log?.LogDebug("📥 Tipo marcado como justSelected");
                 }
                 
                 // Marcar como modificado si es necesario
-                OnFieldChanged(combo, null);
+                OnFieldChanged(combo, null!);
                 
                 // Navegar al siguiente campo usando Tab simulado
                 MoveToNextControl(combo);
@@ -1125,7 +1117,7 @@ public sealed partial class ParteItemEdit : Page
             (BtnSalir, BtnSalir.TabIndex)
         };
 
-        // Filtrar controles con TabIndex mayor al actual, ordenar y tomar el primero
+        // Filtrar controles con TabIndex mayor al atual, ordenar y tomar el primero
         var nextControl = controls
             .Where(c => c.tabIndex > currentTabIndex && c.control.IsTabStop)
             .OrderBy(c => c.tabIndex)
@@ -1134,7 +1126,7 @@ public sealed partial class ParteItemEdit : Page
         return nextControl.control;
     }
 
-    private void OnAccionKeyDown(object sender, KeyRoutedEventArgs e)
+    private void OnAccionKeyDown(object? sender, KeyRoutedEventArgs e)
     {
         // Ctrl+Enter para guardar
         if (e.Key == Windows.System.VirtualKey.Enter && 
@@ -1143,17 +1135,17 @@ public sealed partial class ParteItemEdit : Page
         {
             if (BtnGuardar.IsEnabled)
             {
-                OnGuardarClick(sender, null);
+                OnGuardarClick(sender, null!);
                 e.Handled = true;
             }
         }
     }
 
-    private void OnAccionGotFocus(object sender, RoutedEventArgs e)
+    private void OnAccionGotFocus(object? sender, RoutedEventArgs e)
     {
         // Cuando TxtAccion recibe foco, simplemente posicionar el cursor
         // No es necesario hacer nada especial aquí por ahora
-        App.Log?.LogDebug("? TxtAccion recibió foco");
+        App.Log?.LogDebug("📝 TxtAccion recibió foco");
         
         // Si el TextBox está vacío, insertar timestamp inicial
         if (string.IsNullOrWhiteSpace(TxtAccion.Text))
@@ -1167,7 +1159,7 @@ public sealed partial class ParteItemEdit : Page
     /// <summary>
     /// Intercepta teclas antes de que se procesen para manejar Enter y detectar inicio de línea
     /// </summary>
-    private void OnAccionPreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    private void OnAccionPreviewKeyDown(object? sender, KeyRoutedEventArgs e)
     {
         if (_suppressAccionTimestamp) return;
         
@@ -1193,7 +1185,7 @@ public sealed partial class ParteItemEdit : Page
             
             _suppressAccionTimestamp = false;
             
-            App.Log?.LogDebug("? Enter en Acción - Timestamp insertado: {timestamp}", timestamp);
+            App.Log?.LogDebug("📝 Enter en Acción - Timestamp insertado: {timestamp}", timestamp);
             return;
         }
         
@@ -1204,7 +1196,7 @@ public sealed partial class ParteItemEdit : Page
         {
             if (BtnGuardar.IsEnabled)
             {
-                OnGuardarClick(sender, null);
+                OnGuardarClick(sender, null!);
                 e.Handled = true;
             }
         }
@@ -1418,7 +1410,7 @@ public sealed partial class ParteItemEdit : Page
         TxtTecnico.Text = parte.Tecnico ?? "";
         TxtEstado.Text = parte.Estado ?? "";
         
-        App.Log?.LogInformation("?? Cargando catálogos para selección inicial...");
+        App.Log?.LogInformation("🔄 Cargando catálogos para selección inicial...");
         
         // Cargar clientes si no están cargados
         if (!_clientesLoaded || !IsCacheValid())
@@ -1445,11 +1437,11 @@ public sealed partial class ParteItemEdit : Page
             if (clienteIndex >= 0)
             {
                 TxtCliente.Text = parte.Cliente;
-                App.Log?.LogInformation("? Cliente seleccionado al cargar: {cliente} (index: {index})", parte.Cliente, clienteIndex);
+                App.Log?.LogInformation("✅ Cliente seleccionado al cargar: {cliente} (index: {index})", parte.Cliente, clienteIndex);
             }
             else
             {
-                App.Log?.LogWarning("?? Cliente '{cliente}' no encontrado en catálogo", parte.Cliente);
+                App.Log?.LogWarning("⚠️ Cliente '{cliente}' no encontrado en catálogo", parte.Cliente);
             }
         }
         
@@ -1460,12 +1452,12 @@ public sealed partial class ParteItemEdit : Page
             if (grupoIndex >= 0)
             {
                 CmbGrupo.SelectedIndex = grupoIndex;
-                App.Log?.LogInformation("? Grupo seleccionado al cargar: {grupo} (index: {index})", parte.Grupo, grupoIndex);
+                App.Log?.LogInformation("✅ Grupo seleccionado al cargar: {grupo} (index: {index})", parte.Grupo, grupoIndex);
             }
             else
             {
                 CmbGrupo.Text = parte.Grupo;
-                App.Log?.LogWarning("?? Grupo '{grupo}' no encontrado en catálogo, usando texto libre", parte.Grupo);
+                App.Log?.LogWarning("⚠️ Grupo '{grupo}' no encontrado en catálogo, usando texto libre", parte.Grupo);
             }
         }
         
@@ -1476,12 +1468,12 @@ public sealed partial class ParteItemEdit : Page
             if (tipoIndex >= 0)
             {
                 CmbTipo.SelectedIndex = tipoIndex;
-                App.Log?.LogInformation("? Tipo seleccionado al cargar: {tipo} (index: {index})", parte.Tipo, tipoIndex);
+                App.Log?.LogInformation("✅ Tipo seleccionado al cargar: {tipo} (index: {index})", parte.Tipo, tipoIndex);
             }
             else
             {
                 CmbTipo.Text = parte.Tipo;
-                App.Log?.LogWarning("?? Tipo '{tipo}' no encontrado en catálogo, usando texto libre", parte.Tipo);
+                App.Log?.LogWarning("⚠️ Tipo '{tipo}' no encontrado en catálogo, usando texto libre", parte.Tipo);
             }
         }
         
@@ -1582,7 +1574,7 @@ public sealed partial class ParteItemEdit : Page
         public int? Estado { get; set; }
     }
 
-    private async void OnGuardarClick(object sender, RoutedEventArgs e)
+    private async void OnGuardarClick(object? sender, RoutedEventArgs e)
     {
         if (Parte == null) return;
 
@@ -1590,8 +1582,8 @@ public sealed partial class ParteItemEdit : Page
         {
             Parte.Fecha = DpFecha.Date?.DateTime ?? DateTime.Today;
 
-            // Obtener cliente del SelectedItem (ya no es editable)
-        Parte.Cliente = TxtCliente.Text?.Trim() ?? string.Empty;
+            // Obtener cliente del texto del AutoSuggestBox
+            Parte.Cliente = TxtCliente.Text?.Trim() ?? string.Empty;
 
             Parte.Tienda = TxtTienda.Text?.Trim() ?? string.Empty;
             Parte.Accion = TxtAccion.Text?.Trim() ?? string.Empty;
@@ -1776,14 +1768,14 @@ public sealed partial class ParteItemEdit : Page
     
     // ===================== MÉTODOS AUXILIARES =====================
     
-    private void OnFieldChanged(object sender, object e)
+    private void OnFieldChanged(object? sender, object e)
     {
         BtnGuardar.IsEnabled = true;
         if (BtnAccionGrabar != null)
             BtnAccionGrabar.IsEnabled = true;
     }
 
-    private void OnHoraGotFocus(object sender, RoutedEventArgs e)
+    private void OnHoraGotFocus(object? sender, RoutedEventArgs e)
     {
         if (sender is TextBox textBox)
         {
@@ -1804,7 +1796,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
 
-    private void OnHoraTextChanged(object sender, TextChangedEventArgs e)
+    private void OnHoraTextChanged(object? sender, TextChangedEventArgs e)
     {
         if (_suppressHoraFormatting)
             return;
@@ -1879,23 +1871,23 @@ public sealed partial class ParteItemEdit : Page
         OnFieldChanged(sender, e);
     }
 
-    private void OnCopiarClick(object sender, RoutedEventArgs e)
+    private void OnCopiarClick(object? sender, RoutedEventArgs e)
     {
         // TODO: Implementar funcionalidad de copiar
     }
 
-    private void OnPegarClick(object sender, RoutedEventArgs e)
+    private void OnPegarClick(object? sender, RoutedEventArgs e)
     {
         // TODO: Implementar funcionalidad de pegar
     }
 
-    private void OnCancelarClick(object sender, RoutedEventArgs e)
+    private void OnCancelarClick(object? sender, RoutedEventArgs e)
     {
         Guardado = false;
         _parentWindow?.Close();
     }
 
-    private void OnSalirClick(object sender, RoutedEventArgs e)
+    private void OnSalirClick(object? sender, RoutedEventArgs e)
     {
         _parentWindow?.Close();
     }
@@ -2009,7 +2001,7 @@ public sealed partial class ParteItemEdit : Page
                 textoEstado = "Anulado";
                 colorBadge = Windows.UI.Color.FromArgb(255, 239, 68, 68); // Rojo #EF4444
                 break;
-                
+            
             default:
                 textoEstado = "Desconocido";
                 colorBadge = Windows.UI.Color.FromArgb(255, 107, 114, 128); // Gris #6B7280
@@ -2130,7 +2122,7 @@ public sealed partial class ParteItemEdit : Page
         {
             App.Log?.LogInformation("✅ Cliente seleccionado: {cliente}", selectedCliente);
             sender.Text = selectedCliente;
-            OnFieldChanged(sender, null);
+            OnFieldChanged(sender, null!);
         }
     }
     
@@ -2167,7 +2159,7 @@ public sealed partial class ParteItemEdit : Page
         }
         
         sender.Text = selectedCliente;
-        OnFieldChanged(sender, null);
+        OnFieldChanged(sender, null!);
         
         // Mover foco al siguiente campo (Tienda)
         TxtTienda.Focus(FocusState.Keyboard);

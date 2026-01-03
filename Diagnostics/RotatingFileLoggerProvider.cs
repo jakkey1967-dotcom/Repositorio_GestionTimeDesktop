@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+Ôªøusing Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Text;
 namespace GestionTime.Desktop.Diagnostics;
 
 /// <summary>
-/// Logger que rota archivos autom·ticamente por tamaÒo y mantiene histÛrico limitado
+/// Logger que rota archivos autom√°ticamente por tama√±o y mantiene hist√≥rico limitado
 /// </summary>
 public sealed class RotatingFileLoggerProvider : ILoggerProvider
 {
@@ -16,7 +16,7 @@ public sealed class RotatingFileLoggerProvider : ILoggerProvider
     private readonly long _maxFileSize;
     private readonly int _maxFiles;
     private readonly object _lock = new();
-    private string _currentFilePath;
+    private string _currentFilePath; // CS0191 Fix: remover readonly para permitir asignaci√≥n posterior
 
     public RotatingFileLoggerProvider(string baseFilePath, long maxFileSize = 10_000_000, int maxFiles = 5)
     {
@@ -54,7 +54,7 @@ public sealed class RotatingFileLoggerProvider : ILoggerProvider
         {
             if (!File.Exists(_currentFilePath))
             {
-                return; // Archivo a˙n no creado
+                return; // Archivo a√∫n no creado
             }
 
             var fileInfo = new FileInfo(_currentFilePath);
@@ -134,11 +134,11 @@ public sealed class RotatingFileLoggerProvider : ILoggerProvider
         private readonly RotatingFileLoggerProvider _provider;
         private readonly object _lock;
 
-        public RotatingFileLogger(string category, RotatingFileLoggerProvider provider, object @lock)
+        public RotatingFileLogger(string category, RotatingFileLoggerProvider provider, object lockObject)
         {
             _category = category;
             _provider = provider;
-            _lock = @lock;
+            _lock = lockObject;
         }
 
         public IDisposable? BeginScope<TState>(TState state) => null;

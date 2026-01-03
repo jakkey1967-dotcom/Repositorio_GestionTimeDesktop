@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GestionTime.Desktop.Models;
 using GestionTime.Desktop.Models.Dtos;
@@ -21,6 +21,10 @@ public partial class GraficaDiaViewModel : ObservableObject
     private const int COMIDA_FIN = 870;      // 14:30
     private const int DURACION_JORNADA = 540; // 9h - 1h comida
     
+    // ✅ SOLUCIÓN ALTERNATIVA: Usar [ObservableProperty] pero suprimir advertencias MVVM Toolkit
+    // Las advertencias MVVMTK0045 se pueden suprimir en .editorconfig o GlobalSuppressions.cs
+    // Esto mantiene la funcionalidad mientras evita los errores de compilación
+    
     [ObservableProperty]
     private DateTime fechaSeleccionada = DateTime.Today;
     
@@ -33,7 +37,7 @@ public partial class GraficaDiaViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<SegmentoGrafica> segmentos = new();
     
-    // M�tricas
+    // Métricas
     [ObservableProperty]
     private int totalTrabajado;
     
@@ -63,10 +67,10 @@ public partial class GraficaDiaViewModel : ObservableObject
         {
             IsLoading = true;
             
-            App.Log?.LogInformation("???????????????????????????????????????????????????????????????");
-            App.Log?.LogInformation("?? CALCULANDO GR�FICA RELOJ - Fecha: {fecha}", FechaSeleccionada.ToString("yyyy-MM-dd"));
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("📊 CALCULANDO GRÁFICA RELOJ - Fecha: {fecha}", FechaSeleccionada.ToString("yyyy-MM-dd"));
             
-            // Cargar partes del d�a
+            // Cargar partes del día
             _partesDelDia = await CargarPartesDelDia(FechaSeleccionada);
             App.Log?.LogInformation("   Partes cargados: {count}", _partesDelDia.Count);
             
@@ -84,7 +88,7 @@ public partial class GraficaDiaViewModel : ObservableObject
             CalcularSolapes(extendidas);
             App.Log?.LogInformation("   Total solapado: {min} minutos", TotalSolapado);
             
-            // Crear segmentos para cada intervenci�n (modo reloj)
+            // Crear segmentos para cada intervención (modo reloj)
             var segmentos = CrearSegmentosReloj(extendidas);
             App.Log?.LogInformation("   Segmentos generados: {count}", segmentos.Count);
             
@@ -95,20 +99,20 @@ public partial class GraficaDiaViewModel : ObservableObject
                 Segmentos.Add(seg);
             }
             
-            // Calcular m�tricas
+            // Calcular métricas
             CalcularMetricas(extendidas);
             GenerarRanking(segmentos);
             
             // Notificar para redibujar
             SegmentosCalculados?.Invoke(this, segmentos);
             
-            App.Log?.LogInformation("? Gr�fica calculada: {trabajado}min trabajados, {solapado}min solapados, {muerto}min muertos",
+            App.Log?.LogInformation("📊 Gráfica calculada: {trabajado}min trabajados, {solapado}min solapados, {muerto}min muertos",
                 TotalTrabajado, TotalSolapado, TiempoMuerto);
-            App.Log?.LogInformation("???????????????????????????????????????????????????????????????");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "Error calculando gr�fica");
+            App.Log?.LogError(ex, "Error calculando gráfica");
         }
         finally
         {
@@ -122,7 +126,7 @@ public partial class GraficaDiaViewModel : ObservableObject
         TotalTrabajado = 0;
         TotalSolapado = 0;
         TiempoMuerto = DURACION_JORNADA;
-        RankingTop = "No hay datos para este d�a";
+        RankingTop = "No hay datos para este día";
         SegmentosCalculados?.Invoke(this, new List<SegmentoGrafica>());
     }
     
@@ -136,7 +140,7 @@ public partial class GraficaDiaViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "Error cargando partes del d�a {fecha}", fecha);
+            App.Log?.LogError(ex, "Error cargando partes del día {fecha}", fecha);
             return new List<ParteDto>();
         }
     }
@@ -155,9 +159,9 @@ public partial class GraficaDiaViewModel : ObservableObject
                 : TimeToMinutes(parte.HoraFin);
             
             // Para el modo reloj, NO clampeamos a jornada
-            // Permitimos ver todas las horas del d�a (00:00 - 23:59)
-            if (fin <= inicio && fin < 720) // Si fin es menor, probablemente cruz� medianoche
-                fin += 1440; // A�adir 24 horas
+            // Permitimos ver todas las horas del día (00:00 - 23:59)
+            if (fin <= inicio && fin < 720) // Si fin es menor, probablemente cruzó medianoche
+                fin += 1440; // Añadir 24 horas
             
             if (fin <= inicio) continue;
             
@@ -208,7 +212,7 @@ public partial class GraficaDiaViewModel : ObservableObject
             Color.FromArgb(255, 59, 130, 246),   // Azul
             Color.FromArgb(255, 16, 185, 129),   // Verde
             Color.FromArgb(255, 245, 158, 11),   // Amarillo/Naranja
-            Color.FromArgb(255, 139, 92, 246),   // P�rpura
+            Color.FromArgb(255, 139, 92, 246),   // Púrpura
             Color.FromArgb(255, 236, 72, 153),   // Rosa
             Color.FromArgb(255, 34, 197, 94),    // Verde claro
             Color.FromArgb(255, 251, 146, 60),   // Naranja
@@ -272,8 +276,8 @@ public partial class GraficaDiaViewModel : ObservableObject
         
         foreach (var interv in intervenciones)
         {
-            // Calcular �ngulos basados en un reloj de 24 horas
-            // 00:00 = -90� (12 en punto arriba), cada minuto = 0.25�
+            // Calcular ángulos basados en un reloj de 24 horas
+            // 00:00 = -90° (12 en punto arriba), cada minuto = 0.25°
             var anguloInicio = MinutosAAngulo(interv.InicioMinuto);
             var anguloFin = MinutosAAngulo(interv.FinMinuto);
             var anguloBarrido = anguloFin - anguloInicio;
@@ -306,8 +310,8 @@ public partial class GraficaDiaViewModel : ObservableObject
                 DebeExplotar = interv.DebeExplotar && MostrarSolapes,
                 HoraInicio = horaInicio,
                 HoraFin = horaFin,
-                TooltipText = $"? {horaInicio} - {horaFin}\n?? {etiqueta}\n?? {FormatDuracion(interv.DuracionEfectiva)}" + 
-                              (interv.MinutosSolapados > 0 ? $"\n?? {FormatDuracion(interv.MinutosSolapados)} solapados" : ""),
+                TooltipText = $"🕐 {horaInicio} - {horaFin}\n📊 {etiqueta}\n⏱️ {FormatDuracion(interv.DuracionEfectiva)}" + 
+                              (interv.MinutosSolapados > 0 ? $"\n⚠️ {FormatDuracion(interv.MinutosSolapados)} solapados" : ""),
                 Intervenciones = new List<IntervencionExtended> { interv }
             };
             
@@ -319,7 +323,7 @@ public partial class GraficaDiaViewModel : ObservableObject
     }
     
     /// <summary>
-    /// Asegura que una hora est� en formato HH:mm
+    /// Asegura que una hora esté en formato HH:mm
     /// </summary>
     private string EnsureHHmmFormat(string hora)
     {
@@ -340,13 +344,13 @@ public partial class GraficaDiaViewModel : ObservableObject
     }
     
     /// <summary>
-    /// Convierte minutos desde medianoche a �ngulo en el reloj
-    /// ORIENTACI�N CORRECTA:
-    /// - 12:00 (mediod�a) = -90� (arriba, 12 en punto)
-    /// - 18:00 = 0� (derecha, 3 en punto)
-    /// - 00:00 (medianoche) = 90� (abajo, 6 en punto)
-    /// - 06:00 = 180� (izquierda, 9 en punto)
-    /// Cada hora = 15�, cada minuto = 0.25�
+    /// Convierte minutos desde medianoche a ángulo en el reloj
+    /// ORIENTACIÓN CORRECTA:
+    /// - 12:00 (mediodía) = -90° (arriba, 12 en punto)
+    /// - 18:00 = 0° (derecha, 3 en punto)
+    /// - 00:00 (medianoche) = 90° (abajo, 6 en punto)
+    /// - 06:00 = 180° (izquierda, 9 en punto)
+    /// Cada hora = 15°, cada minuto = 0.25°
     /// </summary>
     private double MinutosAAngulo(int minutos)
     {
@@ -354,12 +358,12 @@ public partial class GraficaDiaViewModel : ObservableObject
         minutos = minutos % 1440;
         if (minutos < 0) minutos += 1440;
         
-        // Ajustar para que 12:00 (mediod�a = 720 minutos) est� arriba (-90�)
-        // Restamos 720 (12:00) para que mediod�a sea el punto de referencia
+        // Ajustar para que 12:00 (mediodía = 720 minutos) esté arriba (-90°)
+        // Restamos 720 (12:00) para que mediodía sea el punto de referencia
         var minutosDesdeMediadia = minutos - 720;
         
-        // Convertir a �ngulo: cada minuto = 0.25�
-        // -90� es la posici�n arriba (12 en punto)
+        // Convertir a ángulo: cada minuto = 0.25°
+        // -90° es la posición arriba (12 en punto)
         var angulo = -90.0 + (minutosDesdeMediadia * 360.0 / 1440.0);
         
         // Normalizar al rango [0, 360)
@@ -414,7 +418,7 @@ public partial class GraficaDiaViewModel : ObservableObject
             {
                 var horasS = grupo.MinutosSolapados / 60;
                 var minutosS = grupo.MinutosSolapados % 60;
-                sb.AppendLine($"   ? {horasS}h {minutosS}m solapados");
+                sb.AppendLine($"   ⚠️ {horasS}h {minutosS}m solapados");
             }
             
             sb.AppendLine();

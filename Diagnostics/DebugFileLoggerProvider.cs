@@ -40,11 +40,11 @@ public sealed class DebugFileLoggerProvider : ILoggerProvider
         private readonly string _filePath;
         private readonly object _lock;
 
-        public DebugFileLogger(string category, string filePath, object @lock)
+        public DebugFileLogger(string category, string filePath, object lockObject)
         {
             _category = category;
             _filePath = filePath;
-            _lock = @lock;
+            _lock = lockObject;
         }
 
         public IDisposable? BeginScope<TState>(TState state) => null;

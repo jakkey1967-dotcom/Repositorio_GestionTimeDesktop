@@ -13,33 +13,36 @@ namespace GestionTime.Desktop.Views;
 
 public sealed class ConfiguracionWindow
 {
-    private Microsoft.UI.Xaml.Window _window;
-    private DiarioPage _parentPage;
-    private Grid _rootGrid;
-    private TextBlock _txtUserRole;
-    private TextBox _txtApiUrl;
-    private NumberBox _numTimeout;
-    private NumberBox _numRetries;
-    private CheckBox _chkIgnoreSSL;
-    private Border _connectionSection;
-    private CheckBox _chkEnableLogging;
-    private ComboBox _cmbLogLevel;
-    private CheckBox _chkLogToFile;
-    private CheckBox _chkLogHttp;
-    private CheckBox _chkLogErrors;
-    private CheckBox _chkLogDebug;
-    private TextBox _txtLogDirectory;
-    private ComboBox _cmbLogRotation;
-    private TextBox _txtLogRetention;
-    private ComboBox _cmbTheme;
-    private NumberBox _numAutoRefresh;
-    private CheckBox _chkAutoLogin;
-    private CheckBox _chkStartMinimized;
-    private CheckBox _chkDebugMode;
-    private TextBlock _txtConfigStatus;
-    private Button _btnTestConnection;
-    private Button _btnSave;
-    private Button _btnDebugConfig;
+    // ✅ CORREGIDO: Inicializar campos con null-forgiving operator para evitar CS8618
+    private Microsoft.UI.Xaml.Window _window = null!;
+    private DiarioPage _parentPage = null!;
+    private Grid _rootGrid = null!;
+    private TextBlock _txtUserRole = null!;
+    private TextBox _txtApiUrl = null!;
+    private NumberBox _numTimeout = null!;
+    private NumberBox _numRetries = null!;
+    private CheckBox _chkIgnoreSSL = null!;
+    private Border _connectionSection = null!;
+    private CheckBox _chkEnableLogging = null!;
+    private ComboBox _cmbLogLevel = null!;
+    private CheckBox _chkLogToFile = null!;
+    private CheckBox _chkLogHttp = null!;
+    private CheckBox _chkLogErrors = null!;
+    private CheckBox _chkLogDebug = null!;
+    private TextBox _txtLogDirectory = null!;
+    private ComboBox _cmbLogRotation = null!;
+    private TextBox _txtLogRetention = null!;
+    private ComboBox _cmbTheme = null!;
+    private NumberBox _numAutoRefresh = null!;
+    private CheckBox _chkAutoLogin = null!;
+    private CheckBox _chkStartMinimized = null!;
+    private CheckBox _chkDebugMode = null!;
+    private TextBlock _txtConfigStatus = null!;
+    private Button _btnTestConnection = null!;
+    private Button _btnSave = null!;
+
+    // ✅ CORREGIDO: Campo no usado eliminado para resolver CS0169
+    // private Button _btnDebugConfig; // ELIMINADO: nunca se usaba
 
     public void ShowWindow(DiarioPage parentPage)
     {
