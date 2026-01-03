@@ -1,0 +1,3701 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <Fragment>
+    
+    <!-- Característica principal completa -->
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop - Aplicación Completa" 
+             Description="Aplicación completa de gestión de tiempo con todos los componentes"
+             Level="1" 
+             ConfigurableDirectory="INSTALLFOLDER"
+             AllowAdvertise="no"
+             Display="expand">
+      <!-- Componente ejecutable principal -->
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="StartMenuShortcuts" />
+      <ComponentRef Id="CONFIGComponent1" />
+      <ComponentRef Id="DLLComponent2" />
+      <ComponentRef Id="DLLComponent3" />
+      <ComponentRef Id="DLLComponent4" />
+      <ComponentRef Id="DLLComponent5" />
+      <ComponentRef Id="DLLComponent6" />
+      <ComponentRef Id="DLLComponent7" />
+      <ComponentRef Id="EXEComponent8" />
+      <ComponentRef Id="DLLComponent9" />
+      <ComponentRef Id="DLLComponent10" />
+      <ComponentRef Id="DLLComponent11" />
+      <ComponentRef Id="DLLComponent12" />
+      <ComponentRef Id="DLLComponent13" />
+      <ComponentRef Id="DLLComponent14" />
+      <ComponentRef Id="CONFIGComponent15" />
+      <ComponentRef Id="DLLComponent16" />
+      <ComponentRef Id="DEBUGComponent18" />
+      <ComponentRef Id="CONFIGComponent19" />
+      <ComponentRef Id="DLLComponent20" />
+      <ComponentRef Id="DLLComponent21" />
+      <ComponentRef Id="DLLComponent22" />
+      <ComponentRef Id="DLLComponent23" />
+      <ComponentRef Id="DLLComponent24" />
+      <ComponentRef Id="DLLComponent25" />
+      <ComponentRef Id="DLLComponent26" />
+      <ComponentRef Id="DLLComponent27" />
+      <ComponentRef Id="DLLComponent28" />
+      <ComponentRef Id="DLLComponent29" />
+      <ComponentRef Id="DLLComponent30" />
+      <ComponentRef Id="DLLComponent31" />
+      <ComponentRef Id="DLLComponent32" />
+      <ComponentRef Id="DLLComponent33" />
+      <ComponentRef Id="DLLComponent34" />
+      <ComponentRef Id="DLLComponent35" />
+      <ComponentRef Id="DLLComponent36" />
+      <ComponentRef Id="DLLComponent37" />
+      <ComponentRef Id="DLLComponent38" />
+      <ComponentRef Id="DLLComponent39" />
+      <ComponentRef Id="MISCComponent40" />
+      <ComponentRef Id="DLLComponent41" />
+      <ComponentRef Id="DLLComponent42" />
+      <ComponentRef Id="DLLComponent43" />
+      <ComponentRef Id="MISCComponent44" />
+      <ComponentRef Id="MISCComponent45" />
+      <ComponentRef Id="MISCComponent46" />
+      <ComponentRef Id="MISCComponent47" />
+      <ComponentRef Id="MISCComponent48" />
+      <ComponentRef Id="DLLComponent49" />
+      <ComponentRef Id="DLLComponent50" />
+      <ComponentRef Id="DLLComponent51" />
+      <ComponentRef Id="DLLComponent52" />
+      <ComponentRef Id="DLLComponent53" />
+      <ComponentRef Id="MISCComponent54" />
+      <ComponentRef Id="DLLComponent55" />
+      <ComponentRef Id="DLLComponent56" />
+      <ComponentRef Id="DLLComponent57" />
+      <ComponentRef Id="DLLComponent58" />
+      <ComponentRef Id="RESOURCEComponent59" />
+      <ComponentRef Id="MISCComponent60" />
+      <ComponentRef Id="DLLComponent61" />
+      <ComponentRef Id="DLLComponent62" />
+      <ComponentRef Id="MISCComponent63" />
+      <ComponentRef Id="DLLComponent64" />
+      <ComponentRef Id="RESOURCEComponent65" />
+      <ComponentRef Id="DLLComponent66" />
+      <ComponentRef Id="DLLComponent67" />
+      <ComponentRef Id="DLLComponent68" />
+      <ComponentRef Id="DLLComponent69" />
+      <ComponentRef Id="DLLComponent70" />
+      <ComponentRef Id="MISCComponent71" />
+      <ComponentRef Id="DLLComponent72" />
+      <ComponentRef Id="DLLComponent73" />
+      <ComponentRef Id="DLLComponent74" />
+      <ComponentRef Id="DLLComponent75" />
+      <ComponentRef Id="DLLComponent76" />
+      <ComponentRef Id="DLLComponent77" />
+      <ComponentRef Id="MISCComponent78" />
+      <ComponentRef Id="DLLComponent79" />
+      <ComponentRef Id="DLLComponent80" />
+      <ComponentRef Id="MISCComponent81" />
+      <ComponentRef Id="DLLComponent82" />
+      <ComponentRef Id="MISCComponent83" />
+      <ComponentRef Id="MISCComponent84" />
+      <ComponentRef Id="MISCComponent85" />
+      <ComponentRef Id="DLLComponent86" />
+      <ComponentRef Id="DLLComponent87" />
+      <ComponentRef Id="MISCComponent88" />
+      <ComponentRef Id="DLLComponent89" />
+      <ComponentRef Id="DLLComponent90" />
+      <ComponentRef Id="MISCComponent91" />
+      <ComponentRef Id="DLLComponent92" />
+      <ComponentRef Id="DLLComponent93" />
+      <ComponentRef Id="DLLComponent94" />
+      <ComponentRef Id="MISCComponent95" />
+      <ComponentRef Id="MISCComponent96" />
+      <ComponentRef Id="DLLComponent97" />
+      <ComponentRef Id="DLLComponent98" />
+      <ComponentRef Id="MISCComponent99" />
+      <ComponentRef Id="MISCComponent100" />
+      <ComponentRef Id="DLLComponent101" />
+      <ComponentRef Id="MISCComponent102" />
+      <ComponentRef Id="DLLComponent103" />
+      <ComponentRef Id="DLLComponent104" />
+      <ComponentRef Id="MISCComponent105" />
+      <ComponentRef Id="DLLComponent106" />
+      <ComponentRef Id="MISCComponent107" />
+      <ComponentRef Id="DLLComponent108" />
+      <ComponentRef Id="MISCComponent109" />
+      <ComponentRef Id="DLLComponent110" />
+      <ComponentRef Id="MISCComponent111" />
+      <ComponentRef Id="DLLComponent112" />
+      <ComponentRef Id="MISCComponent113" />
+      <ComponentRef Id="DLLComponent114" />
+      <ComponentRef Id="MISCComponent115" />
+      <ComponentRef Id="DLLComponent116" />
+      <ComponentRef Id="MISCComponent117" />
+      <ComponentRef Id="MISCComponent118" />
+      <ComponentRef Id="MISCComponent119" />
+      <ComponentRef Id="DLLComponent120" />
+      <ComponentRef Id="MISCComponent121" />
+      <ComponentRef Id="DLLComponent122" />
+      <ComponentRef Id="MISCComponent123" />
+      <ComponentRef Id="MISCComponent124" />
+      <ComponentRef Id="MISCComponent125" />
+      <ComponentRef Id="DLLComponent126" />
+      <ComponentRef Id="MISCComponent127" />
+      <ComponentRef Id="DLLComponent128" />
+      <ComponentRef Id="DLLComponent129" />
+      <ComponentRef Id="MISCComponent130" />
+      <ComponentRef Id="MISCComponent131" />
+      <ComponentRef Id="DLLComponent132" />
+      <ComponentRef Id="MISCComponent133" />
+      <ComponentRef Id="DLLComponent134" />
+      <ComponentRef Id="MISCComponent135" />
+      <ComponentRef Id="DLLComponent136" />
+      <ComponentRef Id="MISCComponent137" />
+      <ComponentRef Id="DLLComponent138" />
+      <ComponentRef Id="MISCComponent139" />
+      <ComponentRef Id="MISCComponent140" />
+      <ComponentRef Id="MISCComponent141" />
+      <ComponentRef Id="DLLComponent142" />
+      <ComponentRef Id="DLLComponent143" />
+      <ComponentRef Id="MISCComponent144" />
+      <ComponentRef Id="DLLComponent145" />
+      <ComponentRef Id="DLLComponent146" />
+      <ComponentRef Id="DLLComponent147" />
+      <ComponentRef Id="MISCComponent148" />
+      <ComponentRef Id="DLLComponent149" />
+      <ComponentRef Id="DLLComponent150" />
+      <ComponentRef Id="DLLComponent151" />
+      <ComponentRef Id="DLLComponent152" />
+      <ComponentRef Id="RESOURCEComponent153" />
+      <ComponentRef Id="DLLComponent154" />
+      <ComponentRef Id="DLLComponent155" />
+      <ComponentRef Id="DLLComponent156" />
+      <ComponentRef Id="DLLComponent157" />
+      <ComponentRef Id="DLLComponent158" />
+      <ComponentRef Id="DLLComponent159" />
+      <ComponentRef Id="DLLComponent160" />
+      <ComponentRef Id="DLLComponent161" />
+      <ComponentRef Id="DLLComponent162" />
+      <ComponentRef Id="DLLComponent163" />
+      <ComponentRef Id="DLLComponent164" />
+      <ComponentRef Id="DLLComponent165" />
+      <ComponentRef Id="EXEComponent166" />
+      <ComponentRef Id="DLLComponent167" />
+      <ComponentRef Id="DLLComponent168" />
+      <ComponentRef Id="DLLComponent169" />
+      <ComponentRef Id="DLLComponent170" />
+      <ComponentRef Id="DLLComponent171" />
+      <ComponentRef Id="DLLComponent172" />
+      <ComponentRef Id="DLLComponent173" />
+      <ComponentRef Id="DLLComponent174" />
+      <ComponentRef Id="DLLComponent175" />
+      <ComponentRef Id="DLLComponent176" />
+      <ComponentRef Id="DLLComponent177" />
+      <ComponentRef Id="DLLComponent178" />
+      <ComponentRef Id="DLLComponent179" />
+      <ComponentRef Id="DLLComponent180" />
+      <ComponentRef Id="DLLComponent181" />
+      <ComponentRef Id="DLLComponent182" />
+      <ComponentRef Id="DLLComponent183" />
+      <ComponentRef Id="DLLComponent184" />
+      <ComponentRef Id="DLLComponent185" />
+      <ComponentRef Id="DLLComponent186" />
+      <ComponentRef Id="DLLComponent187" />
+      <ComponentRef Id="DLLComponent188" />
+      <ComponentRef Id="DLLComponent189" />
+      <ComponentRef Id="DLLComponent190" />
+      <ComponentRef Id="DLLComponent191" />
+      <ComponentRef Id="DLLComponent192" />
+      <ComponentRef Id="DLLComponent193" />
+      <ComponentRef Id="DLLComponent194" />
+      <ComponentRef Id="DLLComponent195" />
+      <ComponentRef Id="DLLComponent196" />
+      <ComponentRef Id="DLLComponent197" />
+      <ComponentRef Id="DLLComponent198" />
+      <ComponentRef Id="DLLComponent199" />
+      <ComponentRef Id="DLLComponent200" />
+      <ComponentRef Id="DLLComponent201" />
+      <ComponentRef Id="DLLComponent202" />
+      <ComponentRef Id="DLLComponent203" />
+      <ComponentRef Id="DLLComponent204" />
+      <ComponentRef Id="DLLComponent205" />
+      <ComponentRef Id="DLLComponent206" />
+      <ComponentRef Id="DLLComponent207" />
+      <ComponentRef Id="DLLComponent208" />
+      <ComponentRef Id="DLLComponent209" />
+      <ComponentRef Id="DLLComponent210" />
+      <ComponentRef Id="DLLComponent211" />
+      <ComponentRef Id="DLLComponent212" />
+      <ComponentRef Id="DLLComponent213" />
+      <ComponentRef Id="DLLComponent214" />
+      <ComponentRef Id="DLLComponent215" />
+      <ComponentRef Id="DLLComponent216" />
+      <ComponentRef Id="DLLComponent217" />
+      <ComponentRef Id="DLLComponent218" />
+      <ComponentRef Id="DLLComponent219" />
+      <ComponentRef Id="DLLComponent220" />
+      <ComponentRef Id="DLLComponent221" />
+      <ComponentRef Id="DLLComponent222" />
+      <ComponentRef Id="DLLComponent223" />
+      <ComponentRef Id="DLLComponent224" />
+      <ComponentRef Id="DLLComponent225" />
+      <ComponentRef Id="DLLComponent226" />
+      <ComponentRef Id="DLLComponent227" />
+      <ComponentRef Id="DLLComponent228" />
+      <ComponentRef Id="DLLComponent229" />
+      <ComponentRef Id="DLLComponent230" />
+      <ComponentRef Id="DLLComponent231" />
+      <ComponentRef Id="DLLComponent232" />
+      <ComponentRef Id="DLLComponent233" />
+      <ComponentRef Id="DLLComponent234" />
+      <ComponentRef Id="DLLComponent235" />
+      <ComponentRef Id="DLLComponent236" />
+      <ComponentRef Id="DLLComponent237" />
+      <ComponentRef Id="DLLComponent238" />
+      <ComponentRef Id="DLLComponent239" />
+      <ComponentRef Id="DLLComponent240" />
+      <ComponentRef Id="DLLComponent241" />
+      <ComponentRef Id="DLLComponent242" />
+      <ComponentRef Id="DLLComponent243" />
+      <ComponentRef Id="DLLComponent244" />
+      <ComponentRef Id="DLLComponent245" />
+      <ComponentRef Id="DLLComponent246" />
+      <ComponentRef Id="DLLComponent247" />
+      <ComponentRef Id="DLLComponent248" />
+      <ComponentRef Id="DLLComponent249" />
+      <ComponentRef Id="DLLComponent250" />
+      <ComponentRef Id="DLLComponent251" />
+      <ComponentRef Id="DLLComponent252" />
+      <ComponentRef Id="DLLComponent253" />
+      <ComponentRef Id="DLLComponent254" />
+      <ComponentRef Id="DLLComponent255" />
+      <ComponentRef Id="DLLComponent256" />
+      <ComponentRef Id="DLLComponent257" />
+      <ComponentRef Id="DLLComponent258" />
+      <ComponentRef Id="DLLComponent259" />
+      <ComponentRef Id="DLLComponent260" />
+      <ComponentRef Id="DLLComponent261" />
+      <ComponentRef Id="DLLComponent262" />
+      <ComponentRef Id="DLLComponent263" />
+      <ComponentRef Id="DLLComponent264" />
+      <ComponentRef Id="DLLComponent265" />
+      <ComponentRef Id="DLLComponent266" />
+      <ComponentRef Id="DLLComponent267" />
+      <ComponentRef Id="DLLComponent268" />
+      <ComponentRef Id="DLLComponent269" />
+      <ComponentRef Id="DLLComponent270" />
+      <ComponentRef Id="DLLComponent271" />
+      <ComponentRef Id="DLLComponent272" />
+      <ComponentRef Id="DLLComponent273" />
+      <ComponentRef Id="DLLComponent274" />
+      <ComponentRef Id="DLLComponent275" />
+      <ComponentRef Id="DLLComponent276" />
+      <ComponentRef Id="DLLComponent277" />
+      <ComponentRef Id="DLLComponent278" />
+      <ComponentRef Id="DLLComponent279" />
+      <ComponentRef Id="DLLComponent280" />
+      <ComponentRef Id="DLLComponent281" />
+      <ComponentRef Id="DLLComponent282" />
+      <ComponentRef Id="DLLComponent283" />
+      <ComponentRef Id="DLLComponent284" />
+      <ComponentRef Id="DLLComponent285" />
+      <ComponentRef Id="DLLComponent286" />
+      <ComponentRef Id="DLLComponent287" />
+      <ComponentRef Id="DLLComponent288" />
+      <ComponentRef Id="DLLComponent289" />
+      <ComponentRef Id="DLLComponent290" />
+      <ComponentRef Id="DLLComponent291" />
+      <ComponentRef Id="DLLComponent292" />
+      <ComponentRef Id="DLLComponent293" />
+      <ComponentRef Id="DLLComponent294" />
+      <ComponentRef Id="DLLComponent295" />
+      <ComponentRef Id="DLLComponent296" />
+      <ComponentRef Id="DLLComponent297" />
+      <ComponentRef Id="DLLComponent298" />
+      <ComponentRef Id="DLLComponent299" />
+      <ComponentRef Id="DLLComponent300" />
+      <ComponentRef Id="DLLComponent301" />
+      <ComponentRef Id="DLLComponent302" />
+      <ComponentRef Id="DLLComponent303" />
+      <ComponentRef Id="DLLComponent304" />
+      <ComponentRef Id="DLLComponent305" />
+      <ComponentRef Id="DLLComponent306" />
+      <ComponentRef Id="DLLComponent307" />
+      <ComponentRef Id="DLLComponent308" />
+      <ComponentRef Id="DLLComponent309" />
+      <ComponentRef Id="DLLComponent310" />
+      <ComponentRef Id="DLLComponent311" />
+      <ComponentRef Id="DLLComponent312" />
+      <ComponentRef Id="DLLComponent313" />
+      <ComponentRef Id="DLLComponent314" />
+      <ComponentRef Id="DLLComponent315" />
+      <ComponentRef Id="DLLComponent316" />
+      <ComponentRef Id="DLLComponent317" />
+      <ComponentRef Id="DLLComponent318" />
+      <ComponentRef Id="DLLComponent319" />
+      <ComponentRef Id="DLLComponent320" />
+      <ComponentRef Id="DLLComponent321" />
+      <ComponentRef Id="DLLComponent322" />
+      <ComponentRef Id="DLLComponent323" />
+      <ComponentRef Id="DLLComponent324" />
+      <ComponentRef Id="DLLComponent325" />
+      <ComponentRef Id="DLLComponent326" />
+      <ComponentRef Id="DLLComponent327" />
+      <ComponentRef Id="DLLComponent328" />
+      <ComponentRef Id="DLLComponent329" />
+      <ComponentRef Id="DLLComponent330" />
+      <ComponentRef Id="DLLComponent331" />
+      <ComponentRef Id="DLLComponent332" />
+      <ComponentRef Id="DLLComponent333" />
+      <ComponentRef Id="MISCComponent334" />
+      <ComponentRef Id="DLLComponent335" />
+      <ComponentRef Id="DLLComponent336" />
+      <ComponentRef Id="DLLComponent337" />
+      <ComponentRef Id="DLLComponent338" />
+      <ComponentRef Id="DLLComponent339" />
+      <ComponentRef Id="CONFIGComponent340" />
+      <ComponentRef Id="CONFIGComponent341" />
+      <ComponentRef Id="CONFIGComponent342" />
+      <ComponentRef Id="CONFIGComponent343" />
+      <ComponentRef Id="CONFIGComponent344" />
+      <ComponentRef Id="DLLComponent345" />
+      <ComponentRef Id="MISCComponent346" />
+      <ComponentRef Id="MISCComponent347" />
+      <ComponentRef Id="MISCComponent348" />
+      <ComponentRef Id="MISCComponent349" />
+      <ComponentRef Id="MISCComponent350" />
+      <ComponentRef Id="MISCComponent351" />
+      <ComponentRef Id="MISCComponent352" />
+      <ComponentRef Id="MISCComponent353" />
+      <ComponentRef Id="MISCComponent354" />
+      <ComponentRef Id="MISCComponent355" />
+      <ComponentRef Id="MISCComponent356" />
+      <ComponentRef Id="MISCComponent357" />
+      <ComponentRef Id="MISCComponent358" />
+      <ComponentRef Id="MISCComponent359" />
+      <ComponentRef Id="MISCComponent360" />
+      <ComponentRef Id="MISCComponent361" />
+      <ComponentRef Id="MISCComponent362" />
+      <ComponentRef Id="MISCComponent363" />
+      <ComponentRef Id="MISCComponent364" />
+      <ComponentRef Id="MISCComponent365" />
+      <ComponentRef Id="MISCComponent366" />
+      <ComponentRef Id="MISCComponent367" />
+      <ComponentRef Id="MISCComponent368" />
+      <ComponentRef Id="MISCComponent369" />
+      <ComponentRef Id="MISCComponent370" />
+      <ComponentRef Id="MISCComponent371" />
+      <ComponentRef Id="MISCComponent372" />
+      <ComponentRef Id="MISCComponent373" />
+      <ComponentRef Id="MISCComponent374" />
+      <ComponentRef Id="MISCComponent375" />
+      <ComponentRef Id="MISCComponent376" />
+      <ComponentRef Id="MISCComponent377" />
+      <ComponentRef Id="MISCComponent378" />
+      <ComponentRef Id="MISCComponent379" />
+      <ComponentRef Id="MISCComponent380" />
+      <ComponentRef Id="MISCComponent381" />
+      <ComponentRef Id="MISCComponent382" />
+      <ComponentRef Id="MISCComponent383" />
+      <ComponentRef Id="MISCComponent384" />
+      <ComponentRef Id="MISCComponent385" />
+      <ComponentRef Id="MISCComponent386" />
+      <ComponentRef Id="MISCComponent387" />
+      <ComponentRef Id="MISCComponent388" />
+      <ComponentRef Id="MISCComponent389" />
+      <ComponentRef Id="MISCComponent390" />
+      <ComponentRef Id="MISCComponent391" />
+      <ComponentRef Id="MISCComponent392" />
+      <ComponentRef Id="MISCComponent393" />
+      <ComponentRef Id="MISCComponent394" />
+      <ComponentRef Id="MISCComponent395" />
+      <ComponentRef Id="MISCComponent396" />
+      <ComponentRef Id="MISCComponent397" />
+      <ComponentRef Id="MISCComponent398" />
+      <ComponentRef Id="MISCComponent399" />
+      <ComponentRef Id="MISCComponent400" />
+      <ComponentRef Id="MISCComponent401" />
+      <ComponentRef Id="MISCComponent402" />
+      <ComponentRef Id="MISCComponent403" />
+      <ComponentRef Id="MISCComponent404" />
+      <ComponentRef Id="MISCComponent405" />
+      <ComponentRef Id="MISCComponent406" />
+      <ComponentRef Id="MISCComponent407" />
+      <ComponentRef Id="MISCComponent408" />
+      <ComponentRef Id="MISCComponent409" />
+      <ComponentRef Id="MISCComponent410" />
+      <ComponentRef Id="MISCComponent411" />
+      <ComponentRef Id="MISCComponent412" />
+      <ComponentRef Id="MISCComponent413" />
+      <ComponentRef Id="MISCComponent414" />
+      <ComponentRef Id="MISCComponent415" />
+      <ComponentRef Id="MISCComponent416" />
+      <ComponentRef Id="MISCComponent417" />
+      <ComponentRef Id="MISCComponent418" />
+      <ComponentRef Id="MISCComponent419" />
+      <ComponentRef Id="MISCComponent420" />
+      <ComponentRef Id="MISCComponent421" />
+      <ComponentRef Id="MISCComponent422" />
+      <ComponentRef Id="MISCComponent423" />
+      <ComponentRef Id="MISCComponent424" />
+      <ComponentRef Id="MISCComponent425" />
+      <ComponentRef Id="MISCComponent426" />
+      <ComponentRef Id="MISCComponent427" />
+      <ComponentRef Id="MISCComponent428" />
+      <ComponentRef Id="MISCComponent429" />
+      <ComponentRef Id="MISCComponent430" />
+      <ComponentRef Id="MISCComponent431" />
+      <ComponentRef Id="MISCComponent432" />
+      <ComponentRef Id="MISCComponent433" />
+      <ComponentRef Id="MISCComponent434" />
+      <ComponentRef Id="MISCComponent435" />
+      <ComponentRef Id="MISCComponent436" />
+      <ComponentRef Id="MISCComponent437" />
+      <ComponentRef Id="MISCComponent438" />
+      <ComponentRef Id="MISCComponent439" />
+      <ComponentRef Id="MISCComponent440" />
+      <ComponentRef Id="MISCComponent441" />
+      <ComponentRef Id="MISCComponent442" />
+      <ComponentRef Id="MISCComponent443" />
+      <ComponentRef Id="MISCComponent444" />
+      <ComponentRef Id="MISCComponent445" />
+      <ComponentRef Id="MISCComponent446" />
+      <ComponentRef Id="MISCComponent447" />
+      <ComponentRef Id="MISCComponent448" />
+      <ComponentRef Id="MISCComponent449" />
+      <ComponentRef Id="MISCComponent450" />
+      <ComponentRef Id="MISCComponent451" />
+      <ComponentRef Id="MISCComponent452" />
+      <ComponentRef Id="MISCComponent453" />
+      <ComponentRef Id="MISCComponent454" />
+      <ComponentRef Id="MISCComponent455" />
+      <ComponentRef Id="MISCComponent456" />
+      <ComponentRef Id="MISCComponent457" />
+      <ComponentRef Id="MISCComponent458" />
+      <ComponentRef Id="MISCComponent459" />
+      <ComponentRef Id="MISCComponent460" />
+      <ComponentRef Id="MISCComponent461" />
+      <ComponentRef Id="MISCComponent462" />
+      <ComponentRef Id="MISCComponent463" />
+      <ComponentRef Id="MISCComponent464" />
+      <ComponentRef Id="MISCComponent465" />
+      <ComponentRef Id="DLLComponent466" />
+      <ComponentRef Id="MISCComponent467" />
+      <ComponentRef Id="MISCComponent468" />
+      <ComponentRef Id="MISCComponent469" />
+      <ComponentRef Id="MISCComponent470" />
+      <ComponentRef Id="MISCComponent471" />
+      <ComponentRef Id="MISCComponent472" />
+      <ComponentRef Id="MISCComponent473" />
+      <ComponentRef Id="MISCComponent474" />
+      <ComponentRef Id="MISCComponent475" />
+      <ComponentRef Id="MISCComponent476" />
+      <ComponentRef Id="MISCComponent477" />
+      <ComponentRef Id="MISCComponent478" />
+      <ComponentRef Id="MISCComponent479" />
+      <ComponentRef Id="MISCComponent480" />
+      <ComponentRef Id="MISCComponent481" />
+      <ComponentRef Id="MISCComponent482" />
+      <ComponentRef Id="MISCComponent483" />
+      <ComponentRef Id="MISCComponent484" />
+      <ComponentRef Id="MISCComponent485" />
+      <ComponentRef Id="MISCComponent486" />
+      <ComponentRef Id="MISCComponent487" />
+      <ComponentRef Id="MISCComponent488" />
+      <ComponentRef Id="MISCComponent489" />
+      <ComponentRef Id="MISCComponent490" />
+      <ComponentRef Id="MISCComponent491" />
+      <ComponentRef Id="MISCComponent492" />
+      <ComponentRef Id="MISCComponent493" />
+      <ComponentRef Id="MISCComponent494" />
+      <ComponentRef Id="MISCComponent495" />
+      <ComponentRef Id="MISCComponent496" />
+      <ComponentRef Id="MISCComponent497" />
+      <ComponentRef Id="MISCComponent498" />
+      <ComponentRef Id="MISCComponent499" />
+      <ComponentRef Id="MISCComponent500" />
+      <ComponentRef Id="MISCComponent501" />
+      <ComponentRef Id="MISCComponent502" />
+      <ComponentRef Id="MISCComponent503" />
+      <ComponentRef Id="MISCComponent504" />
+      <ComponentRef Id="MISCComponent505" />
+      <ComponentRef Id="MISCComponent506" />
+      <ComponentRef Id="MISCComponent507" />
+      <ComponentRef Id="MISCComponent508" />
+      <ComponentRef Id="MISCComponent509" />
+      <ComponentRef Id="MISCComponent510" />
+      <ComponentRef Id="MISCComponent511" />
+      <ComponentRef Id="MISCComponent512" />
+      <ComponentRef Id="MISCComponent513" />
+      <ComponentRef Id="MISCComponent514" />
+      <ComponentRef Id="MISCComponent515" />
+      <ComponentRef Id="MISCComponent516" />
+      <ComponentRef Id="MISCComponent517" />
+      <ComponentRef Id="MISCComponent518" />
+      <ComponentRef Id="MISCComponent519" />
+      <ComponentRef Id="MISCComponent520" />
+
+    </Feature>
+
+    <!-- Característica opcional: Acceso directo en escritorio -->
+    <Feature Id="DesktopShortcut" 
+             Title="Acceso Directo en Escritorio"
+             Description="Crear acceso directo en el escritorio" 
+             Level="1"
+             AllowAdvertise="no">
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+    <!-- Componente: Ejecutable principal -->
+    <Component Id="MainExecutable" Directory="INSTALLFOLDER" Guid="11111111-1111-1111-1111-111111111111">
+      <File Id="GestionTimeDesktopExe" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.exe" 
+            KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Accesos directos en Menú Inicio -->
+    <Component Id="StartMenuShortcuts" Directory="ApplicationProgramsFolder" Guid="66666666-6666-6666-6666-666666666666">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación de gestión de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Acceso directo en Escritorio -->
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="77777777-7777-7777-7777-777777777777">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación de gestión de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="DesktopShortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+    <!-- Componente: appsettings.json -->
+    <Component Id="CONFIGComponent1" Directory="INSTALLFOLDER" Guid="48727F3D-1AD7-4B92-98DA-C07D628B5B76">
+      <File Id="CONFIGFile1" 
+            Source="..\..\bin\Release\Installer\App\appsettings.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: clretwrc.dll -->
+    <Component Id="DLLComponent2" Directory="INSTALLFOLDER" Guid="EE896B7E-EBB6-4C0F-8FF6-B3440B9C73AB">
+      <File Id="DLLFile2" 
+            Source="..\..\bin\Release\Installer\App\clretwrc.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: clrgc.dll -->
+    <Component Id="DLLComponent3" Directory="INSTALLFOLDER" Guid="1BD91E03-10F3-4E84-A52F-4880B2FF7A68">
+      <File Id="DLLFile3" 
+            Source="..\..\bin\Release\Installer\App\clrgc.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: clrjit.dll -->
+    <Component Id="DLLComponent4" Directory="INSTALLFOLDER" Guid="A8B97170-DE55-4BB6-B12F-0B7FAB3A9F2F">
+      <File Id="DLLFile4" 
+            Source="..\..\bin\Release\Installer\App\clrjit.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: CommunityToolkit.Mvvm.dll -->
+    <Component Id="DLLComponent5" Directory="INSTALLFOLDER" Guid="AC08D18C-BE55-42F4-94F7-57075C6E4B96">
+      <File Id="DLLFile5" 
+            Source="..\..\bin\Release\Installer\App\CommunityToolkit.Mvvm.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: coreclr.dll -->
+    <Component Id="DLLComponent6" Directory="INSTALLFOLDER" Guid="3C91DAFC-EDDE-4C54-9ECE-30BCF06D5DEF">
+      <File Id="DLLFile6" 
+            Source="..\..\bin\Release\Installer\App\coreclr.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: CoreMessagingXP.dll -->
+    <Component Id="DLLComponent7" Directory="INSTALLFOLDER" Guid="A823096E-15A2-467B-B546-5942D7A38DAB">
+      <File Id="DLLFile7" 
+            Source="..\..\bin\Release\Installer\App\CoreMessagingXP.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: createdump.exe -->
+    <Component Id="EXEComponent8" Directory="INSTALLFOLDER" Guid="16E4E8CE-ABC4-47F3-BF83-F8055172647A">
+      <File Id="EXEFile8" 
+            Source="..\..\bin\Release\Installer\App\createdump.exe" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: dcompi.dll -->
+    <Component Id="DLLComponent9" Directory="INSTALLFOLDER" Guid="3422D9BE-137F-4C1C-BB19-15CE09FDC735">
+      <File Id="DLLFile9" 
+            Source="..\..\bin\Release\Installer\App\dcompi.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: DirectML.dll -->
+    <Component Id="DLLComponent10" Directory="INSTALLFOLDER" Guid="C37DE8D2-52FE-4DC7-BFF7-088A8AF4B405">
+      <File Id="DLLFile10" 
+            Source="..\..\bin\Release\Installer\App\DirectML.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: dwmcorei.dll -->
+    <Component Id="DLLComponent11" Directory="INSTALLFOLDER" Guid="D842E27C-5E70-49B4-B97A-E0B584167F36">
+      <File Id="DLLFile11" 
+            Source="..\..\bin\Release\Installer\App\dwmcorei.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: DwmSceneI.dll -->
+    <Component Id="DLLComponent12" Directory="INSTALLFOLDER" Guid="5746CAC8-AADD-4BA0-B0AA-CC12E94A5D87">
+      <File Id="DLLFile12" 
+            Source="..\..\bin\Release\Installer\App\DwmSceneI.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: DWriteCore.dll -->
+    <Component Id="DLLComponent13" Directory="INSTALLFOLDER" Guid="1BBEBB91-CA03-40CE-9756-13785FD25248">
+      <File Id="DLLFile13" 
+            Source="..\..\bin\Release\Installer\App\DWriteCore.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: FluentAssertions.dll -->
+    <Component Id="DLLComponent14" Directory="INSTALLFOLDER" Guid="EDCC4258-1B5B-4FCD-BC31-C20FBDCC0289">
+      <File Id="DLLFile14" 
+            Source="..\..\bin\Release\Installer\App\FluentAssertions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: GestionTime.Desktop.deps.json -->
+    <Component Id="CONFIGComponent15" Directory="INSTALLFOLDER" Guid="4639E938-1D22-448C-9981-B054E25BBD66">
+      <File Id="CONFIGFile15" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.deps.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: GestionTime.Desktop.dll -->
+    <Component Id="DLLComponent16" Directory="INSTALLFOLDER" Guid="3B890DE5-5399-46BD-AED7-629C31168A01">
+      <File Id="DLLFile16" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: GestionTime.Desktop.pdb -->
+    <Component Id="DEBUGComponent17" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DEBUGFile17" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.pdb" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: GestionTime.Desktop.runtimeconfig.json -->
+    <Component Id="CONFIGComponent18" Directory="INSTALLFOLDER" Guid="">
+      <File Id="CONFIGFile18" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.runtimeconfig.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: hostfxr.dll -->
+    <Component Id="DLLComponent19" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile19" 
+            Source="..\..\bin\Release\Installer\App\hostfxr.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: hostpolicy.dll -->
+    <Component Id="DLLComponent20" Directory="INSTALLFOLDER" Guid="6C60095E-D166-451C-975B-804C0A77AF5F">
+      <File Id="DLLFile20" 
+            Source="..\..\bin\Release\Installer\App\hostpolicy.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: marshal.dll -->
+    <Component Id="DLLComponent21" Directory="INSTALLFOLDER" Guid="82466BEF-3B92-4EB3-9B02-CC1B2A86DCD4">
+      <File Id="DLLFile21" 
+            Source="..\..\bin\Release\Installer\App\marshal.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.CSharp.dll -->
+    <Component Id="DLLComponent22" Directory="INSTALLFOLDER" Guid="4327BCC6-8566-4C7C-BAAE-543EC17B3D16">
+      <File Id="DLLFile22" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.CSharp.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.DiaSymReader.Native.amd64.dll -->
+    <Component Id="DLLComponent23" Directory="INSTALLFOLDER" Guid="F5B09ACB-1C49-479B-9BD2-CC050D8EFCCF">
+      <File Id="DLLFile23" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.DiaSymReader.Native.amd64.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.DirectManipulation.dll -->
+    <Component Id="DLLComponent24" Directory="INSTALLFOLDER" Guid="5F3F445C-50EB-46F4-AAEA-386C32EC50A6">
+      <File Id="DLLFile24" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.DirectManipulation.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Configuration.Abstractions.dll -->
+    <Component Id="DLLComponent25" Directory="INSTALLFOLDER" Guid="54580BFC-E458-4E4E-9B7A-A840C7174F4F">
+      <File Id="DLLFile25" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Abstractions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Configuration.Binder.dll -->
+    <Component Id="DLLComponent26" Directory="INSTALLFOLDER" Guid="32B724A4-320A-42D0-82CB-98039D351011">
+      <File Id="DLLFile26" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Binder.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Configuration.dll -->
+    <Component Id="DLLComponent27" Directory="INSTALLFOLDER" Guid="D2CDBCB5-F965-40D9-B37F-4C050876E6EB">
+      <File Id="DLLFile27" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Configuration.FileExtensions.dll -->
+    <Component Id="DLLComponent28" Directory="INSTALLFOLDER" Guid="D5AF5DC0-8104-40DF-9629-FAB499323E55">
+      <File Id="DLLFile28" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.FileExtensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Configuration.Json.dll -->
+    <Component Id="DLLComponent29" Directory="INSTALLFOLDER" Guid="F3CD4213-F230-4463-AD73-2F0D6C63F04D">
+      <File Id="DLLFile29" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Json.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.DependencyInjection.Abstractions.dll -->
+    <Component Id="DLLComponent30" Directory="INSTALLFOLDER" Guid="E59DEDE4-5BFF-464B-9DCC-A0EB18A02580">
+      <File Id="DLLFile30" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.DependencyInjection.Abstractions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.DependencyInjection.dll -->
+    <Component Id="DLLComponent31" Directory="INSTALLFOLDER" Guid="02A689B1-9A17-42E3-89ED-6E6B5F79CE9F">
+      <File Id="DLLFile31" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.DependencyInjection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.FileProviders.Abstractions.dll -->
+    <Component Id="DLLComponent32" Directory="INSTALLFOLDER" Guid="7C37C1E9-F039-4ADD-987C-7F351FCD465D">
+      <File Id="DLLFile32" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.FileProviders.Abstractions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.FileProviders.Physical.dll -->
+    <Component Id="DLLComponent33" Directory="INSTALLFOLDER" Guid="8D7185BE-BC6B-40CC-9615-8E86775C013D">
+      <File Id="DLLFile33" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.FileProviders.Physical.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.FileSystemGlobbing.dll -->
+    <Component Id="DLLComponent34" Directory="INSTALLFOLDER" Guid="FFE8F859-BAF2-4E35-9A11-827BB6653B78">
+      <File Id="DLLFile34" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.FileSystemGlobbing.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Logging.Abstractions.dll -->
+    <Component Id="DLLComponent35" Directory="INSTALLFOLDER" Guid="22A60EFA-D3F8-423D-B4C6-126CA0508473">
+      <File Id="DLLFile35" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Logging.Abstractions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Logging.dll -->
+    <Component Id="DLLComponent36" Directory="INSTALLFOLDER" Guid="D6BF7703-723B-4F56-B8F5-E267B2356A88">
+      <File Id="DLLFile36" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Logging.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Options.dll -->
+    <Component Id="DLLComponent37" Directory="INSTALLFOLDER" Guid="6239E24E-064E-4AAA-9423-AB167154D481">
+      <File Id="DLLFile37" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Options.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Extensions.Primitives.dll -->
+    <Component Id="DLLComponent38" Directory="INSTALLFOLDER" Guid="76B66C00-3C79-4111-9252-538D9A76DA6D">
+      <File Id="DLLFile38" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Foundation.winmd -->
+    <Component Id="MISCComponent39" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile39" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Foundation.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.Display.dll -->
+    <Component Id="DLLComponent40" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile40" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Display.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.Imaging.dll -->
+    <Component Id="DLLComponent41" Directory="INSTALLFOLDER" Guid="9CF293BC-684F-4C7C-8F9B-F9D4BCA448F9">
+      <File Id="DLLFile41" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Imaging.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.Imaging.Projection.dll -->
+    <Component Id="DLLComponent42" Directory="INSTALLFOLDER" Guid="3F9F36F7-6F70-4C28-AC8C-135ABCB01F86">
+      <File Id="DLLFile42" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Imaging.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.Imaging.winmd -->
+    <Component Id="MISCComponent43" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile43" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Imaging.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.ImagingInternal.ImageObjectRemover.winmd -->
+    <Component Id="MISCComponent44" Directory="INSTALLFOLDER" Guid="850C95C3-7CA8-49F1-8920-876D217F23F0">
+      <File Id="MISCFile44" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.ImagingInternal.ImageObjectRemover.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.ImagingInternal.winmd -->
+    <Component Id="MISCComponent45" Directory="INSTALLFOLDER" Guid="69F9FD2E-6DA7-43F3-A61F-9888B1D11AD8">
+      <File Id="MISCFile45" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.ImagingInternal.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.Internal.Imaging.winmd -->
+    <Component Id="MISCComponent46" Directory="INSTALLFOLDER" Guid="F0842D57-F63E-4692-97F6-0AE200DE7E92">
+      <File Id="MISCFile46" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Internal.Imaging.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Graphics.winmd -->
+    <Component Id="MISCComponent47" Directory="INSTALLFOLDER" Guid="8D9731B4-667C-4316-9ED3-0176BAC745DA">
+      <File Id="MISCFile47" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.InputStateManager.dll -->
+    <Component Id="DLLComponent48" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile48" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.InputStateManager.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.InteractiveExperiences.Projection.dll -->
+    <Component Id="DLLComponent49" Directory="INSTALLFOLDER" Guid="66EE86E2-7CC5-48EC-BF05-51E27BF94A82">
+      <File Id="DLLFile49" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.InteractiveExperiences.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Internal.FrameworkUdk.dll -->
+    <Component Id="DLLComponent50" Directory="INSTALLFOLDER" Guid="B78E986F-3903-4265-B886-0BBD9674BBC5">
+      <File Id="DLLFile50" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Internal.FrameworkUdk.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ML.OnnxRuntime.dll -->
+    <Component Id="DLLComponent51" Directory="INSTALLFOLDER" Guid="3DB14A56-C2ED-4FA6-8E56-7FBDBF236965">
+      <File Id="DLLFile51" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.ML.OnnxRuntime.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Security.Authentication.OAuth.Projection.dll -->
+    <Component Id="DLLComponent52" Directory="INSTALLFOLDER" Guid="5E5FE37F-A778-4A19-8800-2B16AED97520">
+      <File Id="DLLFile52" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Security.Authentication.OAuth.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Security.Authentication.OAuth.winmd -->
+    <Component Id="MISCComponent53" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile53" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Security.Authentication.OAuth.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Composition.OSSupport.dll -->
+    <Component Id="DLLComponent54" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile54" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Composition.OSSupport.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Designer.dll -->
+    <Component Id="DLLComponent55" Directory="INSTALLFOLDER" Guid="3A55AFC0-EA68-43E4-8678-0CEA7CE3DDB5">
+      <File Id="DLLFile55" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Designer.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.dll -->
+    <Component Id="DLLComponent56" Directory="INSTALLFOLDER" Guid="C8167DBD-A2A9-498A-9AE7-9CC2453B17AE">
+      <File Id="DLLFile56" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Input.dll -->
+    <Component Id="DLLComponent57" Directory="INSTALLFOLDER" Guid="AF4E74DE-DCCE-4042-B800-BD1CD23F7815">
+      <File Id="DLLFile57" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Input.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.pri -->
+    <Component Id="RESOURCEComponent58" Directory="INSTALLFOLDER" Guid="">
+      <File Id="RESOURCEFile58" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.pri" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Text.winmd -->
+    <Component Id="MISCComponent59" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile59" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Text.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Windowing.Core.dll -->
+    <Component Id="DLLComponent60" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile60" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Windowing.Core.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Windowing.dll -->
+    <Component Id="DLLComponent61" Directory="INSTALLFOLDER" Guid="8CFA1ECB-AE4D-4CE2-AA9E-CE7474FED95D">
+      <File Id="DLLFile61" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Windowing.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.winmd -->
+    <Component Id="MISCComponent62" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile62" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Controls.dll -->
+    <Component Id="DLLComponent63" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile63" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Controls.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Controls.pri -->
+    <Component Id="RESOURCEComponent64" Directory="INSTALLFOLDER" Guid="">
+      <File Id="RESOURCEFile64" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Controls.pri" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll -->
+    <Component Id="DLLComponent65" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile65" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.ui.xaml.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Internal.dll -->
+    <Component Id="DLLComponent66" Directory="INSTALLFOLDER" Guid="79AA2AC4-CBC1-438D-81A9-8A16407EBB1B">
+      <File Id="DLLFile66" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Internal.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll -->
+    <Component Id="DLLComponent67" Directory="INSTALLFOLDER" Guid="62D6239D-1A8B-48E6-9E17-B0970FCB48CC">
+      <File Id="DLLFile67" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Phone.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.resources.19h1.dll -->
+    <Component Id="DLLComponent68" Directory="INSTALLFOLDER" Guid="F049DC47-FD54-4371-B77D-E41678E39BB7">
+      <File Id="DLLFile68" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.ui.xaml.resources.19h1.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.resources.common.dll -->
+    <Component Id="DLLComponent69" Directory="INSTALLFOLDER" Guid="12F81B0B-2736-4B28-B236-5DDE94A18CFF">
+      <File Id="DLLFile69" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.ui.xaml.resources.common.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.winmd -->
+    <Component Id="MISCComponent70" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile70" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.VisualBasic.Core.dll -->
+    <Component Id="DLLComponent71" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile71" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.VisualBasic.Core.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.VisualBasic.dll -->
+    <Component Id="DLLComponent72" Directory="INSTALLFOLDER" Guid="F57EC6D6-0E02-490D-ADFA-D6AF664672AC">
+      <File Id="DLLFile72" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.VisualBasic.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Web.WebView2.Core.dll -->
+    <Component Id="DLLComponent73" Directory="INSTALLFOLDER" Guid="4CB0FAC9-D570-4FFB-A664-C6DA3EA5C740">
+      <File Id="DLLFile73" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Web.WebView2.Core.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Web.WebView2.Core.Projection.dll -->
+    <Component Id="DLLComponent74" Directory="INSTALLFOLDER" Guid="4BC9CC67-B707-412F-9F4E-FFC5130AA8B2">
+      <File Id="DLLFile74" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Web.WebView2.Core.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Win32.Primitives.dll -->
+    <Component Id="DLLComponent75" Directory="INSTALLFOLDER" Guid="4D8DCE7B-3E28-4EFB-B853-26AC9D9FC25D">
+      <File Id="DLLFile75" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Win32.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Win32.Registry.dll -->
+    <Component Id="DLLComponent76" Directory="INSTALLFOLDER" Guid="A7EE2012-59DB-4D81-A2F0-BB6CFA6F90B4">
+      <File Id="DLLFile76" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Win32.Registry.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.ContentModerationInternal.winmd -->
+    <Component Id="MISCComponent77" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile77" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentModerationInternal.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.ContentSafety.dll -->
+    <Component Id="DLLComponent78" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile78" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.ContentSafety.Projection.dll -->
+    <Component Id="DLLComponent79" Directory="INSTALLFOLDER" Guid="F8420899-CDDC-4E45-9AB0-D45D38441CC3">
+      <File Id="DLLFile79" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.ContentSafety.winmd -->
+    <Component Id="MISCComponent80" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile80" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Foundation.Projection.dll -->
+    <Component Id="DLLComponent81" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile81" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Foundation.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Foundation.winmd -->
+    <Component Id="MISCComponent82" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile82" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Foundation.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.FoundationInternal.winmd -->
+    <Component Id="MISCComponent83" Directory="INSTALLFOLDER" Guid="76C5E7C4-D8EC-4298-9C40-B6C5FFAF0C49">
+      <File Id="MISCFile83" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.FoundationInternal.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.GenerativeInternal.winmd -->
+    <Component Id="MISCComponent84" Directory="INSTALLFOLDER" Guid="683A1DBC-E8AA-4FDC-9B06-6C649AC8A94D">
+      <File Id="MISCFile84" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.GenerativeInternal.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Imaging.dll -->
+    <Component Id="DLLComponent85" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile85" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Imaging.Projection.dll -->
+    <Component Id="DLLComponent86" Directory="INSTALLFOLDER" Guid="AFDBB342-93C0-4A5E-AC60-A8C1012024B1">
+      <File Id="DLLFile86" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Imaging.winmd -->
+    <Component Id="MISCComponent87" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile87" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.MachineLearning.dll -->
+    <Component Id="DLLComponent88" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile88" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.MachineLearning.Projection.dll -->
+    <Component Id="DLLComponent89" Directory="INSTALLFOLDER" Guid="DB1469D0-5832-45EB-AAE1-710DF24DAC5E">
+      <File Id="DLLFile89" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.MachineLearning.winmd -->
+    <Component Id="MISCComponent90" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile90" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Projection.dll -->
+    <Component Id="DLLComponent91" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile91" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Text.dll -->
+    <Component Id="DLLComponent92" Directory="INSTALLFOLDER" Guid="35DAE5B8-D5C3-4762-89B6-69651505F684">
+      <File Id="DLLFile92" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Text.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Text.Projection.dll -->
+    <Component Id="DLLComponent93" Directory="INSTALLFOLDER" Guid="CE85D885-7E90-447C-AAB6-A0D96EA93188">
+      <File Id="DLLFile93" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Text.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.Text.winmd -->
+    <Component Id="MISCComponent94" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile94" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Text.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AI.winmd -->
+    <Component Id="MISCComponent95" Directory="INSTALLFOLDER" Guid="3DDE66E3-80FD-4B3B-B83B-A4E94B8BCBF4">
+      <File Id="MISCFile95" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Background.Projection.dll -->
+    <Component Id="DLLComponent96" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile96" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll -->
+    <Component Id="DLLComponent97" Directory="INSTALLFOLDER" Guid="828B1E63-AC7C-49A6-BBD3-DE54D4122345">
+      <File Id="DLLFile97" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.winmd -->
+    <Component Id="MISCComponent98" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile98" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Background.winmd -->
+    <Component Id="MISCComponent99" Directory="INSTALLFOLDER" Guid="2E2E9B9F-B03E-4BD0-809E-D37AE3DC0EAB">
+      <File Id="MISCFile99" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll -->
+    <Component Id="DLLComponent100" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile100" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.DynamicDependency.winmd -->
+    <Component Id="MISCComponent101" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile101" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.DynamicDependency.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Resources.dll -->
+    <Component Id="DLLComponent102" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile102" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Resources.Projection.dll -->
+    <Component Id="DLLComponent103" Directory="INSTALLFOLDER" Guid="1862E726-F103-4EE0-82A6-10363B2AA011">
+      <File Id="DLLFile103" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.Resources.winmd -->
+    <Component Id="MISCComponent104" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile104" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll -->
+    <Component Id="DLLComponent105" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile105" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.ApplicationModel.WindowsAppRuntime.winmd -->
+    <Component Id="MISCComponent106" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile106" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.WindowsAppRuntime.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AppLifecycle.Projection.dll -->
+    <Component Id="DLLComponent107" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile107" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppLifecycle.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AppLifecycle.winmd -->
+    <Component Id="MISCComponent108" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile108" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppLifecycle.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AppNotifications.Builder.Projection.dll -->
+    <Component Id="DLLComponent109" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile109" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Builder.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AppNotifications.Builder.winmd -->
+    <Component Id="MISCComponent110" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile110" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Builder.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AppNotifications.Projection.dll -->
+    <Component Id="DLLComponent111" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile111" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.AppNotifications.winmd -->
+    <Component Id="MISCComponent112" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile112" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.BadgeNotifications.Projection.dll -->
+    <Component Id="DLLComponent113" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile113" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.BadgeNotifications.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.BadgeNotifications.winmd -->
+    <Component Id="MISCComponent114" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile114" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.BadgeNotifications.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Foundation.Projection.dll -->
+    <Component Id="DLLComponent115" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile115" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Foundation.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Foundation.winmd -->
+    <Component Id="MISCComponent116" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile116" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Foundation.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Globalization.winmd -->
+    <Component Id="MISCComponent117" Directory="INSTALLFOLDER" Guid="7A876F5E-5164-4C70-8909-01F01FB39CF1">
+      <File Id="MISCFile117" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Globalization.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Internal.Vision.winmd -->
+    <Component Id="MISCComponent118" Directory="INSTALLFOLDER" Guid="B22D9CCD-5F7F-4BA5-9B6F-1A5550522D15">
+      <File Id="MISCFile118" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Internal.Vision.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Management.Deployment.Projection.dll -->
+    <Component Id="DLLComponent119" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile119" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Management.Deployment.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Management.Deployment.winmd -->
+    <Component Id="MISCComponent120" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile120" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Management.Deployment.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Media.Capture.Projection.dll -->
+    <Component Id="DLLComponent121" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile121" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Media.Capture.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Media.Capture.winmd -->
+    <Component Id="MISCComponent122" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile122" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Media.Capture.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Private.Workloads.SessionManager.winmd -->
+    <Component Id="MISCComponent123" Directory="INSTALLFOLDER" Guid="BC44AD89-BB4A-4855-AFC5-25BD7C5DFF66">
+      <File Id="MISCFile123" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Private.Workloads.SessionManager.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.PrivateCommon.winmd -->
+    <Component Id="MISCComponent124" Directory="INSTALLFOLDER" Guid="3FAEFAF4-DE80-4D84-9203-C2741A8D2581">
+      <File Id="MISCFile124" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.PrivateCommon.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.PushNotifications.Projection.dll -->
+    <Component Id="DLLComponent125" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile125" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.PushNotifications.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.PushNotifications.winmd -->
+    <Component Id="MISCComponent126" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile126" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.PushNotifications.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.SDK.NET.dll -->
+    <Component Id="DLLComponent127" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile127" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.SDK.NET.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Security.AccessControl.Projection.dll -->
+    <Component Id="DLLComponent128" Directory="INSTALLFOLDER" Guid="34B2FC30-8499-411C-A8BD-F5954ECD4EC9">
+      <File Id="DLLFile128" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Security.AccessControl.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Security.AccessControl.winmd -->
+    <Component Id="MISCComponent129" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile129" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Security.AccessControl.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.SemanticSearch.winmd -->
+    <Component Id="MISCComponent130" Directory="INSTALLFOLDER" Guid="E99639F3-A9B0-4EA2-86B7-30BE2421FC43">
+      <File Id="MISCFile130" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.SemanticSearch.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Storage.Pickers.Projection.dll -->
+    <Component Id="DLLComponent131" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile131" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.Pickers.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Storage.Pickers.winmd -->
+    <Component Id="MISCComponent132" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile132" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.Pickers.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Storage.Projection.dll -->
+    <Component Id="DLLComponent133" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile133" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Storage.winmd -->
+    <Component Id="MISCComponent134" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile134" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.System.Power.Projection.dll -->
+    <Component Id="DLLComponent135" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile135" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.Power.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.System.Power.winmd -->
+    <Component Id="MISCComponent136" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile136" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.Power.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.System.Projection.dll -->
+    <Component Id="DLLComponent137" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile137" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.System.winmd -->
+    <Component Id="MISCComponent138" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile138" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Vision.winmd -->
+    <Component Id="MISCComponent139" Directory="INSTALLFOLDER" Guid="5342611C-6DA4-412C-B92A-FD9386756F9D">
+      <File Id="MISCFile139" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Vision.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.VisionInternal.winmd -->
+    <Component Id="MISCComponent140" Directory="INSTALLFOLDER" Guid="9AC894B1-4213-4CAA-AA1F-DF4889664BE7">
+      <File Id="MISCFile140" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.VisionInternal.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Widgets.dll -->
+    <Component Id="DLLComponent141" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile141" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Widgets.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Widgets.Projection.dll -->
+    <Component Id="DLLComponent142" Directory="INSTALLFOLDER" Guid="CED8F3B0-730F-424B-86E8-4DC0DA63FB00">
+      <File Id="DLLFile142" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Widgets.Projection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Widgets.winmd -->
+    <Component Id="MISCComponent143" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile143" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Widgets.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Workloads.dll -->
+    <Component Id="DLLComponent144" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile144" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Workloads.Resources.dll -->
+    <Component Id="DLLComponent145" Directory="INSTALLFOLDER" Guid="BD3A31EC-A638-4492-8B94-9AECC6230E82">
+      <File Id="DLLFile145" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.Resources.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Workloads.Resources_ec.dll -->
+    <Component Id="DLLComponent146" Directory="INSTALLFOLDER" Guid="7FB5244D-E111-4DCB-A46A-8B3DA700365F">
+      <File Id="DLLFile146" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.Resources_ec.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.Windows.Workloads.winmd -->
+    <Component Id="MISCComponent147" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile147" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.winmd" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.WindowsAppRuntime.Bootstrap.dll -->
+    <Component Id="DLLComponent148" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile148" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Bootstrap.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.WindowsAppRuntime.Bootstrap.Net.dll -->
+    <Component Id="DLLComponent149" Directory="INSTALLFOLDER" Guid="D449F6D5-19AD-4E26-8B23-58B853759903">
+      <File Id="DLLFile149" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Bootstrap.Net.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.WindowsAppRuntime.dll -->
+    <Component Id="DLLComponent150" Directory="INSTALLFOLDER" Guid="DC5DB541-C966-4D5F-9269-21FD0A8B65EF">
+      <File Id="DLLFile150" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.WindowsAppRuntime.Insights.Resource.dll -->
+    <Component Id="DLLComponent151" Directory="INSTALLFOLDER" Guid="4DAED112-47DF-4E4D-B698-8054293E1CCA">
+      <File Id="DLLFile151" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Insights.Resource.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.WindowsAppRuntime.pri -->
+    <Component Id="RESOURCEComponent152" Directory="INSTALLFOLDER" Guid="">
+      <File Id="RESOURCEFile152" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.pri" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.WinUI.dll -->
+    <Component Id="DLLComponent153" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile153" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.WinUI.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: MRM.dll -->
+    <Component Id="DLLComponent154" Directory="INSTALLFOLDER" Guid="B7F6D3E2-8CBC-4EC2-891D-F3179B5135F0">
+      <File Id="DLLFile154" 
+            Source="..\..\bin\Release\Installer\App\MRM.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: mscordaccore.dll -->
+    <Component Id="DLLComponent155" Directory="INSTALLFOLDER" Guid="1BAB66D8-9876-4BC5-83D4-6F7D79E55AAF">
+      <File Id="DLLFile155" 
+            Source="..\..\bin\Release\Installer\App\mscordaccore.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: mscordaccore_amd64_amd64_8.0.2225.52707.dll -->
+    <Component Id="DLLComponent156" Directory="INSTALLFOLDER" Guid="95E05288-3D51-4527-BE2A-244F2F65DA55">
+      <File Id="DLLFile156" 
+            Source="..\..\bin\Release\Installer\App\mscordaccore_amd64_amd64_8.0.2225.52707.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: mscordbi.dll -->
+    <Component Id="DLLComponent157" Directory="INSTALLFOLDER" Guid="7F6277BC-CEC4-4482-9E13-416C9B6512AC">
+      <File Id="DLLFile157" 
+            Source="..\..\bin\Release\Installer\App\mscordbi.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: mscorlib.dll -->
+    <Component Id="DLLComponent158" Directory="INSTALLFOLDER" Guid="3FC67ACE-B3AC-4860-B1B5-CAF2E037D685">
+      <File Id="DLLFile158" 
+            Source="..\..\bin\Release\Installer\App\mscorlib.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: mscorrc.dll -->
+    <Component Id="DLLComponent159" Directory="INSTALLFOLDER" Guid="3C41A09D-A102-4B4E-AEB4-B270BECDE052">
+      <File Id="DLLFile159" 
+            Source="..\..\bin\Release\Installer\App\mscorrc.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: msquic.dll -->
+    <Component Id="DLLComponent160" Directory="INSTALLFOLDER" Guid="C70F4626-2F29-467E-9436-E1319518BD20">
+      <File Id="DLLFile160" 
+            Source="..\..\bin\Release\Installer\App\msquic.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: netstandard.dll -->
+    <Component Id="DLLComponent161" Directory="INSTALLFOLDER" Guid="895F488B-AB49-496D-BB6B-D49EE2F86828">
+      <File Id="DLLFile161" 
+            Source="..\..\bin\Release\Installer\App\netstandard.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: onnxruntime.dll -->
+    <Component Id="DLLComponent162" Directory="INSTALLFOLDER" Guid="904A86BB-08E5-4014-87D7-471CC2054258">
+      <File Id="DLLFile162" 
+            Source="..\..\bin\Release\Installer\App\onnxruntime.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: onnxruntime_providers_shared.dll -->
+    <Component Id="DLLComponent163" Directory="INSTALLFOLDER" Guid="830608EB-2482-48CF-AF53-0ECF55B86F49">
+      <File Id="DLLFile163" 
+            Source="..\..\bin\Release\Installer\App\onnxruntime_providers_shared.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: PushNotificationsLongRunningTask.ProxyStub.dll -->
+    <Component Id="DLLComponent164" Directory="INSTALLFOLDER" Guid="FB05E9A3-364A-4C0E-947E-A5413BD6390D">
+      <File Id="DLLFile164" 
+            Source="..\..\bin\Release\Installer\App\PushNotificationsLongRunningTask.ProxyStub.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: RestartAgent.exe -->
+    <Component Id="EXEComponent165" Directory="INSTALLFOLDER" Guid="">
+      <File Id="EXEFile165" 
+            Source="..\..\bin\Release\Installer\App\RestartAgent.exe" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: SessionHandleIPCProxyStub.dll -->
+    <Component Id="DLLComponent166" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile166" 
+            Source="..\..\bin\Release\Installer\App\SessionHandleIPCProxyStub.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.AppContext.dll -->
+    <Component Id="DLLComponent167" Directory="INSTALLFOLDER" Guid="9BF26BEA-B4A4-4F24-8350-1B6C2547CBDE">
+      <File Id="DLLFile167" 
+            Source="..\..\bin\Release\Installer\App\System.AppContext.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Buffers.dll -->
+    <Component Id="DLLComponent168" Directory="INSTALLFOLDER" Guid="37FA1E21-C591-465B-AEE3-9B447516CC55">
+      <File Id="DLLFile168" 
+            Source="..\..\bin\Release\Installer\App\System.Buffers.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Collections.Concurrent.dll -->
+    <Component Id="DLLComponent169" Directory="INSTALLFOLDER" Guid="EAEDF115-A90B-4492-AE7C-70B1EC085BFF">
+      <File Id="DLLFile169" 
+            Source="..\..\bin\Release\Installer\App\System.Collections.Concurrent.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Collections.dll -->
+    <Component Id="DLLComponent170" Directory="INSTALLFOLDER" Guid="B2C321B8-F7D2-4E7D-BEDF-6CDCEFB380E7">
+      <File Id="DLLFile170" 
+            Source="..\..\bin\Release\Installer\App\System.Collections.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Collections.Immutable.dll -->
+    <Component Id="DLLComponent171" Directory="INSTALLFOLDER" Guid="EB80C5E8-7195-4A15-B9A2-F470B7B89B5D">
+      <File Id="DLLFile171" 
+            Source="..\..\bin\Release\Installer\App\System.Collections.Immutable.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Collections.NonGeneric.dll -->
+    <Component Id="DLLComponent172" Directory="INSTALLFOLDER" Guid="E34A4FBB-4B46-4F46-BEB9-6BAC24411857">
+      <File Id="DLLFile172" 
+            Source="..\..\bin\Release\Installer\App\System.Collections.NonGeneric.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Collections.Specialized.dll -->
+    <Component Id="DLLComponent173" Directory="INSTALLFOLDER" Guid="809F1C90-F02C-477C-AF43-501DDFD44E0B">
+      <File Id="DLLFile173" 
+            Source="..\..\bin\Release\Installer\App\System.Collections.Specialized.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ComponentModel.Annotations.dll -->
+    <Component Id="DLLComponent174" Directory="INSTALLFOLDER" Guid="8F3CDDC0-3412-4B65-ADFE-A8A9BF8171E2">
+      <File Id="DLLFile174" 
+            Source="..\..\bin\Release\Installer\App\System.ComponentModel.Annotations.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ComponentModel.DataAnnotations.dll -->
+    <Component Id="DLLComponent175" Directory="INSTALLFOLDER" Guid="301C8F10-9084-4A51-B38E-B987095A6561">
+      <File Id="DLLFile175" 
+            Source="..\..\bin\Release\Installer\App\System.ComponentModel.DataAnnotations.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ComponentModel.dll -->
+    <Component Id="DLLComponent176" Directory="INSTALLFOLDER" Guid="3216E41E-5FF8-4393-8918-9690A71F6090">
+      <File Id="DLLFile176" 
+            Source="..\..\bin\Release\Installer\App\System.ComponentModel.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ComponentModel.EventBasedAsync.dll -->
+    <Component Id="DLLComponent177" Directory="INSTALLFOLDER" Guid="513DB044-E56D-4FF8-B519-A5A34E2ED074">
+      <File Id="DLLFile177" 
+            Source="..\..\bin\Release\Installer\App\System.ComponentModel.EventBasedAsync.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ComponentModel.Primitives.dll -->
+    <Component Id="DLLComponent178" Directory="INSTALLFOLDER" Guid="9C43EEE5-B431-43D3-9BCA-34967E60FAB5">
+      <File Id="DLLFile178" 
+            Source="..\..\bin\Release\Installer\App\System.ComponentModel.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ComponentModel.TypeConverter.dll -->
+    <Component Id="DLLComponent179" Directory="INSTALLFOLDER" Guid="BC9AF6D4-A8F9-4047-8633-01E49EF44832">
+      <File Id="DLLFile179" 
+            Source="..\..\bin\Release\Installer\App\System.ComponentModel.TypeConverter.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Configuration.dll -->
+    <Component Id="DLLComponent180" Directory="INSTALLFOLDER" Guid="046FDFCE-8F01-41F6-B30C-B35F7AEB8B67">
+      <File Id="DLLFile180" 
+            Source="..\..\bin\Release\Installer\App\System.Configuration.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Console.dll -->
+    <Component Id="DLLComponent181" Directory="INSTALLFOLDER" Guid="2FBC3412-F1CD-4D78-B491-617F8761AEA3">
+      <File Id="DLLFile181" 
+            Source="..\..\bin\Release\Installer\App\System.Console.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Core.dll -->
+    <Component Id="DLLComponent182" Directory="INSTALLFOLDER" Guid="1E3119B6-2B86-4521-8527-138C5290CC1E">
+      <File Id="DLLFile182" 
+            Source="..\..\bin\Release\Installer\App\System.Core.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Data.Common.dll -->
+    <Component Id="DLLComponent183" Directory="INSTALLFOLDER" Guid="2CA946C7-0EFD-4132-97B8-D455CBC7E348">
+      <File Id="DLLFile183" 
+            Source="..\..\bin\Release\Installer\App\System.Data.Common.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Data.DataSetExtensions.dll -->
+    <Component Id="DLLComponent184" Directory="INSTALLFOLDER" Guid="73F44158-8A2B-4893-8A8D-0A9C9F4B2E81">
+      <File Id="DLLFile184" 
+            Source="..\..\bin\Release\Installer\App\System.Data.DataSetExtensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Data.dll -->
+    <Component Id="DLLComponent185" Directory="INSTALLFOLDER" Guid="2E27B3D0-60DC-4147-BC84-B7458EF7F131">
+      <File Id="DLLFile185" 
+            Source="..\..\bin\Release\Installer\App\System.Data.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.Contracts.dll -->
+    <Component Id="DLLComponent186" Directory="INSTALLFOLDER" Guid="1F5582FF-D92C-46FC-B9F7-CB2FEFA32129">
+      <File Id="DLLFile186" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.Contracts.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.Debug.dll -->
+    <Component Id="DLLComponent187" Directory="INSTALLFOLDER" Guid="D66A7793-B97F-47A9-A87F-B648C8E19900">
+      <File Id="DLLFile187" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.Debug.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.DiagnosticSource.dll -->
+    <Component Id="DLLComponent188" Directory="INSTALLFOLDER" Guid="F8033AD2-D011-4256-8A74-0F15C0A022E6">
+      <File Id="DLLFile188" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.DiagnosticSource.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.EventLog.dll -->
+    <Component Id="DLLComponent189" Directory="INSTALLFOLDER" Guid="47DC2C11-8BE7-4E47-9F17-88B6403D3D0A">
+      <File Id="DLLFile189" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.EventLog.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.FileVersionInfo.dll -->
+    <Component Id="DLLComponent190" Directory="INSTALLFOLDER" Guid="CE28647B-C947-4148-977F-C70700C7E5B0">
+      <File Id="DLLFile190" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.FileVersionInfo.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.Process.dll -->
+    <Component Id="DLLComponent191" Directory="INSTALLFOLDER" Guid="B85FED8A-C0E7-48D0-A1E0-AAF88C79A9F5">
+      <File Id="DLLFile191" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.Process.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.StackTrace.dll -->
+    <Component Id="DLLComponent192" Directory="INSTALLFOLDER" Guid="FC8C7723-BA81-4A30-B27B-F579EDC47ADB">
+      <File Id="DLLFile192" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.StackTrace.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.TextWriterTraceListener.dll -->
+    <Component Id="DLLComponent193" Directory="INSTALLFOLDER" Guid="E32FAD89-570F-4716-B29F-AA938DE26270">
+      <File Id="DLLFile193" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.TextWriterTraceListener.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.Tools.dll -->
+    <Component Id="DLLComponent194" Directory="INSTALLFOLDER" Guid="E4FDAB7E-562B-4783-BE73-135168B5B70F">
+      <File Id="DLLFile194" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.Tools.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.TraceSource.dll -->
+    <Component Id="DLLComponent195" Directory="INSTALLFOLDER" Guid="D4F6253E-569C-448D-B866-38A2D39C2BA2">
+      <File Id="DLLFile195" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.TraceSource.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Diagnostics.Tracing.dll -->
+    <Component Id="DLLComponent196" Directory="INSTALLFOLDER" Guid="1BDCF79F-C124-498E-8698-32EFD44FD4A1">
+      <File Id="DLLFile196" 
+            Source="..\..\bin\Release\Installer\App\System.Diagnostics.Tracing.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.dll -->
+    <Component Id="DLLComponent197" Directory="INSTALLFOLDER" Guid="AC009761-835D-4503-92AE-28506E6DF61E">
+      <File Id="DLLFile197" 
+            Source="..\..\bin\Release\Installer\App\System.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Drawing.dll -->
+    <Component Id="DLLComponent198" Directory="INSTALLFOLDER" Guid="F0F01873-911B-4DE8-AD68-C022D2AA9C96">
+      <File Id="DLLFile198" 
+            Source="..\..\bin\Release\Installer\App\System.Drawing.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Drawing.Primitives.dll -->
+    <Component Id="DLLComponent199" Directory="INSTALLFOLDER" Guid="E059F681-017F-4B42-B2B9-7E8CA5297B18">
+      <File Id="DLLFile199" 
+            Source="..\..\bin\Release\Installer\App\System.Drawing.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Dynamic.Runtime.dll -->
+    <Component Id="DLLComponent200" Directory="INSTALLFOLDER" Guid="9B76F42A-CEC6-4621-A84C-7B7D7BFB0655">
+      <File Id="DLLFile200" 
+            Source="..\..\bin\Release\Installer\App\System.Dynamic.Runtime.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Formats.Asn1.dll -->
+    <Component Id="DLLComponent201" Directory="INSTALLFOLDER" Guid="04A4DF52-52C4-4198-BEDF-A7A29E72C1C5">
+      <File Id="DLLFile201" 
+            Source="..\..\bin\Release\Installer\App\System.Formats.Asn1.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Formats.Tar.dll -->
+    <Component Id="DLLComponent202" Directory="INSTALLFOLDER" Guid="A4EFEAC9-2719-478C-B162-B1DED5179D09">
+      <File Id="DLLFile202" 
+            Source="..\..\bin\Release\Installer\App\System.Formats.Tar.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Globalization.Calendars.dll -->
+    <Component Id="DLLComponent203" Directory="INSTALLFOLDER" Guid="E62FD444-6177-4913-809D-B72499EBE9CD">
+      <File Id="DLLFile203" 
+            Source="..\..\bin\Release\Installer\App\System.Globalization.Calendars.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Globalization.dll -->
+    <Component Id="DLLComponent204" Directory="INSTALLFOLDER" Guid="6503F677-C6BF-45D6-A578-A3AE6584470B">
+      <File Id="DLLFile204" 
+            Source="..\..\bin\Release\Installer\App\System.Globalization.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Globalization.Extensions.dll -->
+    <Component Id="DLLComponent205" Directory="INSTALLFOLDER" Guid="FF4F4417-4EF4-4AD2-8FD5-32C81DB241B6">
+      <File Id="DLLFile205" 
+            Source="..\..\bin\Release\Installer\App\System.Globalization.Extensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Compression.Brotli.dll -->
+    <Component Id="DLLComponent206" Directory="INSTALLFOLDER" Guid="BA7AF4C0-BD44-4750-B65A-329EE30D8CBD">
+      <File Id="DLLFile206" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Compression.Brotli.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Compression.dll -->
+    <Component Id="DLLComponent207" Directory="INSTALLFOLDER" Guid="10DFB205-0469-4B07-BD7A-E88D4FFBA008">
+      <File Id="DLLFile207" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Compression.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Compression.FileSystem.dll -->
+    <Component Id="DLLComponent208" Directory="INSTALLFOLDER" Guid="819D0DF3-4AB8-4987-BAA8-858DD08C1CA7">
+      <File Id="DLLFile208" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Compression.FileSystem.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Compression.Native.dll -->
+    <Component Id="DLLComponent209" Directory="INSTALLFOLDER" Guid="CE782148-646B-4F29-ABB8-7C9F7B02AA0E">
+      <File Id="DLLFile209" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Compression.Native.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Compression.ZipFile.dll -->
+    <Component Id="DLLComponent210" Directory="INSTALLFOLDER" Guid="CE56FDAF-EE07-4031-A7F6-44E7A6A1D66C">
+      <File Id="DLLFile210" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Compression.ZipFile.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.dll -->
+    <Component Id="DLLComponent211" Directory="INSTALLFOLDER" Guid="8338EBD0-6909-4A3B-B040-585BCB6E5CAA">
+      <File Id="DLLFile211" 
+            Source="..\..\bin\Release\Installer\App\System.IO.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.FileSystem.AccessControl.dll -->
+    <Component Id="DLLComponent212" Directory="INSTALLFOLDER" Guid="E97FA209-B938-4785-A1FF-BEF6BA703B39">
+      <File Id="DLLFile212" 
+            Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.AccessControl.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.FileSystem.dll -->
+    <Component Id="DLLComponent213" Directory="INSTALLFOLDER" Guid="1ED7CE43-40C5-4DF3-9108-201F161DF243">
+      <File Id="DLLFile213" 
+            Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.FileSystem.DriveInfo.dll -->
+    <Component Id="DLLComponent214" Directory="INSTALLFOLDER" Guid="63300C58-664E-422F-89AF-C3F82562B7FA">
+      <File Id="DLLFile214" 
+            Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.DriveInfo.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.FileSystem.Primitives.dll -->
+    <Component Id="DLLComponent215" Directory="INSTALLFOLDER" Guid="32B749CD-206B-4089-8016-AA03F1387761">
+      <File Id="DLLFile215" 
+            Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.FileSystem.Watcher.dll -->
+    <Component Id="DLLComponent216" Directory="INSTALLFOLDER" Guid="A302DA47-4595-4AD9-8411-A49F767D4DC7">
+      <File Id="DLLFile216" 
+            Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.Watcher.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.IsolatedStorage.dll -->
+    <Component Id="DLLComponent217" Directory="INSTALLFOLDER" Guid="211A2B4C-5FA3-49ED-9A57-7F3704F66E93">
+      <File Id="DLLFile217" 
+            Source="..\..\bin\Release\Installer\App\System.IO.IsolatedStorage.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.MemoryMappedFiles.dll -->
+    <Component Id="DLLComponent218" Directory="INSTALLFOLDER" Guid="21F61347-9906-4BCC-9D88-28108504F7BC">
+      <File Id="DLLFile218" 
+            Source="..\..\bin\Release\Installer\App\System.IO.MemoryMappedFiles.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Pipelines.dll -->
+    <Component Id="DLLComponent219" Directory="INSTALLFOLDER" Guid="78F3CCCA-1275-4B24-BB4B-CB8A726FFF69">
+      <File Id="DLLFile219" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Pipelines.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Pipes.AccessControl.dll -->
+    <Component Id="DLLComponent220" Directory="INSTALLFOLDER" Guid="8E3AA8CA-D943-4A44-8028-4DC6E4C91A72">
+      <File Id="DLLFile220" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Pipes.AccessControl.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.Pipes.dll -->
+    <Component Id="DLLComponent221" Directory="INSTALLFOLDER" Guid="B4E65188-60AC-4AB8-B563-4200E34D877E">
+      <File Id="DLLFile221" 
+            Source="..\..\bin\Release\Installer\App\System.IO.Pipes.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.IO.UnmanagedMemoryStream.dll -->
+    <Component Id="DLLComponent222" Directory="INSTALLFOLDER" Guid="2ECC18A3-5853-439B-9BCB-60207920470C">
+      <File Id="DLLFile222" 
+            Source="..\..\bin\Release\Installer\App\System.IO.UnmanagedMemoryStream.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Linq.dll -->
+    <Component Id="DLLComponent223" Directory="INSTALLFOLDER" Guid="008D6B90-E928-4200-95EA-4B394E6031DD">
+      <File Id="DLLFile223" 
+            Source="..\..\bin\Release\Installer\App\System.Linq.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Linq.Expressions.dll -->
+    <Component Id="DLLComponent224" Directory="INSTALLFOLDER" Guid="382A0D95-B393-4364-8EEE-9B2254F8C073">
+      <File Id="DLLFile224" 
+            Source="..\..\bin\Release\Installer\App\System.Linq.Expressions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Linq.Parallel.dll -->
+    <Component Id="DLLComponent225" Directory="INSTALLFOLDER" Guid="A1A281A4-B6AB-4984-A12E-40E78A354A8A">
+      <File Id="DLLFile225" 
+            Source="..\..\bin\Release\Installer\App\System.Linq.Parallel.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Linq.Queryable.dll -->
+    <Component Id="DLLComponent226" Directory="INSTALLFOLDER" Guid="A545D0CF-5A6F-4C0F-8F7C-E2FF731528BF">
+      <File Id="DLLFile226" 
+            Source="..\..\bin\Release\Installer\App\System.Linq.Queryable.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Memory.dll -->
+    <Component Id="DLLComponent227" Directory="INSTALLFOLDER" Guid="945CF727-0CCA-482C-A1F2-72470C157DDF">
+      <File Id="DLLFile227" 
+            Source="..\..\bin\Release\Installer\App\System.Memory.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.dll -->
+    <Component Id="DLLComponent228" Directory="INSTALLFOLDER" Guid="CB266956-B17E-4C51-98A2-3761B847E485">
+      <File Id="DLLFile228" 
+            Source="..\..\bin\Release\Installer\App\System.Net.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Http.dll -->
+    <Component Id="DLLComponent229" Directory="INSTALLFOLDER" Guid="B98C0C34-5018-436A-8EE3-B8D1BDC9A12C">
+      <File Id="DLLFile229" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Http.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Http.Json.dll -->
+    <Component Id="DLLComponent230" Directory="INSTALLFOLDER" Guid="8C46B108-0F80-48BE-9541-298DA6CD4067">
+      <File Id="DLLFile230" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Http.Json.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.HttpListener.dll -->
+    <Component Id="DLLComponent231" Directory="INSTALLFOLDER" Guid="58063C45-106D-4BBB-8071-92D1506BB1DC">
+      <File Id="DLLFile231" 
+            Source="..\..\bin\Release\Installer\App\System.Net.HttpListener.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Mail.dll -->
+    <Component Id="DLLComponent232" Directory="INSTALLFOLDER" Guid="36B884BE-1D17-4A10-AB2A-DBD4DE9AE420">
+      <File Id="DLLFile232" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Mail.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.NameResolution.dll -->
+    <Component Id="DLLComponent233" Directory="INSTALLFOLDER" Guid="D015750D-CCD3-440C-A274-1816C063F3B5">
+      <File Id="DLLFile233" 
+            Source="..\..\bin\Release\Installer\App\System.Net.NameResolution.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.NetworkInformation.dll -->
+    <Component Id="DLLComponent234" Directory="INSTALLFOLDER" Guid="270E2D40-83E0-4E59-AE3A-E52E78BC255A">
+      <File Id="DLLFile234" 
+            Source="..\..\bin\Release\Installer\App\System.Net.NetworkInformation.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Ping.dll -->
+    <Component Id="DLLComponent235" Directory="INSTALLFOLDER" Guid="1750BB0B-BCA4-4599-8F9D-72DA97485811">
+      <File Id="DLLFile235" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Ping.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Primitives.dll -->
+    <Component Id="DLLComponent236" Directory="INSTALLFOLDER" Guid="FB3D6E7E-E0DC-44B3-92D6-45B8A8550ECA">
+      <File Id="DLLFile236" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Quic.dll -->
+    <Component Id="DLLComponent237" Directory="INSTALLFOLDER" Guid="08C41BFE-2521-4ED9-ACF9-177CC17E5B2B">
+      <File Id="DLLFile237" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Quic.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Requests.dll -->
+    <Component Id="DLLComponent238" Directory="INSTALLFOLDER" Guid="AD46C34B-FB7A-4B37-B658-0632F1C5AC3A">
+      <File Id="DLLFile238" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Requests.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Security.dll -->
+    <Component Id="DLLComponent239" Directory="INSTALLFOLDER" Guid="741C4743-3731-45B3-84A0-FC629C0BFFEC">
+      <File Id="DLLFile239" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Security.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.ServicePoint.dll -->
+    <Component Id="DLLComponent240" Directory="INSTALLFOLDER" Guid="71CAA913-227B-4C03-8B96-D363EDF499C1">
+      <File Id="DLLFile240" 
+            Source="..\..\bin\Release\Installer\App\System.Net.ServicePoint.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.Sockets.dll -->
+    <Component Id="DLLComponent241" Directory="INSTALLFOLDER" Guid="AE8B1B09-3A77-4A8F-A297-2371FB87ED90">
+      <File Id="DLLFile241" 
+            Source="..\..\bin\Release\Installer\App\System.Net.Sockets.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.WebClient.dll -->
+    <Component Id="DLLComponent242" Directory="INSTALLFOLDER" Guid="3D39450E-1756-4E55-98DE-31382E2BEA6A">
+      <File Id="DLLFile242" 
+            Source="..\..\bin\Release\Installer\App\System.Net.WebClient.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.WebHeaderCollection.dll -->
+    <Component Id="DLLComponent243" Directory="INSTALLFOLDER" Guid="B8AC7DF7-65E8-462E-A4F3-EA4846097BC3">
+      <File Id="DLLFile243" 
+            Source="..\..\bin\Release\Installer\App\System.Net.WebHeaderCollection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.WebProxy.dll -->
+    <Component Id="DLLComponent244" Directory="INSTALLFOLDER" Guid="18A9134C-59D5-4160-AC3F-1970D745853A">
+      <File Id="DLLFile244" 
+            Source="..\..\bin\Release\Installer\App\System.Net.WebProxy.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.WebSockets.Client.dll -->
+    <Component Id="DLLComponent245" Directory="INSTALLFOLDER" Guid="7FBE0A93-4423-45E6-9355-86A315452CFB">
+      <File Id="DLLFile245" 
+            Source="..\..\bin\Release\Installer\App\System.Net.WebSockets.Client.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Net.WebSockets.dll -->
+    <Component Id="DLLComponent246" Directory="INSTALLFOLDER" Guid="290E16ED-DA9C-4ECA-A4BE-AF49981B006E">
+      <File Id="DLLFile246" 
+            Source="..\..\bin\Release\Installer\App\System.Net.WebSockets.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Numerics.dll -->
+    <Component Id="DLLComponent247" Directory="INSTALLFOLDER" Guid="A20153CC-AD32-49F2-BC3A-3F0C296EDB61">
+      <File Id="DLLFile247" 
+            Source="..\..\bin\Release\Installer\App\System.Numerics.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Numerics.Tensors.dll -->
+    <Component Id="DLLComponent248" Directory="INSTALLFOLDER" Guid="85E42F75-2B40-474B-BCC1-1415DFD72947">
+      <File Id="DLLFile248" 
+            Source="..\..\bin\Release\Installer\App\System.Numerics.Tensors.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Numerics.Vectors.dll -->
+    <Component Id="DLLComponent249" Directory="INSTALLFOLDER" Guid="BB84D1E5-EB62-4A21-BB1D-4461AB249F85">
+      <File Id="DLLFile249" 
+            Source="..\..\bin\Release\Installer\App\System.Numerics.Vectors.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ObjectModel.dll -->
+    <Component Id="DLLComponent250" Directory="INSTALLFOLDER" Guid="F8E3D887-C1E4-4302-B41A-7DD12821BDC8">
+      <File Id="DLLFile250" 
+            Source="..\..\bin\Release\Installer\App\System.ObjectModel.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Private.CoreLib.dll -->
+    <Component Id="DLLComponent251" Directory="INSTALLFOLDER" Guid="35DA63C6-0276-4B94-AD30-40DF8D812EE8">
+      <File Id="DLLFile251" 
+            Source="..\..\bin\Release\Installer\App\System.Private.CoreLib.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Private.DataContractSerialization.dll -->
+    <Component Id="DLLComponent252" Directory="INSTALLFOLDER" Guid="F9B451E5-5AF2-48B2-AF6C-51DFB381935F">
+      <File Id="DLLFile252" 
+            Source="..\..\bin\Release\Installer\App\System.Private.DataContractSerialization.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Private.Uri.dll -->
+    <Component Id="DLLComponent253" Directory="INSTALLFOLDER" Guid="233A5022-F74A-4186-A49D-050B8416B0C0">
+      <File Id="DLLFile253" 
+            Source="..\..\bin\Release\Installer\App\System.Private.Uri.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Private.Xml.dll -->
+    <Component Id="DLLComponent254" Directory="INSTALLFOLDER" Guid="9107BD81-A650-4ABB-A4B2-25EB73DCA8CB">
+      <File Id="DLLFile254" 
+            Source="..\..\bin\Release\Installer\App\System.Private.Xml.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Private.Xml.Linq.dll -->
+    <Component Id="DLLComponent255" Directory="INSTALLFOLDER" Guid="D74E64C4-DE6B-46A5-B65B-917BD0FE5996">
+      <File Id="DLLFile255" 
+            Source="..\..\bin\Release\Installer\App\System.Private.Xml.Linq.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.DispatchProxy.dll -->
+    <Component Id="DLLComponent256" Directory="INSTALLFOLDER" Guid="C093D095-C9B7-455B-9254-9A7635A7599D">
+      <File Id="DLLFile256" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.DispatchProxy.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.dll -->
+    <Component Id="DLLComponent257" Directory="INSTALLFOLDER" Guid="B6F04DA2-2C7E-40E9-8183-65AA682C8E36">
+      <File Id="DLLFile257" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.Emit.dll -->
+    <Component Id="DLLComponent258" Directory="INSTALLFOLDER" Guid="752AC0DA-4EDB-4DB5-A28D-C588105E19FD">
+      <File Id="DLLFile258" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.Emit.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.Emit.ILGeneration.dll -->
+    <Component Id="DLLComponent259" Directory="INSTALLFOLDER" Guid="53CE775C-44EE-49F5-82CE-86ED3F17430A">
+      <File Id="DLLFile259" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.Emit.ILGeneration.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.Emit.Lightweight.dll -->
+    <Component Id="DLLComponent260" Directory="INSTALLFOLDER" Guid="909A23DA-A9FC-497C-AED5-F2DD1ABD5937">
+      <File Id="DLLFile260" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.Emit.Lightweight.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.Extensions.dll -->
+    <Component Id="DLLComponent261" Directory="INSTALLFOLDER" Guid="5DE841FE-D4E8-4F40-8A96-864EF69680D9">
+      <File Id="DLLFile261" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.Extensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.Metadata.dll -->
+    <Component Id="DLLComponent262" Directory="INSTALLFOLDER" Guid="0AEE3D64-61E5-4712-A9C5-7E1F32CA55B5">
+      <File Id="DLLFile262" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.Metadata.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.Primitives.dll -->
+    <Component Id="DLLComponent263" Directory="INSTALLFOLDER" Guid="B8C38AF0-9E14-483F-9961-52E723CA9D53">
+      <File Id="DLLFile263" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Reflection.TypeExtensions.dll -->
+    <Component Id="DLLComponent264" Directory="INSTALLFOLDER" Guid="599A4142-ABBF-4F74-8685-E499177B9364">
+      <File Id="DLLFile264" 
+            Source="..\..\bin\Release\Installer\App\System.Reflection.TypeExtensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Resources.Reader.dll -->
+    <Component Id="DLLComponent265" Directory="INSTALLFOLDER" Guid="63A10CB0-2F48-49AF-AF53-08557AC7DDCE">
+      <File Id="DLLFile265" 
+            Source="..\..\bin\Release\Installer\App\System.Resources.Reader.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Resources.ResourceManager.dll -->
+    <Component Id="DLLComponent266" Directory="INSTALLFOLDER" Guid="D7F4A3A4-5CA9-4CF9-93AD-F35DDAC4C490">
+      <File Id="DLLFile266" 
+            Source="..\..\bin\Release\Installer\App\System.Resources.ResourceManager.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Resources.Writer.dll -->
+    <Component Id="DLLComponent267" Directory="INSTALLFOLDER" Guid="F2BA9115-5C0A-4014-BA75-34F600515E90">
+      <File Id="DLLFile267" 
+            Source="..\..\bin\Release\Installer\App\System.Resources.Writer.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.CompilerServices.Unsafe.dll -->
+    <Component Id="DLLComponent268" Directory="INSTALLFOLDER" Guid="397CBDD3-87B2-4191-8AB5-411272033AC6">
+      <File Id="DLLFile268" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.CompilerServices.Unsafe.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.CompilerServices.VisualC.dll -->
+    <Component Id="DLLComponent269" Directory="INSTALLFOLDER" Guid="87936930-5FA9-4F61-9A38-CC9105CC2B19">
+      <File Id="DLLFile269" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.CompilerServices.VisualC.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.dll -->
+    <Component Id="DLLComponent270" Directory="INSTALLFOLDER" Guid="5024680D-6461-406F-9ED0-0325F45A9F51">
+      <File Id="DLLFile270" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Extensions.dll -->
+    <Component Id="DLLComponent271" Directory="INSTALLFOLDER" Guid="F0EC160D-DBD1-4877-A172-7AAC7675C567">
+      <File Id="DLLFile271" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Extensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Handles.dll -->
+    <Component Id="DLLComponent272" Directory="INSTALLFOLDER" Guid="A4FB863C-A902-4960-BC5A-4A655CCC282A">
+      <File Id="DLLFile272" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Handles.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.InteropServices.dll -->
+    <Component Id="DLLComponent273" Directory="INSTALLFOLDER" Guid="ECAC302B-CCEC-4089-A1D4-659DEEE2652A">
+      <File Id="DLLFile273" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.InteropServices.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.InteropServices.JavaScript.dll -->
+    <Component Id="DLLComponent274" Directory="INSTALLFOLDER" Guid="CECB3035-C844-4362-8554-FA805BE2F69A">
+      <File Id="DLLFile274" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.InteropServices.JavaScript.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.InteropServices.RuntimeInformation.dll -->
+    <Component Id="DLLComponent275" Directory="INSTALLFOLDER" Guid="791E4D6D-AE19-4AFE-ACB1-843E1CC87856">
+      <File Id="DLLFile275" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.InteropServices.RuntimeInformation.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Intrinsics.dll -->
+    <Component Id="DLLComponent276" Directory="INSTALLFOLDER" Guid="1FE983AE-7DCF-4AAF-A7BD-6480207C8493">
+      <File Id="DLLFile276" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Intrinsics.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Loader.dll -->
+    <Component Id="DLLComponent277" Directory="INSTALLFOLDER" Guid="1209FCD1-FF2A-4FAA-8330-F0EB5949D18E">
+      <File Id="DLLFile277" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Loader.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Numerics.dll -->
+    <Component Id="DLLComponent278" Directory="INSTALLFOLDER" Guid="67B271EF-CBA6-4FAF-A783-62BB85B3F289">
+      <File Id="DLLFile278" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Numerics.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Serialization.dll -->
+    <Component Id="DLLComponent279" Directory="INSTALLFOLDER" Guid="0559B6EE-6792-4B1E-96BF-81D978239788">
+      <File Id="DLLFile279" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Serialization.Formatters.dll -->
+    <Component Id="DLLComponent280" Directory="INSTALLFOLDER" Guid="C3E2D635-6647-493A-B94B-C80D6DE23A70">
+      <File Id="DLLFile280" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Formatters.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Serialization.Json.dll -->
+    <Component Id="DLLComponent281" Directory="INSTALLFOLDER" Guid="F6CB4663-FA7A-489F-9A35-8C0F70D39BF9">
+      <File Id="DLLFile281" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Json.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Serialization.Primitives.dll -->
+    <Component Id="DLLComponent282" Directory="INSTALLFOLDER" Guid="EC9EB830-E893-490C-B37A-4907AC9F8945">
+      <File Id="DLLFile282" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Runtime.Serialization.Xml.dll -->
+    <Component Id="DLLComponent283" Directory="INSTALLFOLDER" Guid="45B2881A-1B2A-4468-959C-D23A55F4E69B">
+      <File Id="DLLFile283" 
+            Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Xml.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.AccessControl.dll -->
+    <Component Id="DLLComponent284" Directory="INSTALLFOLDER" Guid="6BEA8B14-EAAA-4222-B52B-075BFCCAA33E">
+      <File Id="DLLFile284" 
+            Source="..\..\bin\Release\Installer\App\System.Security.AccessControl.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Claims.dll -->
+    <Component Id="DLLComponent285" Directory="INSTALLFOLDER" Guid="2977EF95-5EDA-45FA-A746-AB923413B493">
+      <File Id="DLLFile285" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Claims.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.Algorithms.dll -->
+    <Component Id="DLLComponent286" Directory="INSTALLFOLDER" Guid="16E9D70D-9A1C-4421-B754-5ECBE23410D7">
+      <File Id="DLLFile286" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Algorithms.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.Cng.dll -->
+    <Component Id="DLLComponent287" Directory="INSTALLFOLDER" Guid="64FB1337-F88C-462D-B773-B2146788DFD8">
+      <File Id="DLLFile287" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Cng.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.Csp.dll -->
+    <Component Id="DLLComponent288" Directory="INSTALLFOLDER" Guid="AA31DD8A-01BD-4878-A6B6-8BAD43596A11">
+      <File Id="DLLFile288" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Csp.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.dll -->
+    <Component Id="DLLComponent289" Directory="INSTALLFOLDER" Guid="855EC006-EE9A-4A3E-B761-4B73AD14BBBA">
+      <File Id="DLLFile289" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.Encoding.dll -->
+    <Component Id="DLLComponent290" Directory="INSTALLFOLDER" Guid="979E13DC-7BB5-458C-83B4-74AB6DF81BC6">
+      <File Id="DLLFile290" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Encoding.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.OpenSsl.dll -->
+    <Component Id="DLLComponent291" Directory="INSTALLFOLDER" Guid="BE74993C-3CAC-4FFA-895A-73865079A006">
+      <File Id="DLLFile291" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.OpenSsl.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.Primitives.dll -->
+    <Component Id="DLLComponent292" Directory="INSTALLFOLDER" Guid="78016B74-1A89-4940-B247-ACFE12E3C7CD">
+      <File Id="DLLFile292" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Primitives.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Cryptography.X509Certificates.dll -->
+    <Component Id="DLLComponent293" Directory="INSTALLFOLDER" Guid="23337809-C14A-450E-BB47-10F3B9B0F47F">
+      <File Id="DLLFile293" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.X509Certificates.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.dll -->
+    <Component Id="DLLComponent294" Directory="INSTALLFOLDER" Guid="72CD99A2-425D-4536-80B0-1A82447AD79D">
+      <File Id="DLLFile294" 
+            Source="..\..\bin\Release\Installer\App\System.Security.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Principal.dll -->
+    <Component Id="DLLComponent295" Directory="INSTALLFOLDER" Guid="696BDB99-A79A-419B-97B7-6E7FC9E6D5CA">
+      <File Id="DLLFile295" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Principal.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.Principal.Windows.dll -->
+    <Component Id="DLLComponent296" Directory="INSTALLFOLDER" Guid="85742370-3AF4-4DBF-9F64-C609784D0B1F">
+      <File Id="DLLFile296" 
+            Source="..\..\bin\Release\Installer\App\System.Security.Principal.Windows.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Security.SecureString.dll -->
+    <Component Id="DLLComponent297" Directory="INSTALLFOLDER" Guid="5534CFCA-A03C-4727-B9FD-E295F36326B5">
+      <File Id="DLLFile297" 
+            Source="..\..\bin\Release\Installer\App\System.Security.SecureString.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ServiceModel.Web.dll -->
+    <Component Id="DLLComponent298" Directory="INSTALLFOLDER" Guid="BF89F2A4-1AB3-4EFA-920F-A1A251AC50D1">
+      <File Id="DLLFile298" 
+            Source="..\..\bin\Release\Installer\App\System.ServiceModel.Web.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ServiceProcess.dll -->
+    <Component Id="DLLComponent299" Directory="INSTALLFOLDER" Guid="7BAA58F6-86BF-4F69-9622-DD2836B01BB9">
+      <File Id="DLLFile299" 
+            Source="..\..\bin\Release\Installer\App\System.ServiceProcess.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Text.Encoding.CodePages.dll -->
+    <Component Id="DLLComponent300" Directory="INSTALLFOLDER" Guid="A85903FB-1410-4B30-831B-BDEB15339CD3">
+      <File Id="DLLFile300" 
+            Source="..\..\bin\Release\Installer\App\System.Text.Encoding.CodePages.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Text.Encoding.dll -->
+    <Component Id="DLLComponent301" Directory="INSTALLFOLDER" Guid="8AECFCE4-9722-434B-8D8D-34F9EBA7E2C9">
+      <File Id="DLLFile301" 
+            Source="..\..\bin\Release\Installer\App\System.Text.Encoding.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Text.Encoding.Extensions.dll -->
+    <Component Id="DLLComponent302" Directory="INSTALLFOLDER" Guid="CF8C4B92-505A-4E00-93F5-50EA86430A19">
+      <File Id="DLLFile302" 
+            Source="..\..\bin\Release\Installer\App\System.Text.Encoding.Extensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Text.Encodings.Web.dll -->
+    <Component Id="DLLComponent303" Directory="INSTALLFOLDER" Guid="7C8BB924-17E8-41C5-B17F-7BCEFDC88D7F">
+      <File Id="DLLFile303" 
+            Source="..\..\bin\Release\Installer\App\System.Text.Encodings.Web.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Text.Json.dll -->
+    <Component Id="DLLComponent304" Directory="INSTALLFOLDER" Guid="754FB53E-8B17-44BE-8164-832DF55362B5">
+      <File Id="DLLFile304" 
+            Source="..\..\bin\Release\Installer\App\System.Text.Json.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Text.RegularExpressions.dll -->
+    <Component Id="DLLComponent305" Directory="INSTALLFOLDER" Guid="C0F73BB8-2BCB-494A-820E-3F778021D6E1">
+      <File Id="DLLFile305" 
+            Source="..\..\bin\Release\Installer\App\System.Text.RegularExpressions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Channels.dll -->
+    <Component Id="DLLComponent306" Directory="INSTALLFOLDER" Guid="C0037FB5-09B0-42BD-93BC-FED1139F7593">
+      <File Id="DLLFile306" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Channels.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.dll -->
+    <Component Id="DLLComponent307" Directory="INSTALLFOLDER" Guid="CF0C505B-94EE-4E70-8B3A-92CF799A24B2">
+      <File Id="DLLFile307" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Overlapped.dll -->
+    <Component Id="DLLComponent308" Directory="INSTALLFOLDER" Guid="B9D809B5-FD9F-4098-B6D5-E51731224175">
+      <File Id="DLLFile308" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Overlapped.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Tasks.Dataflow.dll -->
+    <Component Id="DLLComponent309" Directory="INSTALLFOLDER" Guid="E021E2AB-457B-43FA-9276-EB8C7498BE10">
+      <File Id="DLLFile309" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.Dataflow.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Tasks.dll -->
+    <Component Id="DLLComponent310" Directory="INSTALLFOLDER" Guid="5292F61C-ADA2-49B4-BBE3-57F00F5C114A">
+      <File Id="DLLFile310" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Tasks.Extensions.dll -->
+    <Component Id="DLLComponent311" Directory="INSTALLFOLDER" Guid="FE738768-D7B8-45EC-B630-3F60AFEBBABE">
+      <File Id="DLLFile311" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.Extensions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Tasks.Parallel.dll -->
+    <Component Id="DLLComponent312" Directory="INSTALLFOLDER" Guid="2C31BC3F-4263-420B-B0D6-245C19698B47">
+      <File Id="DLLFile312" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.Parallel.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Thread.dll -->
+    <Component Id="DLLComponent313" Directory="INSTALLFOLDER" Guid="C5DBB600-3A6D-40C6-A4FB-6C5D7DCABC13">
+      <File Id="DLLFile313" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Thread.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.ThreadPool.dll -->
+    <Component Id="DLLComponent314" Directory="INSTALLFOLDER" Guid="4EC33097-0DEF-4DD7-AEC3-BD28A0DFE49C">
+      <File Id="DLLFile314" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.ThreadPool.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Threading.Timer.dll -->
+    <Component Id="DLLComponent315" Directory="INSTALLFOLDER" Guid="2C6150CF-DA61-42E2-B85F-9537A94EB7CD">
+      <File Id="DLLFile315" 
+            Source="..\..\bin\Release\Installer\App\System.Threading.Timer.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Transactions.dll -->
+    <Component Id="DLLComponent316" Directory="INSTALLFOLDER" Guid="3FF92DB8-7A2C-469E-B042-E738FC807659">
+      <File Id="DLLFile316" 
+            Source="..\..\bin\Release\Installer\App\System.Transactions.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Transactions.Local.dll -->
+    <Component Id="DLLComponent317" Directory="INSTALLFOLDER" Guid="90ABE471-94CC-4793-B069-EA87F74DB0C8">
+      <File Id="DLLFile317" 
+            Source="..\..\bin\Release\Installer\App\System.Transactions.Local.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.ValueTuple.dll -->
+    <Component Id="DLLComponent318" Directory="INSTALLFOLDER" Guid="0ABF4825-9642-4615-BB85-D9E72F68CCC8">
+      <File Id="DLLFile318" 
+            Source="..\..\bin\Release\Installer\App\System.ValueTuple.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Web.dll -->
+    <Component Id="DLLComponent319" Directory="INSTALLFOLDER" Guid="E1CD98C1-5369-4FD3-A0BB-928804D1A54A">
+      <File Id="DLLFile319" 
+            Source="..\..\bin\Release\Installer\App\System.Web.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Web.HttpUtility.dll -->
+    <Component Id="DLLComponent320" Directory="INSTALLFOLDER" Guid="4F5FB8E9-B1AF-410B-B2B7-8069578246DE">
+      <File Id="DLLFile320" 
+            Source="..\..\bin\Release\Installer\App\System.Web.HttpUtility.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Windows.dll -->
+    <Component Id="DLLComponent321" Directory="INSTALLFOLDER" Guid="8FCBD387-07AD-45EA-AF79-37F1B1B83F92">
+      <File Id="DLLFile321" 
+            Source="..\..\bin\Release\Installer\App\System.Windows.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.dll -->
+    <Component Id="DLLComponent322" Directory="INSTALLFOLDER" Guid="48E94252-2567-419A-B481-C829443A1E3F">
+      <File Id="DLLFile322" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.Linq.dll -->
+    <Component Id="DLLComponent323" Directory="INSTALLFOLDER" Guid="C582F201-0820-46FF-8FB5-7400D74E09C9">
+      <File Id="DLLFile323" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.Linq.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.ReaderWriter.dll -->
+    <Component Id="DLLComponent324" Directory="INSTALLFOLDER" Guid="C12900BE-3505-4E29-9F1F-371ECF4FC327">
+      <File Id="DLLFile324" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.ReaderWriter.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.Serialization.dll -->
+    <Component Id="DLLComponent325" Directory="INSTALLFOLDER" Guid="4707DAC1-05AA-4F0A-9AB8-88B490B9FF7F">
+      <File Id="DLLFile325" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.Serialization.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.XDocument.dll -->
+    <Component Id="DLLComponent326" Directory="INSTALLFOLDER" Guid="8A26782B-32BE-431D-B0EE-8EC941B32560">
+      <File Id="DLLFile326" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.XDocument.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.XmlDocument.dll -->
+    <Component Id="DLLComponent327" Directory="INSTALLFOLDER" Guid="9D3DFA76-EAFC-4CB1-ACB8-BDD6085EBD6B">
+      <File Id="DLLFile327" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.XmlDocument.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.XmlSerializer.dll -->
+    <Component Id="DLLComponent328" Directory="INSTALLFOLDER" Guid="4AA4FBC1-CFE2-42C9-B55B-0FE1AD0DB0DE">
+      <File Id="DLLFile328" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.XmlSerializer.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.XPath.dll -->
+    <Component Id="DLLComponent329" Directory="INSTALLFOLDER" Guid="0A97B5D6-1AE8-4AA3-9058-E0AA62691867">
+      <File Id="DLLFile329" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.XPath.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: System.Xml.XPath.XDocument.dll -->
+    <Component Id="DLLComponent330" Directory="INSTALLFOLDER" Guid="C55218D2-D2FA-4F43-9588-A5DEC1886F11">
+      <File Id="DLLFile330" 
+            Source="..\..\bin\Release\Installer\App\System.Xml.XPath.XDocument.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WebView2Loader.dll -->
+    <Component Id="DLLComponent331" Directory="INSTALLFOLDER" Guid="C3A3B757-23E1-427A-BA43-6907F304653B">
+      <File Id="DLLFile331" 
+            Source="..\..\bin\Release\Installer\App\WebView2Loader.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WindowsAppRuntime.DeploymentExtensions.OneCore.dll -->
+    <Component Id="DLLComponent332" Directory="INSTALLFOLDER" Guid="98260EC5-8E17-4CFD-8172-DF6588719C5D">
+      <File Id="DLLFile332" 
+            Source="..\..\bin\Release\Installer\App\WindowsAppRuntime.DeploymentExtensions.OneCore.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WindowsAppRuntime.png -->
+    <Component Id="MISCComponent333" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile333" 
+            Source="..\..\bin\Release\Installer\App\WindowsAppRuntime.png" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll -->
+    <Component Id="DLLComponent334" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile334" 
+            Source="..\..\bin\Release\Installer\App\WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll -->
+    <Component Id="DLLComponent335" Directory="INSTALLFOLDER" Guid="788DBE83-A183-4AE8-AB32-FE1E38C325E0">
+      <File Id="DLLFile335" 
+            Source="..\..\bin\Release\Installer\App\WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WindowsBase.dll -->
+    <Component Id="DLLComponent336" Directory="INSTALLFOLDER" Guid="DB7339FA-F9D5-4722-A7E1-F37717F09C96">
+      <File Id="DLLFile336" 
+            Source="..\..\bin\Release\Installer\App\WindowsBase.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WinRT.Runtime.dll -->
+    <Component Id="DLLComponent337" Directory="INSTALLFOLDER" Guid="688EE8D6-0397-40B5-9E4D-FD8CA1CFD52F">
+      <File Id="DLLFile337" 
+            Source="..\..\bin\Release\Installer\App\WinRT.Runtime.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: WinUIEdit.dll -->
+    <Component Id="DLLComponent338" Directory="INSTALLFOLDER" Guid="A116BBB0-2254-4E31-9EFE-FB75DBAC3787">
+      <File Id="DLLFile338" 
+            Source="..\..\bin\Release\Installer\App\WinUIEdit.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: workloads.365.json -->
+    <Component Id="CONFIGComponent339" Directory="INSTALLFOLDER" Guid="">
+      <File Id="CONFIGFile339" 
+            Source="..\..\bin\Release\Installer\App\workloads.365.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: workloads.json -->
+    <Component Id="CONFIGComponent340" Directory="INSTALLFOLDER" Guid="5F7747EC-AA21-4334-B7A6-9B326C59090D">
+      <File Id="CONFIGFile340" 
+            Source="..\..\bin\Release\Installer\App\workloads.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: workloads.lnl.json -->
+    <Component Id="CONFIGComponent341" Directory="INSTALLFOLDER" Guid="74A9570E-8A96-4117-9242-E8658AF4FE49">
+      <File Id="CONFIGFile341" 
+            Source="..\..\bin\Release\Installer\App\workloads.lnl.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: workloads.qnn.json -->
+    <Component Id="CONFIGComponent342" Directory="INSTALLFOLDER" Guid="0B8FDF50-A0E6-41E9-B320-AB3E2523DF0B">
+      <File Id="CONFIGFile342" 
+            Source="..\..\bin\Release\Installer\App\workloads.qnn.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: workloads.stx.json -->
+    <Component Id="CONFIGComponent343" Directory="INSTALLFOLDER" Guid="EDDD2713-6158-4AD4-8157-D1ABE11407DF">
+      <File Id="CONFIGFile343" 
+            Source="..\..\bin\Release\Installer\App\workloads.stx.json" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: wuceffectsi.dll -->
+    <Component Id="DLLComponent344" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile344" 
+            Source="..\..\bin\Release\Installer\App\wuceffectsi.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent345" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile345" 
+            Source="..\..\bin\Release\Installer\App\af-ZA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent346" Directory="INSTALLFOLDER" Guid="37412AB5-BD46-40B1-960F-2BA29003F9E5">
+      <File Id="MISCFile346" 
+            Source="..\..\bin\Release\Installer\App\af-ZA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent347" Directory="INSTALLFOLDER" Guid="292B1780-5AAF-4629-B43F-0B9E837C800B">
+      <File Id="MISCFile347" 
+            Source="..\..\bin\Release\Installer\App\am-ET\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent348" Directory="INSTALLFOLDER" Guid="FA367801-4DC5-4D72-953C-1CC9ED3C549D">
+      <File Id="MISCFile348" 
+            Source="..\..\bin\Release\Installer\App\am-ET\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent349" Directory="INSTALLFOLDER" Guid="2F362CE1-F9F2-409F-A482-53FE083D7FAD">
+      <File Id="MISCFile349" 
+            Source="..\..\bin\Release\Installer\App\ar-SA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent350" Directory="INSTALLFOLDER" Guid="E20F38EF-9E27-4951-929A-66B5C62D4315">
+      <File Id="MISCFile350" 
+            Source="..\..\bin\Release\Installer\App\ar-SA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent351" Directory="INSTALLFOLDER" Guid="AF81AACF-5217-460E-AF30-9527B4917965">
+      <File Id="MISCFile351" 
+            Source="..\..\bin\Release\Installer\App\as-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent352" Directory="INSTALLFOLDER" Guid="BD906A34-4165-4646-9725-05431A1FFEA0">
+      <File Id="MISCFile352" 
+            Source="..\..\bin\Release\Installer\App\as-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent353" Directory="INSTALLFOLDER" Guid="D6CD769B-BA03-41AB-8B2D-02FB548A273E">
+      <File Id="MISCFile353" 
+            Source="..\..\bin\Release\Installer\App\az-Latn-AZ\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent354" Directory="INSTALLFOLDER" Guid="1E237F3F-B347-47DF-AC18-0D211889FD9A">
+      <File Id="MISCFile354" 
+            Source="..\..\bin\Release\Installer\App\az-Latn-AZ\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent355" Directory="INSTALLFOLDER" Guid="C579EDA9-1FA7-4C7C-BC90-4F9C05A363D7">
+      <File Id="MISCFile355" 
+            Source="..\..\bin\Release\Installer\App\bg-BG\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent356" Directory="INSTALLFOLDER" Guid="1F6819B3-957B-4744-8288-03F7ABA723AA">
+      <File Id="MISCFile356" 
+            Source="..\..\bin\Release\Installer\App\bg-BG\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent357" Directory="INSTALLFOLDER" Guid="4E633520-F551-4BDF-A1C2-FCD51680E0F7">
+      <File Id="MISCFile357" 
+            Source="..\..\bin\Release\Installer\App\bn-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent358" Directory="INSTALLFOLDER" Guid="44E7D393-650E-451F-9DB2-7C8973AF2C4B">
+      <File Id="MISCFile358" 
+            Source="..\..\bin\Release\Installer\App\bn-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent359" Directory="INSTALLFOLDER" Guid="E4D96D22-1DD5-4EA7-BCA9-3CF3682EA336">
+      <File Id="MISCFile359" 
+            Source="..\..\bin\Release\Installer\App\bs-Latn-BA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent360" Directory="INSTALLFOLDER" Guid="D7B281A4-8A6B-4E24-9F21-006F822CDFAA">
+      <File Id="MISCFile360" 
+            Source="..\..\bin\Release\Installer\App\bs-Latn-BA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent361" Directory="INSTALLFOLDER" Guid="3E551FCE-EC4F-4561-AC03-2725A5DC7912">
+      <File Id="MISCFile361" 
+            Source="..\..\bin\Release\Installer\App\ca-ES\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent362" Directory="INSTALLFOLDER" Guid="02FD65DE-B229-4FCB-93AE-AAA1ECF754CE">
+      <File Id="MISCFile362" 
+            Source="..\..\bin\Release\Installer\App\ca-ES\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent363" Directory="INSTALLFOLDER" Guid="B58015B3-E114-4704-BFA1-9A7F6302556E">
+      <File Id="MISCFile363" 
+            Source="..\..\bin\Release\Installer\App\ca-Es-VALENCIA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent364" Directory="INSTALLFOLDER" Guid="3C64A7E3-87E1-4BDB-8B3E-772605AE60E2">
+      <File Id="MISCFile364" 
+            Source="..\..\bin\Release\Installer\App\ca-Es-VALENCIA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent365" Directory="INSTALLFOLDER" Guid="19B5A100-E6A8-421A-A4AB-AA5EB545140D">
+      <File Id="MISCFile365" 
+            Source="..\..\bin\Release\Installer\App\cs-CZ\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent366" Directory="INSTALLFOLDER" Guid="E78901DA-0624-484C-A38E-7703D050FB12">
+      <File Id="MISCFile366" 
+            Source="..\..\bin\Release\Installer\App\cs-CZ\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent367" Directory="INSTALLFOLDER" Guid="DB1EA06D-D875-4CE0-9A4E-8536BAB185A4">
+      <File Id="MISCFile367" 
+            Source="..\..\bin\Release\Installer\App\cy-GB\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent368" Directory="INSTALLFOLDER" Guid="32B7553D-56DE-42A3-B73C-D34A9133DE7E">
+      <File Id="MISCFile368" 
+            Source="..\..\bin\Release\Installer\App\cy-GB\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent369" Directory="INSTALLFOLDER" Guid="535C4B3D-80AC-4F05-972F-6ACD5F257230">
+      <File Id="MISCFile369" 
+            Source="..\..\bin\Release\Installer\App\da-DK\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent370" Directory="INSTALLFOLDER" Guid="D5BFE486-D04B-492F-8BAB-B6B2204177F0">
+      <File Id="MISCFile370" 
+            Source="..\..\bin\Release\Installer\App\da-DK\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent371" Directory="INSTALLFOLDER" Guid="CC3B45CB-325A-409A-B8C3-B2B03447FB74">
+      <File Id="MISCFile371" 
+            Source="..\..\bin\Release\Installer\App\de-DE\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent372" Directory="INSTALLFOLDER" Guid="B925F137-5DF9-4412-8A31-B7FDAED0BC2F">
+      <File Id="MISCFile372" 
+            Source="..\..\bin\Release\Installer\App\de-DE\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent373" Directory="INSTALLFOLDER" Guid="3F31B902-0FA3-4241-B5B3-BA8C5B02C5B5">
+      <File Id="MISCFile373" 
+            Source="..\..\bin\Release\Installer\App\el-GR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent374" Directory="INSTALLFOLDER" Guid="89B2BEDA-0356-4D47-9059-48437AEF8AF6">
+      <File Id="MISCFile374" 
+            Source="..\..\bin\Release\Installer\App\el-GR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent375" Directory="INSTALLFOLDER" Guid="B5D4E526-406E-4541-9C5B-96ECF84757F0">
+      <File Id="MISCFile375" 
+            Source="..\..\bin\Release\Installer\App\en-GB\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent376" Directory="INSTALLFOLDER" Guid="BE9B14B4-F5AF-438B-A089-583A71B7AE99">
+      <File Id="MISCFile376" 
+            Source="..\..\bin\Release\Installer\App\en-GB\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent377" Directory="INSTALLFOLDER" Guid="1A1A075B-9FF0-48FF-8AEE-1E6867D0360F">
+      <File Id="MISCFile377" 
+            Source="..\..\bin\Release\Installer\App\en-us\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent378" Directory="INSTALLFOLDER" Guid="230FC1D6-25FC-4555-B0FD-E092BAD3BFB9">
+      <File Id="MISCFile378" 
+            Source="..\..\bin\Release\Installer\App\en-us\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent379" Directory="INSTALLFOLDER" Guid="807D5C65-6679-4B9D-BDF2-4543441E84FB">
+      <File Id="MISCFile379" 
+            Source="..\..\bin\Release\Installer\App\es-ES\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent380" Directory="INSTALLFOLDER" Guid="F1787E04-DB75-40E3-8E38-3854C52B9E30">
+      <File Id="MISCFile380" 
+            Source="..\..\bin\Release\Installer\App\es-ES\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent381" Directory="INSTALLFOLDER" Guid="B26BD7A9-6A0E-4A21-A349-9B562890CE0F">
+      <File Id="MISCFile381" 
+            Source="..\..\bin\Release\Installer\App\es-MX\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent382" Directory="INSTALLFOLDER" Guid="2391915C-39A9-409B-9D89-5E37C7D270A1">
+      <File Id="MISCFile382" 
+            Source="..\..\bin\Release\Installer\App\es-MX\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent383" Directory="INSTALLFOLDER" Guid="0D7CCEF2-F733-40D2-A7F0-5DE6A975637B">
+      <File Id="MISCFile383" 
+            Source="..\..\bin\Release\Installer\App\et-EE\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent384" Directory="INSTALLFOLDER" Guid="59E94F55-ED6E-4D16-BA5B-6D35F9012FBA">
+      <File Id="MISCFile384" 
+            Source="..\..\bin\Release\Installer\App\et-EE\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent385" Directory="INSTALLFOLDER" Guid="5D42B489-6DB8-474E-A5E4-B84CE7D60BB2">
+      <File Id="MISCFile385" 
+            Source="..\..\bin\Release\Installer\App\eu-ES\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent386" Directory="INSTALLFOLDER" Guid="8444F186-D74D-4D72-B645-7BD782F09C3E">
+      <File Id="MISCFile386" 
+            Source="..\..\bin\Release\Installer\App\eu-ES\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent387" Directory="INSTALLFOLDER" Guid="B23F19AA-7AB2-4D52-9D5A-EFAD183E8760">
+      <File Id="MISCFile387" 
+            Source="..\..\bin\Release\Installer\App\fa-IR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent388" Directory="INSTALLFOLDER" Guid="0D3FB982-A4E6-4273-8DF9-F50F70616FDF">
+      <File Id="MISCFile388" 
+            Source="..\..\bin\Release\Installer\App\fa-IR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent389" Directory="INSTALLFOLDER" Guid="4DF1FC32-D962-4284-BEEA-F9C58CBC3C5F">
+      <File Id="MISCFile389" 
+            Source="..\..\bin\Release\Installer\App\fi-FI\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent390" Directory="INSTALLFOLDER" Guid="52DEE44D-C723-4970-A6F5-882BE4B90CA9">
+      <File Id="MISCFile390" 
+            Source="..\..\bin\Release\Installer\App\fi-FI\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent391" Directory="INSTALLFOLDER" Guid="431C4CA5-2312-4510-9F00-DF2A7EBDA291">
+      <File Id="MISCFile391" 
+            Source="..\..\bin\Release\Installer\App\fil-PH\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent392" Directory="INSTALLFOLDER" Guid="3F4EAF39-8235-400D-8CFE-1D59D1685FCC">
+      <File Id="MISCFile392" 
+            Source="..\..\bin\Release\Installer\App\fil-PH\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent393" Directory="INSTALLFOLDER" Guid="6FB66722-CE09-4FEA-9577-F0B98EB9ED03">
+      <File Id="MISCFile393" 
+            Source="..\..\bin\Release\Installer\App\fr-CA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent394" Directory="INSTALLFOLDER" Guid="798C3F79-290C-48E7-BD5A-51EB1888DFD5">
+      <File Id="MISCFile394" 
+            Source="..\..\bin\Release\Installer\App\fr-CA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent395" Directory="INSTALLFOLDER" Guid="248BC63C-4DB5-42E0-A35D-CBBFB7B04C91">
+      <File Id="MISCFile395" 
+            Source="..\..\bin\Release\Installer\App\fr-FR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent396" Directory="INSTALLFOLDER" Guid="4A1A1E1D-C82A-4FDC-BE6B-0CDA0E853EEE">
+      <File Id="MISCFile396" 
+            Source="..\..\bin\Release\Installer\App\fr-FR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent397" Directory="INSTALLFOLDER" Guid="AC61ADE9-7E83-4424-846F-9857D41E146E">
+      <File Id="MISCFile397" 
+            Source="..\..\bin\Release\Installer\App\ga-IE\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent398" Directory="INSTALLFOLDER" Guid="B3C44CA6-8C8F-4D10-AEBA-FA9B1DA0399A">
+      <File Id="MISCFile398" 
+            Source="..\..\bin\Release\Installer\App\ga-IE\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent399" Directory="INSTALLFOLDER" Guid="DF761870-589C-4CCA-8244-166ED5EA6B0E">
+      <File Id="MISCFile399" 
+            Source="..\..\bin\Release\Installer\App\gd-gb\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent400" Directory="INSTALLFOLDER" Guid="357189C3-C005-43D0-9D34-29AE9F9B56E1">
+      <File Id="MISCFile400" 
+            Source="..\..\bin\Release\Installer\App\gd-gb\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent401" Directory="INSTALLFOLDER" Guid="E42489EE-BC80-4A89-8541-6E0FFB2B30B1">
+      <File Id="MISCFile401" 
+            Source="..\..\bin\Release\Installer\App\gl-ES\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent402" Directory="INSTALLFOLDER" Guid="6BB72912-2DAF-4B60-A9B1-5CB1DFE7D46B">
+      <File Id="MISCFile402" 
+            Source="..\..\bin\Release\Installer\App\gl-ES\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent403" Directory="INSTALLFOLDER" Guid="DB76A08F-4ED6-4D97-8FED-6B78BBEDDF61">
+      <File Id="MISCFile403" 
+            Source="..\..\bin\Release\Installer\App\gu-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent404" Directory="INSTALLFOLDER" Guid="2019E782-F6FB-4C81-A7A0-BC7A15EFA7FC">
+      <File Id="MISCFile404" 
+            Source="..\..\bin\Release\Installer\App\gu-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent405" Directory="INSTALLFOLDER" Guid="EC97F583-04C7-40E5-9A0D-B32593F4B437">
+      <File Id="MISCFile405" 
+            Source="..\..\bin\Release\Installer\App\he-IL\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent406" Directory="INSTALLFOLDER" Guid="D58874AD-4F19-480C-A22B-14C092FF8957">
+      <File Id="MISCFile406" 
+            Source="..\..\bin\Release\Installer\App\he-IL\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent407" Directory="INSTALLFOLDER" Guid="F91EDE68-F906-45FF-BA94-B842E5D064D1">
+      <File Id="MISCFile407" 
+            Source="..\..\bin\Release\Installer\App\hi-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent408" Directory="INSTALLFOLDER" Guid="AF7014AF-6B16-4CC6-A341-156F558778F9">
+      <File Id="MISCFile408" 
+            Source="..\..\bin\Release\Installer\App\hi-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent409" Directory="INSTALLFOLDER" Guid="46980996-B2B8-4608-9F28-EA05081C97BF">
+      <File Id="MISCFile409" 
+            Source="..\..\bin\Release\Installer\App\hr-HR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent410" Directory="INSTALLFOLDER" Guid="29BD8CE4-47CE-46A4-9A56-FB95D42E4263">
+      <File Id="MISCFile410" 
+            Source="..\..\bin\Release\Installer\App\hr-HR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent411" Directory="INSTALLFOLDER" Guid="AFD71B07-873E-413A-98BC-528317C3216B">
+      <File Id="MISCFile411" 
+            Source="..\..\bin\Release\Installer\App\hu-HU\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent412" Directory="INSTALLFOLDER" Guid="F071D878-331F-4EE1-A01B-FE50886FEB44">
+      <File Id="MISCFile412" 
+            Source="..\..\bin\Release\Installer\App\hu-HU\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent413" Directory="INSTALLFOLDER" Guid="FAB262A8-DD30-4F48-B52B-01BF3EB8131F">
+      <File Id="MISCFile413" 
+            Source="..\..\bin\Release\Installer\App\hy-AM\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent414" Directory="INSTALLFOLDER" Guid="FB5F13A9-270B-45CB-9317-A560BF1D4E22">
+      <File Id="MISCFile414" 
+            Source="..\..\bin\Release\Installer\App\hy-AM\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent415" Directory="INSTALLFOLDER" Guid="24F1B0E0-6138-4AE7-B928-0A058E929FA7">
+      <File Id="MISCFile415" 
+            Source="..\..\bin\Release\Installer\App\id-ID\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent416" Directory="INSTALLFOLDER" Guid="09980189-CB9E-46FA-9600-F9A2219EE630">
+      <File Id="MISCFile416" 
+            Source="..\..\bin\Release\Installer\App\id-ID\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent417" Directory="INSTALLFOLDER" Guid="2098B81E-81E5-4C63-961A-9B23BEF86B28">
+      <File Id="MISCFile417" 
+            Source="..\..\bin\Release\Installer\App\is-IS\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent418" Directory="INSTALLFOLDER" Guid="3B574A22-DAC9-4733-9B83-11168603DA89">
+      <File Id="MISCFile418" 
+            Source="..\..\bin\Release\Installer\App\is-IS\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent419" Directory="INSTALLFOLDER" Guid="8E05E195-4CA5-4026-85B0-E94545B308B4">
+      <File Id="MISCFile419" 
+            Source="..\..\bin\Release\Installer\App\it-IT\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent420" Directory="INSTALLFOLDER" Guid="AF02153B-61EE-4940-A353-2616D99A1561">
+      <File Id="MISCFile420" 
+            Source="..\..\bin\Release\Installer\App\it-IT\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent421" Directory="INSTALLFOLDER" Guid="A5435EC1-5584-4868-BB4C-2A149B80C0AC">
+      <File Id="MISCFile421" 
+            Source="..\..\bin\Release\Installer\App\ja-JP\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent422" Directory="INSTALLFOLDER" Guid="51B31A1C-933C-46D7-AF7E-4756A82E2C68">
+      <File Id="MISCFile422" 
+            Source="..\..\bin\Release\Installer\App\ja-JP\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent423" Directory="INSTALLFOLDER" Guid="FF15E733-E2E3-4974-816C-B855AD3A417E">
+      <File Id="MISCFile423" 
+            Source="..\..\bin\Release\Installer\App\ka-GE\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent424" Directory="INSTALLFOLDER" Guid="72CD325E-F8D5-46B6-A9AD-375B5074CC53">
+      <File Id="MISCFile424" 
+            Source="..\..\bin\Release\Installer\App\ka-GE\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent425" Directory="INSTALLFOLDER" Guid="3A7CB95D-1239-43B7-9EC6-F6E939A67C74">
+      <File Id="MISCFile425" 
+            Source="..\..\bin\Release\Installer\App\kk-KZ\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent426" Directory="INSTALLFOLDER" Guid="BCA9798A-E644-4776-A544-DFFD947B06D5">
+      <File Id="MISCFile426" 
+            Source="..\..\bin\Release\Installer\App\kk-KZ\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent427" Directory="INSTALLFOLDER" Guid="FE308F1B-489E-4B2B-B1E5-812199396BFD">
+      <File Id="MISCFile427" 
+            Source="..\..\bin\Release\Installer\App\km-KH\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent428" Directory="INSTALLFOLDER" Guid="A22BD7F1-AC1F-4654-BD7A-56EDB64E3B04">
+      <File Id="MISCFile428" 
+            Source="..\..\bin\Release\Installer\App\km-KH\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent429" Directory="INSTALLFOLDER" Guid="A68C2B81-0E44-4374-A9D1-376997B90AD6">
+      <File Id="MISCFile429" 
+            Source="..\..\bin\Release\Installer\App\kn-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent430" Directory="INSTALLFOLDER" Guid="82EB5331-FD06-4D1D-9504-A0DF17DE0A3D">
+      <File Id="MISCFile430" 
+            Source="..\..\bin\Release\Installer\App\kn-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent431" Directory="INSTALLFOLDER" Guid="33B3B152-364F-4379-B9EB-B7EF49E2296C">
+      <File Id="MISCFile431" 
+            Source="..\..\bin\Release\Installer\App\ko-KR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent432" Directory="INSTALLFOLDER" Guid="39F8259D-A14B-4DE0-A42A-7B1A991978B6">
+      <File Id="MISCFile432" 
+            Source="..\..\bin\Release\Installer\App\ko-KR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent433" Directory="INSTALLFOLDER" Guid="990FC71C-EAEF-44C1-B489-12C66A40E3F7">
+      <File Id="MISCFile433" 
+            Source="..\..\bin\Release\Installer\App\kok-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent434" Directory="INSTALLFOLDER" Guid="82F397EC-668B-4578-81D9-758E14A84F70">
+      <File Id="MISCFile434" 
+            Source="..\..\bin\Release\Installer\App\kok-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent435" Directory="INSTALLFOLDER" Guid="691E33B7-E001-4D2A-AD01-1AE85E293BD1">
+      <File Id="MISCFile435" 
+            Source="..\..\bin\Release\Installer\App\lb-LU\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent436" Directory="INSTALLFOLDER" Guid="526E6E24-0CCB-42D4-B608-F8F7F9B353CD">
+      <File Id="MISCFile436" 
+            Source="..\..\bin\Release\Installer\App\lb-LU\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent437" Directory="INSTALLFOLDER" Guid="90DD00C9-A530-4DF1-A5CC-F63248D6CF20">
+      <File Id="MISCFile437" 
+            Source="..\..\bin\Release\Installer\App\lo-LA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent438" Directory="INSTALLFOLDER" Guid="BA120830-6F7F-49BD-9A0E-62756B301563">
+      <File Id="MISCFile438" 
+            Source="..\..\bin\Release\Installer\App\lo-LA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent439" Directory="INSTALLFOLDER" Guid="9FFBDA1A-773A-4C16-A58C-05F6B91B2F8B">
+      <File Id="MISCFile439" 
+            Source="..\..\bin\Release\Installer\App\lt-LT\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent440" Directory="INSTALLFOLDER" Guid="599275E0-9700-4F97-B29A-A007D8C6ADFE">
+      <File Id="MISCFile440" 
+            Source="..\..\bin\Release\Installer\App\lt-LT\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent441" Directory="INSTALLFOLDER" Guid="31691BEB-C96C-4E88-B2AA-082FBEA8EEE5">
+      <File Id="MISCFile441" 
+            Source="..\..\bin\Release\Installer\App\lv-LV\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent442" Directory="INSTALLFOLDER" Guid="72A4BB8E-EC05-45DA-9654-E7240F568C60">
+      <File Id="MISCFile442" 
+            Source="..\..\bin\Release\Installer\App\lv-LV\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent443" Directory="INSTALLFOLDER" Guid="2A2F5BC4-49FC-48E1-935E-F110F0EE3FF9">
+      <File Id="MISCFile443" 
+            Source="..\..\bin\Release\Installer\App\mi-NZ\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent444" Directory="INSTALLFOLDER" Guid="27962A12-645C-481E-A45C-E42230F9AED6">
+      <File Id="MISCFile444" 
+            Source="..\..\bin\Release\Installer\App\mi-NZ\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: map.html -->
+    <Component Id="MISCComponent445" Directory="INSTALLFOLDER" Guid="64031F83-39DB-4A56-9693-3433FC828299">
+      <File Id="MISCFile445" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml\Assets\map.html" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: NoiseAsset_256x256_PNG.png -->
+    <Component Id="MISCComponent446" Directory="INSTALLFOLDER" Guid="94EBD8D7-FAB1-464F-9C0A-AF85FBC8E9F0">
+      <File Id="MISCFile446" 
+            Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml\Assets\NoiseAsset_256x256_PNG.png" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent447" Directory="INSTALLFOLDER" Guid="A2D8D3F3-0D57-4F05-B8AF-166BBFE100B8">
+      <File Id="MISCFile447" 
+            Source="..\..\bin\Release\Installer\App\mk-MK\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent448" Directory="INSTALLFOLDER" Guid="C476AC3B-680F-4BE1-8A17-E445D52F07A7">
+      <File Id="MISCFile448" 
+            Source="..\..\bin\Release\Installer\App\mk-MK\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent449" Directory="INSTALLFOLDER" Guid="23A66685-EF80-4735-9A18-FEE3E2959C0F">
+      <File Id="MISCFile449" 
+            Source="..\..\bin\Release\Installer\App\ml-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent450" Directory="INSTALLFOLDER" Guid="019CFCCD-19AC-42FE-AB90-A171415EFDDD">
+      <File Id="MISCFile450" 
+            Source="..\..\bin\Release\Installer\App\ml-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent451" Directory="INSTALLFOLDER" Guid="15D3813A-A5E2-4022-9234-3D0DD9E3219A">
+      <File Id="MISCFile451" 
+            Source="..\..\bin\Release\Installer\App\mr-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent452" Directory="INSTALLFOLDER" Guid="435D6D7A-5C91-47A4-B708-D5802344E0CE">
+      <File Id="MISCFile452" 
+            Source="..\..\bin\Release\Installer\App\mr-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent453" Directory="INSTALLFOLDER" Guid="C69E7819-03E6-4DB9-B95C-802ED57211FB">
+      <File Id="MISCFile453" 
+            Source="..\..\bin\Release\Installer\App\ms-MY\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent454" Directory="INSTALLFOLDER" Guid="6A4E16AD-3F04-4725-AA72-0E53D1D0F6EA">
+      <File Id="MISCFile454" 
+            Source="..\..\bin\Release\Installer\App\ms-MY\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent455" Directory="INSTALLFOLDER" Guid="B88672FF-D1AC-4D78-8F11-71A02260C8BC">
+      <File Id="MISCFile455" 
+            Source="..\..\bin\Release\Installer\App\mt-MT\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent456" Directory="INSTALLFOLDER" Guid="4CFDB2F8-2A32-4C79-B961-7D5A345971D0">
+      <File Id="MISCFile456" 
+            Source="..\..\bin\Release\Installer\App\mt-MT\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent457" Directory="INSTALLFOLDER" Guid="23E389C4-D18F-4474-87F7-60CE2F50A90E">
+      <File Id="MISCFile457" 
+            Source="..\..\bin\Release\Installer\App\nb-NO\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent458" Directory="INSTALLFOLDER" Guid="E6CA7D01-19D6-4EE0-A39B-FB2E2414B31B">
+      <File Id="MISCFile458" 
+            Source="..\..\bin\Release\Installer\App\nb-NO\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent459" Directory="INSTALLFOLDER" Guid="76ED5E31-08CB-4CE7-A066-32E953AB081F">
+      <File Id="MISCFile459" 
+            Source="..\..\bin\Release\Installer\App\ne-NP\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent460" Directory="INSTALLFOLDER" Guid="9EEF1131-1C76-42F4-BC78-56679C0948DD">
+      <File Id="MISCFile460" 
+            Source="..\..\bin\Release\Installer\App\ne-NP\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent461" Directory="INSTALLFOLDER" Guid="DD956B74-A86E-44CB-9238-76D4A60063A1">
+      <File Id="MISCFile461" 
+            Source="..\..\bin\Release\Installer\App\nl-NL\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent462" Directory="INSTALLFOLDER" Guid="5D65119B-8BE0-4812-935F-C1F08FE7B3D8">
+      <File Id="MISCFile462" 
+            Source="..\..\bin\Release\Installer\App\nl-NL\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent463" Directory="INSTALLFOLDER" Guid="7366FF36-EC56-4695-84E7-970003068A10">
+      <File Id="MISCFile463" 
+            Source="..\..\bin\Release\Installer\App\nn-NO\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent464" Directory="INSTALLFOLDER" Guid="8B867845-628D-431E-B782-A3112BEE655C">
+      <File Id="MISCFile464" 
+            Source="..\..\bin\Release\Installer\App\nn-NO\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: NPUDetect.dll -->
+    <Component Id="DLLComponent465" Directory="INSTALLFOLDER" Guid="">
+      <File Id="DLLFile465" 
+            Source="..\..\bin\Release\Installer\App\NpuDetect\NPUDetect.dll" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent466" Directory="INSTALLFOLDER" Guid="">
+      <File Id="MISCFile466" 
+            Source="..\..\bin\Release\Installer\App\or-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent467" Directory="INSTALLFOLDER" Guid="14A4F157-A835-45CB-8672-FA29FB098AED">
+      <File Id="MISCFile467" 
+            Source="..\..\bin\Release\Installer\App\or-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent468" Directory="INSTALLFOLDER" Guid="2EA565AC-0FE1-45C1-A0DE-A48ECF5DF436">
+      <File Id="MISCFile468" 
+            Source="..\..\bin\Release\Installer\App\pa-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent469" Directory="INSTALLFOLDER" Guid="CFCCEFF7-9481-4752-B26B-9BBF18CB0787">
+      <File Id="MISCFile469" 
+            Source="..\..\bin\Release\Installer\App\pa-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent470" Directory="INSTALLFOLDER" Guid="744803F7-F90B-47FA-A58F-AD1BA318B2FC">
+      <File Id="MISCFile470" 
+            Source="..\..\bin\Release\Installer\App\pl-PL\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent471" Directory="INSTALLFOLDER" Guid="0C15C14A-1252-401B-9260-D4D6031F6C0A">
+      <File Id="MISCFile471" 
+            Source="..\..\bin\Release\Installer\App\pl-PL\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent472" Directory="INSTALLFOLDER" Guid="37B76FF6-AF5E-4275-9749-12D7D7FB520E">
+      <File Id="MISCFile472" 
+            Source="..\..\bin\Release\Installer\App\pt-BR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent473" Directory="INSTALLFOLDER" Guid="7C78356D-5EC7-4BEB-A1E0-913B58F935BA">
+      <File Id="MISCFile473" 
+            Source="..\..\bin\Release\Installer\App\pt-BR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent474" Directory="INSTALLFOLDER" Guid="B5AADECF-608B-4994-A868-23521F6C939B">
+      <File Id="MISCFile474" 
+            Source="..\..\bin\Release\Installer\App\pt-PT\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent475" Directory="INSTALLFOLDER" Guid="4367359C-2288-4637-937A-0C9508FE2C96">
+      <File Id="MISCFile475" 
+            Source="..\..\bin\Release\Installer\App\pt-PT\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent476" Directory="INSTALLFOLDER" Guid="552F32F4-65AA-4C18-AF5E-12A35FA990DB">
+      <File Id="MISCFile476" 
+            Source="..\..\bin\Release\Installer\App\quz-PE\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent477" Directory="INSTALLFOLDER" Guid="CF16E441-244E-4AC4-8140-17DE578284D9">
+      <File Id="MISCFile477" 
+            Source="..\..\bin\Release\Installer\App\quz-PE\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent478" Directory="INSTALLFOLDER" Guid="B329EA2A-F933-4360-B34B-F4F9BB108D80">
+      <File Id="MISCFile478" 
+            Source="..\..\bin\Release\Installer\App\ro-RO\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent479" Directory="INSTALLFOLDER" Guid="C2CFD56C-C23F-4A35-A613-4A69CCC8BDA7">
+      <File Id="MISCFile479" 
+            Source="..\..\bin\Release\Installer\App\ro-RO\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent480" Directory="INSTALLFOLDER" Guid="375D52E7-7DFE-47E2-A721-12ADE94036F3">
+      <File Id="MISCFile480" 
+            Source="..\..\bin\Release\Installer\App\ru-RU\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent481" Directory="INSTALLFOLDER" Guid="5846C131-3B82-4A97-9107-47C8FD392EBB">
+      <File Id="MISCFile481" 
+            Source="..\..\bin\Release\Installer\App\ru-RU\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent482" Directory="INSTALLFOLDER" Guid="71F42116-5CDA-4FC5-BC08-B418F6D4D548">
+      <File Id="MISCFile482" 
+            Source="..\..\bin\Release\Installer\App\sk-SK\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent483" Directory="INSTALLFOLDER" Guid="0FAD2285-41D9-415D-8118-856289BE9E6A">
+      <File Id="MISCFile483" 
+            Source="..\..\bin\Release\Installer\App\sk-SK\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent484" Directory="INSTALLFOLDER" Guid="D900B7F3-2B69-425C-9732-4C22F1F4C1DF">
+      <File Id="MISCFile484" 
+            Source="..\..\bin\Release\Installer\App\sl-SI\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent485" Directory="INSTALLFOLDER" Guid="35C056F5-4289-490E-903C-684BB0FA489D">
+      <File Id="MISCFile485" 
+            Source="..\..\bin\Release\Installer\App\sl-SI\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent486" Directory="INSTALLFOLDER" Guid="C481E46D-266A-4213-BC26-E120B91261EA">
+      <File Id="MISCFile486" 
+            Source="..\..\bin\Release\Installer\App\sq-AL\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent487" Directory="INSTALLFOLDER" Guid="4979A8E0-8412-4215-A7DB-9885585443D8">
+      <File Id="MISCFile487" 
+            Source="..\..\bin\Release\Installer\App\sq-AL\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent488" Directory="INSTALLFOLDER" Guid="5D719B7D-7DCE-40DE-BAD3-584D88160E71">
+      <File Id="MISCFile488" 
+            Source="..\..\bin\Release\Installer\App\sr-Cyrl-BA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent489" Directory="INSTALLFOLDER" Guid="A816AA9B-EB3B-4D26-B72E-173377167654">
+      <File Id="MISCFile489" 
+            Source="..\..\bin\Release\Installer\App\sr-Cyrl-BA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent490" Directory="INSTALLFOLDER" Guid="84A6CE84-9BF8-4836-B138-89B299406288">
+      <File Id="MISCFile490" 
+            Source="..\..\bin\Release\Installer\App\sr-Cyrl-RS\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent491" Directory="INSTALLFOLDER" Guid="9716E0D2-125E-4DAA-91D8-4498D067B955">
+      <File Id="MISCFile491" 
+            Source="..\..\bin\Release\Installer\App\sr-Cyrl-RS\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent492" Directory="INSTALLFOLDER" Guid="9F3CA1AA-42F1-45B2-9026-04B341734DFB">
+      <File Id="MISCFile492" 
+            Source="..\..\bin\Release\Installer\App\sr-Latn-RS\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent493" Directory="INSTALLFOLDER" Guid="95964664-C71F-47A3-91AE-B7CE8EC3744B">
+      <File Id="MISCFile493" 
+            Source="..\..\bin\Release\Installer\App\sr-Latn-RS\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent494" Directory="INSTALLFOLDER" Guid="BD3BA707-F8B6-475F-8309-94C918D0FA49">
+      <File Id="MISCFile494" 
+            Source="..\..\bin\Release\Installer\App\sv-SE\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent495" Directory="INSTALLFOLDER" Guid="93684955-B672-44F2-820C-A12574EF327B">
+      <File Id="MISCFile495" 
+            Source="..\..\bin\Release\Installer\App\sv-SE\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent496" Directory="INSTALLFOLDER" Guid="29197505-DF09-45D2-B9B3-2135C7A4F4DB">
+      <File Id="MISCFile496" 
+            Source="..\..\bin\Release\Installer\App\ta-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent497" Directory="INSTALLFOLDER" Guid="FAEC31CD-B9A8-431D-A7E1-DD28E89EC556">
+      <File Id="MISCFile497" 
+            Source="..\..\bin\Release\Installer\App\ta-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent498" Directory="INSTALLFOLDER" Guid="03ADFA2A-E688-4D82-BA5A-519F1743746D">
+      <File Id="MISCFile498" 
+            Source="..\..\bin\Release\Installer\App\te-IN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent499" Directory="INSTALLFOLDER" Guid="13C6CD5B-F4CD-4D2E-AF1B-3D2B0F3A7937">
+      <File Id="MISCFile499" 
+            Source="..\..\bin\Release\Installer\App\te-IN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent500" Directory="INSTALLFOLDER" Guid="9BA99E60-FF4F-433B-9029-5C8E9E70C133">
+      <File Id="MISCFile500" 
+            Source="..\..\bin\Release\Installer\App\th-TH\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent501" Directory="INSTALLFOLDER" Guid="295777ED-5D69-43CA-93F8-3D11EB1A2FC6">
+      <File Id="MISCFile501" 
+            Source="..\..\bin\Release\Installer\App\th-TH\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent502" Directory="INSTALLFOLDER" Guid="199DF634-4268-4655-BFC8-0F76CF156E82">
+      <File Id="MISCFile502" 
+            Source="..\..\bin\Release\Installer\App\tr-TR\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent503" Directory="INSTALLFOLDER" Guid="6A5B9E0B-26AC-4523-BF14-ABFD6C11AFE9">
+      <File Id="MISCFile503" 
+            Source="..\..\bin\Release\Installer\App\tr-TR\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent504" Directory="INSTALLFOLDER" Guid="0E689DC3-60B3-4738-B59F-AB9749AC1190">
+      <File Id="MISCFile504" 
+            Source="..\..\bin\Release\Installer\App\tt-RU\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent505" Directory="INSTALLFOLDER" Guid="C95304F5-B4BB-4588-9DDC-74DB17D69051">
+      <File Id="MISCFile505" 
+            Source="..\..\bin\Release\Installer\App\tt-RU\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent506" Directory="INSTALLFOLDER" Guid="B4AFBAAF-9BA8-4B52-B9F3-7F3BA3EB6134">
+      <File Id="MISCFile506" 
+            Source="..\..\bin\Release\Installer\App\ug-CN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent507" Directory="INSTALLFOLDER" Guid="1CD2201B-7D43-4487-9D21-BCC6B1398E77">
+      <File Id="MISCFile507" 
+            Source="..\..\bin\Release\Installer\App\ug-CN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent508" Directory="INSTALLFOLDER" Guid="F7E14F39-5A0A-47C0-95B5-72163EB3DB9E">
+      <File Id="MISCFile508" 
+            Source="..\..\bin\Release\Installer\App\uk-UA\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent509" Directory="INSTALLFOLDER" Guid="D3BEECA0-5081-43B9-813F-AA14795AAF37">
+      <File Id="MISCFile509" 
+            Source="..\..\bin\Release\Installer\App\uk-UA\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent510" Directory="INSTALLFOLDER" Guid="15626EAD-766C-4410-9A4F-16E729C55FCF">
+      <File Id="MISCFile510" 
+            Source="..\..\bin\Release\Installer\App\ur-PK\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent511" Directory="INSTALLFOLDER" Guid="A85D317F-3259-4FC0-8ED8-AD1679C820B8">
+      <File Id="MISCFile511" 
+            Source="..\..\bin\Release\Installer\App\ur-PK\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent512" Directory="INSTALLFOLDER" Guid="E4ED4F56-E43A-4100-B461-2C54E82B618E">
+      <File Id="MISCFile512" 
+            Source="..\..\bin\Release\Installer\App\uz-Latn-UZ\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent513" Directory="INSTALLFOLDER" Guid="1507D0D9-8E8D-4C71-964C-64D30F39CB01">
+      <File Id="MISCFile513" 
+            Source="..\..\bin\Release\Installer\App\uz-Latn-UZ\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent514" Directory="INSTALLFOLDER" Guid="C3C180FA-4092-4A3A-A230-C83146A17307">
+      <File Id="MISCFile514" 
+            Source="..\..\bin\Release\Installer\App\vi-VN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent515" Directory="INSTALLFOLDER" Guid="9535DED6-112F-49E1-8002-2A930FEAC514">
+      <File Id="MISCFile515" 
+            Source="..\..\bin\Release\Installer\App\vi-VN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent516" Directory="INSTALLFOLDER" Guid="1D35DDED-FC98-48DF-A961-35D6E7BA7AE1">
+      <File Id="MISCFile516" 
+            Source="..\..\bin\Release\Installer\App\zh-CN\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent517" Directory="INSTALLFOLDER" Guid="53902C0C-3A0E-4408-BAC9-20A1AF218049">
+      <File Id="MISCFile517" 
+            Source="..\..\bin\Release\Installer\App\zh-CN\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.ui.xaml.dll.mui -->
+    <Component Id="MISCComponent518" Directory="INSTALLFOLDER" Guid="BD70A1AD-4425-4ECC-BC34-4C4A9105CA8F">
+      <File Id="MISCFile518" 
+            Source="..\..\bin\Release\Installer\App\zh-TW\Microsoft.ui.xaml.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+    <!-- Componente: Microsoft.UI.Xaml.Phone.dll.mui -->
+    <Component Id="MISCComponent519" Directory="INSTALLFOLDER" Guid="35F56DAC-854D-4D8A-9306-A469231A0737">
+      <File Id="MISCFile519" 
+            Source="..\..\bin\Release\Installer\App\zh-TW\Microsoft.UI.Xaml.Phone.dll.mui" 
+            KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>

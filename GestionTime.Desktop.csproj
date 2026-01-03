@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -7,10 +7,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <!-- <PublishProfile>win-$(Platform).pubxml</PublishProfile> --> <!-- COMENTADO: No necesario, causa NETSDK1198 -->
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
-    <EnableMsixTooling>true</EnableMsixTooling>
+    <EnableMsixTooling>false</EnableMsixTooling>
     <Nullable>enable</Nullable>
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <Utf8Output>true</Utf8Output>
@@ -37,6 +36,14 @@
     <FileVersion>1.1.0.0</FileVersion>
     <Description>Aplicación de gestión de tiempo para partes de trabajo</Description>
   </PropertyGroup>
+  
+  <!-- Excluir carpeta de WinForms del proyecto principal -->
+  <ItemGroup>
+    <Compile Remove="GestionTime.Desktop.WinForms\**" />
+    <EmbeddedResource Remove="GestionTime.Desktop.WinForms\**" />
+    <None Remove="GestionTime.Desktop.WinForms\**" />
+    <Page Remove="GestionTime.Desktop.WinForms\**" />
+  </ItemGroup>
   
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
@@ -91,6 +98,9 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DiarioPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -104,9 +114,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ForgotPasswordPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DonutChartControl.xaml">
@@ -123,6 +130,10 @@
   <ItemGroup>
     <Folder Include="Tests\Api\" />
     <Folder Include="Tests\Integration\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="GestionTime.sln" />
   </ItemGroup>
   
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
@@ -154,6 +165,11 @@
     <PublishProtocol Condition="'$(Configuration)' == 'Release'">FileSystem</PublishProtocol>
     <PublishUrl>bin\Release\Publish\</PublishUrl>
     <SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
+    
+    <!-- Configuración XAML para publicación corregida -->
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">false</GeneratePackageOnBuild>
+    <AppxPackage Condition="'$(Configuration)' == 'Release'">false</AppxPackage>
+    <UseWinUI Condition="'$(Configuration)' == 'Release'">true</UseWinUI>
     
     <!-- Información adicional para MSI -->
     <PublisherName>GestionTime Solutions</PublisherName>

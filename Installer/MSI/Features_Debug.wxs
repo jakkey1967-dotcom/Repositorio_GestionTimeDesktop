@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <Fragment>
+    
+    <!-- Característica principal con archivos completos -->
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop - Debug Completo" 
+             Description="Aplicación completa con runtime y debugging"
+             Level="1" 
+             ConfigurableDirectory="INSTALLFOLDER"
+             AllowAdvertise="no"
+             Display="expand">
+
+      <!-- Archivos importantes -->
+      <ComponentGroupRef Id="ImportantFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+
+    <!-- Característica opcional: Acceso directo en escritorio -->
+    <Feature Id="DesktopShortcut" 
+             Title="Acceso Directo en Escritorio"
+             Description="Crear acceso directo en el escritorio" 
+             Level="1"
+             AllowAdvertise="no">
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+
+    <!-- Grupo de archivos importantes -->
+    <ComponentGroup Id="ImportantFiles" Directory="INSTALLFOLDER">
+      <!-- GestionTime.Desktop.exe -->
+      <Component Id="ImportantFile1" Guid="D6317EB2-DCE9-4A97-805E-29A2C595E640">
+        <File Id="File1" Source="..\..\bin\Debug\Installer\App\GestionTime.Desktop.exe" KeyPath="yes" />
+      </Component>
+      <!-- GestionTime.Desktop.dll -->
+      <Component Id="ImportantFile2" Guid="B85AAFBA-FB9E-4EEA-8591-50796FA2718B">
+        <File Id="File2" Source="..\..\bin\Debug\Installer\App\GestionTime.Desktop.dll" />
+      </Component>
+      <!-- appsettings.json -->
+      <Component Id="ImportantFile3" Guid="E7E4F8DF-C619-4FC1-8AD6-AACAEFC4F457">
+        <File Id="File3" Source="..\..\bin\Debug\Installer\App\appsettings.json" />
+      </Component>
+      <!-- System.Private.CoreLib.dll -->
+      <Component Id="ImportantFile4" Guid="8D7C11F2-69AD-4D28-916E-E69FA1743CE0">
+        <File Id="File4" Source="..\..\bin\Debug\Installer\App\System.Private.CoreLib.dll" />
+      </Component>
+      <!-- Microsoft.WindowsAppRuntime.dll -->
+      <Component Id="ImportantFile5" Guid="AC16BFAA-3C3C-4865-BE4F-AFC6A0D3448A">
+        <File Id="File5" Source="..\..\bin\Debug\Installer\App\Microsoft.WindowsAppRuntime.dll" />
+      </Component>
+      <!-- WinRT.Runtime.dll -->
+      <Component Id="ImportantFile6" Guid="506DF527-C55C-47FD-A847-B9337764F797">
+        <File Id="File6" Source="..\..\bin\Debug\Installer\App\WinRT.Runtime.dll" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.dll -->
+      <Component Id="ImportantFile7" Guid="924C48A0-BDBA-4603-A22A-ED0D90B328D3">
+        <File Id="File7" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Xaml.dll" />
+      </Component>
+      <!-- Microsoft.UI.pri -->
+      <Component Id="ImportantFile8" Guid="621C47F7-CC54-410C-A470-86EBFA6EFDDE">
+        <File Id="File8" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.pri" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.Controls.pri -->
+      <Component Id="ImportantFile9" Guid="C76BF4C6-1C4F-4E71-91A4-BABBD4AF22C1">
+        <File Id="File9" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Xaml.Controls.pri" />
+      </Component>
+      <!-- Microsoft.WindowsAppRuntime.pri -->
+      <Component Id="ImportantFile10" Guid="670FCD9D-4EF6-470C-8873-94D7317873E6">
+        <File Id="File10" Source="..\..\bin\Debug\Installer\App\Microsoft.WindowsAppRuntime.pri" />
+      </Component>
+      <!-- Microsoft.CSharp.dll -->
+      <Component Id="ImportantFile11" Guid="1BD39DD0-970E-4E5A-8DDF-E16CED42954A">
+        <File Id="File11" Source="..\..\bin\Debug\Installer\App\Microsoft.CSharp.dll" />
+      </Component>
+      <!-- Microsoft.DiaSymReader.Native.amd64.dll -->
+      <Component Id="ImportantFile12" Guid="E9E03676-66B4-4B4E-B739-0C72468C4C18">
+        <File Id="File12" Source="..\..\bin\Debug\Installer\App\Microsoft.DiaSymReader.Native.amd64.dll" />
+      </Component>
+      <!-- Microsoft.DirectManipulation.dll -->
+      <Component Id="ImportantFile13" Guid="A7399467-E52D-4EC7-99CF-5BCAFD000233">
+        <File Id="File13" Source="..\..\bin\Debug\Installer\App\Microsoft.DirectManipulation.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Configuration.Abstractions.dll -->
+      <Component Id="ImportantFile14" Guid="27B848BA-F29D-44C5-AEFE-70FA8E1E4F95">
+        <File Id="File14" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Configuration.Abstractions.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Configuration.Binder.dll -->
+      <Component Id="ImportantFile15" Guid="72619A37-6BBC-4389-B928-1B64A80219ED">
+        <File Id="File15" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Configuration.Binder.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Configuration.dll -->
+      <Component Id="ImportantFile16" Guid="E52E1804-3CB4-4970-8A92-620E26AFF788">
+        <File Id="File16" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Configuration.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Configuration.FileExtensions.dll -->
+      <Component Id="ImportantFile17" Guid="FD6C9383-BD5D-4BBD-BF8A-FDC188D546A6">
+        <File Id="File17" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Configuration.FileExtensions.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Configuration.Json.dll -->
+      <Component Id="ImportantFile18" Guid="598E29EF-9976-4737-8650-162EC08740D1">
+        <File Id="File18" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Configuration.Json.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.DependencyInjection.Abstractions.dll -->
+      <Component Id="ImportantFile19" Guid="6852D9B9-8966-4099-B8E5-5965DC6DC1A1">
+        <File Id="File19" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.DependencyInjection.dll -->
+      <Component Id="ImportantFile20" Guid="867E4CB2-F5C9-4B41-BD64-257985565A6F">
+        <File Id="File20" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.FileProviders.Abstractions.dll -->
+      <Component Id="ImportantFile21" Guid="4C7D5B2B-34EC-4FDA-94FC-CA2963E08B6A">
+        <File Id="File21" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.FileProviders.Physical.dll -->
+      <Component Id="ImportantFile22" Guid="290DC26F-A2BA-49F3-ADDF-927E0DB07CB9">
+        <File Id="File22" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.FileProviders.Physical.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.FileSystemGlobbing.dll -->
+      <Component Id="ImportantFile23" Guid="7C9775B6-A54D-4B1F-B2CB-64C5E7D9BA27">
+        <File Id="File23" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.FileSystemGlobbing.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Logging.Abstractions.dll -->
+      <Component Id="ImportantFile24" Guid="F3D815B0-DF91-4572-B4C2-56A2CE9DF467">
+        <File Id="File24" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Logging.dll -->
+      <Component Id="ImportantFile25" Guid="FEE58938-C38C-4187-9602-F10B9CBFCC2E">
+        <File Id="File25" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Logging.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Options.dll -->
+      <Component Id="ImportantFile26" Guid="B605ED5F-46CE-4047-B27C-092982973084">
+        <File Id="File26" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Options.dll" />
+      </Component>
+      <!-- Microsoft.Extensions.Primitives.dll -->
+      <Component Id="ImportantFile27" Guid="D03A4A39-2BB0-4DEF-8D70-BE47D4DDF2C1">
+        <File Id="File27" Source="..\..\bin\Debug\Installer\App\Microsoft.Extensions.Primitives.dll" />
+      </Component>
+      <!-- Microsoft.Graphics.Display.dll -->
+      <Component Id="ImportantFile28" Guid="4439560F-9ABC-49AA-B256-690E42C77F3E">
+        <File Id="File28" Source="..\..\bin\Debug\Installer\App\Microsoft.Graphics.Display.dll" />
+      </Component>
+      <!-- Microsoft.Graphics.Imaging.dll -->
+      <Component Id="ImportantFile29" Guid="C70E9DCA-C691-4372-A993-D8C4B27336D1">
+        <File Id="File29" Source="..\..\bin\Debug\Installer\App\Microsoft.Graphics.Imaging.dll" />
+      </Component>
+      <!-- Microsoft.Graphics.Imaging.Projection.dll -->
+      <Component Id="ImportantFile30" Guid="ABE9682B-B011-415E-87C0-A122E52ADC9B">
+        <File Id="File30" Source="..\..\bin\Debug\Installer\App\Microsoft.Graphics.Imaging.Projection.dll" />
+      </Component>
+      <!-- Microsoft.InputStateManager.dll -->
+      <Component Id="ImportantFile31" Guid="3D97CA0E-4111-4CA2-9345-C34D07BD9012">
+        <File Id="File31" Source="..\..\bin\Debug\Installer\App\Microsoft.InputStateManager.dll" />
+      </Component>
+      <!-- Microsoft.InteractiveExperiences.Projection.dll -->
+      <Component Id="ImportantFile32" Guid="6B71BC6F-39BF-453D-A2B6-4B806C912534">
+        <File Id="File32" Source="..\..\bin\Debug\Installer\App\Microsoft.InteractiveExperiences.Projection.dll" />
+      </Component>
+      <!-- Microsoft.Internal.FrameworkUdk.dll -->
+      <Component Id="ImportantFile33" Guid="FBC814FC-F7BF-4BF5-BB1C-763ABDC051BA">
+        <File Id="File33" Source="..\..\bin\Debug\Installer\App\Microsoft.Internal.FrameworkUdk.dll" />
+      </Component>
+      <!-- Microsoft.ML.OnnxRuntime.dll -->
+      <Component Id="ImportantFile34" Guid="C8698B85-C120-4610-B621-D04F635454C3">
+        <File Id="File34" Source="..\..\bin\Debug\Installer\App\Microsoft.ML.OnnxRuntime.dll" />
+      </Component>
+      <!-- Microsoft.Security.Authentication.OAuth.Projection.dll -->
+      <Component Id="ImportantFile35" Guid="40063385-DD84-4AA6-A489-D58BBEEA0A93">
+        <File Id="File35" Source="..\..\bin\Debug\Installer\App\Microsoft.Security.Authentication.OAuth.Projection.dll" />
+      </Component>
+      <!-- Microsoft.UI.Composition.OSSupport.dll -->
+      <Component Id="ImportantFile36" Guid="1C4EE4F0-5CA1-4372-A538-E857594CF00D">
+        <File Id="File36" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Composition.OSSupport.dll" />
+      </Component>
+      <!-- Microsoft.UI.Designer.dll -->
+      <Component Id="ImportantFile37" Guid="F7C73EA7-3CBA-4BD2-A13E-F36F470D7CF4">
+        <File Id="File37" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Designer.dll" />
+      </Component>
+      <!-- Microsoft.UI.dll -->
+      <Component Id="ImportantFile38" Guid="26C9CA3C-744F-4B09-8765-1FF1E1AD9AFF">
+        <File Id="File38" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.dll" />
+      </Component>
+      <!-- Microsoft.UI.Input.dll -->
+      <Component Id="ImportantFile39" Guid="FD82C871-A502-4951-B4F1-751338B66949">
+        <File Id="File39" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Input.dll" />
+      </Component>
+      <!-- Microsoft.UI.Windowing.Core.dll -->
+      <Component Id="ImportantFile40" Guid="6A51B9F5-1317-41A0-B443-90F3DABC2F3B">
+        <File Id="File40" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Windowing.Core.dll" />
+      </Component>
+      <!-- Microsoft.UI.Windowing.dll -->
+      <Component Id="ImportantFile41" Guid="C4A9BED2-D15F-447D-BE18-516802EC2E8A">
+        <File Id="File41" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Windowing.dll" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.Controls.dll -->
+      <Component Id="ImportantFile42" Guid="F065490D-69E4-43BC-9B36-63BAAAB94928">
+        <File Id="File42" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Xaml.Controls.dll" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.Internal.dll -->
+      <Component Id="ImportantFile43" Guid="4CE10732-367A-4FC7-B057-0AE908F84590">
+        <File Id="File43" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Xaml.Internal.dll" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.Phone.dll -->
+      <Component Id="ImportantFile44" Guid="D364D136-05A9-4B2B-BD9C-49EEBD1849EB">
+        <File Id="File44" Source="..\..\bin\Debug\Installer\App\Microsoft.UI.Xaml.Phone.dll" />
+      </Component>
+      <!-- Microsoft.ui.xaml.resources.19h1.dll -->
+      <Component Id="ImportantFile45" Guid="62D6B216-E70F-433F-AD7A-A8AAA21DECB5">
+        <File Id="File45" Source="..\..\bin\Debug\Installer\App\Microsoft.ui.xaml.resources.19h1.dll" />
+      </Component>
+      <!-- Microsoft.ui.xaml.resources.common.dll -->
+      <Component Id="ImportantFile46" Guid="5592B0C0-6477-4CCE-8387-93CF79B8D746">
+        <File Id="File46" Source="..\..\bin\Debug\Installer\App\Microsoft.ui.xaml.resources.common.dll" />
+      </Component>
+      <!-- Microsoft.VisualBasic.Core.dll -->
+      <Component Id="ImportantFile47" Guid="BB6B0A40-B9B3-468C-AF1D-1A72CECAF79A">
+        <File Id="File47" Source="..\..\bin\Debug\Installer\App\Microsoft.VisualBasic.Core.dll" />
+      </Component>
+      <!-- Microsoft.VisualBasic.dll -->
+      <Component Id="ImportantFile48" Guid="34097D7D-5965-4739-A118-A0464105D00F">
+        <File Id="File48" Source="..\..\bin\Debug\Installer\App\Microsoft.VisualBasic.dll" />
+      </Component>
+      <!-- Microsoft.Web.WebView2.Core.dll -->
+      <Component Id="ImportantFile49" Guid="F2C0BAB5-71D3-420B-8EFB-355A204684D1">
+        <File Id="File49" Source="..\..\bin\Debug\Installer\App\Microsoft.Web.WebView2.Core.dll" />
+      </Component>
+      <!-- Microsoft.Web.WebView2.Core.Projection.dll -->
+      <Component Id="ImportantFile50" Guid="AF7D1658-8E42-467E-BFD0-27AD5FAB3A61">
+        <File Id="File50" Source="..\..\bin\Debug\Installer\App\Microsoft.Web.WebView2.Core.Projection.dll" />
+      </Component>
+      <!-- Microsoft.Win32.Primitives.dll -->
+      <Component Id="ImportantFile51" Guid="24B27D1F-2E1C-4679-AC97-57561981311F">
+        <File Id="File51" Source="..\..\bin\Debug\Installer\App\Microsoft.Win32.Primitives.dll" />
+      </Component>
+      <!-- Microsoft.Win32.Registry.dll -->
+      <Component Id="ImportantFile52" Guid="37BB9F58-8325-4A99-B941-F5665B5184C2">
+        <File Id="File52" Source="..\..\bin\Debug\Installer\App\Microsoft.Win32.Registry.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.ContentSafety.dll -->
+      <Component Id="ImportantFile53" Guid="510C0FCA-0613-48A2-B5C6-07719D01B67B">
+        <File Id="File53" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.ContentSafety.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.ContentSafety.Projection.dll -->
+      <Component Id="ImportantFile54" Guid="4842C68B-A84A-4C73-85AD-6884EE2214CA">
+        <File Id="File54" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.ContentSafety.Projection.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.Foundation.Projection.dll -->
+      <Component Id="ImportantFile55" Guid="74A6AE6D-7649-43F2-A7C5-0AF07C4AF799">
+        <File Id="File55" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.Foundation.Projection.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.Imaging.dll -->
+      <Component Id="ImportantFile56" Guid="563B5EE1-1FC9-4A0C-8F65-09B92E976F79">
+        <File Id="File56" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.Imaging.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.Imaging.Projection.dll -->
+      <Component Id="ImportantFile57" Guid="9BFE5B5A-33B2-41B3-95EE-399B4F9F3382">
+        <File Id="File57" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.Imaging.Projection.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.MachineLearning.dll -->
+      <Component Id="ImportantFile58" Guid="FA90E881-AA09-42F4-A81D-CA540ABBF728">
+        <File Id="File58" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.MachineLearning.dll" />
+      </Component>
+      <!-- Microsoft.Windows.AI.MachineLearning.Projection.dll -->
+      <Component Id="ImportantFile59" Guid="0A342038-CF33-4084-ACEF-7BB679F59CA2">
+        <File Id="File59" Source="..\..\bin\Debug\Installer\App\Microsoft.Windows.AI.MachineLearning.Projection.dll" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- Componente: Accesos directos en Menú Inicio -->
+    <Component Id="StartMenuShortcuts" Directory="ApplicationProgramsFolder" Guid="66666666-6666-6666-6666-666666666666">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="GestionTime Desktop (Debug)"
+                Description="Aplicación de gestión de tiempo (Debug)"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop Debug" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Acceso directo en Escritorio -->
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="77777777-7777-7777-7777-777777777777">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="GestionTime Desktop (Debug)"
+                Description="Aplicación de gestión de tiempo (Debug)"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop Debug" 
+                     Name="DesktopShortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+  </Fragment>
+</Wix>

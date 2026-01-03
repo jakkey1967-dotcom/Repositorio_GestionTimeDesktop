@@ -1,0 +1,586 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <Fragment>
+    
+    <!-- Característica principal -->
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop - Aplicación Completa" 
+             Description="Aplicación completa de gestión de tiempo"
+             Level="1" 
+             ConfigurableDirectory="INSTALLFOLDER"
+             AllowAdvertise="no"
+             Display="expand">
+
+      <!-- Componente principal con TODOS los archivos -->
+      <ComponentRef Id="AllApplicationFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+
+    <!-- Característica opcional: Acceso directo en escritorio -->
+    <Feature Id="DesktopShortcut" 
+             Title="Acceso Directo en Escritorio"
+             Description="Crear acceso directo en el escritorio" 
+             Level="1"
+             AllowAdvertise="no">
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+
+    <!-- Componente único con TODOS los archivos -->
+    <Component Id="AllApplicationFiles" Directory="INSTALLFOLDER" Guid="AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA">      <File Id="appsettings_json" Source="..\..\bin\Release\Installer\App\appsettings.json" />
+      <File Id="clretwrc_dll" Source="..\..\bin\Release\Installer\App\clretwrc.dll" />
+      <File Id="clrgc_dll" Source="..\..\bin\Release\Installer\App\clrgc.dll" />
+      <File Id="clrjit_dll" Source="..\..\bin\Release\Installer\App\clrjit.dll" />
+      <File Id="CommunityToolkit_Mvvm_dll" Source="..\..\bin\Release\Installer\App\CommunityToolkit.Mvvm.dll" />
+      <File Id="coreclr_dll" Source="..\..\bin\Release\Installer\App\coreclr.dll" />
+      <File Id="CoreMessagingXP_dll" Source="..\..\bin\Release\Installer\App\CoreMessagingXP.dll" />
+      <File Id="createdump_exe" Source="..\..\bin\Release\Installer\App\createdump.exe" />
+      <File Id="dcompi_dll" Source="..\..\bin\Release\Installer\App\dcompi.dll" />
+      <File Id="DirectML_dll" Source="..\..\bin\Release\Installer\App\DirectML.dll" />
+      <File Id="dwmcorei_dll" Source="..\..\bin\Release\Installer\App\dwmcorei.dll" />
+      <File Id="DwmSceneI_dll" Source="..\..\bin\Release\Installer\App\DwmSceneI.dll" />
+      <File Id="DWriteCore_dll" Source="..\..\bin\Release\Installer\App\DWriteCore.dll" />
+      <File Id="FluentAssertions_dll" Source="..\..\bin\Release\Installer\App\FluentAssertions.dll" />
+      <File Id="GestionTime_Desktop_deps_json" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.deps.json" />
+      <File Id="GestionTime_Desktop_dll" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.dll" />
+      <File Id="GestionTime_Desktop_exe" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.exe" KeyPath="yes" />
+      <File Id="GestionTime_Desktop_pdb" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.pdb" />
+      <File Id="GestionTime_Desktop_runtimeconfig_json" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.runtimeconfig.json" />
+      <File Id="hostfxr_dll" Source="..\..\bin\Release\Installer\App\hostfxr.dll" />
+      <File Id="hostpolicy_dll" Source="..\..\bin\Release\Installer\App\hostpolicy.dll" />
+      <File Id="marshal_dll" Source="..\..\bin\Release\Installer\App\marshal.dll" />
+      <File Id="Microsoft_CSharp_dll" Source="..\..\bin\Release\Installer\App\Microsoft.CSharp.dll" />
+      <File Id="Microsoft_DiaSymReader_Native_amd64_dll" Source="..\..\bin\Release\Installer\App\Microsoft.DiaSymReader.Native.amd64.dll" />
+      <File Id="Microsoft_DirectManipulation_dll" Source="..\..\bin\Release\Installer\App\Microsoft.DirectManipulation.dll" />
+      <File Id="Microsoft_Extensions_Configuration_Abstractions_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Abstractions.dll" />
+      <File Id="Microsoft_Extensions_Configuration_Binder_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Binder.dll" />
+      <File Id="Microsoft_Extensions_Configuration_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.dll" />
+      <File Id="Microsoft_Extensions_Configuration_FileExtensions_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.FileExtensions.dll" />
+      <File Id="Microsoft_Extensions_Configuration_Json_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Json.dll" />
+      <File Id="Microsoft_Extensions_DependencyInjection_Abstractions_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      <File Id="Microsoft_Extensions_DependencyInjection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.DependencyInjection.dll" />
+      <File Id="Microsoft_Extensions_FileProviders_Abstractions_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+      <File Id="Microsoft_Extensions_FileProviders_Physical_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.FileProviders.Physical.dll" />
+      <File Id="Microsoft_Extensions_FileSystemGlobbing_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.FileSystemGlobbing.dll" />
+      <File Id="Microsoft_Extensions_Logging_Abstractions_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Logging.Abstractions.dll" />
+      <File Id="Microsoft_Extensions_Logging_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Logging.dll" />
+      <File Id="Microsoft_Extensions_Options_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Options.dll" />
+      <File Id="Microsoft_Extensions_Primitives_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Extensions.Primitives.dll" />
+      <File Id="Microsoft_Foundation_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Foundation.winmd" />
+      <File Id="Microsoft_Graphics_Display_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Display.dll" />
+      <File Id="Microsoft_Graphics_Imaging_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Imaging.dll" />
+      <File Id="Microsoft_Graphics_Imaging_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Imaging.Projection.dll" />
+      <File Id="Microsoft_Graphics_Imaging_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Imaging.winmd" />
+      <File Id="Microsoft_Graphics_ImagingInternal_ImageObjectRemover_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.ImagingInternal.ImageObjectRemover.winmd" />
+      <File Id="Microsoft_Graphics_ImagingInternal_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.ImagingInternal.winmd" />
+      <File Id="Microsoft_Graphics_Internal_Imaging_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.Internal.Imaging.winmd" />
+      <File Id="Microsoft_Graphics_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Graphics.winmd" />
+      <File Id="Microsoft_InputStateManager_dll" Source="..\..\bin\Release\Installer\App\Microsoft.InputStateManager.dll" />
+      <File Id="Microsoft_InteractiveExperiences_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.InteractiveExperiences.Projection.dll" />
+      <File Id="Microsoft_Internal_FrameworkUdk_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Internal.FrameworkUdk.dll" />
+      <File Id="Microsoft_ML_OnnxRuntime_dll" Source="..\..\bin\Release\Installer\App\Microsoft.ML.OnnxRuntime.dll" />
+      <File Id="Microsoft_Security_Authentication_OAuth_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Security.Authentication.OAuth.Projection.dll" />
+      <File Id="Microsoft_Security_Authentication_OAuth_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Security.Authentication.OAuth.winmd" />
+      <File Id="Microsoft_UI_Composition_OSSupport_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Composition.OSSupport.dll" />
+      <File Id="Microsoft_UI_Designer_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Designer.dll" />
+      <File Id="Microsoft_UI_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.dll" />
+      <File Id="Microsoft_UI_Input_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Input.dll" />
+      <File Id="Microsoft_UI_pri" Source="..\..\bin\Release\Installer\App\Microsoft.UI.pri" />
+      <File Id="Microsoft_UI_Text_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Text.winmd" />
+      <File Id="Microsoft_UI_Windowing_Core_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Windowing.Core.dll" />
+      <File Id="Microsoft_UI_Windowing_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Windowing.dll" />
+      <File Id="Microsoft_UI_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.UI.winmd" />
+      <File Id="Microsoft_UI_Xaml_Controls_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Controls.dll" />
+      <File Id="Microsoft_UI_Xaml_Controls_pri" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Controls.pri" />
+      <File Id="Microsoft_ui_xaml_dll" Source="..\..\bin\Release\Installer\App\Microsoft.ui.xaml.dll" />
+      <File Id="Microsoft_UI_Xaml_Internal_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Internal.dll" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Phone.dll" />
+      <File Id="Microsoft_ui_xaml_resources_19h1_dll" Source="..\..\bin\Release\Installer\App\Microsoft.ui.xaml.resources.19h1.dll" />
+      <File Id="Microsoft_ui_xaml_resources_common_dll" Source="..\..\bin\Release\Installer\App\Microsoft.ui.xaml.resources.common.dll" />
+      <File Id="Microsoft_UI_Xaml_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.winmd" />
+      <File Id="Microsoft_VisualBasic_Core_dll" Source="..\..\bin\Release\Installer\App\Microsoft.VisualBasic.Core.dll" />
+      <File Id="Microsoft_VisualBasic_dll" Source="..\..\bin\Release\Installer\App\Microsoft.VisualBasic.dll" />
+      <File Id="Microsoft_Web_WebView2_Core_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Web.WebView2.Core.dll" />
+      <File Id="Microsoft_Web_WebView2_Core_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Web.WebView2.Core.Projection.dll" />
+      <File Id="Microsoft_Win32_Primitives_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Win32.Primitives.dll" />
+      <File Id="Microsoft_Win32_Registry_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Win32.Registry.dll" />
+      <File Id="Microsoft_Windows_AI_ContentModerationInternal_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentModerationInternal.winmd" />
+      <File Id="Microsoft_Windows_AI_ContentSafety_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.dll" />
+      <File Id="Microsoft_Windows_AI_ContentSafety_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.Projection.dll" />
+      <File Id="Microsoft_Windows_AI_ContentSafety_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.winmd" />
+      <File Id="Microsoft_Windows_AI_Foundation_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Foundation.Projection.dll" />
+      <File Id="Microsoft_Windows_AI_Foundation_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Foundation.winmd" />
+      <File Id="Microsoft_Windows_AI_FoundationInternal_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.FoundationInternal.winmd" />
+      <File Id="Microsoft_Windows_AI_GenerativeInternal_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.GenerativeInternal.winmd" />
+      <File Id="Microsoft_Windows_AI_Imaging_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.dll" />
+      <File Id="Microsoft_Windows_AI_Imaging_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.Projection.dll" />
+      <File Id="Microsoft_Windows_AI_Imaging_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.winmd" />
+      <File Id="Microsoft_Windows_AI_MachineLearning_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.dll" />
+      <File Id="Microsoft_Windows_AI_MachineLearning_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.Projection.dll" />
+      <File Id="Microsoft_Windows_AI_MachineLearning_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.winmd" />
+      <File Id="Microsoft_Windows_AI_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Projection.dll" />
+      <File Id="Microsoft_Windows_AI_Text_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Text.dll" />
+      <File Id="Microsoft_Windows_AI_Text_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Text.Projection.dll" />
+      <File Id="Microsoft_Windows_AI_Text_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.Text.winmd" />
+      <File Id="Microsoft_Windows_AI_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AI.winmd" />
+      <File Id="Microsoft_Windows_ApplicationModel_Background_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.Projection.dll" />
+      <File Id="Microsoft_Windows_ApplicationModel_Background_UniversalBGTask_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll" />
+      <File Id="Microsoft_Windows_ApplicationModel_Background_UniversalBGTask_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.winmd" />
+      <File Id="Microsoft_Windows_ApplicationModel_Background_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.winmd" />
+      <File Id="Microsoft_Windows_ApplicationModel_DynamicDependency_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll" />
+      <File Id="Microsoft_Windows_ApplicationModel_DynamicDependency_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.DynamicDependency.winmd" />
+      <File Id="Microsoft_Windows_ApplicationModel_Resources_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.dll" />
+      <File Id="Microsoft_Windows_ApplicationModel_Resources_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.Projection.dll" />
+      <File Id="Microsoft_Windows_ApplicationModel_Resources_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.winmd" />
+      <File Id="Microsoft_Windows_ApplicationModel_WindowsAppRuntime_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll" />
+      <File Id="Microsoft_Windows_ApplicationModel_WindowsAppRuntime_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.WindowsAppRuntime.winmd" />
+      <File Id="Microsoft_Windows_AppLifecycle_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppLifecycle.Projection.dll" />
+      <File Id="Microsoft_Windows_AppLifecycle_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppLifecycle.winmd" />
+      <File Id="Microsoft_Windows_AppNotifications_Builder_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Builder.Projection.dll" />
+      <File Id="Microsoft_Windows_AppNotifications_Builder_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Builder.winmd" />
+      <File Id="Microsoft_Windows_AppNotifications_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Projection.dll" />
+      <File Id="Microsoft_Windows_AppNotifications_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.winmd" />
+      <File Id="Microsoft_Windows_BadgeNotifications_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.BadgeNotifications.Projection.dll" />
+      <File Id="Microsoft_Windows_BadgeNotifications_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.BadgeNotifications.winmd" />
+      <File Id="Microsoft_Windows_Foundation_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Foundation.Projection.dll" />
+      <File Id="Microsoft_Windows_Foundation_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Foundation.winmd" />
+      <File Id="Microsoft_Windows_Globalization_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Globalization.winmd" />
+      <File Id="Microsoft_Windows_Internal_Vision_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Internal.Vision.winmd" />
+      <File Id="Microsoft_Windows_Management_Deployment_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Management.Deployment.Projection.dll" />
+      <File Id="Microsoft_Windows_Management_Deployment_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Management.Deployment.winmd" />
+      <File Id="Microsoft_Windows_Media_Capture_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Media.Capture.Projection.dll" />
+      <File Id="Microsoft_Windows_Media_Capture_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Media.Capture.winmd" />
+      <File Id="Microsoft_Windows_Private_Workloads_SessionManager_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Private.Workloads.SessionManager.winmd" />
+      <File Id="Microsoft_Windows_PrivateCommon_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.PrivateCommon.winmd" />
+      <File Id="Microsoft_Windows_PushNotifications_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.PushNotifications.Projection.dll" />
+      <File Id="Microsoft_Windows_PushNotifications_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.PushNotifications.winmd" />
+      <File Id="Microsoft_Windows_SDK_NET_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.SDK.NET.dll" />
+      <File Id="Microsoft_Windows_Security_AccessControl_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Security.AccessControl.Projection.dll" />
+      <File Id="Microsoft_Windows_Security_AccessControl_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Security.AccessControl.winmd" />
+      <File Id="Microsoft_Windows_SemanticSearch_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.SemanticSearch.winmd" />
+      <File Id="Microsoft_Windows_Storage_Pickers_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.Pickers.Projection.dll" />
+      <File Id="Microsoft_Windows_Storage_Pickers_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.Pickers.winmd" />
+      <File Id="Microsoft_Windows_Storage_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.Projection.dll" />
+      <File Id="Microsoft_Windows_Storage_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Storage.winmd" />
+      <File Id="Microsoft_Windows_System_Power_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.Power.Projection.dll" />
+      <File Id="Microsoft_Windows_System_Power_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.Power.winmd" />
+      <File Id="Microsoft_Windows_System_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.Projection.dll" />
+      <File Id="Microsoft_Windows_System_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.System.winmd" />
+      <File Id="Microsoft_Windows_Vision_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Vision.winmd" />
+      <File Id="Microsoft_Windows_VisionInternal_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.VisionInternal.winmd" />
+      <File Id="Microsoft_Windows_Widgets_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Widgets.dll" />
+      <File Id="Microsoft_Windows_Widgets_Projection_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Widgets.Projection.dll" />
+      <File Id="Microsoft_Windows_Widgets_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Widgets.winmd" />
+      <File Id="Microsoft_Windows_Workloads_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.dll" />
+      <File Id="Microsoft_Windows_Workloads_Resources_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.Resources.dll" />
+      <File Id="Microsoft_Windows_Workloads_Resources_ec_dll" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.Resources_ec.dll" />
+      <File Id="Microsoft_Windows_Workloads_winmd" Source="..\..\bin\Release\Installer\App\Microsoft.Windows.Workloads.winmd" />
+      <File Id="Microsoft_WindowsAppRuntime_Bootstrap_dll" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Bootstrap.dll" />
+      <File Id="Microsoft_WindowsAppRuntime_Bootstrap_Net_dll" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Bootstrap.Net.dll" />
+      <File Id="Microsoft_WindowsAppRuntime_dll" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.dll" />
+      <File Id="Microsoft_WindowsAppRuntime_Insights_Resource_dll" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Insights.Resource.dll" />
+      <File Id="Microsoft_WindowsAppRuntime_pri" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.pri" />
+      <File Id="Microsoft_WinUI_dll" Source="..\..\bin\Release\Installer\App\Microsoft.WinUI.dll" />
+      <File Id="MRM_dll" Source="..\..\bin\Release\Installer\App\MRM.dll" />
+      <File Id="mscordaccore_dll" Source="..\..\bin\Release\Installer\App\mscordaccore.dll" />
+      <File Id="mscordaccore_amd64_amd64_8_0_2225_52707_dll" Source="..\..\bin\Release\Installer\App\mscordaccore_amd64_amd64_8.0.2225.52707.dll" />
+      <File Id="mscordbi_dll" Source="..\..\bin\Release\Installer\App\mscordbi.dll" />
+      <File Id="mscorlib_dll" Source="..\..\bin\Release\Installer\App\mscorlib.dll" />
+      <File Id="mscorrc_dll" Source="..\..\bin\Release\Installer\App\mscorrc.dll" />
+      <File Id="msquic_dll" Source="..\..\bin\Release\Installer\App\msquic.dll" />
+      <File Id="netstandard_dll" Source="..\..\bin\Release\Installer\App\netstandard.dll" />
+      <File Id="onnxruntime_dll" Source="..\..\bin\Release\Installer\App\onnxruntime.dll" />
+      <File Id="onnxruntime_providers_shared_dll" Source="..\..\bin\Release\Installer\App\onnxruntime_providers_shared.dll" />
+      <File Id="PushNotificationsLongRunningTask_ProxyStub_dll" Source="..\..\bin\Release\Installer\App\PushNotificationsLongRunningTask.ProxyStub.dll" />
+      <File Id="RestartAgent_exe" Source="..\..\bin\Release\Installer\App\RestartAgent.exe" />
+      <File Id="SessionHandleIPCProxyStub_dll" Source="..\..\bin\Release\Installer\App\SessionHandleIPCProxyStub.dll" />
+      <File Id="System_AppContext_dll" Source="..\..\bin\Release\Installer\App\System.AppContext.dll" />
+      <File Id="System_Buffers_dll" Source="..\..\bin\Release\Installer\App\System.Buffers.dll" />
+      <File Id="System_Collections_Concurrent_dll" Source="..\..\bin\Release\Installer\App\System.Collections.Concurrent.dll" />
+      <File Id="System_Collections_dll" Source="..\..\bin\Release\Installer\App\System.Collections.dll" />
+      <File Id="System_Collections_Immutable_dll" Source="..\..\bin\Release\Installer\App\System.Collections.Immutable.dll" />
+      <File Id="System_Collections_NonGeneric_dll" Source="..\..\bin\Release\Installer\App\System.Collections.NonGeneric.dll" />
+      <File Id="System_Collections_Specialized_dll" Source="..\..\bin\Release\Installer\App\System.Collections.Specialized.dll" />
+      <File Id="System_ComponentModel_Annotations_dll" Source="..\..\bin\Release\Installer\App\System.ComponentModel.Annotations.dll" />
+      <File Id="System_ComponentModel_DataAnnotations_dll" Source="..\..\bin\Release\Installer\App\System.ComponentModel.DataAnnotations.dll" />
+      <File Id="System_ComponentModel_dll" Source="..\..\bin\Release\Installer\App\System.ComponentModel.dll" />
+      <File Id="System_ComponentModel_EventBasedAsync_dll" Source="..\..\bin\Release\Installer\App\System.ComponentModel.EventBasedAsync.dll" />
+      <File Id="System_ComponentModel_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.ComponentModel.Primitives.dll" />
+      <File Id="System_ComponentModel_TypeConverter_dll" Source="..\..\bin\Release\Installer\App\System.ComponentModel.TypeConverter.dll" />
+      <File Id="System_Configuration_dll" Source="..\..\bin\Release\Installer\App\System.Configuration.dll" />
+      <File Id="System_Console_dll" Source="..\..\bin\Release\Installer\App\System.Console.dll" />
+      <File Id="System_Core_dll" Source="..\..\bin\Release\Installer\App\System.Core.dll" />
+      <File Id="System_Data_Common_dll" Source="..\..\bin\Release\Installer\App\System.Data.Common.dll" />
+      <File Id="System_Data_DataSetExtensions_dll" Source="..\..\bin\Release\Installer\App\System.Data.DataSetExtensions.dll" />
+      <File Id="System_Data_dll" Source="..\..\bin\Release\Installer\App\System.Data.dll" />
+      <File Id="System_Diagnostics_Contracts_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.Contracts.dll" />
+      <File Id="System_Diagnostics_Debug_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.Debug.dll" />
+      <File Id="System_Diagnostics_DiagnosticSource_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.DiagnosticSource.dll" />
+      <File Id="System_Diagnostics_EventLog_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.EventLog.dll" />
+      <File Id="System_Diagnostics_FileVersionInfo_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.FileVersionInfo.dll" />
+      <File Id="System_Diagnostics_Process_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.Process.dll" />
+      <File Id="System_Diagnostics_StackTrace_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.StackTrace.dll" />
+      <File Id="System_Diagnostics_TextWriterTraceListener_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.TextWriterTraceListener.dll" />
+      <File Id="System_Diagnostics_Tools_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.Tools.dll" />
+      <File Id="System_Diagnostics_TraceSource_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.TraceSource.dll" />
+      <File Id="System_Diagnostics_Tracing_dll" Source="..\..\bin\Release\Installer\App\System.Diagnostics.Tracing.dll" />
+      <File Id="System_dll" Source="..\..\bin\Release\Installer\App\System.dll" />
+      <File Id="System_Drawing_dll" Source="..\..\bin\Release\Installer\App\System.Drawing.dll" />
+      <File Id="System_Drawing_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.Drawing.Primitives.dll" />
+      <File Id="System_Dynamic_Runtime_dll" Source="..\..\bin\Release\Installer\App\System.Dynamic.Runtime.dll" />
+      <File Id="System_Formats_Asn1_dll" Source="..\..\bin\Release\Installer\App\System.Formats.Asn1.dll" />
+      <File Id="System_Formats_Tar_dll" Source="..\..\bin\Release\Installer\App\System.Formats.Tar.dll" />
+      <File Id="System_Globalization_Calendars_dll" Source="..\..\bin\Release\Installer\App\System.Globalization.Calendars.dll" />
+      <File Id="System_Globalization_dll" Source="..\..\bin\Release\Installer\App\System.Globalization.dll" />
+      <File Id="System_Globalization_Extensions_dll" Source="..\..\bin\Release\Installer\App\System.Globalization.Extensions.dll" />
+      <File Id="System_IO_Compression_Brotli_dll" Source="..\..\bin\Release\Installer\App\System.IO.Compression.Brotli.dll" />
+      <File Id="System_IO_Compression_dll" Source="..\..\bin\Release\Installer\App\System.IO.Compression.dll" />
+      <File Id="System_IO_Compression_FileSystem_dll" Source="..\..\bin\Release\Installer\App\System.IO.Compression.FileSystem.dll" />
+      <File Id="System_IO_Compression_Native_dll" Source="..\..\bin\Release\Installer\App\System.IO.Compression.Native.dll" />
+      <File Id="System_IO_Compression_ZipFile_dll" Source="..\..\bin\Release\Installer\App\System.IO.Compression.ZipFile.dll" />
+      <File Id="System_IO_dll" Source="..\..\bin\Release\Installer\App\System.IO.dll" />
+      <File Id="System_IO_FileSystem_AccessControl_dll" Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.AccessControl.dll" />
+      <File Id="System_IO_FileSystem_dll" Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.dll" />
+      <File Id="System_IO_FileSystem_DriveInfo_dll" Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.DriveInfo.dll" />
+      <File Id="System_IO_FileSystem_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.Primitives.dll" />
+      <File Id="System_IO_FileSystem_Watcher_dll" Source="..\..\bin\Release\Installer\App\System.IO.FileSystem.Watcher.dll" />
+      <File Id="System_IO_IsolatedStorage_dll" Source="..\..\bin\Release\Installer\App\System.IO.IsolatedStorage.dll" />
+      <File Id="System_IO_MemoryMappedFiles_dll" Source="..\..\bin\Release\Installer\App\System.IO.MemoryMappedFiles.dll" />
+      <File Id="System_IO_Pipelines_dll" Source="..\..\bin\Release\Installer\App\System.IO.Pipelines.dll" />
+      <File Id="System_IO_Pipes_AccessControl_dll" Source="..\..\bin\Release\Installer\App\System.IO.Pipes.AccessControl.dll" />
+      <File Id="System_IO_Pipes_dll" Source="..\..\bin\Release\Installer\App\System.IO.Pipes.dll" />
+      <File Id="System_IO_UnmanagedMemoryStream_dll" Source="..\..\bin\Release\Installer\App\System.IO.UnmanagedMemoryStream.dll" />
+      <File Id="System_Linq_dll" Source="..\..\bin\Release\Installer\App\System.Linq.dll" />
+      <File Id="System_Linq_Expressions_dll" Source="..\..\bin\Release\Installer\App\System.Linq.Expressions.dll" />
+      <File Id="System_Linq_Parallel_dll" Source="..\..\bin\Release\Installer\App\System.Linq.Parallel.dll" />
+      <File Id="System_Linq_Queryable_dll" Source="..\..\bin\Release\Installer\App\System.Linq.Queryable.dll" />
+      <File Id="System_Memory_dll" Source="..\..\bin\Release\Installer\App\System.Memory.dll" />
+      <File Id="System_Net_dll" Source="..\..\bin\Release\Installer\App\System.Net.dll" />
+      <File Id="System_Net_Http_dll" Source="..\..\bin\Release\Installer\App\System.Net.Http.dll" />
+      <File Id="System_Net_Http_Json_dll" Source="..\..\bin\Release\Installer\App\System.Net.Http.Json.dll" />
+      <File Id="System_Net_HttpListener_dll" Source="..\..\bin\Release\Installer\App\System.Net.HttpListener.dll" />
+      <File Id="System_Net_Mail_dll" Source="..\..\bin\Release\Installer\App\System.Net.Mail.dll" />
+      <File Id="System_Net_NameResolution_dll" Source="..\..\bin\Release\Installer\App\System.Net.NameResolution.dll" />
+      <File Id="System_Net_NetworkInformation_dll" Source="..\..\bin\Release\Installer\App\System.Net.NetworkInformation.dll" />
+      <File Id="System_Net_Ping_dll" Source="..\..\bin\Release\Installer\App\System.Net.Ping.dll" />
+      <File Id="System_Net_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.Net.Primitives.dll" />
+      <File Id="System_Net_Quic_dll" Source="..\..\bin\Release\Installer\App\System.Net.Quic.dll" />
+      <File Id="System_Net_Requests_dll" Source="..\..\bin\Release\Installer\App\System.Net.Requests.dll" />
+      <File Id="System_Net_Security_dll" Source="..\..\bin\Release\Installer\App\System.Net.Security.dll" />
+      <File Id="System_Net_ServicePoint_dll" Source="..\..\bin\Release\Installer\App\System.Net.ServicePoint.dll" />
+      <File Id="System_Net_Sockets_dll" Source="..\..\bin\Release\Installer\App\System.Net.Sockets.dll" />
+      <File Id="System_Net_WebClient_dll" Source="..\..\bin\Release\Installer\App\System.Net.WebClient.dll" />
+      <File Id="System_Net_WebHeaderCollection_dll" Source="..\..\bin\Release\Installer\App\System.Net.WebHeaderCollection.dll" />
+      <File Id="System_Net_WebProxy_dll" Source="..\..\bin\Release\Installer\App\System.Net.WebProxy.dll" />
+      <File Id="System_Net_WebSockets_Client_dll" Source="..\..\bin\Release\Installer\App\System.Net.WebSockets.Client.dll" />
+      <File Id="System_Net_WebSockets_dll" Source="..\..\bin\Release\Installer\App\System.Net.WebSockets.dll" />
+      <File Id="System_Numerics_dll" Source="..\..\bin\Release\Installer\App\System.Numerics.dll" />
+      <File Id="System_Numerics_Tensors_dll" Source="..\..\bin\Release\Installer\App\System.Numerics.Tensors.dll" />
+      <File Id="System_Numerics_Vectors_dll" Source="..\..\bin\Release\Installer\App\System.Numerics.Vectors.dll" />
+      <File Id="System_ObjectModel_dll" Source="..\..\bin\Release\Installer\App\System.ObjectModel.dll" />
+      <File Id="System_Private_CoreLib_dll" Source="..\..\bin\Release\Installer\App\System.Private.CoreLib.dll" />
+      <File Id="System_Private_DataContractSerialization_dll" Source="..\..\bin\Release\Installer\App\System.Private.DataContractSerialization.dll" />
+      <File Id="System_Private_Uri_dll" Source="..\..\bin\Release\Installer\App\System.Private.Uri.dll" />
+      <File Id="System_Private_Xml_dll" Source="..\..\bin\Release\Installer\App\System.Private.Xml.dll" />
+      <File Id="System_Private_Xml_Linq_dll" Source="..\..\bin\Release\Installer\App\System.Private.Xml.Linq.dll" />
+      <File Id="System_Reflection_DispatchProxy_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.DispatchProxy.dll" />
+      <File Id="System_Reflection_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.dll" />
+      <File Id="System_Reflection_Emit_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.Emit.dll" />
+      <File Id="System_Reflection_Emit_ILGeneration_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.Emit.ILGeneration.dll" />
+      <File Id="System_Reflection_Emit_Lightweight_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.Emit.Lightweight.dll" />
+      <File Id="System_Reflection_Extensions_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.Extensions.dll" />
+      <File Id="System_Reflection_Metadata_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.Metadata.dll" />
+      <File Id="System_Reflection_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.Primitives.dll" />
+      <File Id="System_Reflection_TypeExtensions_dll" Source="..\..\bin\Release\Installer\App\System.Reflection.TypeExtensions.dll" />
+      <File Id="System_Resources_Reader_dll" Source="..\..\bin\Release\Installer\App\System.Resources.Reader.dll" />
+      <File Id="System_Resources_ResourceManager_dll" Source="..\..\bin\Release\Installer\App\System.Resources.ResourceManager.dll" />
+      <File Id="System_Resources_Writer_dll" Source="..\..\bin\Release\Installer\App\System.Resources.Writer.dll" />
+      <File Id="System_Runtime_CompilerServices_Unsafe_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.CompilerServices.Unsafe.dll" />
+      <File Id="System_Runtime_CompilerServices_VisualC_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.CompilerServices.VisualC.dll" />
+      <File Id="System_Runtime_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.dll" />
+      <File Id="System_Runtime_Extensions_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Extensions.dll" />
+      <File Id="System_Runtime_Handles_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Handles.dll" />
+      <File Id="System_Runtime_InteropServices_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.InteropServices.dll" />
+      <File Id="System_Runtime_InteropServices_JavaScript_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.InteropServices.JavaScript.dll" />
+      <File Id="System_Runtime_InteropServices_RuntimeInformation_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.InteropServices.RuntimeInformation.dll" />
+      <File Id="System_Runtime_Intrinsics_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Intrinsics.dll" />
+      <File Id="System_Runtime_Loader_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Loader.dll" />
+      <File Id="System_Runtime_Numerics_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Numerics.dll" />
+      <File Id="System_Runtime_Serialization_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.dll" />
+      <File Id="System_Runtime_Serialization_Formatters_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Formatters.dll" />
+      <File Id="System_Runtime_Serialization_Json_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Json.dll" />
+      <File Id="System_Runtime_Serialization_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Primitives.dll" />
+      <File Id="System_Runtime_Serialization_Xml_dll" Source="..\..\bin\Release\Installer\App\System.Runtime.Serialization.Xml.dll" />
+      <File Id="System_Security_AccessControl_dll" Source="..\..\bin\Release\Installer\App\System.Security.AccessControl.dll" />
+      <File Id="System_Security_Claims_dll" Source="..\..\bin\Release\Installer\App\System.Security.Claims.dll" />
+      <File Id="System_Security_Cryptography_Algorithms_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Algorithms.dll" />
+      <File Id="System_Security_Cryptography_Cng_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Cng.dll" />
+      <File Id="System_Security_Cryptography_Csp_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Csp.dll" />
+      <File Id="System_Security_Cryptography_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.dll" />
+      <File Id="System_Security_Cryptography_Encoding_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Encoding.dll" />
+      <File Id="System_Security_Cryptography_OpenSsl_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.OpenSsl.dll" />
+      <File Id="System_Security_Cryptography_Primitives_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.Primitives.dll" />
+      <File Id="System_Security_Cryptography_X509Certificates_dll" Source="..\..\bin\Release\Installer\App\System.Security.Cryptography.X509Certificates.dll" />
+      <File Id="System_Security_dll" Source="..\..\bin\Release\Installer\App\System.Security.dll" />
+      <File Id="System_Security_Principal_dll" Source="..\..\bin\Release\Installer\App\System.Security.Principal.dll" />
+      <File Id="System_Security_Principal_Windows_dll" Source="..\..\bin\Release\Installer\App\System.Security.Principal.Windows.dll" />
+      <File Id="System_Security_SecureString_dll" Source="..\..\bin\Release\Installer\App\System.Security.SecureString.dll" />
+      <File Id="System_ServiceModel_Web_dll" Source="..\..\bin\Release\Installer\App\System.ServiceModel.Web.dll" />
+      <File Id="System_ServiceProcess_dll" Source="..\..\bin\Release\Installer\App\System.ServiceProcess.dll" />
+      <File Id="System_Text_Encoding_CodePages_dll" Source="..\..\bin\Release\Installer\App\System.Text.Encoding.CodePages.dll" />
+      <File Id="System_Text_Encoding_dll" Source="..\..\bin\Release\Installer\App\System.Text.Encoding.dll" />
+      <File Id="System_Text_Encoding_Extensions_dll" Source="..\..\bin\Release\Installer\App\System.Text.Encoding.Extensions.dll" />
+      <File Id="System_Text_Encodings_Web_dll" Source="..\..\bin\Release\Installer\App\System.Text.Encodings.Web.dll" />
+      <File Id="System_Text_Json_dll" Source="..\..\bin\Release\Installer\App\System.Text.Json.dll" />
+      <File Id="System_Text_RegularExpressions_dll" Source="..\..\bin\Release\Installer\App\System.Text.RegularExpressions.dll" />
+      <File Id="System_Threading_Channels_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Channels.dll" />
+      <File Id="System_Threading_dll" Source="..\..\bin\Release\Installer\App\System.Threading.dll" />
+      <File Id="System_Threading_Overlapped_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Overlapped.dll" />
+      <File Id="System_Threading_Tasks_Dataflow_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.Dataflow.dll" />
+      <File Id="System_Threading_Tasks_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.dll" />
+      <File Id="System_Threading_Tasks_Extensions_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.Extensions.dll" />
+      <File Id="System_Threading_Tasks_Parallel_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Tasks.Parallel.dll" />
+      <File Id="System_Threading_Thread_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Thread.dll" />
+      <File Id="System_Threading_ThreadPool_dll" Source="..\..\bin\Release\Installer\App\System.Threading.ThreadPool.dll" />
+      <File Id="System_Threading_Timer_dll" Source="..\..\bin\Release\Installer\App\System.Threading.Timer.dll" />
+      <File Id="System_Transactions_dll" Source="..\..\bin\Release\Installer\App\System.Transactions.dll" />
+      <File Id="System_Transactions_Local_dll" Source="..\..\bin\Release\Installer\App\System.Transactions.Local.dll" />
+      <File Id="System_ValueTuple_dll" Source="..\..\bin\Release\Installer\App\System.ValueTuple.dll" />
+      <File Id="System_Web_dll" Source="..\..\bin\Release\Installer\App\System.Web.dll" />
+      <File Id="System_Web_HttpUtility_dll" Source="..\..\bin\Release\Installer\App\System.Web.HttpUtility.dll" />
+      <File Id="System_Windows_dll" Source="..\..\bin\Release\Installer\App\System.Windows.dll" />
+      <File Id="System_Xml_dll" Source="..\..\bin\Release\Installer\App\System.Xml.dll" />
+      <File Id="System_Xml_Linq_dll" Source="..\..\bin\Release\Installer\App\System.Xml.Linq.dll" />
+      <File Id="System_Xml_ReaderWriter_dll" Source="..\..\bin\Release\Installer\App\System.Xml.ReaderWriter.dll" />
+      <File Id="System_Xml_Serialization_dll" Source="..\..\bin\Release\Installer\App\System.Xml.Serialization.dll" />
+      <File Id="System_Xml_XDocument_dll" Source="..\..\bin\Release\Installer\App\System.Xml.XDocument.dll" />
+      <File Id="System_Xml_XmlDocument_dll" Source="..\..\bin\Release\Installer\App\System.Xml.XmlDocument.dll" />
+      <File Id="System_Xml_XmlSerializer_dll" Source="..\..\bin\Release\Installer\App\System.Xml.XmlSerializer.dll" />
+      <File Id="System_Xml_XPath_dll" Source="..\..\bin\Release\Installer\App\System.Xml.XPath.dll" />
+      <File Id="System_Xml_XPath_XDocument_dll" Source="..\..\bin\Release\Installer\App\System.Xml.XPath.XDocument.dll" />
+      <File Id="WebView2Loader_dll" Source="..\..\bin\Release\Installer\App\WebView2Loader.dll" />
+      <File Id="WindowsAppRuntime_DeploymentExtensions_OneCore_dll" Source="..\..\bin\Release\Installer\App\WindowsAppRuntime.DeploymentExtensions.OneCore.dll" />
+      <File Id="WindowsAppRuntime_png" Source="..\..\bin\Release\Installer\App\WindowsAppRuntime.png" />
+      <File Id="WindowsAppSdk_AppxDeploymentExtensions_Desktop_EventLog_Instrumentatio" Source="..\..\bin\Release\Installer\App\WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll" />
+      <File Id="WindowsAppSdk_AppxDeploymentExtensions_Desktop_dll" Source="..\..\bin\Release\Installer\App\WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll" />
+      <File Id="WindowsBase_dll" Source="..\..\bin\Release\Installer\App\WindowsBase.dll" />
+      <File Id="WinRT_Runtime_dll" Source="..\..\bin\Release\Installer\App\WinRT.Runtime.dll" />
+      <File Id="WinUIEdit_dll" Source="..\..\bin\Release\Installer\App\WinUIEdit.dll" />
+      <File Id="workloads_365_json" Source="..\..\bin\Release\Installer\App\workloads.365.json" />
+      <File Id="workloads_json" Source="..\..\bin\Release\Installer\App\workloads.json" />
+      <File Id="workloads_lnl_json" Source="..\..\bin\Release\Installer\App\workloads.lnl.json" />
+      <File Id="workloads_qnn_json" Source="..\..\bin\Release\Installer\App\workloads.qnn.json" />
+      <File Id="workloads_stx_json" Source="..\..\bin\Release\Installer\App\workloads.stx.json" />
+      <File Id="wuceffectsi_dll" Source="..\..\bin\Release\Installer\App\wuceffectsi.dll" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\af-ZA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\af-ZA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\am-ET\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\am-ET\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ar-SA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ar-SA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\as-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\as-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\az-Latn-AZ\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\az-Latn-AZ\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\bg-BG\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\bg-BG\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\bn-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\bn-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\bs-Latn-BA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\bs-Latn-BA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ca-ES\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ca-ES\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ca-Es-VALENCIA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ca-Es-VALENCIA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\cs-CZ\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\cs-CZ\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\cy-GB\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\cy-GB\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\da-DK\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\da-DK\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\de-DE\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\de-DE\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\el-GR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\el-GR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\en-GB\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\en-GB\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\en-us\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\en-us\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\es-ES\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\es-ES\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\es-MX\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\es-MX\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\et-EE\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\et-EE\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\eu-ES\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\eu-ES\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\fa-IR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\fa-IR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\fi-FI\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\fi-FI\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\fil-PH\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\fil-PH\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\fr-CA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\fr-CA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\fr-FR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\fr-FR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ga-IE\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ga-IE\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\gd-gb\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\gd-gb\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\gl-ES\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\gl-ES\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\gu-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\gu-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\he-IL\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\he-IL\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\hi-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\hi-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\hr-HR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\hr-HR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\hu-HU\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\hu-HU\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\hy-AM\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\hy-AM\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\id-ID\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\id-ID\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\is-IS\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\is-IS\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\it-IT\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\it-IT\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ja-JP\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ja-JP\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ka-GE\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ka-GE\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\kk-KZ\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\kk-KZ\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\km-KH\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\km-KH\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\kn-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\kn-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ko-KR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ko-KR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\kok-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\kok-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\lb-LU\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\lb-LU\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\lo-LA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\lo-LA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\lt-LT\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\lt-LT\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\lv-LV\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\lv-LV\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\mi-NZ\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\mi-NZ\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="map_html" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml\Assets\map.html" />
+      <File Id="NoiseAsset_256x256_PNG_png" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml\Assets\NoiseAsset_256x256_PNG.png" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\mk-MK\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\mk-MK\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ml-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ml-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\mr-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\mr-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ms-MY\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ms-MY\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\mt-MT\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\mt-MT\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\nb-NO\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\nb-NO\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ne-NP\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ne-NP\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\nl-NL\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\nl-NL\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\nn-NO\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\nn-NO\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="NPUDetect_dll" Source="..\..\bin\Release\Installer\App\NpuDetect\NPUDetect.dll" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\or-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\or-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\pa-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\pa-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\pl-PL\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\pl-PL\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\pt-BR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\pt-BR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\pt-PT\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\pt-PT\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\quz-PE\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\quz-PE\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ro-RO\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ro-RO\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ru-RU\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ru-RU\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sk-SK\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sk-SK\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sl-SI\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sl-SI\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sq-AL\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sq-AL\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sr-Cyrl-BA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sr-Cyrl-BA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sr-Cyrl-RS\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sr-Cyrl-RS\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sr-Latn-RS\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sr-Latn-RS\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\sv-SE\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\sv-SE\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ta-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ta-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\te-IN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\te-IN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\th-TH\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\th-TH\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\tr-TR\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\tr-TR\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\tt-RU\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\tt-RU\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ug-CN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ug-CN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\uk-UA\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\uk-UA\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\ur-PK\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\ur-PK\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\uz-Latn-UZ\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\uz-Latn-UZ\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\vi-VN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\vi-VN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\zh-CN\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\zh-CN\Microsoft.UI.Xaml.Phone.dll.mui" />
+      <File Id="Microsoft_ui_xaml_dll_mui" Source="..\..\bin\Release\Installer\App\zh-TW\Microsoft.ui.xaml.dll.mui" />
+      <File Id="Microsoft_UI_Xaml_Phone_dll_mui" Source="..\..\bin\Release\Installer\App\zh-TW\Microsoft.UI.Xaml.Phone.dll.mui" />
+    </Component>
+
+    <!-- Componente: Accesos directos en Menú Inicio -->
+    <Component Id="StartMenuShortcuts" Directory="ApplicationProgramsFolder" Guid="66666666-6666-6666-6666-666666666666">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación de gestión de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Acceso directo en Escritorio -->
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="77777777-7777-7777-7777-777777777777">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación de gestión de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="DesktopShortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+  </Fragment>
+</Wix>

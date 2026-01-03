@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    
+    <!-- Información del producto -->
+    <ProductName>GestionTime Desktop</ProductName>
+    <ProductVersion>1.1.0.0</ProductVersion>
+    <ProductManufacturer>GestionTime Solutions</ProductManufacturer>
+    <ProductLanguage>1034</ProductLanguage>
+    
+    <!-- Configuración del paquete -->
+    <InstallerPlatform>x64</InstallerPlatform>
+    <OutputName>GestionTimeDesktop-1.1.0.0</OutputName>
+    <OutputPath>..\..\bin\Release\MSI\</OutputPath>
+    
+    <!-- Configuración mejorada para archivos -->
+    <DefineConstants>
+      AppPath=..\..\bin\Release\Installer\App
+    </DefineConstants>
+  </PropertyGroup>
+
+  <!-- Paquete de WiX -->
+  <ItemGroup>
+    <PackageReference Include="WixToolset.MSBuild" Version="5.0.2" />
+  </ItemGroup>
+
+  <!-- Archivos fuente de WiX -->
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+    <Compile Include="Features.wxs" />
+    <Compile Include="UI.wxs" />
+  </ItemGroup>
+
+  <!-- Recursos adicionales -->
+  <ItemGroup>
+    <Content Include="..\..\Assets\app_logo.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="License.rtf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

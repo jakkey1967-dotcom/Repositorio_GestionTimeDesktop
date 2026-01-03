@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <Fragment>
+    
+    <!-- Característica principal mejorada -->
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop - Versión Mejorada" 
+             Description="Aplicación con archivos críticos incluidos"
+             Level="1" 
+             ConfigurableDirectory="INSTALLFOLDER"
+             AllowAdvertise="no"
+             Display="expand">
+
+      <!-- Archivos críticos -->
+      <ComponentGroupRef Id="CriticalFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+
+    <!-- Característica opcional: Acceso directo en escritorio -->
+    <Feature Id="DesktopShortcut" 
+             Title="Acceso Directo en Escritorio"
+             Description="Crear acceso directo en el escritorio" 
+             Level="1"
+             AllowAdvertise="no">
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+
+    <!-- Grupo de archivos críticos -->
+    <ComponentGroup Id="CriticalFiles" Directory="INSTALLFOLDER">
+      <!-- GestionTime.Desktop.exe -->
+      <Component Id="CriticalFile1" Guid="735F988C-F4B5-4BE2-AAD2-8EAB92CB6542">
+        <File Id="File1" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.exe" KeyPath="yes" />
+      </Component>
+      <!-- GestionTime.Desktop.dll -->
+      <Component Id="CriticalFile2" Guid="1A5B07D3-EA27-4D26-A53B-6C84C05AE2A3">
+        <File Id="File2" Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.dll" />
+      </Component>
+      <!-- appsettings.json -->
+      <Component Id="CriticalFile3" Guid="98C17C8C-26F3-4B9D-A360-9D75282F5B61">
+        <File Id="File3" Source="..\..\bin\Release\Installer\App\appsettings.json" />
+      </Component>
+      <!-- System.Private.CoreLib.dll -->
+      <Component Id="CriticalFile4" Guid="7CB1BDD8-253B-4E4A-9012-516CC22F03E5">
+        <File Id="File4" Source="..\..\bin\Release\Installer\App\System.Private.CoreLib.dll" />
+      </Component>
+      <!-- Microsoft.WindowsAppRuntime.dll -->
+      <Component Id="CriticalFile5" Guid="B4408D2C-0702-4F75-ABBE-9A9532BC57BF">
+        <File Id="File5" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.dll" />
+      </Component>
+      <!-- WinRT.Runtime.dll -->
+      <Component Id="CriticalFile6" Guid="EFDC9C0E-66A5-414A-9D5E-53719B6061DF">
+        <File Id="File6" Source="..\..\bin\Release\Installer\App\WinRT.Runtime.dll" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.dll -->
+      <Component Id="CriticalFile7" Guid="430DA0A2-1DF9-4E97-88F6-E403A930384C">
+        <File Id="File7" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.dll" />
+      </Component>
+      <!-- Microsoft.UI.pri -->
+      <Component Id="CriticalFile8" Guid="E010BC7C-44EA-47FE-BE74-61E2CC7505C3">
+        <File Id="File8" Source="..\..\bin\Release\Installer\App\Microsoft.UI.pri" />
+      </Component>
+      <!-- Microsoft.UI.Xaml.Controls.pri -->
+      <Component Id="CriticalFile9" Guid="EE3D345C-180E-4F85-8027-367B81E8ABFB">
+        <File Id="File9" Source="..\..\bin\Release\Installer\App\Microsoft.UI.Xaml.Controls.pri" />
+      </Component>
+      <!-- Microsoft.WindowsAppRuntime.pri -->
+      <Component Id="CriticalFile10" Guid="E17C524A-A7D7-4DD6-95CD-5EDA4C2C9643">
+        <File Id="File10" Source="..\..\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.pri" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- Componente: Accesos directos en Menú Inicio -->
+    <Component Id="StartMenuShortcuts" Directory="ApplicationProgramsFolder" Guid="66666666-6666-6666-6666-666666666666">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación mejorada de gestión de tiempo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Acceso directo en Escritorio -->
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="77777777-7777-7777-7777-777777777777">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación mejorada de gestión de tiempo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="DesktopShortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+  </Fragment>
+</Wix>

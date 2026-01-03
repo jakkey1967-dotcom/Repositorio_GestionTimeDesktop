@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <Fragment>
+    
+    <!-- Característica principal -->
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop - Aplicación Principal" 
+             Description="Aplicación principal de gestión de tiempo"
+             Level="1" 
+             ConfigurableDirectory="INSTALLFOLDER"
+             AllowAdvertise="no"
+             Display="expand">
+
+      <!-- Componente ejecutable principal -->
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="MainLibraries" />
+      <ComponentRef Id="ConfigFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+
+    <!-- Característica opcional: Acceso directo en escritorio -->
+    <Feature Id="DesktopShortcut" 
+             Title="Acceso Directo en Escritorio"
+             Description="Crear acceso directo en el escritorio" 
+             Level="1"
+             AllowAdvertise="no">
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+
+    <!-- Componente: Ejecutable principal -->
+    <Component Id="MainExecutable" Directory="INSTALLFOLDER" Guid="11111111-1111-1111-1111-111111111111">
+      <File Id="GestionTimeDesktopExe" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.exe" 
+            KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Biblioteca principal -->
+    <Component Id="MainLibraries" Directory="INSTALLFOLDER" Guid="22222222-2222-2222-2222-222222222222">
+      <File Id="GestionTimeDesktopDll" 
+            Source="..\..\bin\Release\Installer\App\GestionTime.Desktop.dll" 
+            KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Archivos de configuración -->
+    <Component Id="ConfigFiles" Directory="INSTALLFOLDER" Guid="33333333-3333-3333-3333-333333333333">
+      <File Id="AppSettingsJson" 
+            Source="..\..\bin\Release\Installer\App\appsettings.json" 
+            KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Accesos directos en Menú Inicio -->
+    <Component Id="StartMenuShortcuts" Directory="ApplicationProgramsFolder" Guid="66666666-6666-6666-6666-666666666666">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación de gestión de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Componente: Acceso directo en Escritorio -->
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="77777777-7777-7777-7777-777777777777">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicación de gestión de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="DesktopShortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+  </Fragment>
+</Wix>

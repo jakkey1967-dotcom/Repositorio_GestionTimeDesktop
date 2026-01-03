@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Foundation;
+using ShapePath = Microsoft.UI.Xaml.Shapes.Path;
 
 namespace GestionTime.Desktop.Controls;
 
@@ -23,7 +24,7 @@ public sealed partial class DonutChartControl : UserControl
     private const double GROSOR_BASE = 60;
     private const double GROSOR_SOLAPE = 70;
     
-    private List<(Path Path, SegmentoGrafica Segmento)> _segmentosVisibles = new();
+    private List<(ShapePath Path, SegmentoGrafica Segmento)> _segmentosVisibles = new();
     
     public DonutChartControl()
     {
@@ -104,7 +105,7 @@ public sealed partial class DonutChartControl : UserControl
             // Color base
             var colorBase = segmento.Color;
             
-            // Color m·s claro (highlight)
+            // Color m√°s claro (highlight)
             var colorClaro = Windows.UI.Color.FromArgb(
                 255,
                 (byte)Math.Min(255, colorBase.R + 40),
@@ -112,7 +113,7 @@ public sealed partial class DonutChartControl : UserControl
                 (byte)Math.Min(255, colorBase.B + 40)
             );
             
-            // Color m·s oscuro (shadow)
+            // Color m√°s oscuro (shadow)
             var colorOscuro = Windows.UI.Color.FromArgb(
                 255,
                 (byte)Math.Max(0, colorBase.R - 30),
@@ -129,7 +130,7 @@ public sealed partial class DonutChartControl : UserControl
             path.StrokeThickness = 2;
             path.Tag = segmento;
             
-            // AnimaciÛn de entrada
+            // Animaci√≥n de entrada
             path.Opacity = 0;
             var fadeIn = new DoubleAnimation
             {
@@ -159,7 +160,7 @@ public sealed partial class DonutChartControl : UserControl
         // Reloj simplificado: Mostrar solo horas intermedias (07-11 y 13-17)
         // Excluir 06:00, 12:00 y 18:00
         
-        // Dibujar marcas de hora de 6 a 18 (pero solo n˙meros para 7-11 y 13-17)
+        // Dibujar marcas de hora de 6 a 18 (pero solo n√∫meros para 7-11 y 13-17)
         for (int hora = 6; hora <= 18; hora++)
         {
             var minutos = hora * 60;
@@ -170,7 +171,7 @@ public sealed partial class DonutChartControl : UserControl
             
             var radianes = angulo * Math.PI / 180;
             
-            // LÌnea de marca (m·s larga para las horas principales)
+            // L√≠nea de marca (m√°s larga para las horas principales)
             bool esPrincipal = (hora == 6 || hora == 12 || hora == 18);
             var radioInterior = RADIO_INTERIOR - (esPrincipal ? 18 : 10);
             var radioExterior = RADIO_INTERIOR - 4;
@@ -199,7 +200,7 @@ public sealed partial class DonutChartControl : UserControl
             ChartCanvas.Children.Add(linea);
         }
         
-        // Dibujar n˙meros SOLO para horas 7-11 y 13-17 (excluir 6, 12, 18)
+        // Dibujar n√∫meros SOLO para horas 7-11 y 13-17 (excluir 6, 12, 18)
         for (int hora = 7; hora <= 17; hora++)
         {
             // Saltar 12:00
@@ -237,7 +238,7 @@ public sealed partial class DonutChartControl : UserControl
     
     private void DibujarEtiquetaHora(Point centro, SegmentoGrafica segmento)
     {
-        // Calcular el ·ngulo medio del segmento
+        // Calcular el √°ngulo medio del segmento
         var anguloMedio = segmento.AnguloInicio + (segmento.AnguloBarrido / 2);
         var radianes = anguloMedio * Math.PI / 180;
         
@@ -254,7 +255,7 @@ public sealed partial class DonutChartControl : UserControl
         );
         
         // Solo mostrar etiquetas si el segmento es lo suficientemente grande
-        if (segmento.AnguloBarrido < 8) return; // Reducido de 10 a 8 para mostrar m·s etiquetas
+        if (segmento.AnguloBarrido < 8) return; // Reducido de 10 a 8 para mostrar m√°s etiquetas
         
         // Crear fondo semi-transparente para mejor legibilidad
         var fondo = new Border
@@ -275,7 +276,7 @@ public sealed partial class DonutChartControl : UserControl
             LineHeight = 10
         };
         
-        // Formato seg˙n tamaÒo del segmento - siempre en formato HH:mm
+        // Formato seg√∫n tama√±o del segmento - siempre en formato HH:mm
         if (segmento.AnguloBarrido >= 25)
         {
             // Segmento grande: mostrar ambas horas en formato HH:mm
@@ -289,7 +290,7 @@ public sealed partial class DonutChartControl : UserControl
         }
         else
         {
-            // Segmento pequeÒo: mostrar solo la hora (sin minutos)
+            // Segmento peque√±o: mostrar solo la hora (sin minutos)
             var horaInicio = segmento.HoraInicio.Split(':')[0];
             texto.Text = $"{horaInicio}h";
             texto.FontSize = 8;
@@ -303,7 +304,7 @@ public sealed partial class DonutChartControl : UserControl
         ChartCanvas.Children.Add(fondo);
     }
     
-    private Path CrearArcoDonut(
+    private ShapePath CrearArcoDonut(
         Point centro,
         double radioExterior,
         double grosor,
@@ -313,12 +314,11 @@ public sealed partial class DonutChartControl : UserControl
     {
         var radioInterior = radioExterior - grosor;
         
-        // Calcular offset si el segmento debe "explotar"
         var offsetX = offsetRadial * Math.Cos((anguloInicio + anguloBarrido / 2) * Math.PI / 180);
         var offsetY = offsetRadial * Math.Sin((anguloInicio + anguloBarrido / 2) * Math.PI / 180);
         var centroOffset = new Point(centro.X + offsetX, centro.Y + offsetY);
         
-        var path = new Path();
+        var path = new ShapePath();
         var geometry = new PathGeometry();
         var figure = new PathFigure();
         
@@ -337,7 +337,7 @@ public sealed partial class DonutChartControl : UserControl
         };
         figure.Segments.Add(arcoExterior);
         
-        // LÌnea al interior
+        // L√≠nea al interior
         var finInterior = PuntoEnCirculo(centroOffset, radioInterior, anguloInicio + anguloBarrido);
         figure.Segments.Add(new LineSegment { Point = finInterior });
         
@@ -433,11 +433,10 @@ public sealed partial class DonutChartControl : UserControl
         }
     }
     
-    private bool ContieneRectangulo(Path path, Point punto)
+    private bool ContieneRectangulo(ShapePath path, Point punto)
     {
         try
         {
-            // Hit test simple usando bounding box
             var transform = path.TransformToVisual(ChartCanvas);
             var bounds = path.Data.Bounds;
             var topLeft = transform.TransformPoint(new Point(bounds.X, bounds.Y));

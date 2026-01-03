@@ -1,10 +1,11 @@
 {
   "profiles": {
+    "GestionTime.Desktop (Unpackaged)": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    },
     "GestionTime.Desktop (Package)": {
       "commandName": "MsixPackage"
-    },
-    "GestionTime.Desktop (Unpackaged)": {
-      "commandName": "Project"
     }
   }
 }

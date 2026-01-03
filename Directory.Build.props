@@ -1,0 +1,19 @@
+<Project>
+  <!-- Configuración global para todos los proyectos en esta solución -->
+  
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Información de ensamblado común -->
+  <PropertyGroup>
+    <Company>GestionTime Solutions</Company>
+    <Copyright>© 2025 GestionTime Solutions</Copyright>
+  </PropertyGroup>
+
+</Project>
