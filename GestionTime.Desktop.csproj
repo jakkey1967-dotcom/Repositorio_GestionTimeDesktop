@@ -149,5 +149,14 @@
     <UseWindowsDesktopSdk>true</UseWindowsDesktopSdk>
     <WindowsAppSDKSelfContained Condition="'$(Configuration)' == 'Release'">true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
+    
+    <!-- Configuración específica para instalador MSI -->
+    <PublishProtocol Condition="'$(Configuration)' == 'Release'">FileSystem</PublishProtocol>
+    <PublishUrl>bin\Release\Publish\</PublishUrl>
+    <SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
+    
+    <!-- Información adicional para MSI -->
+    <PublisherName>GestionTime Solutions</PublisherName>
+    <ProductName>GestionTime Desktop</ProductName>
   </PropertyGroup>
 </Project>
