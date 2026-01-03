@@ -7,15 +7,18 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <!-- <PublishProfile>win-$(Platform).pubxml</PublishProfile> --> <!-- COMENTADO: No necesario, causa NETSDK1198 -->
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <Utf8Output>true</Utf8Output>
+    
+    <!-- Configuración de plataforma corregida -->
     <Platform>x64</Platform>
     <PlatformTarget>x64</PlatformTarget>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
     
     <!-- Configuración de trimming corregida para WinUI 3 -->
     <PublishTrimmed>false</PublishTrimmed>
@@ -131,9 +134,20 @@
     <PublishReadyToRun Condition="'$(Configuration)' == 'Release'">true</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">false</PublishReadyToRun>
     
+    <!-- Configuración de debugging mejorada para Release -->
+    <DebugType Condition="'$(Configuration)' == 'Release'">portable</DebugType>
+    <DebugType Condition="'$(Configuration)' == 'Debug'">full</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">true</DebugSymbols>
+    <Optimize Condition="'$(Configuration)' == 'Release'">true</Optimize>
+    
     <!-- WinUI 3 no es compatible con trimming, mantener desactivado -->
     <PublishTrimmed>false</PublishTrimmed>
     <TrimMode>partial</TrimMode>
     <RuntimeIdentifier Condition="'$(Configuration)' == 'Release'">win-x64</RuntimeIdentifier>
+    
+    <!-- Configuración especial para WinUI 3 y WindowsAppSDK -->
+    <UseWindowsDesktopSdk>true</UseWindowsDesktopSdk>
+    <WindowsAppSDKSelfContained Condition="'$(Configuration)' == 'Release'">true</WindowsAppSDKSelfContained>
+    <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
 </Project>
