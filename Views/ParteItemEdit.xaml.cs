@@ -262,50 +262,7 @@ public sealed partial class ParteItemEdit : Page
 
     // ===================== Focus Tracking =====================
     
-    /// <summary>
-    /// Registra eventos de foco en todos los controles interactivos del formulario
-    /// para poder ver el recorrido completo del foco en los logs
-    /// </summary>
-    private void RegisterFocusTracking()
-    {
-        App.Log?.LogInformation("🔍 Iniciando sistema de tracking de foco...");
-        
-        // Lista de controles a monitorear
-        var controls = new Dictionary<Control, string>
-        {
-            { DpFecha, "DpFecha (CalendarDatePicker)" },
-            { TxtCliente, "TxtCliente (ComboBox)" },
-            { TxtTienda, "TxtTienda (TextBox)" },
-            { TxtHoraInicio, "TxtHoraInicio (TextBox)" },
-            { TxtHoraFin, "TxtHoraFin (TextBox)" },
-            { TxtTicket, "TxtTicket (TextBox)" },
-            { CmbGrupo, "CmbGrupo (ComboBox)" },
-            { CmbTipo, "CmbTipo (ComboBox)" },
-            { TxtDuracion, "TxtDuracion (TextBox ReadOnly)" },
-            { TxtAccion, "TxtAccion (TextBox MultiLine)" },
-            { BtnGuardar, "BtnGuardar (Button)" },
-            { BtnCancelar, "BtnCancelar (Button)" },
-            { BtnSalir, "BtnSalir (Button)" }
-        };
-        
-        foreach (var kvp in controls)
-        {
-            var control = kvp.Key;
-            var name = kvp.Value;
-            
-            // GotFocus: cuando el control recibe foco
-            control.GotFocus += (s, e) => OnControlGotFocus(name, e);
-            
-            // LostFocus: cuando el control pierde foco
-            control.LostFocus += (s, e) => OnControlLostFocus(name, e);
-        }
-        
-        App.Log?.LogInformation("✅ Sistema de tracking configurado para {count} controles", controls.Count);
-    }
-    
-    /// <summary>
-    /// Handler para cuando un control RECIBE foco
-    /// </summary>
+    /// <summary>Handler ejecutado cuando un control recibe foco.</summary>
     private void OnControlGotFocus(string controlName, RoutedEventArgs e)
     {
         _focusChangeCounter++;
@@ -349,31 +306,17 @@ public sealed partial class ParteItemEdit : Page
     // OnTipoGotFocus, OnTipoPreviewKeyDown, OnTipoDropDownOpened, OnTipoSelectionChanged
     // LoadTiposAsync, IsTiposCacheValid, InvalidateTiposCache
     
-    /// <summary>
-    /// Método público para refrescar el cache de grupos manualmente
-    /// </summary>
-    public static void InvalidateGruposCache()
+    /// <summary>Método público para invalidar el cache de clientes manualmente.</summary>
+    public static void InvalidateClientesCache()
     {
-        _gruposCache = null;
-        _gruposCacheLoadedAt = null;
-        App.Log?.LogInformation("Cache de grupos invalidado");
-    }
-    
-    /// <summary>
-    /// Método público para refrescar el cache de tipos manualmente
-    /// </summary>
-    public static void InvalidateTiposCache()
-    {
-        _tiposCache = null;
-        _tiposCacheLoadedAt = null;
-        App.Log?.LogInformation("Cache de tipos invalidado");
+        _clientesCache = null;
+        _cacheLoadedAt = null;
+        App.Log?.LogInformation("Cache de clientes invalidado");
     }
 
     // ===================== CLIENTES =====================
 
-    /// <summary>
-    /// Carga clientes desde cache o API según sea necesario
-    /// </summary>
+    /// <summary>Carga clientes desde cache o API según sea necesario.</summary>
     private async Task LoadClientesAsync()
     {
         App.Log?.LogInformation("🔄 LoadClientesAsync iniciado - Cache válido: {valid}", IsCacheValid());
@@ -442,16 +385,6 @@ public sealed partial class ParteItemEdit : Page
         return age < CacheDuration;
     }
 
-    /// <summary>
-    /// Método público para refrescar el cache manualmente
-    /// </summary>
-    public static void InvalidateClientesCache()
-    {
-        _clientesCache = null;
-        _cacheLoadedAt = null;
-        App.Log?.LogInformation("Cache de clientes invalidado");
-    }
-
     private async void OnTextBoxEnterKey(object? sender, KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter)
@@ -466,7 +399,7 @@ public sealed partial class ParteItemEdit : Page
                 
                 if (digits.Length >= 4)
                 {
-                    // Ya tiene 4 dígitos, asegurar formato HH:mm
+                    // Ya tiene 4 dígitos, assurance formato HH:mm
                     var hh = digits[..2];
                     var mm = digits[2..4];
                     
@@ -541,9 +474,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
 
-    /// <summary>
-    /// Mueve el foco al siguiente control según el orden de TabIndex
-    /// </summary>
+    /// <summary>Mueve el foco al siguiente control según el orden de TabIndex.</summary>
     private void MoveToNextControl(Control? currentControl)
     {
         if (currentControl == null) return;
@@ -565,9 +496,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
     
-    /// <summary>
-    /// Encuentra el siguiente control según TabIndex
-    /// </summary>
+    /// <summary>Encuentra el siguiente control navegable según su TabIndex.</summary>
     private Control? FindNextTabControl(int currentTabIndex)
     {
         // Lista de controles en orden de TabIndex
@@ -631,7 +560,7 @@ public sealed partial class ParteItemEdit : Page
     // ===================== TIMESTAMP AUTOMÁTICO EN ACCIÓN =====================
     
     /// <summary>
-    /// Intercepta teclas antes de que se procesen para manejar Enter y detectar inicio de línea
+    /// Intercepta teclas antes de procesarlas para manejar Enter y detectar inicio de línea.
     /// </summary>
     private void OnAccionPreviewKeyDown(object? sender, KeyRoutedEventArgs e)
     {
@@ -677,9 +606,9 @@ public sealed partial class ParteItemEdit : Page
     }
     
     /// <summary>
-    /// Se dispara cuando el texto está cambiando (antes de TextChanged)
-    /// Usado para detectar cuando el usuario empieza a escribir al inicio de una línea
+    /// Se dispara cuando el texto está cambiando (antes de TextChanged).
     /// </summary>
+    /// <remarks>Deshabilitado para evitar inserciones continuas de timestamp.</remarks>
     private void OnAccionTextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
     {
         if (_suppressAccionTimestamp) return;
@@ -689,9 +618,7 @@ public sealed partial class ParteItemEdit : Page
         return;
     }
     
-    /// <summary>
-    /// Inserta timestamp en la posición actual del cursor
-    /// </summary>
+    /// <summary>Inserta timestamp en formato HH:mm en la posición actual del cursor.</summary>
     private void InsertTimestampAtCursor()
     {
         if (_suppressAccionTimestamp) return;
@@ -710,17 +637,13 @@ public sealed partial class ParteItemEdit : Page
         App.Log?.LogDebug("? Timestamp insertado manualmente: {timestamp}", timestamp);
     }
     
-    /// <summary>
-    /// Obtiene el timestamp actual en formato "HH:mm "
-    /// </summary>
+    /// <summary>Obtiene el timestamp actual en formato "HH:mm " con espacio final.</summary>
     private string GetCurrentTimestamp()
     {
         return DateTime.Now.ToString("HH:mm") + " ";
     }
     
-    /// <summary>
-    /// Verifica si el cursor está al inicio de una línea sin timestamp
-    /// </summary>
+    /// <summary>Verifica si el cursor está al inicio de una línea sin timestamp.</summary>
     private bool IsAtStartOfLineWithoutTimestamp(string text, int cursorPos)
     {
         return ParteItemEditValidation.IsAtStartOfLineWithoutTimestamp(text, cursorPos);
@@ -907,13 +830,9 @@ public sealed partial class ParteItemEdit : Page
     }
 
     /// <summary>
-    /// Request para crear/actualizar un parte según la API real.
-    /// POST /api/v1/partes (creación) - usa CreateParteRequest
-    /// PUT /api/v1/partes/{id} (actualización) - usa UpdateParteRequest
-    /// 
-    /// Campos requeridos: fecha_trabajo, hora_inicio, hora_fin, id_cliente, accion
-    /// Estado es INT: 0=Abierto, 1=Pausado, 2=Cerrado, 3=Enviado, 9=Anulado
+    /// Request DTO para crear o actualizar un parte en la API.
     /// </summary>
+    /// <remarks>POST /api/v1/partes (creación) o PUT /api/v1/partes/{id} (actualización).</remarks>
     private sealed class ParteRequest
     {
         [JsonPropertyName("fecha_trabajo")]
@@ -943,10 +862,8 @@ public sealed partial class ParteItemEdit : Page
         [JsonPropertyName("ticket")]
         public string? Ticket { get; set; }
 
-        /// <summary>
-        /// Estado del parte (int): 0=Abierto, 1=Pausado, 2=Cerrado, 3=Enviado, 9=Anulado
-        /// Solo se envía en PUT (actualización), no en POST (creación)
-        /// </summary>
+        /// <summary>Estado del parte como entero (0=Abierto, 1=Pausado, 2=Cerrado, 3=Enviado, 9=Anulado).</summary>
+        /// <remarks>Solo se envía en PUT (actualización), no en POST (creación).</remarks>
         [JsonPropertyName("estado")]
         public int? Estado { get; set; }
     }
@@ -1096,9 +1013,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
     
-    /// <summary>
-    /// 🆕 NUEVO: Invalida las entradas de caché relacionadas con un parte
-    /// </summary>
+    /// <summary>Invalida las entradas de caché relacionadas con un parte en rango de ±30 días.</summary>
     private void InvalidatePartesCache(DateTime fecha)
     {
         try
@@ -1243,9 +1158,7 @@ public sealed partial class ParteItemEdit : Page
         _parentWindow?.Close();
     }
 
-    /// <summary>
-    /// Carga la información del usuario desde LocalSettings y actualiza el banner
-    /// </summary>
+    /// <summary>Carga la información del usuario desde LocalSettings y actualiza el banner.</summary>
     private void LoadUserInfo()
     {
         try
@@ -1283,9 +1196,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
     
-    /// <summary>
-    /// Actualiza el logo del banner según el tema actual
-    /// </summary>
+    /// <summary>Actualiza el logo del banner según el tema actual (claro/oscuro).</summary>
     private void UpdateBannerLogo()
     {
         var theme = this.RequestedTheme;
@@ -1319,7 +1230,7 @@ public sealed partial class ParteItemEdit : Page
     }
     
     /// <summary>
-    /// Actualiza el badge de estado según el estado del parte
+    /// Actualiza el badge de estado visual según el ParteEstado actual.
     /// </summary>
     private void UpdateEstadoBadge(ParteEstado estado)
     {
@@ -1365,9 +1276,7 @@ public sealed partial class ParteItemEdit : Page
  App.Log?.LogDebug("Badge de estado actualizado: {estado} (color: {color})", textoEstado, colorBadge);
     }
     
-    /// <summary>
-    /// Busca clientes en la API según el texto ingresado (búsqueda case-insensitive)
-    /// </summary>
+    /// <summary>Busca clientes en la API según el texto ingresado (case-insensitive).</summary>
     private async Task SearchClientesAsync()
     {
         var query = TxtCliente.Text?.Trim() ?? string.Empty;
@@ -1477,9 +1386,7 @@ public sealed partial class ParteItemEdit : Page
         }
     }
     
-    /// <summary>
-    /// Se dispara cuando el usuario presiona Enter o selecciona definitivamente
-    /// </summary>
+    /// <summary>Handler ejecutado cuando el usuario presiona Enter o confirma la selección.</summary>
     private void OnClienteQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         string selectedCliente;
@@ -1516,9 +1423,7 @@ public sealed partial class ParteItemEdit : Page
         TxtTienda.Focus(FocusState.Keyboard);
     }
     
-    /// <summary>
-    /// Helper para truncar strings en logs
-    /// </summary>
+    /// <summary>Helper para truncar strings en logs con un máximo de caracteres.</summary>
     private static string Trim(string? s, int maxLen)
     {
         return ParteItemEditValidation.TruncateForLog(s, maxLen);

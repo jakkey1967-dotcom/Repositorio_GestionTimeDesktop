@@ -33,29 +33,54 @@ IMPORTANTE (solo si se requiere reestructurar el layout para lograr el objetivo)
 2) Luego en una segunda respuesta, inserta controles dentro respetando bindings.
 Si NO es necesario reestructurar, NO lo hagas.
 
-Tarea: Ajustar las directivas del repo en la sección "## Estilo de Código" para que los comentarios XML (C#) se escriban SIEMPRE en una sola línea (inicio y fin en la misma línea).
+## Estilo de Código
 
-Requisitos obligatorios:
-- El formato permitido es SOLO:
-  /// <summary>Frase corta con punto final.</summary>
-- Prohibido usar summary multilínea:
-  /// <summary>
-  /// ...
-  /// </summary>
-- Prohibido el formato de 3 líneas para textos cortos.
-- Si el texto es largo, resumirlo en UNA sola frase. (Opcional: si hace falta detalle, usar <remarks> también en una sola línea.)
-- No usar // como documentación de APIs públicas.
+### Comentarios XML (C#):
+**REGLA OBLIGATORIA:** Todos los comentarios XML deben estar en **una sola línea**.
 
-Entrega:
-- Devuélveme SOLO el bloque "## Estilo de Código" actualizado (no reescribas el archivo completo).
-- Incluye 2 ejemplos completos con clase (con llaves) y 1 ejemplo de método.
-- Mantén el resto del archivo intacto.
+✅ **FORMATO PERMITIDO:**
+```csharp
+/// <summary>Respuesta del endpoint /api/v1/users/me.</summary>
+internal sealed class UserInfoResponse
+{
+    public int Id { get; set; }
+    public string? Name { get; set; }
+}
 
-Ahora edita el archivo de directivas donde está esa sección: [INDICA AQUÍ EL ARCHIVO, ej: AGENTS.md o .github/copilot-instructions.md]
+/// <summary>Gestiona la carga de catálogos con caché compartido de 30 minutos.</summary>
+public class CatalogManager
+{
+    /// <summary>Carga clientes desde la API y actualiza el caché local.</summary>
+    public async Task LoadClientesAsync() { }
+}
+```
 
-  /// Respuesta del API
-  /// </summary>
-  
-  // ✅ BIEN (compacto):
-  /// <summary>Respuesta del API</summary>
+❌ **FORMATO PROHIBIDO:**
+```csharp
+// ❌ MAL - Multilínea innecesaria:
+/// <summary>
+/// Respuesta del API
+/// </summary>
+
+// ❌ MAL - Formato de 3 líneas para textos cortos:
+/// <summary>
+/// Carga clientes
+/// </summary>
+
+// ❌ MAL - Comentarios // para APIs públicas:
+// Carga clientes desde el servidor
+public async Task LoadClientesAsync() { }
+```
+
+**Reglas adicionales:**
+- Si el texto es largo (>80 caracteres), resumir en UNA frase corta.
+- Para detalles adicionales, usar `<remarks>` también en una línea:
+  ```csharp
+  /// <summary>Valida credenciales de usuario.</summary>
+  /// <remarks>Usa bcrypt para hash y verifica expiración de contraseña.</remarks>
   ```
+- Usar punto final (`.`) en todas las descripciones.
+- NO usar `//` para documentar clases, métodos o propiedades públicas.
+
+Ahora te paso el archivo (o el bloque) a modificar:
+[PEGA AQUÍ EL XAML o C#]
