@@ -875,10 +875,14 @@ public sealed partial class ParteItemEdit : Page
         [JsonPropertyName("tienda")]
         public string? Tienda { get; set; }
 
+        // ✅ CORREGIDO: Incluir SIEMPRE en JSON, incluso si es null
         [JsonPropertyName("id_grupo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public int? IdGrupo { get; set; }
 
+        // ✅ CORREGIDO: Incluir SIEMPRE en JSON, incluso si es null
         [JsonPropertyName("id_tipo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public int? IdTipo { get; set; }
 
         [JsonPropertyName("accion")]
