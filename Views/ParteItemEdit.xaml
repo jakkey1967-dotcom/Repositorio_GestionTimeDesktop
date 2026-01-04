@@ -258,18 +258,16 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- LOGO con esquinas redondeadas -->
-                <Border Grid.Column="0"
-                        CornerRadius="8"
-                        Width="60"
-                        Height="60"
-                        VerticalAlignment="Center"
-                        Margin="0,0,0,0">
-                    <Border.Background>
-                        <ImageBrush x:Name="LogoImageBanner"
-                                    ImageSource="ms-appx:///Assets/LogoOscuro.png"
-                                    Stretch="UniformToFill"/>
-                    </Border.Background>
+                <!-- LOGO con esquinas redondeadas (igual que DiarioPage) -->
+                <Border Grid.Column="0" 
+                        Background="Transparent" 
+                        CornerRadius="6" 
+                        VerticalAlignment="Center">
+                    <Image x:Name="LogoImageBanner"
+                           Source="ms-appx:///Assets/LogoOscuro.png"
+                           Stretch="Uniform"
+                           MaxHeight="60"
+                           HorizontalAlignment="Left"/>
                 </Border>
                 
                 <!-- TÍTULO + USUARIO (compacto) -->
@@ -284,7 +282,7 @@
                                FontWeight="SemiBold"
                                Foreground="White"/>
                     
-                    <!-- Usuario: Icono + Nombre • Rol -->
+                    <!-- Usuario: Icono + Nombre • Rol • Email -->
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon FontFamily="Segoe MDL2 Assets" 
                                   Glyph="&#xE77B;" 
@@ -322,19 +320,20 @@
                     </StackPanel>
                 </StackPanel>
                 
-                <!-- NUEVO BOTÓN: Guardar y Cerrar -->
+                <!-- NUEVO BOTÓN: Guardar y Cerrar (estilo igual a DiarioPage) -->
                 <Button x:Name="BtnGuardarYCerrar"
                         Grid.Column="2"
                         Background="Transparent"
                         BorderBrush="White"
                         BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12,6"
+                        CornerRadius="8"
+                        Padding="10,8"
                         VerticalAlignment="Center"
                         Margin="0,0,8,0"
                         Click="OnGuardarYCerrarClick"
                         PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited">
+                        PointerExited="OnButtonPointerExited"
+                        ToolTipService.ToolTip="Guardar y cerrar parte">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon FontFamily="Segoe MDL2 Assets" 
                                   Glyph="&#xE74E;" 
