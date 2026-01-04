@@ -586,12 +586,12 @@
                     </StackPanel>
                 </Button>
                 
-                <!-- BOTÓN: Guardar y Cerrar (estilo ToolbarButton) -->
+                <!-- BOTÓN: Guardar y Cerrar (estilo ToolbarButton más ancho) -->
                 <Button x:Name="BtnGuardarYCerrar"
                         Background="Transparent"
                         BorderThickness="1"
                         BorderBrush="{StaticResource AccentBrush}"
-                        Width="80"
+                        Width="100"
                         Height="70"
                         Padding="8"
                         CornerRadius="6"
@@ -601,8 +601,8 @@
                         TabIndex="10">
                     <StackPanel Spacing="4">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;" FontSize="24" Foreground="#10B981"/>
-                        <TextBlock Text="Guardar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="y Cerrar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Guardar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
+                        <TextBlock Text="y Cerrar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
                     </StackPanel>
                 </Button>
                 
