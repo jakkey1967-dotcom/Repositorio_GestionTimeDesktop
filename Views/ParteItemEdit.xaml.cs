@@ -21,7 +21,13 @@ public sealed partial class ParteItemEdit : Page
     public ParteDto? Parte { get; private set; }
     public bool Guardado { get; private set; }
     
+    /// <summary>Parte actualizado recibido del servidor después de guardar (CREATE o UPDATE).</summary>
+    public ParteDto? ParteActualizado { get; private set; }
+    
     private Microsoft.UI.Xaml.Window? _parentWindow;
+    
+    // 🆕 NUEVO: Cache del nombre del técnico (para evitar acceso a ApplicationData desde thread worker)
+    private string _currentUserName = "Usuario";
     
     // 🆕 NUEVO: Gestor centralizado de catálogos
     private readonly CatalogManager _catalogManager = new();
@@ -710,6 +716,13 @@ public sealed partial class ParteItemEdit : Page
         TxtTecnico.Text = "";
         TxtEstado.Text = "";
 
+        // 🆕 NUEVO: Habilitar botón Guardar desde el inicio (parte nuevo puede guardarse inmediatamente)
+        BtnGuardar.IsEnabled = true;
+        if (BtnAccionGrabar != null)
+            BtnAccionGrabar.IsEnabled = true;
+        
+        App.Log?.LogDebug("✅ Botón Guardar habilitado para nuevo parte");
+
         // Asegurar renderizado inicial y colocar foco
         await Task.Delay(50);
         TxtCliente.Focus(FocusState.Programmatic);
@@ -899,17 +912,20 @@ public sealed partial class ParteItemEdit : Page
 
     private async void OnGuardarClick(object? sender, RoutedEventArgs e)
     {
-        await GuardarAsync();
+        App.Log?.LogInformation("🔘 BOTÓN GUARDAR PRESIONADO - Iniciando guardado...");
+        await GuardarAsync(cerrarParte: false);
     }
     
     /// <summary>Guarda el parte y cierra la ventana automáticamente.</summary>
     private async void OnGuardarYCerrarClick(object? sender, RoutedEventArgs e)
     {
-        await GuardarAsync();
+        App.Log?.LogInformation("🔘 BOTÓN GUARDAR Y CERRAR PRESIONADO - Iniciando guardado...");
+        await GuardarAsync(cerrarParte: true);
     }
     
     /// <summary>Lógica centralizada de guardado del parte.</summary>
-    private async Task GuardarAsync()
+    /// <param name="cerrarParte">Si true, cambia el estado a Cerrado (2). Si false, aplica lógica según estado original.</param>
+    private async Task GuardarAsync(bool cerrarParte = false)
     {
         if (Parte == null) return;
 
@@ -917,7 +933,48 @@ public sealed partial class ParteItemEdit : Page
         {
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             App.Log?.LogInformation("💾 INICIAR GUARDADO DE PARTE");
+            App.Log?.LogInformation("   • Cerrar parte: {cerrar}", cerrarParte ? "SÍ" : "NO");
+            App.Log?.LogInformation("   • Estado original: {estado} ({estadoInt})", Parte.EstadoNombre, Parte.EstadoInt);
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            
+            // 🆕 NUEVO: Guardar estado original para determinar el nuevo estado
+            var estadoOriginal = Parte.EstadoInt;
+            int nuevoEstado;
+            
+            if (Parte.Id == 0)
+            {
+                // ✅ PARTE NUEVO: Siempre Abierto (0)
+                nuevoEstado = cerrarParte ? 2 : 0;
+                App.Log?.LogInformation("📝 Parte NUEVO → Estado: {estado} ({nombre})", 
+                    nuevoEstado, nuevoEstado == 0 ? "Abierto" : "Cerrado");
+            }
+            else
+            {
+                // ✅ PARTE EXISTENTE (EDICIÓN)
+                if (cerrarParte)
+                {
+                    // Botón "Guardar y Cerrar" → Siempre Cerrado (2)
+                    nuevoEstado = 2;
+                    App.Log?.LogInformation("📝 EDICIÓN + Guardar y Cerrar → Estado: Cerrado (2)");
+                }
+                else
+                {
+                    // Botón "Guardar" → Lógica según estado original
+                    if (estadoOriginal == 2)
+                    {
+                        // Si estaba Cerrado, mantener Cerrado
+                        nuevoEstado = 2;
+                        App.Log?.LogInformation("📝 EDICIÓN + Estado original Cerrado → Mantener Cerrado (2)");
+                    }
+                    else
+                    {
+                        // Si NO estaba Cerrado, cambiar a Abierto
+                        nuevoEstado = 0;
+                        App.Log?.LogInformation("📝 EDICIÓN + Estado original {estado} → Cambiar a Abierto (0)", 
+                            estadoOriginal);
+                    }
+                }
+            }
             
             Parte.Fecha = DpFecha.Date?.DateTime ?? DateTime.Today;
 
@@ -963,9 +1020,9 @@ public sealed partial class ParteItemEdit : Page
 
             Parte.Ticket = TxtTicket.Text?.Trim() ?? string.Empty;
 
-            // ✅ CORREGIDO: Obtener valor de ComboBox desde .Text (soporta texto libre)
-            Parte.Grupo = CmbGrupo.Text?.Trim() ?? string.Empty;
-            Parte.Tipo = CmbTipo.Text?.Trim() ?? string.Empty;
+            // ✅ CORREGIDO: Obtener valor desde SelectedItem (si hay selección) o Text (si es texto libre)
+            Parte.Grupo = (CmbGrupo.SelectedItem as string) ?? CmbGrupo.Text?.Trim() ?? string.Empty;
+            Parte.Tipo = (CmbTipo.SelectedItem as string) ?? CmbTipo.Text?.Trim() ?? string.Empty;
             
             App.Log?.LogInformation("---------------------------------------------------------------");
             App.Log?.LogInformation("🔧 VALORES AL GUARDAR:");
@@ -981,6 +1038,8 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogInformation("   Tipo = '{tipo}' (Text='{text}', SelectedItem='{selected}')", 
                 Parte.Tipo, CmbTipo.Text ?? "(null)", CmbTipo.SelectedItem as string ?? "(null)");
             App.Log?.LogInformation("   Acción = '{accion}'", Trim(Parte.Accion, 100));
+            App.Log?.LogInformation("   🆕 Estado a guardar = {estado} ({nombre})", 
+                nuevoEstado, nuevoEstado == 0 ? "Abierto" : nuevoEstado == 2 ? "Cerrado" : "Otro");
             App.Log?.LogInformation("---------------------------------------------------------------");
 
             // ✅ ASEGURAR catálogos cargados para mapear IDs
@@ -1007,8 +1066,7 @@ public sealed partial class ParteItemEdit : Page
                 return;
             }
 
-            // IMPORTANTE: Para partes NUEVOS, el backend debe asignar automáticamente estado=0 (Abierto)
-            // Para partes EXISTENTES, NO modificar el estado (el backend lo gestiona)
+            // 🆕 MODIFICADO: Incluir estado en el payload para partes existentes
             var payload = new ParteRequest
             {
                 FechaTrabajo = Parte.Fecha.Date,
@@ -1019,8 +1077,9 @@ public sealed partial class ParteItemEdit : Page
                 IdGrupo = grupoId.HasValue && grupoId.Value > 0 ? grupoId : null,
                 IdTipo = tipoId.HasValue && tipoId.Value > 0 ? tipoId : null,
                 Accion = Parte.Accion,
-                Ticket = Parte.Ticket
-                // ⚠️ NO enviar Estado - el backend lo gestiona automáticamente
+                Ticket = Parte.Ticket,
+                // 🆕 NUEVO: Enviar estado calculado (solo para UPDATE, null para CREATE)
+                Estado = Parte.Id > 0 ? nuevoEstado : (int?)null
             };
 
             App.Log?.LogInformation("---------------------------------------------------------------");
@@ -1034,6 +1093,7 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogInformation("   • id_tipo: {id}", payload.IdTipo?.ToString() ?? "null");
             App.Log?.LogInformation("   • accion: '{accion}'", Trim(payload.Accion, 50));
             App.Log?.LogInformation("   • ticket: '{ticket}'", payload.Ticket ?? "(null)");
+            App.Log?.LogInformation("   • 🆕 estado: {estado}", payload.Estado?.ToString() ?? "(null - CREATE)");
             App.Log?.LogInformation("---------------------------------------------------------------");
 
             if (Parte.Id > 0)
@@ -1048,10 +1108,85 @@ public sealed partial class ParteItemEdit : Page
                 App.Log?.LogInformation("   ⏳ Enviando petición...");
                 
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                await App.Api.PutAsync<ParteRequest, ParteDto>(endpoint, payload);
+                var response = await App.Api.PutAsync<ParteRequest, ParteDto>(endpoint, payload);
                 sw.Stop();
                 
-                App.Log?.LogInformation("✅ Parte {id} actualizado correctamente en {ms}ms", Parte.Id, sw.ElapsedMilliseconds);
+                // ✅ SOLUCIÓN CORRECTA: Construir objeto con datos del formulario
+                if (response == null || response.Id == 0)
+                {
+                    App.Log?.LogInformation("🔧 PUT exitoso - Construyendo objeto con datos del formulario");
+                    
+                    // ⚠️ CRÍTICO: CALCULAR DURACIÓN con las horas actualizadas
+                    int duracionCalculada = CalcularDuracionMinutos(Parte.HoraInicio, Parte.HoraFin);
+                    
+                    // 🆕 MODIFICADO: Usar el nuevo estado calculado
+                    var nuevoEstadoNombre = nuevoEstado switch
+                    {
+                        0 => "Abierto",
+                        1 => "Pausado",
+                        2 => "Cerrado",
+                        3 => "Enviado",
+                        9 => "Anulado",
+                        _ => "Desconocido"
+                    };
+                    
+                    // Construir ParteActualizado con los datos actualizados
+                    response = new ParteDto
+                    {
+                        Id = Parte.Id,
+                        Fecha = Parte.Fecha,
+                        Cliente = Parte.Cliente,
+                        Tienda = Parte.Tienda,
+                        HoraInicio = Parte.HoraInicio,
+                        HoraFin = Parte.HoraFin,
+                        Ticket = Parte.Ticket,
+                        Grupo = Parte.Grupo,
+                        Tipo = Parte.Tipo,
+                        Accion = Parte.Accion,
+                        DuracionMin = duracionCalculada,
+                        Tecnico = Parte.Tecnico,
+                        // 🆕 MODIFICADO: Usar el nuevo estado calculado
+                        EstadoInt = nuevoEstado,
+                        EstadoNombre = nuevoEstadoNombre,
+                        IdCliente = clienteId,
+                        IdGrupo = grupoId,
+                        IdTipo = tipoId
+                    };
+                    
+                    App.Log?.LogInformation("✅ Objeto ParteDto construido manualmente con datos actualizados");
+                    App.Log?.LogInformation("   ⏱️ Duración recalculada: {duracion} minutos ({inicio} - {fin})", 
+                        duracionCalculada, Parte.HoraInicio, Parte.HoraFin);
+                    App.Log?.LogInformation("   🆕 Estado actualizado: {estado} ({nombre})", 
+                        nuevoEstado, nuevoEstadoNombre);
+                    
+                    // ⚠️ CRÍTICO: ACTUALIZAR CACHE en lugar de invalidarlo
+                    App.Api.UpdateCacheEntry(endpoint, response);
+                    App.Log?.LogInformation("💾 Cache actualizado directamente con datos modificados (sin recargar desde servidor)");
+                }
+                
+                if (response != null && response.Id > 0)
+                {
+                    ParteActualizado = response;
+                    App.Log?.LogInformation("✅ Parte {id} actualizado correctamente en {ms}ms", Parte.Id, sw.ElapsedMilliseconds);
+                    App.Log?.LogInformation("   📊 Datos completos del parte:");
+                    App.Log?.LogInformation("      • ID: {id}", response.Id);
+                    App.Log?.LogInformation("      • Fecha: {fecha}", response.Fecha.ToString("yyyy-MM-dd"));
+                    App.Log?.LogInformation("      • Cliente: {cliente}", response.Cliente);
+                    App.Log?.LogInformation("      • Tienda: {tienda}", response.Tienda ?? "(vacío)");
+                    App.Log?.LogInformation("      • HoraInicio: {inicio}", response.HoraInicio ?? "(vacío)");
+                    App.Log?.LogInformation("      • HoraFin: {fin}", response.HoraFin ?? "(vacío)");
+                    App.Log?.LogInformation("      • DuraciónMin: {duracion}", response.DuracionMin);
+                    App.Log?.LogInformation("      • Grupo: {grupo}", response.Grupo ?? "(vacío)");
+                    App.Log?.LogInformation("      • Tipo: {tipo}", response.Tipo ?? "(vacío)");
+                    App.Log?.LogInformation("      • Ticket: {ticket}", response.Ticket ?? "(vacío)");
+                    App.Log?.LogInformation("      • Accion: {accion}", Trim(response.Accion, 80) ?? "(vacío)");
+                    App.Log?.LogInformation("      • Estado: {estado} (int={estadoInt})", response.EstadoTexto, response.EstadoInt);
+                    App.Log?.LogInformation("      • Tecnico: {tecnico}", response.Tecnico ?? "(vacío)");
+                }
+                else
+                {
+                    App.Log?.LogError("❌ No se pudo construir el objeto actualizado");
+                }
             }
             else
             {
@@ -1065,24 +1200,93 @@ public sealed partial class ParteItemEdit : Page
                 App.Log?.LogInformation("   ⏳ Enviando petición...");
                 
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                var resultado = await App.Api.PostAsync<ParteRequest, ParteDto>(endpoint, payload);
+                var response = await App.Api.PostAsync<ParteRequest, ParteDto>(endpoint, payload);
                 sw.Stop();
                 
-                if (resultado != null)
+                int nuevoId = 0;
+                
+                if (response != null && response.Id > 0)
                 {
-                    App.Log?.LogInformation("✅ Parte creado exitosamente con ID: {id} en {ms}ms", resultado.Id, sw.ElapsedMilliseconds);
-                    Parte.Id = resultado.Id; // Actualizar ID del parte recién creado
+                    nuevoId = response.Id;
+                    App.Log?.LogInformation("✅ Servidor devolvió ID: {id}", nuevoId);
                 }
                 else
                 {
-                    App.Log?.LogWarning("⚠️ Parte creado pero no se recibió confirmación del servidor");
+                    App.Log?.LogError("❌ El servidor no devolvió un ID válido");
+                    await ShowErrorAsync("El servidor no devolvió el ID del parte creado.\n\nContacta con el administrador.");
+                    return;
                 }
+                
+                int duracionCalculada = CalcularDuracionMinutos(Parte.HoraInicio, Parte.HoraFin);
+                var tecnicoNombre = _currentUserName;
+                
+                // 🆕 MODIFICADO: Usar el nuevo estado calculado (para parte nuevo)
+                var nuevoEstadoNombre = nuevoEstado switch
+                {
+                    0 => "Abierto",
+                    2 => "Cerrado",
+                    _ => "Abierto"
+                };
+                
+                response = new ParteDto
+                {
+                    Id = nuevoId,
+                    Fecha = Parte.Fecha,
+                    Cliente = Parte.Cliente,
+                    Tienda = Parte.Tienda,
+                    HoraInicio = Parte.HoraInicio,
+                    HoraFin = Parte.HoraFin,
+                    Ticket = Parte.Ticket,
+                    Grupo = Parte.Grupo,
+                    Tipo = Parte.Tipo,
+                    Accion = Parte.Accion,
+                    DuracionMin = duracionCalculada,
+                    Tecnico = tecnicoNombre,
+                    // 🆕 MODIFICADO: Usar el nuevo estado calculado
+                    EstadoInt = nuevoEstado,
+                    EstadoNombre = nuevoEstadoNombre,
+                    IdCliente = clienteId,
+                    IdGrupo = grupoId,
+                    IdTipo = tipoId
+                };
+                
+                Parte.Id = nuevoId;
+                ParteActualizado = response;
+                
+                App.Log?.LogInformation("✅ Parte creado exitosamente con ID: {id} en {ms}ms", nuevoId, sw.ElapsedMilliseconds);
+                App.Log?.LogInformation("   📊 Objeto construido con datos del formulario:");
+                App.Log?.LogInformation("      • ID: {id}", response.Id);
+                App.Log?.LogInformation("      • Fecha: {fecha}", response.Fecha.ToString("yyyy-MM-dd"));
+                App.Log?.LogInformation("      • Cliente: {cliente}", response.Cliente);
+                App.Log?.LogInformation("      • Tienda: {tienda}", response.Tienda ?? "(vacío)");
+                App.Log?.LogInformation("      • HoraInicio: {inicio}", response.HoraInicio ?? "(vacío)");
+                App.Log?.LogInformation("      • HoraFin: {fin}", response.HoraFin ?? "(vacío)");
+                App.Log?.LogInformation("      • DuraciónMin: {duracion}", response.DuracionMin);
+                App.Log?.LogInformation("      • Grupo: {grupo}", response.Grupo ?? "(vacío)");
+                App.Log?.LogInformation("      • Tipo: {tipo}", response.Tipo ?? "(vacío)");
+                App.Log?.LogInformation("      • Ticket: {ticket}", response.Ticket ?? "(vacío)");
+                App.Log?.LogInformation("      • Accion: {accion}", Trim(response.Accion, 80) ?? "(vacío)");
+                App.Log?.LogInformation("      • 🆕 Estado: {estado} (int={estadoInt})", response.EstadoTexto, response.EstadoInt);
+                App.Log?.LogInformation("      • Tecnico: {tecnico}", response.Tecnico ?? "(vacío)");
+                
+                // ⚠️ CRÍTICO: ACTUALIZAR CACHE de la LISTA
+                var parteEndpoint = $"/api/v1/partes/{response.Id}";
+                App.Api.UpdateCacheEntry(parteEndpoint, response);
+                App.Log?.LogInformation("💾 Cache del parte individual actualizado: {endpoint}", parteEndpoint);
+                
+                var fromDate = Parte.Fecha.AddDays(-30).ToString("yyyy-MM-dd");
+                var toDate = Parte.Fecha.AddDays(30).ToString("yyyy-MM-dd");
+                var listEndpoint = $"/api/v1/partes?fechaInicio={fromDate}&fechaFin={toDate}";
+                
+                App.Api.AddItemToListCache(listEndpoint, response);
+                App.Log?.LogInformation("➕ Nuevo parte agregado al cache de la lista: {endpoint}", listEndpoint);
+                
+                var dayEndpoint = $"/api/v1/partes?fecha={Parte.Fecha:yyyy-MM-dd}";
+                App.Api.AddItemToListCache(dayEndpoint, response);
+                App.Log?.LogInformation("➕ Nuevo parte agregado al cache del día: {endpoint}", dayEndpoint);
             }
 
-            // ✅ PASO 5: Invalidar el caché de partes después de guardar
-            App.Log?.LogInformation("🗑️ PASO 5: Invalidando caché de partes...");
-            InvalidatePartesCache(Parte.Fecha);
-            App.Log?.LogInformation("✅ Caché invalidado correctamente");
+            App.Log?.LogInformation("✅ PASO 5: Cache sincronizado correctamente (sin invalidación)");
             
             Guardado = true;
             
@@ -1091,6 +1295,8 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogInformation("   • Parte ID: {id}", Parte.Id);
             App.Log?.LogInformation("   • Cliente: {cliente}", Parte.Cliente);
             App.Log?.LogInformation("   • Fecha: {fecha}", Parte.Fecha.ToString("yyyy-MM-dd"));
+            App.Log?.LogInformation("   • 🆕 Estado final: {estado} ({nombre})", 
+                nuevoEstado, nuevoEstado == 0 ? "Abierto" : nuevoEstado == 2 ? "Cerrado" : "Otro");
             App.Log?.LogInformation("   • Guardado = true");
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             
@@ -1202,7 +1408,7 @@ public sealed partial class ParteItemEdit : Page
             else if (textBox.Name == "TxtHoraFin")
             {
                 _horaFinFirstKey = true;
-                App.Log?.LogDebug("⌨️ HoraFin recibió foco - próxima tecla borrará contenido");
+                App.Log?.LogDebug("⌨️ HoraFin recibido foco - próxima tecla borrará contenido");
             }
             
             // Seleccionar todo el texto para visualizar que se va a reemplazar
@@ -1302,6 +1508,9 @@ public sealed partial class ParteItemEdit : Page
                 ? role 
                 : "Usuario";
             
+            // 🆕 NUEVO: Guardar en variable de instancia para uso posterior
+            _currentUserName = userName;
+            
             App.Log?.LogInformation("📋 Cargando información de usuario en ParteItemEdit:");
             App.Log?.LogInformation("   • UserName: {name}", userName);
             App.Log?.LogInformation("   • UserEmail: {email}", userEmail);
@@ -1315,6 +1524,7 @@ public sealed partial class ParteItemEdit : Page
         catch (Exception ex)
         {
             App.Log?.LogWarning(ex, "Error cargando información del usuario en ParteItemEdit");
+            _currentUserName = "Usuario";  // 🆕 NUEVO: Fallback
             TxtUserName.Text = "Usuario";
             TxtUserEmail.Text = "usuario@empresa.com";
             TxtUserRole.Text = "Usuario";
@@ -1552,5 +1762,26 @@ public sealed partial class ParteItemEdit : Page
     private static string Trim(string? s, int maxLen)
     {
         return ParteItemEditValidation.TruncateForLog(s, maxLen);
+    }
+    
+    /// <summary>Calcula la duración en minutos entre dos horas en formato HH:mm.</summary>
+    private static int CalcularDuracionMinutos(string? horaInicio, string? horaFin)
+    {
+        if (string.IsNullOrWhiteSpace(horaInicio) || string.IsNullOrWhiteSpace(horaFin))
+            return 0;
+        
+        if (!TimeSpan.TryParse(horaInicio, out var inicio))
+            return 0;
+        
+        if (!TimeSpan.TryParse(horaFin, out var fin))
+            return 0;
+        
+        var duracion = fin - inicio;
+        
+        // Si la duración es negativa, probablemente cruzó medianoche
+        if (duracion.TotalMinutes < 0)
+            duracion = duracion.Add(TimeSpan.FromDays(1));
+        
+        return (int)Math.Round(duracion.TotalMinutes);
     }
 }

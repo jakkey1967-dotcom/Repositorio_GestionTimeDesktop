@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -335,6 +335,86 @@ namespace GestionTime.Desktop.Services
                 _cacheLock.Release();
             }
         }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Actualiza una entrada específica del caché con un objeto actualizado
+        /// </summary>
+        public void UpdateCacheEntry<T>(string path, T updatedData)
+        {
+            path = NormalizePath(path);
+            _cacheLock.Wait();
+            try
+            {
+                // Serializar el objeto actualizado a JSON
+                var json = JsonSerializer.Serialize(updatedData, _jsonWrite);
+                
+                // Actualizar en el caché con timestamp actual
+                _getCache[path] = (json, DateTime.UtcNow);
+                
+                _log.LogDebug("💾 Entrada de caché actualizada: {path}", path);
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning(ex, "Error actualizando entrada de caché: {path}", path);
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
+        }
+        
+        /// <summary>
+        /// 🆕 NUEVO: Agrega un nuevo item a una lista existente en el caché
+        /// </summary>
+        public void AddItemToListCache<T>(string listPath, T newItem)
+        {
+            listPath = NormalizePath(listPath);
+            _cacheLock.Wait();
+            try
+            {
+                // Buscar la lista en el cache
+                if (_getCache.TryGetValue(listPath, out var cached))
+                {
+                    // Deserializar la lista existente
+                    var existingList = JsonSerializer.Deserialize<List<T>>(cached.response, _jsonRead);
+                    
+                    if (existingList != null)
+                    {
+                        // Agregar el nuevo item al INICIO de la lista (más reciente primero)
+                        existingList.Insert(0, newItem);
+                        
+                        // Serializar la lista actualizada
+                        var updatedJson = JsonSerializer.Serialize(existingList, _jsonWrite);
+                        
+                        // Actualizar en el caché con timestamp actual
+                        _getCache[listPath] = (updatedJson, DateTime.UtcNow);
+                        
+                        _log.LogInformation("➕ Item agregado al cache de lista: {path}", listPath);
+                    }
+                    else
+                    {
+                        _log.LogWarning("⚠️ No se pudo deserializar la lista en cache: {path}", listPath);
+                    }
+                }
+                else
+                {
+                    _log.LogDebug("💡 Cache de lista no existe, creando nueva lista con 1 item: {path}", listPath);
+                    
+                    // El cache no existe, crear una nueva lista con el item
+                    var newList = new List<T> { newItem };
+                    var json = JsonSerializer.Serialize(newList, _jsonWrite);
+                    _getCache[listPath] = (json, DateTime.UtcNow);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning(ex, "Error agregando item al cache de lista: {path}", listPath);
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
+        }
     
         /// <summary>
         /// 🆕 NUEVO: Invalida automáticamente las entradas de caché relacionadas después de un POST/PUT/DELETE
@@ -627,8 +707,9 @@ namespace GestionTime.Desktop.Services
                     throw new ApiException(resp.StatusCode, path, message, error);
                 }
 
-                // 🆕 NUEVO: POST exitoso - invalidar caché de GET relacionados
-                InvalidateRelatedCache(path, "POST");
+                // ⚠️ DESHABILITADO: Ya no invalidamos automáticamente en POST
+                // El código que llama a PostAsync debe actualizar el cache manualmente usando UpdateCacheEntry() o AddItemToListCache()
+                // InvalidateRelatedCache(path, "POST");
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
@@ -711,8 +792,9 @@ namespace GestionTime.Desktop.Services
                     throw new ApiException(resp.StatusCode, path, message, error);
                 }
 
-                // 🆕 NUEVO: PUT exitoso - invalidar caché de GET relacionados
-                InvalidateRelatedCache(path, "PUT");
+                // ⚠️ DESHABILITADO: Ya no invalidamos automáticamente en PUT
+                // El código que llama a PutAsync debe actualizar el cache manualmente usando UpdateCacheEntry()
+                // InvalidateRelatedCache(path, "PUT");
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
