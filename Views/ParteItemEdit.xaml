@@ -491,7 +491,6 @@
                                 <ComboBox x:Name="CmbGrupo"
                                         Style="{StaticResource ModernComboBox}"
                                         HorizontalAlignment="Stretch"
-                                        SelectionChanged="OnGrupoSelectionChanged"
                                         TabIndex="6"/>
                             </StackPanel>
                             
@@ -501,7 +500,6 @@
                                 <ComboBox x:Name="CmbTipo"
                                         Style="{StaticResource ModernComboBox}"
                                         HorizontalAlignment="Stretch"
-                                        SelectionChanged="OnTipoSelectionChanged"
                                         TabIndex="7"/>
                             </StackPanel>
                             
