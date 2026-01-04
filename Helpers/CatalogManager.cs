@@ -262,6 +262,26 @@ public sealed class CatalogManager
         App.Log?.LogInformation("🗑️ Cache de tipos invalidado");
     }
     
+    // ===================== MÉTODOS DE ACCESO A LISTAS COMPLETAS =====================
+    
+    /// <summary>Obtiene la lista completa de grupos cargados en el cache.</summary>
+    public List<GrupoResponse> GetAllGrupos()
+    {
+        return _gruposCache ?? new List<GrupoResponse>();
+    }
+    
+    /// <summary>Obtiene la lista completa de tipos cargados en el cache.</summary>
+    public List<TipoResponse> GetAllTipos()
+    {
+        return _tiposCache ?? new List<TipoResponse>();
+    }
+    
+    /// <summary>Obtiene la lista completa de clientes cargados en el cache.</summary>
+    public List<ClienteResponse> GetAllClientes()
+    {
+        return _clientesCache ?? new List<ClienteResponse>();
+    }
+    
     // ===================== BÚSQUEDA DE CLIENTES =====================
     
     public async Task<List<string>> SearchClientesAsync(string query)

@@ -740,15 +740,39 @@ public sealed partial class ParteItemEdit : Page
         
         App.Log?.LogInformation("🔄 Cargando catálogos para selección inicial...");
         
-        // Cargar clientes si no están cargados
+        // ✅ CORREGIDO: Cargar catálogos Y poblar ObservableCollections ANTES de seleccionar
+        
+        // 1. Cargar clientes
         if (!_clientesLoaded || !IsCacheValid())
         {
             await LoadClientesAsync();
         }
         
-        // 🆕 Cargar grupos y tipos usando CatalogManager
+        // 2. Cargar grupos usando CatalogManager
         await _catalogManager.LoadGruposAsync();
+        
+        // 3. Poblar _grupoItems desde CatalogManager
+        _grupoItems.Clear();
+        var grupos = _catalogManager.GetAllGrupos();
+        foreach (var grupo in grupos.OrderBy(g => g.Nombre))
+        {
+            _grupoItems.Add(grupo.Nombre);
+        }
+        App.Log?.LogInformation("📊 _grupoItems poblado con {count} items", _grupoItems.Count);
+        
+        // 4. Cargar tipos usando CatalogManager
         await _catalogManager.LoadTiposAsync();
+        
+        // 5. Poblar _tipoItems desde CatalogManager
+        _tipoItems.Clear();
+        var tipos = _catalogManager.GetAllTipos();
+        foreach (var tipo in tipos.OrderBy(t => t.Nombre))
+        {
+            _tipoItems.Add(tipo.Nombre);
+        }
+        App.Log?.LogInformation("📊 _tipoItems poblado con {count} items", _tipoItems.Count);
+        
+        // ✅ AHORA SÍ: Seleccionar valores en los ComboBox (las colecciones ya están pobladas)
         
         // Seleccionar el cliente correcto
         if (!string.IsNullOrWhiteSpace(parte.Cliente))
@@ -761,7 +785,8 @@ public sealed partial class ParteItemEdit : Page
             }
             else
             {
-                App.Log?.LogWarning("⚠️ Cliente '{cliente}' no encontrado en catálogo", parte.Cliente);
+                TxtCliente.Text = parte.Cliente;
+                App.Log?.LogWarning("⚠️ Cliente '{cliente}' no encontrado en catálogo, usando texto libre", parte.Cliente);
             }
         }
         
@@ -800,8 +825,8 @@ public sealed partial class ParteItemEdit : Page
         await Task.Delay(50);
         TxtCliente.Focus(FocusState.Programmatic);
         
-        App.Log?.LogInformation("✅ LoadParte completado - Cliente: {cliente}, Grupo: {grupo}, Tipo: {tipo}, Estado: {estado}", 
-            parte.Cliente, parte.Grupo, parte.Tipo, parte.EstadoTexto);
+        App.Log?.LogInformation("✅ LoadParte completado - Cliente: {cliente}, Grupo: {grupo} ({grupoIdx}), Tipo: {tipo} ({tipoIdx}), Estado: {estado}", 
+            parte.Cliente, parte.Grupo, CmbGrupo.SelectedIndex, parte.Tipo, CmbTipo.SelectedIndex, parte.EstadoTexto);
     }
 
     private async Task ShowErrorAsync(string message)
