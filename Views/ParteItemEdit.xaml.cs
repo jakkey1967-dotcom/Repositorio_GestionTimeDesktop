@@ -870,6 +870,18 @@ public sealed partial class ParteItemEdit : Page
 
     private async void OnGuardarClick(object? sender, RoutedEventArgs e)
     {
+        await GuardarAsync();
+    }
+    
+    /// <summary>Guarda el parte y cierra la ventana automáticamente.</summary>
+    private async void OnGuardarYCerrarClick(object? sender, RoutedEventArgs e)
+    {
+        await GuardarAsync();
+    }
+    
+    /// <summary>Lógica centralizada de guardado del parte.</summary>
+    private async Task GuardarAsync()
+    {
         if (Parte == null) return;
 
         try
@@ -1011,13 +1023,6 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogError(ex, "❌ ERROR guardando parte");
             await ShowErrorAsync($"Error guardando parte: {ex.Message}");
         }
-    }
-    
-    /// <summary>Guarda el parte y cierra la ventana automáticamente.</summary>
-    private void OnGuardarYCerrarClick(object? sender, RoutedEventArgs e)
-    {
-        // Reutilizar la lógica de guardado existente
-        OnGuardarClick(sender, e);
     }
     
     /// <summary>Invalida las entradas de caché relacionadas con un parte en rango de ±30 días.</summary>
