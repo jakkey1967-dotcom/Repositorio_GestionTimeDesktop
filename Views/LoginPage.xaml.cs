@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -16,7 +17,16 @@ namespace GestionTime.Desktop.Views
     public sealed partial class LoginPage : Page
     {
         private bool _isPasswordVisible = false;
-        private DispatcherTimer? _messageTimer; // 🆕 Timer para ocultar mensaje automáticamente
+        private DispatcherTimer? _messageTimer;
+        
+        // 🆕 NUEVO: Path alternativo para guardar el correo (no usa ApplicationData)
+        private static string GetEmailSettingsPath()
+        {
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var gestionTimePath = Path.Combine(appDataPath, "GestionTime");
+            Directory.CreateDirectory(gestionTimePath); // Asegurar que existe
+            return Path.Combine(gestionTimePath, "login-settings.json");
+        }
 
         public LoginPage()
         {
@@ -29,7 +39,8 @@ namespace GestionTime.Desktop.Views
             // 🆕 NUEVO: Suscribirse a cambios de tema globales
             ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
             
-            LoadRememberedEmail();
+            // 🔥 NUEVO: Cargar correo desde archivo JSON
+            LoadRememberedEmailFromFile();
             
             // Iniciar fade in cuando se carga la página
             this.Loaded += OnPageLoaded;
@@ -68,30 +79,18 @@ namespace GestionTime.Desktop.Views
             storyboard.Children.Add(fadeIn);
             storyboard.Begin();
 
-            // Cargar correo guardado
-            var settings = Windows.Storage.ApplicationData.Current.LocalSettings;
-            var savedEmail = settings.Values["SavedEmail"] as string;
-            if (!string.IsNullOrEmpty(savedEmail))
-            {
-                TxtUser.Text = savedEmail;
-                ChkRemember.IsChecked = true;
-                App.Log?.LogInformation("📧 Correo guardado restaurado: {email}", savedEmail);
-            }
-
-            // 🆕 FOCUS INICIAL INTELIGENTE
-            await Task.Delay(100); // Pequeño delay para asegurar que la UI esté lista
+            await Task.Delay(100);
             
+            // 🆕 FOCUS INICIAL INTELIGENTE
             if (string.IsNullOrWhiteSpace(TxtUser.Text))
             {
-                // Si el correo está vacío, focus en correo
                 TxtUser.Focus(FocusState.Programmatic);
                 App.Log?.LogDebug("🎯 Focus inicial: Correo (vacío)");
             }
             else
             {
-                // Si el correo ya está rellenado, focus en contraseña
                 TxtPass.Focus(FocusState.Programmatic);
-                App.Log?.LogDebug("🎯 Focus inicial: Contraseña (correo pre-rellenado)");
+                App.Log?.LogDebug("🎯 Focus inicial: Contraseña (correo pre-rellenado: {email})", TxtUser.Text);
             }
         }
 
@@ -106,51 +105,97 @@ namespace GestionTime.Desktop.Views
             }
         }
 
-        private void LoadRememberedEmail()
+        // 🔥 NUEVO: Cargar correo desde archivo JSON (no usa ApplicationData)
+        private void LoadRememberedEmailFromFile()
         {
             try
             {
-                var settings = ApplicationData.Current.LocalSettings.Values;
-
-                if (settings.TryGetValue("RememberSession", out var remObj) && remObj is bool rem && rem)
+                var settingsPath = GetEmailSettingsPath();
+                
+                if (!File.Exists(settingsPath))
+                {
+                    App.Log?.LogDebug("📧 No existe archivo de settings: {path}", settingsPath);
+                    return;
+                }
+                
+                var json = File.ReadAllText(settingsPath);
+                
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                if (root.TryGetProperty("RememberSession", out var remProp) && 
+                    remProp.ValueKind == System.Text.Json.JsonValueKind.True)
                 {
                     ChkRemember.IsChecked = true;
-
-                    if (settings.TryGetValue("RememberedEmail", out var emailObj) && emailObj is string email && !string.IsNullOrWhiteSpace(email))
+                    
+                    if (root.TryGetProperty("Email", out var emailProp) && 
+                        emailProp.ValueKind == System.Text.Json.JsonValueKind.String)
                     {
-                        TxtUser.Text = email;
+                        var email = emailProp.GetString();
+                        if (!string.IsNullOrWhiteSpace(email))
+                        {
+                            TxtUser.Text = email;
+                            App.Log?.LogInformation("📧 Correo cargado desde archivo: {email}", email);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                App.Log?.LogWarning(ex, "LoadRememberedEmail() falló");
+                App.Log?.LogWarning(ex, "Error cargando correo desde archivo JSON");
             }
         }
 
-        private void SaveRememberedEmail()
+        // 🔥 NUEVO: Guardar correo en archivo JSON (no usa ApplicationData)
+        private void SaveRememberedEmailToFile()
         {
             try
             {
-                var settings = ApplicationData.Current.LocalSettings.Values;
-
                 var remember = ChkRemember.IsChecked == true;
-                settings["RememberSession"] = remember;
-
-                if (remember)
-                    settings["RememberedEmail"] = TxtUser.Text?.Trim() ?? "";
+                var email = TxtUser.Text?.Trim() ?? "";
+                
+                var settingsPath = GetEmailSettingsPath();
+                
+                if (remember && !string.IsNullOrWhiteSpace(email))
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        RememberSession = true,
+                        Email = email,
+                        LastSaved = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                    
+                    File.WriteAllText(settingsPath, json);
+                    App.Log?.LogInformation("✅ Correo guardado en archivo: {email}", email);
+                }
                 else
-                    settings.Remove("RememberedEmail");
+                {
+                    // Si NO está marcado o email vacío, eliminar archivo
+                    if (File.Exists(settingsPath))
+                    {
+                        File.Delete(settingsPath);
+                        App.Log?.LogInformation("🗑️ Archivo de settings eliminado (Recordar sesión desactivado)");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                App.Log?.LogWarning(ex, "SaveRememberedEmail() falló");
+                App.Log?.LogWarning(ex, "Error guardando correo en archivo JSON");
             }
         }
 
-        /// <summary>
-        /// Alternar visibilidad de la contraseña
-        /// </summary>
+        // OBSOLETO: Ya no usamos ApplicationData
+        private void LoadRememberedEmail()
+        {
+            LoadRememberedEmailFromFile();
+        }
+
+        // OBSOLETO: Ya no usamos ApplicationData
+        private void SaveRememberedEmail()
+        {
+            SaveRememberedEmailToFile();
+        }
+
         private void OnTogglePasswordClick(object sender, RoutedEventArgs e)
         {
             _isPasswordVisible = !_isPasswordVisible;
@@ -199,11 +244,9 @@ namespace GestionTime.Desktop.Views
                 return;
             }
 
-            // 🆕 MEJORADO: Mostrar indicador de carga de inmediato y ANTES de cualquier operación
             SetBusy(true, "Conectando con el servidor...");
             HideMessage();
             
-            // 🆕 NUEVO: Pequeño delay para asegurar que el indicador sea visible
             await Task.Delay(100);
 
             try
@@ -212,7 +255,7 @@ namespace GestionTime.Desktop.Views
 
                 App.Log?.LogInformation("Intentando login para: {email}", email);
 
-                // MODO DESARROLLO: Si el email es "dev" permite entrar sin API
+                // MODO DESARROLLO
                 if (email.Equals("dev", StringComparison.OrdinalIgnoreCase))
                 {
                     App.Log?.LogWarning("⚠️ MODO DESARROLLO activado - Navegando sin validación");
@@ -227,7 +270,6 @@ namespace GestionTime.Desktop.Views
                     return;
                 }
 
-                // 🆕 MEJORADO: Actualizar mensaje durante la petición
                 SetBusy(true, "Validando credenciales...");
 
                 // Llamada real al API
@@ -241,7 +283,6 @@ namespace GestionTime.Desktop.Views
                 {
                     sw.Stop();
                     
-                    // Error de API con mensaje del servidor
                     App.Log?.LogError(apiEx, "Error de API: {statusCode} - {message}", apiEx.StatusCode, apiEx.Message);
                     ShowMessage(apiEx.Message, MessageType.Error);
                     SetBusy(false, "");
@@ -251,7 +292,6 @@ namespace GestionTime.Desktop.Views
                 {
                     sw.Stop();
                     
-                    // Error de conexión HTTP específico
                     var errorMsg = GetHttpErrorMessage(httpEx);
                     App.Log?.LogError(httpEx, "Error de conexión HTTP: {msg}", errorMsg);
                     ShowMessage(errorMsg, MessageType.Error);
@@ -262,7 +302,6 @@ namespace GestionTime.Desktop.Views
                 {
                     sw.Stop();
                     
-                    // Timeout
                     App.Log?.LogError("Timeout al conectar con el servidor");
                     ShowMessage("Timeout: El servidor no responde. Verifica tu conexión.", MessageType.Error);
                     SetBusy(false, "");
@@ -271,8 +310,6 @@ namespace GestionTime.Desktop.Views
                
                 sw.Stop();
 
-                // 🆕 MEJORADO: Si la respuesta fue muy rápida (< 300ms), agregar un pequeño delay
-                // para que el usuario vea el indicador de carga
                 if (sw.ElapsedMilliseconds < 300)
                 {
                     var remainingTime = 300 - (int)sw.ElapsedMilliseconds;
@@ -286,7 +323,6 @@ namespace GestionTime.Desktop.Views
                     res != null, 
                     !string.IsNullOrEmpty(App.Api.AccessToken));
 
-                // Validar que el login fue exitoso (ya sea con token o con cookies)
                 if (res == null)
                 {
                     ShowMessage("Login fallido. Verifica tus credenciales.", MessageType.Error);
@@ -294,7 +330,7 @@ namespace GestionTime.Desktop.Views
                     return;
                 }
 
-                // ✅ VERIFICAR SI REQUIERE CAMBIO DE CONTRASEÑA
+                // Verificar si requiere cambio de contraseña
                 if (res.Message != null && res.Message.Equals("password_change_required", StringComparison.OrdinalIgnoreCase))
                 {
                     App.Log?.LogInformation("Usuario {email} debe cambiar contraseña - Expired: {expired}, Days: {days}", 
@@ -302,12 +338,10 @@ namespace GestionTime.Desktop.Views
                     
                     SetBusy(false, "");
                     
-                    // Mostrar diálogo de cambio de contraseña
                     await ShowChangePasswordDialog(email, res.PasswordExpired, res.DaysUntilExpiration);
                     return;
                 }
 
-                // Si la respuesta tiene un mensaje de error explícito
                 if (res.Message != null && !res.Message.Equals("ok", StringComparison.OrdinalIgnoreCase))
                 {
                     ShowMessage($"Error: {res.Message}", MessageType.Error);
@@ -315,28 +349,33 @@ namespace GestionTime.Desktop.Views
                     return;
                 }
 
-                // 🆕 MEJORADO: Actualizar mensaje al guardar sesión
                 SetBusy(true, "Guardando sesión...");
 
-                SaveRememberedEmail();
+                // 🔥 CRÍTICO: Guardar ANTES de cualquier operación de navegación
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                App.Log?.LogInformation("💾 GUARDANDO CORREO - Antes de navegar (NUEVO MÉTODO)");
+                App.Log?.LogInformation("   • Correo: {email}", email);
+                App.Log?.LogInformation("   • ChkRemember.IsChecked: {checked}", ChkRemember.IsChecked);
+                App.Log?.LogInformation("   • Método: Archivo JSON (no usa ApplicationData)");
+                
+                SaveRememberedEmailToFile();
+                
+                App.Log?.LogInformation("✅ Correo guardado exitosamente");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
                 
                 // Guardar información del usuario
                 try
                 {
                     var settings = ApplicationData.Current.LocalSettings.Values;
                     
-                    // Usar propiedades seguras de LoginResponse
                     var userName = res.UserNameSafe;
                     var userEmail = res.UserEmailSafe;
                     var userRole = res.UserRoleSafe;
                     
-
-                    // Si el backend NO devuelve los datos en el login, intentar obtenerlos de /api/v1/users/me
                     if (string.IsNullOrEmpty(res.UserName) || string.IsNullOrEmpty(res.UserRole))
                     {
                         App.Log?.LogInformation("🔄 LoginResponse no incluye userName/userRole, intentando obtener de /api/v1/users/me...");
                         
-                        // 🆕 MEJORADO: Actualizar mensaje
                         SetBusy(true, "Obteniendo perfil de usuario...");
                         
                         try
@@ -377,10 +416,9 @@ namespace GestionTime.Desktop.Views
 
                 ShowMessage($"Inicio de sesión exitoso ({sw.ElapsedMilliseconds}ms)", MessageType.Success);
 
-                // 🆕 MEJORADO: Mensaje antes de navegar
                 SetBusy(true, "Preparando...");
 
-                // Pausa para mostrar el mensaje de éxito y preparación
+                // Pausa para mostrar el mensaje de éxito
                 await Task.Delay(800);
 
                 App.Log?.LogInformation("Navegando a DiarioPage...");
@@ -411,7 +449,6 @@ namespace GestionTime.Desktop.Views
                     
                     storyboard.Begin();
                     
-                    // Esperar a que termine la animación
                     await tcs.Task;
                 }
                 catch (Exception animEx)

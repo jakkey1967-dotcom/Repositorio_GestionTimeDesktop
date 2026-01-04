@@ -1,6 +1,7 @@
-﻿using Microsoft.UI;
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.Extensions.Logging;
 using System;
 using WinRT.Interop;
@@ -9,41 +10,56 @@ namespace GestionTime.Desktop.Services;
 
 /// <summary>
 /// Servicio centralizado para gestionar tamaños de ventana de forma consistente
+/// Soporta configuración personalizada desde window-config.ini
 /// </summary>
 public static class WindowSizeManager
 {
-    // ===== TAMAÑOS PREDEFINIDOS POR PÁGINA =====
+    // ===== TAMAÑOS POR DEFECTO (FALLBACK) =====
+    
+    private static readonly (int Width, int Height) DefaultLoginSize = (1110, 760);
+    private static readonly (int Width, int Height) DefaultDiarioSize = (1600, 950);
+    private static readonly (int Width, int Height) DefaultParteEditSize = (1400, 900);
+    private static readonly (int Width, int Height) DefaultGraficaSize = (1200, 800);
+    private static readonly (int Width, int Height) DefaultRegisterSize = (1200, 750);
+    private static readonly (int Width, int Height) DefaultForgotPasswordSize = (1100, 650);
+    
+    // ===== PROPIEDADES PÚBLICAS (CON CONFIG INI) =====
     
     /// <summary>
-    /// Tamaño para LoginPage (más pequeña, solo formulario)
+    /// Tamaño para LoginPage (carga desde INI o usa default)
     /// </summary>
-    public static readonly (int Width, int Height) LoginSize = (1100, 750);
+    public static (int Width, int Height) LoginSize => 
+        WindowConfigService.Instance.GetSizeForPage("LoginPage") ?? DefaultLoginSize;
     
     /// <summary>
-    /// Tamaño para DiarioPage (más grande para ver tabla completa)
+    /// Tamaño para DiarioPage (carga desde INI o usa default)
     /// </summary>
-    public static readonly (int Width, int Height) DiarioSize = (1600, 950);
+    public static (int Width, int Height) DiarioSize => 
+        WindowConfigService.Instance.GetSizeForPage("DiarioPage") ?? DefaultDiarioSize;
     
     /// <summary>
-    /// Tamaño para ventana de edición de parte (ParteItemEdit)
-    /// Aumentado para acomodar todos los campos sin scroll horizontal
+    /// Tamaño para ParteItemEdit (carga desde INI o usa default)
     /// </summary>
-    public static readonly (int Width, int Height) ParteEditSize = (1800, 1150);
+    public static (int Width, int Height) ParteEditSize => 
+        WindowConfigService.Instance.GetSizeForPage("ParteItemEdit") ?? DefaultParteEditSize;
     
     /// <summary>
-    /// Tamaño para GraficaPage
+    /// Tamaño para GraficaPage (carga desde INI o usa default)
     /// </summary>
-    public static readonly (int Width, int Height) GraficaSize = (1200, 800);
+    public static (int Width, int Height) GraficaSize => 
+        WindowConfigService.Instance.GetSizeForPage("GraficaDiaPage") ?? DefaultGraficaSize;
     
     /// <summary>
-    /// Tamaño para RegisterPage
+    /// Tamaño para RegisterPage (carga desde INI o usa default)
     /// </summary>
-    public static readonly (int Width, int Height) RegisterSize = (1200, 750);
+    public static (int Width, int Height) RegisterSize => 
+        WindowConfigService.Instance.GetSizeForPage("RegisterPage") ?? DefaultRegisterSize;
     
     /// <summary>
-    /// Tamaño para ForgotPasswordPage
+    /// Tamaño para ForgotPasswordPage (carga desde INI o usa default)
     /// </summary>
-    public static readonly (int Width, int Height) ForgotPasswordSize = (1100, 650);
+    public static (int Width, int Height) ForgotPasswordSize => 
+        WindowConfigService.Instance.GetSizeForPage("ForgotPasswordPage") ?? DefaultForgotPasswordSize;
     
     // ===== MÉTODOS PÚBLICOS =====
     
@@ -54,12 +70,93 @@ public static class WindowSizeManager
     {
         var size = GetSizeForPageType(pageType);
         SetWindowSizeAndCenter(window, size.Width, size.Height);
+        
+        // 🆕 REGISTRAR ATAJO Ctrl+Alt+P para guardar tamaño actual
+        RegisterSaveHotkey(window, pageType);
+    }
+    
+    /// <summary>
+    /// Guarda el tamaño actual de la ventana en window-config.ini
+    /// </summary>
+    public static void SaveCurrentWindowSize(Window window, Type pageType)
+    {
+        try
+        {
+            App.Log?.LogInformation("════════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("💾 GUARDANDO TAMAÑO DE VENTANA");
+            App.Log?.LogInformation("════════════════════════════════════════════════════════════════");
+            
+            var hwnd = WindowNative.GetWindowHandle(window);
+            var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+            var appWindow = AppWindow.GetFromWindowId(windowId);
+            
+            if (appWindow != null)
+            {
+                var size = appWindow.Size;
+                var pageName = pageType.Name;
+                
+                App.Log?.LogInformation("📝 Datos capturados:");
+                App.Log?.LogInformation("   • Página: {page}", pageName);
+                App.Log?.LogInformation("   • Ancho: {width}px", size.Width);
+                App.Log?.LogInformation("   • Alto: {height}px", size.Height);
+                
+                // 🔍 Verificar el estado ANTES de guardar
+                var sizeBefore = WindowConfigService.Instance.GetSizeForPage(pageName);
+                if (sizeBefore.HasValue)
+                {
+                    App.Log?.LogInformation("   ℹ️ Tamaño anterior: {width}x{height}", 
+                        sizeBefore.Value.Width, sizeBefore.Value.Height);
+                }
+                else
+                {
+                    App.Log?.LogInformation("   ℹ️ No había tamaño guardado previamente");
+                }
+                
+                WindowConfigService.Instance.SaveSizeForPage(pageName, size.Width, size.Height);
+                
+                // 🔍 VERIFICAR inmediatamente después de guardar
+                var sizeAfter = WindowConfigService.Instance.GetSizeForPage(pageName);
+                if (sizeAfter.HasValue)
+                {
+                    App.Log?.LogInformation("✅ Verificación: Tamaño guardado correctamente: {width}x{height}", 
+                        sizeAfter.Value.Width, sizeAfter.Value.Height);
+                    
+                    if (sizeAfter.Value.Width == size.Width && sizeAfter.Value.Height == size.Height)
+                    {
+                        App.Log?.LogInformation("   ✓ Tamaño coincide con el esperado");
+                    }
+                    else
+                    {
+                        App.Log?.LogWarning("   ⚠️ Tamaño NO coincide! Esperado: {expW}x{expH}, Guardado: {actW}x{actH}",
+                            size.Width, size.Height, sizeAfter.Value.Width, sizeAfter.Value.Height);
+                    }
+                }
+                else
+                {
+                    App.Log?.LogError("   ❌ ERROR: No se pudo leer el tamaño después de guardar!");
+                }
+                
+                App.Log?.LogInformation("════════════════════════════════════════════════════════════════");
+                
+                // Mostrar notificación al usuario
+                ShowSaveNotification(window, pageName, size.Width, size.Height);
+            }
+            else
+            {
+                App.Log?.LogError("❌ No se pudo obtener AppWindow para guardar tamaño");
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error guardando tamaño de ventana");
+        }
     }
     
     /// <summary>
     /// Establece el tamaño de una ventana child (ParteItemEdit, Gráfica)
+    /// 🆕 NUEVO: Ahora también registra el atajo Ctrl+Alt+P
     /// </summary>
-    public static void SetChildWindowSize(Window window, int width, int height, bool resizable = false, bool maximizable = false)
+    public static void SetChildWindowSize(Window window, Type pageType, int width, int height, bool resizable = false, bool maximizable = false)
     {
         try
         {
@@ -89,6 +186,9 @@ public static class WindowSizeManager
                 App.Log?.LogInformation("Ventana child configurada: {width}x{height} centrada en ({x},{y}) (resizable:{resizable}, maximizable:{maximizable})",
                     width, height, x, y, resizable, maximizable);
             }
+            
+            // 🆕 NUEVO: REGISTRAR ATAJO Ctrl+Alt+P también para ventanas child
+            RegisterSaveHotkey(window, pageType);
         }
         catch (Exception ex)
         {
@@ -156,6 +256,75 @@ public static class WindowSizeManager
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "Error estableciendo tamaño y centrando ventana");
+        }
+    }
+    
+    /// <summary>
+    /// Registra el atajo de teclado Ctrl+Alt+P para guardar tamaño
+    /// </summary>
+    private static void RegisterSaveHotkey(Window window, Type pageType)
+    {
+        try
+        {
+            if (window.Content is FrameworkElement rootElement)
+            {
+                // Crear handler con closure para capturar window y pageType
+                KeyEventHandler handler = (sender, e) =>
+                {
+                    try
+                    {
+                        // Verificar Ctrl+Alt+P
+                        var ctrlState = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control);
+                        var altState = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Menu);
+                        
+                        bool isCtrlPressed = (ctrlState & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down;
+                        bool isAltPressed = (altState & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down;
+                        
+                        if (isCtrlPressed && isAltPressed && e.Key == Windows.System.VirtualKey.P)
+                        {
+                            SaveCurrentWindowSize(window, pageType);
+                            e.Handled = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Log?.LogError(ex, "Error en handler de atajo de teclado");
+                    }
+                };
+                
+                // Agregar handler
+                rootElement.KeyDown += handler;
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogWarning(ex, "Error registrando atajo de teclado");
+        }
+    }
+    
+    /// <summary>
+    /// Muestra una notificación temporal al usuario
+    /// </summary>
+    private static async void ShowSaveNotification(Window window, string pageName, int width, int height)
+    {
+        try
+        {
+            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "💾 Tamaño Guardado",
+                Content = $"Tamaño de ventana guardado para {pageName}:\n\n" +
+                         $"📏 {width} x {height} píxeles\n\n" +
+                         $"📄 Archivo: window-config.ini\n\n" +
+                         $"Este tamaño se usará la próxima vez que abras esta página.",
+                CloseButtonText = "OK",
+                XamlRoot = window.Content.XamlRoot
+            };
+            
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogWarning(ex, "Error mostrando notificación");
         }
     }
 }
