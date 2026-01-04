@@ -591,9 +591,9 @@
                         Background="Transparent"
                         BorderThickness="1"
                         BorderBrush="{StaticResource AccentBrush}"
-                        Width="100"
+                        Width="110"
                         Height="70"
-                        Padding="8"
+                        Padding="6"
                         CornerRadius="6"
                         Click="OnGuardarYCerrarClick"
                         PointerEntered="OnButtonPointerEntered"
@@ -601,8 +601,7 @@
                         TabIndex="10">
                     <StackPanel Spacing="4">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;" FontSize="24" Foreground="#10B981"/>
-                        <TextBlock Text="Guardar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
-                        <TextBlock Text="y Cerrar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
+                        <TextBlock Text="Guardar y Cerrar" FontSize="10" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
                     </StackPanel>
                 </Button>
                 
