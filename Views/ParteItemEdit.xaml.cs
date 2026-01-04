@@ -911,6 +911,10 @@ public sealed partial class ParteItemEdit : Page
 
         try
         {
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("💾 INICIAR GUARDADO DE PARTE");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            
             Parte.Fecha = DpFecha.Date?.DateTime ?? DateTime.Today;
 
             // Obtener cliente del texto del AutoSuggestBox
@@ -925,6 +929,7 @@ public sealed partial class ParteItemEdit : Page
             var horaInicio = NormalizeHora(Parte.HoraInicio);
             if (horaInicio == null)
             {
+                App.Log?.LogWarning("❌ Validación fallida: Hora inicio inválida");
                 await ShowErrorAsync("Hora inicio inválida (usa HH:mm)");
                 return;
             }
@@ -942,6 +947,7 @@ public sealed partial class ParteItemEdit : Page
                 var normalizedHoraFin = NormalizeHora(Parte.HoraFin);
                 if (normalizedHoraFin == null)
                 {
+                    App.Log?.LogWarning("❌ Validación fallida: Hora fin inválida");
                     await ShowErrorAsync("Hora fin inválida (usa HH:mm)");
                     return;
                 }
@@ -959,26 +965,43 @@ public sealed partial class ParteItemEdit : Page
             
             App.Log?.LogInformation("---------------------------------------------------------------");
             App.Log?.LogInformation("🔧 VALORES AL GUARDAR:");
+            App.Log?.LogInformation("   ID Parte = {id} (0 = nuevo)", Parte.Id);
+            App.Log?.LogInformation("   Fecha = {fecha}", Parte.Fecha.ToString("yyyy-MM-dd"));
             App.Log?.LogInformation("   Cliente = '{cliente}'", Parte.Cliente);
+            App.Log?.LogInformation("   Tienda = '{tienda}'", Parte.Tienda);
+            App.Log?.LogInformation("   HoraInicio = '{inicio}'", Parte.HoraInicio);
+            App.Log?.LogInformation("   HoraFin = '{fin}'", Parte.HoraFin);
+            App.Log?.LogInformation("   Ticket = '{ticket}'", Parte.Ticket);
             App.Log?.LogInformation("   Grupo = '{grupo}' (Text='{text}', SelectedItem='{selected}')", 
                 Parte.Grupo, CmbGrupo.Text ?? "(null)", CmbGrupo.SelectedItem as string ?? "(null)");
             App.Log?.LogInformation("   Tipo = '{tipo}' (Text='{text}', SelectedItem='{selected}')", 
                 Parte.Tipo, CmbTipo.Text ?? "(null)", CmbTipo.SelectedItem as string ?? "(null)");
+            App.Log?.LogInformation("   Acción = '{accion}'", Trim(Parte.Accion, 100));
             App.Log?.LogInformation("---------------------------------------------------------------");
 
-            // Asegurar catálogos cargados para mapear IDs
+            // ✅ ASEGURAR catálogos cargados para mapear IDs
+            App.Log?.LogInformation("📚 PASO 1: Cargar catálogos para mapeo de IDs...");
             await LoadClientesAsync();
             await _catalogManager.LoadGruposAsync();
             await _catalogManager.LoadTiposAsync();
+            App.Log?.LogInformation("✅ Catálogos cargados correctamente");
 
             var clienteId = _clientesCache?.FirstOrDefault(c => string.Equals(c.Nombre, Parte.Cliente, StringComparison.OrdinalIgnoreCase))?.Id ?? 0;
             var grupoId = _catalogManager.GetGrupoId(Parte.Grupo);
             var tipoId = _catalogManager.GetTipoId(Parte.Tipo);
             
-            App.Log?.LogInformation("📊 Mapeo de catálogos:");
+            App.Log?.LogInformation("📊 PASO 2: Mapeo de catálogos:");
             App.Log?.LogInformation("   Cliente: '{nombre}' → ID={id}", Parte.Cliente, clienteId);
             App.Log?.LogInformation("   Grupo: '{nombre}' → ID={id}", Parte.Grupo, grupoId?.ToString() ?? "null");
             App.Log?.LogInformation("   Tipo: '{nombre}' → ID={id}", Parte.Tipo, tipoId?.ToString() ?? "null");
+
+            // ✅ VALIDAR que el clienteId sea válido
+            if (clienteId == 0)
+            {
+                App.Log?.LogError("❌ ERROR: Cliente '{cliente}' no encontrado o ID=0", Parte.Cliente);
+                await ShowErrorAsync($"Cliente '{Parte.Cliente}' no encontrado en el catálogo.");
+                return;
+            }
 
             // IMPORTANTE: Para partes NUEVOS, el backend debe asignar automáticamente estado=0 (Abierto)
             // Para partes EXISTENTES, NO modificar el estado (el backend lo gestiona)
@@ -997,35 +1020,54 @@ public sealed partial class ParteItemEdit : Page
             };
 
             App.Log?.LogInformation("---------------------------------------------------------------");
-            App.Log?.LogInformation("💾 GUARDANDO PARTE:");
-            App.Log?.LogInformation("   • Es nuevo: {isNew}", Parte.Id == 0);
-            App.Log?.LogInformation("   • Fecha: {fecha}", Parte.Fecha.ToString("yyyy-MM-dd"));
-            App.Log?.LogInformation("   • Cliente: '{cliente}' (ID: {id})", Parte.Cliente, clienteId);
-            App.Log?.LogInformation("   • Tienda: '{tienda}'", Parte.Tienda);
-            App.Log?.LogInformation("   • HoraInicio: {inicio}", Parte.HoraInicio);
-            App.Log?.LogInformation("   • HoraFin: {fin}", Parte.HoraFin);
-            App.Log?.LogInformation("   • Acción: '{accion}'", Trim(Parte.Accion, 50));
-            App.Log?.LogInformation("   • Ticket: '{ticket}'", Parte.Ticket);
-            App.Log?.LogInformation("   • Grupo: '{grupo}' (ID: {id})", Parte.Grupo, grupoId?.ToString() ?? "null");
-            App.Log?.LogInformation("   • Tipo: '{tipo}' (ID: {id})", Parte.Tipo, tipoId?.ToString() ?? "null");
+            App.Log?.LogInformation("📦 PASO 3: Preparar payload para API:");
+            App.Log?.LogInformation("   • fecha_trabajo: {fecha}", payload.FechaTrabajo.ToString("yyyy-MM-dd"));
+            App.Log?.LogInformation("   • hora_inicio: '{inicio}'", payload.HoraInicio);
+            App.Log?.LogInformation("   • hora_fin: '{fin}'", payload.HoraFin);
+            App.Log?.LogInformation("   • id_cliente: {id}", payload.IdCliente);
+            App.Log?.LogInformation("   • tienda: '{tienda}'", payload.Tienda ?? "(null)");
+            App.Log?.LogInformation("   • id_grupo: {id}", payload.IdGrupo?.ToString() ?? "null");
+            App.Log?.LogInformation("   • id_tipo: {id}", payload.IdTipo?.ToString() ?? "null");
+            App.Log?.LogInformation("   • accion: '{accion}'", Trim(payload.Accion, 50));
+            App.Log?.LogInformation("   • ticket: '{ticket}'", payload.Ticket ?? "(null)");
             App.Log?.LogInformation("---------------------------------------------------------------");
 
             if (Parte.Id > 0)
             {
-                // Editar parte existente
-                App.Log?.LogInformation("PUT /api/v1/partes/{id} (edición)", Parte.Id);
-                await App.Api.PutAsync<ParteRequest, ParteDto>($"/api/v1/partes/{Parte.Id}", payload);
-                App.Log?.LogInformation("✅ Parte {id} actualizado correctamente", Parte.Id);
+                // ✅ EDITAR parte existente
+                var endpoint = $"/api/v1/partes/{Parte.Id}";
+                var fullUrl = $"{App.Api.BaseUrl}{endpoint}";
+                
+                App.Log?.LogInformation("🔄 PASO 4: Actualizar parte existente");
+                App.Log?.LogInformation("   📡 Endpoint: PUT {endpoint}", endpoint);
+                App.Log?.LogInformation("   🌐 URL completa: {url}", fullUrl);
+                App.Log?.LogInformation("   ⏳ Enviando petición...");
+                
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                await App.Api.PutAsync<ParteRequest, ParteDto>(endpoint, payload);
+                sw.Stop();
+                
+                App.Log?.LogInformation("✅ Parte {id} actualizado correctamente en {ms}ms", Parte.Id, sw.ElapsedMilliseconds);
             }
             else
             {
-                // Crear parte nuevo
-                App.Log?.LogInformation("POST /api/v1/partes (creación)");
-                var resultado = await App.Api.PostAsync<ParteRequest, ParteDto>("/api/v1/partes", payload);
+                // ✅ CREAR parte nuevo
+                var endpoint = "/api/v1/partes";
+                var fullUrl = $"{App.Api.BaseUrl}{endpoint}";
+                
+                App.Log?.LogInformation("🔄 PASO 4: Crear parte nuevo");
+                App.Log?.LogInformation("   📡 Endpoint: POST {endpoint}", endpoint);
+                App.Log?.LogInformation("   🌐 URL completa: {url}", fullUrl);
+                App.Log?.LogInformation("   ⏳ Enviando petición...");
+                
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                var resultado = await App.Api.PostAsync<ParteRequest, ParteDto>(endpoint, payload);
+                sw.Stop();
                 
                 if (resultado != null)
                 {
-                    App.Log?.LogInformation("✅ Parte creado exitosamente con ID: {id}", resultado.Id);
+                    App.Log?.LogInformation("✅ Parte creado exitosamente con ID: {id} en {ms}ms", resultado.Id, sw.ElapsedMilliseconds);
+                    Parte.Id = resultado.Id; // Actualizar ID del parte recién creado
                 }
                 else
                 {
@@ -1033,21 +1075,53 @@ public sealed partial class ParteItemEdit : Page
                 }
             }
 
-            // 🆕 NUEVO: Invalidar el caché de partes después de guardar
-            App.Log?.LogInformation("🗑️ Invalidando caché de partes...");
+            // ✅ PASO 5: Invalidar el caché de partes después de guardar
+            App.Log?.LogInformation("🗑️ PASO 5: Invalidando caché de partes...");
             InvalidatePartesCache(Parte.Fecha);
+            App.Log?.LogInformation("✅ Caché invalidado correctamente");
             
             Guardado = true;
             
-            App.Log?.LogInformation("---------------------------------------------------------------");
-            App.Log?.LogInformation("✅ GUARDADO COMPLETADO - Cerrando editor");
-            App.Log?.LogInformation("---------------------------------------------------------------");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("✅ GUARDADO COMPLETADO EXITOSAMENTE");
+            App.Log?.LogInformation("   • Parte ID: {id}", Parte.Id);
+            App.Log?.LogInformation("   • Cliente: {cliente}", Parte.Cliente);
+            App.Log?.LogInformation("   • Fecha: {fecha}", Parte.Fecha.ToString("yyyy-MM-dd"));
+            App.Log?.LogInformation("   • Guardado = true");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             
             _parentWindow?.Close();
         }
+        catch (ApiException apiEx)
+        {
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("❌ ERROR API AL GUARDAR PARTE");
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("🔴 DETALLES DEL ERROR:");
+            App.Log?.LogError("   • StatusCode: {status} ({statusInt})", apiEx.StatusCode, (int)apiEx.StatusCode);
+            App.Log?.LogError("   • Path: {path}", apiEx.Path);
+            App.Log?.LogError("   • Mensaje: {message}", apiEx.Message);
+            App.Log?.LogError("   • Mensaje del servidor: {serverMsg}", apiEx.ServerMessage ?? "(sin mensaje)");
+            App.Log?.LogError("   • Error del servidor: {serverError}", apiEx.ServerError ?? "(sin error)");
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            
+            await ShowErrorAsync($"Error guardando parte:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}");
+        }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "❌ ERROR guardando parte");
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("❌ ERROR INESPERADO AL GUARDAR PARTE");
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("🔴 DETALLES DEL ERROR:");
+            App.Log?.LogError("   • Tipo: {type}", ex.GetType().Name);
+            App.Log?.LogError("   • Mensaje: {message}", ex.Message);
+            App.Log?.LogError("   • Stack trace: {stack}", ex.StackTrace);
+            if (ex.InnerException != null)
+            {
+                App.Log?.LogError("   • Inner exception: {inner}", ex.InnerException.Message);
+            }
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            
             await ShowErrorAsync($"Error guardando parte: {ex.Message}");
         }
     }
