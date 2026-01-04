@@ -1,0 +1,372 @@
+<!-- ✨ EJEMPLO COMPLETO: DiarioPage con Diseño Responsive -->
+
+<Page
+    x:Class="GestionTime.Desktop.Views.DiarioPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="Transparent">
+    
+    <Grid x:Name="RootGrid" Padding="10" RowSpacing="10">
+        
+        <!-- 🎯 ESTADOS VISUALES RESPONSIVE -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WindowSizeStates">
+                
+                <!-- 💻 VENTANA GRANDE (>1400px) - Vista Completa -->
+                <VisualState x:Name="WideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1400"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- Banner: 3 columnas completas -->
+                        <Setter Target="LogoImageBanner.MaxHeight" Value="60"/>
+                        <Setter Target="UserInfoPanel.Visibility" Value="Visible"/>
+                        <Setter Target="ServiceStatusPanel.Visibility" Value="Visible"/>
+                        
+                        <!-- Botones: Horizontal -->
+                        <Setter Target="ButtonsWrapGrid.Orientation" Value="Horizontal"/>
+                        <Setter Target="ButtonsWrapGrid.MaximumRowsOrColumns" Value="1"/>
+                        
+                        <!-- Filtros: Lado a lado -->
+                        <Setter Target="FiltersGrid.ColumnDefinitions[0].Width" Value="Auto"/>
+                        <Setter Target="FiltersGrid.ColumnDefinitions[1].Width" Value="*"/>
+                        
+                        <!-- ListView: Todas las columnas -->
+                        <Setter Target="Col_Fecha.Width" Value="70"/>
+                        <Setter Target="Col_Cliente.Width" Value="90"/>
+                        <Setter Target="Col_Tienda.Width" Value="55"/>
+                        <Setter Target="Col_Accion.Width" Value="*"/>
+                        <Setter Target="Col_Inicio.Width" Value="55"/>
+                        <Setter Target="Col_Fin.Width" Value="55"/>
+                        <Setter Target="Col_Duracion.Width" Value="45"/>
+                        <Setter Target="Col_Ticket.Width" Value="65"/>
+                        <Setter Target="Col_Grupo.Width" Value="70"/>
+                        <Setter Target="Col_Tipo.Width" Value="70"/>
+                        <Setter Target="Col_Estado.Width" Value="90"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <!-- 🖥️ VENTANA MEDIANA (1024-1399px) - Vista Optimizada -->
+                <VisualState x:Name="NormalState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1024"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- Banner: Logo más pequeño -->
+                        <Setter Target="LogoImageBanner.MaxHeight" Value="50"/>
+                        <Setter Target="UserInfoPanel.Visibility" Value="Visible"/>
+                        <Setter Target="ServiceStatusPanel.Visibility" Value="Visible"/>
+                        
+                        <!-- Botones: Horizontal compacto -->
+                        <Setter Target="ButtonsWrapGrid.Orientation" Value="Horizontal"/>
+                        <Setter Target="ButtonsWrapGrid.MaximumRowsOrColumns" Value="1"/>
+                        
+                        <!-- Filtros: Stack vertical -->
+                        <Setter Target="FiltersGrid.ColumnDefinitions[0].Width" Value="*"/>
+                        <Setter Target="FiltersGrid.ColumnDefinitions[1].Width" Value="0"/>
+                        <Setter Target="SearchPanel.Margin" Value="0,8,0,0"/>
+                        
+                        <!-- ListView: Ocultar columnas secundarias -->
+                        <Setter Target="Col_Fecha.Width" Value="65"/>
+                        <Setter Target="Col_Cliente.Width" Value="85"/>
+                        <Setter Target="Col_Tienda.Width" Value="0"/>      <!-- OCULTO -->
+                        <Setter Target="Col_Accion.Width" Value="*"/>
+                        <Setter Target="Col_Inicio.Width" Value="50"/>
+                        <Setter Target="Col_Fin.Width" Value="50"/>
+                        <Setter Target="Col_Duracion.Width" Value="40"/>
+                        <Setter Target="Col_Ticket.Width" Value="60"/>
+                        <Setter Target="Col_Grupo.Width" Value="0"/>       <!-- OCULTO -->
+                        <Setter Target="Col_Tipo.Width" Value="0"/>        <!-- OCULTO -->
+                        <Setter Target="Col_Estado.Width" Value="80"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <!-- 📱 VENTANA PEQUEÑA (<1024px) - Vista Compacta -->
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- Banner: Compacto -->
+                        <Setter Target="LogoImageBanner.MaxHeight" Value="40"/>
+                        <Setter Target="UserInfoPanel.Visibility" Value="Collapsed"/>
+                        <Setter Target="ServiceStatusPanel.Visibility" Value="Collapsed"/>
+                        
+                        <!-- Botones: Vertical (columna) -->
+                        <Setter Target="ButtonsWrapGrid.Orientation" Value="Vertical"/>
+                        <Setter Target="ButtonsWrapGrid.MaximumRowsOrColumns" Value="8"/>
+                        
+                        <!-- Filtros: Stack vertical -->
+                        <Setter Target="FiltersGrid.ColumnDefinitions[0].Width" Value="*"/>
+                        <Setter Target="FiltersGrid.ColumnDefinitions[1].Width" Value="0"/>
+                        <Setter Target="SearchPanel.Margin" Value="0,8,0,0"/>
+                        
+                        <!-- ListView: Solo columnas esenciales -->
+                        <Setter Target="Col_Fecha.Width" Value="60"/>
+                        <Setter Target="Col_Cliente.Width" Value="*"/>
+                        <Setter Target="Col_Tienda.Width" Value="0"/>      <!-- OCULTO -->
+                        <Setter Target="Col_Accion.Width" Value="120"/>
+                        <Setter Target="Col_Inicio.Width" Value="45"/>
+                        <Setter Target="Col_Fin.Width" Value="0"/>         <!-- OCULTO -->
+                        <Setter Target="Col_Duracion.Width" Value="0"/>    <!-- OCULTO -->
+                        <Setter Target="Col_Ticket.Width" Value="0"/>      <!-- OCULTO -->
+                        <Setter Target="Col_Grupo.Width" Value="0"/>       <!-- OCULTO -->
+                        <Setter Target="Col_Tipo.Width" Value="0"/>        <!-- OCULTO -->
+                        <Setter Target="Col_Estado.Width" Value="75"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        <!-- GRID PRINCIPAL -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Banner -->
+            <RowDefinition Height="Auto"/>  <!-- Filtros -->
+            <RowDefinition Height="*"/>     <!-- ListView -->
+        </Grid.RowDefinitions>
+        
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- BANNER -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Background="#0B8C99" CornerRadius="10" Padding="16">
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>   <!-- Logo -->
+                    <ColumnDefinition Width="*"/>      <!-- Info -->
+                    <ColumnDefinition Width="Auto"/>   <!-- Botones -->
+                </Grid.ColumnDefinitions>
+                
+                <!-- Logo -->
+                <Image x:Name="LogoImageBanner" 
+                       Grid.Column="0"
+                       Source="ms-appx:///Assets/LogoOscuro.png" 
+                       MaxHeight="60"
+                       Stretch="Uniform"/>
+                
+                <!-- Info Usuario -->
+                <StackPanel x:Name="UserInfoPanel" 
+                            Grid.Column="1" 
+                            VerticalAlignment="Center" 
+                            Spacing="4">
+                    <TextBlock Text="Gestor de Tareas" 
+                               FontSize="22" 
+                               FontWeight="SemiBold" 
+                               Foreground="White"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE77B;" FontSize="14" Foreground="White"/>
+                        <TextBlock Text="Francisco • Admin" 
+                                   FontSize="14" 
+                                   Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <!-- Estado Servicio -->
+                <StackPanel x:Name="ServiceStatusPanel" 
+                            Grid.Column="2" 
+                            VerticalAlignment="Center" 
+                            Spacing="8">
+                    <Button Content="⚙️ Tema" 
+                            Background="Transparent" 
+                            BorderBrush="White" 
+                            Foreground="White"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse Width="12" Height="12" Fill="#10B981"/>
+                        <TextBlock Text="Online" FontSize="12" Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- FILTROS Y BOTONES -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1" Padding="10">
+            <Grid x:Name="FiltersGrid" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>  <!-- Filtros -->
+                    <ColumnDefinition Width="*"/>     <!-- Botones -->
+                </Grid.ColumnDefinitions>
+                
+                <!-- Columna Izquierda: Filtros -->
+                <StackPanel Grid.Column="0" Spacing="8" MinWidth="250">
+                    <TextBlock Text="Fecha" FontSize="12" Opacity="0.7"/>
+                    <CalendarDatePicker Width="180"/>
+                    
+                    <StackPanel x:Name="SearchPanel" Spacing="4">
+                        <TextBlock Text="Buscar" FontSize="12" Opacity="0.7"/>
+                        <TextBox PlaceholderText="buscar..." Width="180"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <!-- Columna Derecha: Botones -->
+                <Border Grid.Column="1" 
+                        BorderBrush="#0FA7B6" 
+                        BorderThickness="2" 
+                        CornerRadius="6" 
+                        Padding="8">
+                    <!-- ItemsWrapGrid permite cambiar orientación dinámicamente -->
+                    <ItemsControl>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid x:Name="ButtonsWrapGrid" 
+                                               Orientation="Horizontal" 
+                                               MaximumRowsOrColumns="1" 
+                                               ItemWidth="80" 
+                                               ItemHeight="70"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.Items>
+                            <!-- Botón Teléfono -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE717;" FontSize="24" Foreground="#10B981"/>
+                                    <TextBlock Text="Teléfono" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Botón Nuevo -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE710;" FontSize="24" Foreground="#3B82F6"/>
+                                    <TextBlock Text="Nuevo" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Botón Editar -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE70F;" FontSize="24" Foreground="#8B5CF6"/>
+                                    <TextBlock Text="Editar" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Botón Gráfica -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE9D2;" FontSize="24" Foreground="#F59E0B"/>
+                                    <TextBlock Text="Gráfica" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Botón Config -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE713;" FontSize="24" Foreground="#6366F1"/>
+                                    <TextBlock Text="Config" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Botón Borrar -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE74D;" FontSize="24" Foreground="#EF4444"/>
+                                    <TextBlock Text="Borrar" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Botón Salir -->
+                            <Button Background="Transparent" BorderThickness="0">
+                                <StackPanel>
+                                    <FontIcon Glyph="&#xE7E8;" FontSize="24" Foreground="#F59E0B"/>
+                                    <TextBlock Text="Salir" FontSize="11"/>
+                                </StackPanel>
+                            </Button>
+                        </ItemsControl.Items>
+                    </ItemsControl>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- LISTVIEW -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="2" 
+                Background="#1F000000" 
+                BorderBrush="#330FA7B6" 
+                CornerRadius="14" 
+                Padding="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>  <!-- Header -->
+                    <RowDefinition Height="*"/>     <!-- Datos -->
+                </Grid.RowDefinitions>
+                
+                <!-- Header con nombres de columnas -->
+                <Grid Grid.Row="0" Background="#0FA7B6" Padding="8" CornerRadius="8,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="Col_Fecha" Width="70"/>
+                        <ColumnDefinition x:Name="Col_Cliente" Width="90"/>
+                        <ColumnDefinition x:Name="Col_Tienda" Width="55"/>
+                        <ColumnDefinition x:Name="Col_Accion" Width="*"/>
+                        <ColumnDefinition x:Name="Col_Inicio" Width="55"/>
+                        <ColumnDefinition x:Name="Col_Fin" Width="55"/>
+                        <ColumnDefinition x:Name="Col_Duracion" Width="45"/>
+                        <ColumnDefinition x:Name="Col_Ticket" Width="65"/>
+                        <ColumnDefinition x:Name="Col_Grupo" Width="70"/>
+                        <ColumnDefinition x:Name="Col_Tipo" Width="70"/>
+                        <ColumnDefinition x:Name="Col_Estado" Width="90"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Column="0" Text="Fecha" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="1" Text="Cliente" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="2" Text="Tienda" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="3" Text="Acción" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="4" Text="Inicio" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="5" Text="Fin" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="6" Text="Dur" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="7" Text="Ticket" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="8" Text="Grupo" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="9" Text="Tipo" Foreground="White" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="10" Text="Estado" Foreground="White" FontWeight="SemiBold"/>
+                </Grid>
+                
+                <!-- ListView con scroll -->
+                <ListView Grid.Row="1" 
+                          Background="Transparent" 
+                          SelectionMode="Single">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="0"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    
+                    <!-- Template de cada fila -->
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="8,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="55"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="55"/>
+                                    <ColumnDefinition Width="55"/>
+                                    <ColumnDefinition Width="45"/>
+                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="90"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0" Text="{Binding Fecha}" FontSize="12"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Cliente}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Tienda}" FontSize="12"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Accion}" FontSize="12" TextWrapping="Wrap" MaxLines="2"/>
+                                <TextBlock Grid.Column="4" Text="{Binding Inicio}" FontSize="12"/>
+                                <TextBlock Grid.Column="5" Text="{Binding Fin}" FontSize="12"/>
+                                <TextBlock Grid.Column="6" Text="{Binding Dur}" FontSize="12"/>
+                                <TextBlock Grid.Column="7" Text="{Binding Ticket}" FontSize="12"/>
+                                <TextBlock Grid.Column="8" Text="{Binding Grupo}" FontSize="12"/>
+                                <TextBlock Grid.Column="9" Text="{Binding Tipo}" FontSize="12"/>
+                                <TextBlock Grid.Column="10" Text="{Binding Estado}" FontSize="12"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
+        
+    </Grid>
+</Page>

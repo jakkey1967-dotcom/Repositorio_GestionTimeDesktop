@@ -1,18 +1,18 @@
-﻿using System;
-using GestionTime.Desktop.Models.Dtos;
-using GestionTime.Desktop.Helpers;
-using GestionTime.Desktop.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
-using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using GestionTime.Desktop.Helpers;
+using GestionTime.Desktop.Models.Dtos;
+using GestionTime.Desktop.Services;
 
 namespace GestionTime.Desktop.Views;
 
@@ -112,7 +112,7 @@ public sealed partial class ParteItemEdit : Page
             await SearchClientesAsync();
         };
         
-        App.Log?.LogDebug("✅ AutoSuggestBox Cliente configurado com búsqueda dinâmica");
+        App.Log?.LogDebug("✅ AutoSuggestBox Cliente configurado com búsqueda dinámica");
         
         // Configurar ComboBox de Grupo (solo lectura)
         CmbGrupo.ItemsSource = _grupoItems;
@@ -495,19 +495,25 @@ public sealed partial class ParteItemEdit : Page
 
     private void OnGrupoSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Cuando el usuario selecciona un grupo
         if (sender is ComboBox combo && combo.SelectedItem is string selectedGrupo)
         {
             App.Log?.LogInformation("✅ Grupo seleccionado: {grupo}", selectedGrupo);
             
-            // Marcar que acabamos de seleccionar (para evitar bucle en GotFocus)
             _grupoJustSelected = true;
             
-            // NO cerrar dropdown automáticamente aquí
-            // Dejar que el usuario presione Enter o haga click para confirmar
-            // combo.IsDropDownOpen = false;  // <-- REMOVIDO
+            // 🆕 NUEVO: Si el dropdown está abierto, cerrarlo y avanzar automáticamente
+            if (combo.IsDropDownOpen)
+            {
+                App.Log?.LogDebug("🖱️ Click en Grupo - Cerrando dropdown y avanzando");
+                combo.IsDropDownOpen = false;
+                
+                // Avanzar al siguiente campo automáticamente
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+                {
+                    MoveToNextControl(combo);
+                });
+            }
             
-            // Marcar como modificado
             OnFieldChanged(sender, e);
         }
     }
@@ -549,9 +555,9 @@ public sealed partial class ParteItemEdit : Page
                 App.Log?.LogInformation("🔍 ANÁLISIS DETALLADO DE GRUPOS RECIBIDOS:");
                 foreach (var g in response.Take(10))
                 {
-                    App.Log?.LogInformation("   - Id_grupo={id}, Nombre='" + 
-                        g.Id_grupo + "");
-
+                    App.Log?.LogInformation("   - Id_grupo={id}, Nombre='{nombre}'", 
+                        g.Id_grupo, 
+                        g.Nombre ?? "(null)");
                 }
                 App.Log?.LogInformation("----------------------------------------------------------------");
                 
@@ -758,19 +764,25 @@ public sealed partial class ParteItemEdit : Page
 
     private void OnTipoSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Cuando el usuario selecciona un tipo
         if (sender is ComboBox combo && combo.SelectedItem is string selectedTipo)
         {
             App.Log?.LogInformation("✅ Tipo seleccionado: {tipo}", selectedTipo);
             
-            // Marcar que acabamos de seleccionar (para evitar bucle en GotFocus)
             _tipoJustSelected = true;
             
-            // NO cerrar dropdown automáticamente aquí
-            // Dejar que el usuario presione Enter o haga click para confirmar
-            // combo.IsDropDownOpen = false;  // <-- REMOVIDO
+            // 🆕 NUEVO: Si el dropdown está abierto, cerrarlo y avanzar automáticamente
+            if (combo.IsDropDownOpen)
+            {
+                App.Log?.LogDebug("🖱️ Click en Tipo - Cerrando dropdown y avanzando");
+                combo.IsDropDownOpen = false;
+                
+                // Avanzar al siguiente campo automáticamente
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+                {
+                    MoveToNextControl(combo);
+                });
+            }
             
-            // Marcar como modificado
             OnFieldChanged(sender, e);
         }
     }
@@ -1143,14 +1155,18 @@ public sealed partial class ParteItemEdit : Page
 
     private void OnAccionGotFocus(object? sender, RoutedEventArgs e)
     {
-        // Cuando TxtAccion recibe foco, simplemente posicionar el cursor
-        // No es necesario hacer nada especial aquí por ahora
         App.Log?.LogDebug("📝 TxtAccion recibió foco");
         
-        // Si el TextBox está vacío, insertar timestamp inicial
+        // 🔧 CORREGIDO: Solo insertar timestamp si está COMPLETAMENTE vacío
+        // NO insertar si ya tiene contenido (evita duplicación)
         if (string.IsNullOrWhiteSpace(TxtAccion.Text))
         {
+            App.Log?.LogDebug("📝 Campo vacío - Insertando timestamp inicial");
             InsertTimestampAtCursor();
+        }
+        else
+        {
+            App.Log?.LogDebug("📝 Campo tiene contenido - NO insertar timestamp");
         }
     }
     
@@ -1210,28 +1226,9 @@ public sealed partial class ParteItemEdit : Page
     {
         if (_suppressAccionTimestamp) return;
         
-        // Solo procesar si el cambio es por input del usuario (no programático)
-        if (!args.IsContentChanging) return;
-        
-        var cursorPos = sender.SelectionStart;
-        var text = sender.Text ?? string.Empty;
-        
-        // Verificar si estamos al inicio de una línea sin timestamp
-        if (IsAtStartOfLineWithoutTimestamp(text, cursorPos))
-        {
-            _suppressAccionTimestamp = true;
-            
-            // Insertar timestamp en la posición actual
-            var timestamp = GetCurrentTimestamp();
-            var lineStart = GetLineStartPosition(text, cursorPos);
-            
-            sender.Text = text.Insert(lineStart, timestamp);
-            sender.SelectionStart = lineStart + timestamp.Length;
-            
-            _suppressAccionTimestamp = false;
-            
-            App.Log?.LogDebug("? Inicio de línea sin timestamp - Insertado: {timestamp}", timestamp);
-        }
+        // ❌ DESHABILITADO: Este método causaba inserciones continuas de timestamp
+        // Solo OnAccionPreviewKeyDown y OnAccionGotFocus deben insertar timestamps
+        return;
     }
     
     /// <summary>

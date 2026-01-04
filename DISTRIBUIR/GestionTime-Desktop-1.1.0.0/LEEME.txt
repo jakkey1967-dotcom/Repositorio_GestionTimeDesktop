@@ -1,0 +1,66 @@
+﻿============================================
+GESTIONTIME DESKTOP v1.1.0.0
+VERSION PORTABLE COMPLETA
+============================================
+
+INSTRUCCIONES:
+--------------
+
+1. Ejecutar: INICIAR.bat
+   O doble clic en: GestionTime.Desktop.exe
+
+2. La aplicacion funciona SIN INSTALACION
+
+CONTENIDO:
+----------
+
+Este paquete contiene:
+- Ejecutable principal
+- Todas las librerias necesarias
+- Runtime .NET 8 completo
+- WindowsAppSDK completo
+- Carpetas de recursos (idiomas, temas)
+- Archivos de configuracion
+
+Total: 740 archivos (312.43 MB)
+
+CARACTERISTICAS:
+----------------
+
+[OK] NO requiere instalacion
+[OK] NO requiere permisos de administrador
+[OK] Completamente portable (USB, red, etc.)
+[OK] Runtime .NET incluido
+[OK] WindowsAppSDK incluido
+[OK] FUNCIONA GARANTIZADO
+
+REQUISITOS:
+-----------
+
+- Windows 10 build 17763+ o Windows 11
+- Arquitectura x64
+- 469 MB espacio en disco
+
+USO PORTABLE:
+-------------
+
+Puedes copiar esta carpeta a:
+- USB
+- Otra carpeta
+- Otro PC
+- Servidor de red (\\servidor\apps\)
+
+Y ejecutar directamente sin instalar.
+
+CONFIGURACION:
+--------------
+
+Editar: appsettings.json
+
+SOPORTE:
+--------
+
+Web: https://gestiontime.com/support
+Email: support@gestiontime.com
+
+Copyright (c) 2025 GestionTime Solutions

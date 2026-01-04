@@ -53,6 +53,8 @@
     <None Remove="Views\DiarioPage.xaml" />
     <None Remove="Views\LoginPage.xaml" />
     <None Remove="Views\ParteItemEdit.xaml" />
+    <None Remove="Views\Styles\LoginPageStyles.xaml" />
+    <None Remove="Views\Styles\LoginPageThemes.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,6 +70,9 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Doc\EJEMPLO_RESPONSIVE_COMPLETO.xaml">
+      <Generator>MSBuild:Compile</Generator>
     </None>
   </ItemGroup>
 
@@ -125,6 +130,13 @@
     <Page Include="Dialogs\CerrarParteDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <!-- ✅ NUEVO: ResourceDictionaries para LoginPage -->
+    <Page Include="Views\Styles\LoginPageStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Styles\LoginPageThemes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   
   <ItemGroup>
@@ -133,6 +145,8 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
+    <None Include="bin\x64\Debug\net8.0-windows10.0.19041.0\window-config.ini" />
     <None Include="GestionTime.sln" />
   </ItemGroup>
   
