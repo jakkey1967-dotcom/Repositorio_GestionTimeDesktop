@@ -255,7 +255,6 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- LOGO con esquinas redondeadas (igual que DiarioPage) -->
@@ -320,36 +319,9 @@
                     </StackPanel>
                 </StackPanel>
                 
-                <!-- NUEVO BOTÓN: Guardar y Cerrar (estilo igual a DiarioPage) -->
-                <Button x:Name="BtnGuardarYCerrar"
-                        Grid.Column="2"
-                        Background="Transparent"
-                        BorderBrush="White"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="10,8"
-                        VerticalAlignment="Center"
-                        Margin="0,0,8,0"
-                        Click="OnGuardarYCerrarClick"
-                        PointerEntered="OnButtonPointerEntered"
-                        PointerExited="OnButtonPointerExited"
-                        ToolTipService.ToolTip="Guardar y cerrar parte">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" 
-                                  Glyph="&#xE74E;" 
-                                  FontSize="14" 
-                                  Foreground="White"/>
-                        <TextBlock Text="Guardar y Cerrar" 
-                                   FontSize="11" 
-                                   FontWeight="SemiBold"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
                 <!-- BADGE ESTADO (compacto) -->
                 <Border x:Name="BadgeEstado"
-                        Grid.Column="3"
+                        Grid.Column="2"
                         Background="{StaticResource BadgeGreenBrush}"
                         CornerRadius="3"
                         Padding="8,3"
@@ -606,11 +578,24 @@
                     </StackPanel>
                 </Button>
                 
+                <!-- BOTÓN: Guardar y Cerrar (Primary) -->
+                <Button x:Name="BtnGuardarYCerrar"
+                        Style="{StaticResource PrimaryButton}"
+                        Click="OnGuardarYCerrarClick"
+                        PointerEntered="OnButtonPointerEntered"
+                        PointerExited="OnButtonPointerExited"
+                        TabIndex="10">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;" FontSize="14"/>
+                        <TextBlock Text="Guardar y Cerrar"/>
+                    </StackPanel>
+                </Button>
+                
                 <!-- BOTÓN: Anular (Secondary) -->
                 <Button x:Name="BtnCancelar"
                         Style="{StaticResource SecondaryButton}"
                         Click="OnCancelarClick"
-                        TabIndex="10">
+                        TabIndex="11">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;" FontSize="14"/>
                         <TextBlock Text="Anular"/>
@@ -621,7 +606,7 @@
                 <Button x:Name="BtnSalir"
                         Style="{StaticResource SecondaryButton}"
                         Click="OnSalirClick"
-                        TabIndex="11">
+                        TabIndex="12">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8BB;" FontSize="14"/>
                         <TextBlock Text="Salir"/>
