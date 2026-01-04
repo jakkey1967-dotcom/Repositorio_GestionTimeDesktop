@@ -255,16 +255,22 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- LOGO (más pequeño) -->
-                <Image x:Name="LogoImageBanner" 
-                       Grid.Column="0"
-                       Source="ms-appx:///Assets/LogoOscuro.png" 
-                       Stretch="Uniform"
-                       MaxHeight="60"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Center"/>
+                <!-- LOGO con esquinas redondeadas -->
+                <Border Grid.Column="0"
+                        CornerRadius="8"
+                        Width="60"
+                        Height="60"
+                        VerticalAlignment="Center"
+                        Margin="0,0,0,0">
+                    <Border.Background>
+                        <ImageBrush x:Name="LogoImageBanner"
+                                    ImageSource="ms-appx:///Assets/LogoOscuro.png"
+                                    Stretch="UniformToFill"/>
+                    </Border.Background>
+                </Border>
                 
                 <!-- TÍTULO + USUARIO (compacto) -->
                 <StackPanel Grid.Column="1" 
@@ -316,9 +322,35 @@
                     </StackPanel>
                 </StackPanel>
                 
+                <!-- NUEVO BOTÓN: Guardar y Cerrar -->
+                <Button x:Name="BtnGuardarYCerrar"
+                        Grid.Column="2"
+                        Background="Transparent"
+                        BorderBrush="White"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12,6"
+                        VerticalAlignment="Center"
+                        Margin="0,0,8,0"
+                        Click="OnGuardarYCerrarClick"
+                        PointerEntered="OnButtonPointerEntered"
+                        PointerExited="OnButtonPointerExited">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                  Glyph="&#xE74E;" 
+                                  FontSize="14" 
+                                  Foreground="White"/>
+                        <TextBlock Text="Guardar y Cerrar" 
+                                   FontSize="11" 
+                                   FontWeight="SemiBold"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                
                 <!-- BADGE ESTADO (compacto) -->
                 <Border x:Name="BadgeEstado"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Background="{StaticResource BadgeGreenBrush}"
                         CornerRadius="3"
                         Padding="8,3"

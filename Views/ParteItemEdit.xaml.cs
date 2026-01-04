@@ -1013,6 +1013,16 @@ public sealed partial class ParteItemEdit : Page
         }
     }
     
+    /// <summary>Guarda el parte y cierra la ventana automáticamente.</summary>
+    private async void OnGuardarYCerrarClick(object? sender, RoutedEventArgs e)
+    {
+        // Reutilizar la lógica de guardado
+        await Task.Run(() => OnGuardarClick(sender, e));
+        
+        // La ventana se cierra automáticamente si Guardado = true
+        // (esto ya ocurre dentro de OnGuardarClick al final)
+    }
+    
     /// <summary>Invalida las entradas de caché relacionadas con un parte en rango de ±30 días.</summary>
     private void InvalidatePartesCache(DateTime fecha)
     {
@@ -1217,12 +1227,12 @@ public sealed partial class ParteItemEdit : Page
         // Actualizar logo
         if (effectiveTheme == ElementTheme.Dark)
         {
-            LogoImageBanner.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
+            LogoImageBanner.ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/LogoOscuro.png"));
         }
         else
         {
-            LogoImageBanner.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
+            LogoImageBanner.ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/LogoClaro.png"));
         }
         
