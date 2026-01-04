@@ -465,6 +465,7 @@
                                        PlaceholderText="HH:mm"
                                        MaxLength="5"
                                        InputScope="Number"
+                                       TextChanged="OnHoraTextChanged"
                                        TabIndex="3"/>
                             </StackPanel>
                             
@@ -476,6 +477,7 @@
                                        PlaceholderText="HH:mm"
                                        MaxLength="5"
                                        InputScope="Number"
+                                       TextChanged="OnHoraTextChanged"
                                        TabIndex="4"/>
                             </StackPanel>
                             
@@ -485,6 +487,7 @@
                                 <TextBox x:Name="TxtTicket"
                                        Style="{StaticResource ModernTextBox}"
                                        PlaceholderText="Número de ticket"
+                                       TextChanged="OnHoraTextChanged"
                                        TabIndex="5"/>
                             </StackPanel>
                             

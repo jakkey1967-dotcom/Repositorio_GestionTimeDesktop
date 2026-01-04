@@ -928,15 +928,17 @@ public sealed partial class ParteItemEdit : Page
 
             Parte.Ticket = TxtTicket.Text?.Trim() ?? string.Empty;
 
-            // Obtener valor de ComboBox (usar SelectedItem)
-            Parte.Grupo = CmbGrupo.SelectedItem as string ?? string.Empty;
-            Parte.Tipo = CmbTipo.SelectedItem as string ?? string.Empty;
+            // ✅ CORREGIDO: Obtener valor de ComboBox desde .Text (soporta texto libre)
+            Parte.Grupo = CmbGrupo.Text?.Trim() ?? string.Empty;
+            Parte.Tipo = CmbTipo.Text?.Trim() ?? string.Empty;
             
             App.Log?.LogInformation("---------------------------------------------------------------");
             App.Log?.LogInformation("🔧 VALORES AL GUARDAR:");
             App.Log?.LogInformation("   Cliente = '{cliente}'", Parte.Cliente);
-            App.Log?.LogInformation("   Grupo = '{grupo}'", Parte.Grupo);
-            App.Log?.LogInformation("   Tipo = '{tipo}'", Parte.Tipo);
+            App.Log?.LogInformation("   Grupo = '{grupo}' (Text='{text}', SelectedItem='{selected}')", 
+                Parte.Grupo, CmbGrupo.Text ?? "(null)", CmbGrupo.SelectedItem as string ?? "(null)");
+            App.Log?.LogInformation("   Tipo = '{tipo}' (Text='{text}', SelectedItem='{selected}')", 
+                Parte.Tipo, CmbTipo.Text ?? "(null)", CmbTipo.SelectedItem as string ?? "(null)");
             App.Log?.LogInformation("---------------------------------------------------------------");
 
             // Asegurar catálogos cargados para mapear IDs
@@ -1030,18 +1032,26 @@ public sealed partial class ParteItemEdit : Page
     {
         try
         {
-            // Invalidar el endpoint de rango que cubre ±30 días
+            // Invalidar el endpoint de rango que cubre ±30 días (usando fechaInicio/fechaFin)
             var fromDate = fecha.AddDays(-30).ToString("yyyy-MM-dd");
             var toDate = fecha.AddDays(30).ToString("yyyy-MM-dd");
             
-            var rangePath = $"/api/v1/partes?created_from={fromDate}&created_to={toDate}";
+            var rangePath = $"/api/v1/partes?fechaInicio={fromDate}&fechaFin={toDate}";
             App.Api.InvalidateCacheEntry(rangePath);
-            App.Log?.LogDebug("🗑️ Caché invalidado: {path}", rangePath);
+            App.Log?.LogDebug("🗑️ Caché invalidado (rango): {path}", rangePath);
             
             // También invalidar la fecha específica (para el método legacy)
             var dayPath = $"/api/v1/partes?fecha={fecha:yyyy-MM-dd}";
             App.Api.InvalidateCacheEntry(dayPath);
-            App.Log?.LogDebug("🗑️ Caché invalidado: {path}", dayPath);
+            App.Log?.LogDebug("🗑️ Caché invalidado (día): {path}", dayPath);
+            
+            // También invalidar la fecha actual (por si estamos trabajando con hoy)
+            if (fecha.Date != DateTime.Today)
+            {
+                var todayPath = $"/api/v1/partes?fecha={DateTime.Today:yyyy-MM-dd}";
+                App.Api.InvalidateCacheEntry(todayPath);
+                App.Log?.LogDebug("🗑️ Caché invalidado (hoy): {path}", todayPath);
+            }
             
             App.Log?.LogInformation("✅ Caché de partes invalidado correctamente");
         }
