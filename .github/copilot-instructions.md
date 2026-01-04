@@ -33,29 +33,26 @@ IMPORTANTE (solo si se requiere reestructurar el layout para lograr el objetivo)
 2) Luego en una segunda respuesta, inserta controles dentro respetando bindings.
 Si NO es necesario reestructurar, NO lo hagas.
 
-## Estilo de Código
+Tarea: Ajustar las directivas del repo en la sección "## Estilo de Código" para que los comentarios XML (C#) se escriban SIEMPRE en una sola línea (inicio y fin en la misma línea).
 
-### Comentarios XML (C#):
-- **Usar formato de una línea** para descripciones cortas (< 80 caracteres):
-  ```csharp
-  /// <summary>Respuesta del endpoint /api/v1/users/me</summary>
-  internal sealed class UserInfoResponse
-  ```
-  
-- **Usar formato de múltiples líneas** solo para descripciones largas o complejas:
-  ```csharp
+Requisitos obligatorios:
+- El formato permitido es SOLO:
+  /// <summary>Frase corta con punto final.</summary>
+- Prohibido usar summary multilínea:
   /// <summary>
-  /// Gestiona la carga de catálogos con caché compartido.
-  /// Incluye validación automática de expiración y reintento en caso de fallo.
+  /// ...
   /// </summary>
-  public class CatalogManager
-  ```
+- Prohibido el formato de 3 líneas para textos cortos.
+- Si el texto es largo, resumirlo en UNA sola frase. (Opcional: si hace falta detalle, usar <remarks> también en una sola línea.)
+- No usar // como documentación de APIs públicas.
 
-- **NO usar** comentarios regulares (`//`) para documentación de clases/métodos públicos.
-- **EVITAR** el formato de 3 líneas para descripciones cortas:
-  ```csharp
-  // ❌ MAL (innecesariamente largo):
-  /// <summary>
+Entrega:
+- Devuélveme SOLO el bloque "## Estilo de Código" actualizado (no reescribas el archivo completo).
+- Incluye 2 ejemplos completos con clase (con llaves) y 1 ejemplo de método.
+- Mantén el resto del archivo intacto.
+
+Ahora edita el archivo de directivas donde está esa sección: [INDICA AQUÍ EL ARCHIVO, ej: AGENTS.md o .github/copilot-instructions.md]
+
   /// Respuesta del API
   /// </summary>
   
