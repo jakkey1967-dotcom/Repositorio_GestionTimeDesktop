@@ -33,5 +33,32 @@ IMPORTANTE (solo si se requiere reestructurar el layout para lograr el objetivo)
 2) Luego en una segunda respuesta, inserta controles dentro respetando bindings.
 Si NO es necesario reestructurar, NO lo hagas.
 
-Ahora te paso el archivo (o el bloque) a modificar:
-[PEGA AQUÍ EL XAML o C#]
+## Estilo de Código
+
+### Comentarios XML (C#):
+- **Usar formato de una línea** para descripciones cortas (< 80 caracteres):
+  ```csharp
+  /// <summary>Respuesta del endpoint /api/v1/users/me</summary>
+  internal sealed class UserInfoResponse
+  ```
+  
+- **Usar formato de múltiples líneas** solo para descripciones largas o complejas:
+  ```csharp
+  /// <summary>
+  /// Gestiona la carga de catálogos con caché compartido.
+  /// Incluye validación automática de expiración y reintento en caso de fallo.
+  /// </summary>
+  public class CatalogManager
+  ```
+
+- **NO usar** comentarios regulares (`//`) para documentación de clases/métodos públicos.
+- **EVITAR** el formato de 3 líneas para descripciones cortas:
+  ```csharp
+  // ❌ MAL (innecesariamente largo):
+  /// <summary>
+  /// Respuesta del API
+  /// </summary>
+  
+  // ✅ BIEN (compacto):
+  /// <summary>Respuesta del API</summary>
+  ```
