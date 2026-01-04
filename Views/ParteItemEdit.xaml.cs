@@ -1265,67 +1265,17 @@ public sealed partial class ParteItemEdit : Page
     /// </summary>
     private bool IsAtStartOfLineWithoutTimestamp(string text, int cursorPos)
     {
-        if (string.IsNullOrEmpty(text)) return true;
-        
-        // Obtener el inicio de la línea actual
-        var lineStart = GetLineStartPosition(text, cursorPos);
-        
-        // Si estamos al inicio del texto
-        if (lineStart == 0 && cursorPos <= 6)
-        {
-            // Verificar si NO empieza con timestamp (patrón HH:mm)
-            return !HasTimestampAt(text, 0);
-        }
-        
-        // Si estamos al inicio de una línea después de un salto
-        if (lineStart > 0 && cursorPos == lineStart)
-        {
-            return !HasTimestampAt(text, lineStart);
-        }
-        
-        return false;
+        return ParteItemEditValidation.IsAtStartOfLineWithoutTimestamp(text, cursorPos);
     }
     
-    /// <summary>
-    /// Obtiene la posición de inicio de la línea actual
-    /// </summary>
     private int GetLineStartPosition(string text, int cursorPos)
     {
-        if (string.IsNullOrEmpty(text) || cursorPos == 0) return 0;
-        
-        // Buscar hacia atrás desde cursorPos hasta encontrar \n
-        for (int i = cursorPos - 1; i >= 0; i--)
-        {
-            if (text[i] == '\n')
-            {
-                return i + 1; // Retornar posición después del \n
-            }
-        }
-        
-        return 0; // Estamos en la primera línea
+        return ParteItemEditValidation.GetLineStartPosition(text, cursorPos);
     }
     
-    /// <summary>
-    /// Verifica si hay un timestamp en la posición especificada
-    /// Formato esperado: "HH:mm " (5 caracteres + espacio)
-    /// </summary>
     private bool HasTimestampAt(string text, int position)
     {
-        if (string.IsNullOrEmpty(text)) return false;
-        if (position + 6 > text.Length) return false;
-        
-        var substring = text.Substring(position, 6);
-        
-        // Verificar patrón: DD:DD + espacio
-        if (substring.Length < 6) return false;
-        if (substring[2] != ':') return false;
-        if (substring[5] != ' ') return false;
-        
-        // Verificar que sean dígitos
-        return char.IsDigit(substring[0]) && 
-               char.IsDigit(substring[1]) && 
-               char.IsDigit(substring[3]) && 
-               char.IsDigit(substring[4]);
+        return ParteItemEditValidation.HasTimestampAt(text, position);
     }
 
     public void SetParentWindow(Microsoft.UI.Xaml.Window window)
@@ -1503,27 +1453,7 @@ public sealed partial class ParteItemEdit : Page
 
     private string? NormalizeHora(string? value)
     {
-        var txt = (value ?? string.Empty).Trim();
-        if (string.IsNullOrEmpty(txt))
-            return string.Empty;
-
-        // Mantener solo dígitos y limitar a 4
-        var digits = new string(txt.Where(char.IsDigit).ToArray());
-        if (digits.Length == 0)
-            return string.Empty;
-        if (digits.Length < 4)
-            return null; // incompleto
-        if (digits.Length > 4)
-            digits = digits[..4];
-
-        var hh = digits[..2];
-        var mm = digits[2..];
-        if (!int.TryParse(hh, out var h) || h < 0 || h > 23)
-            return null;
-        if (!int.TryParse(mm, out var m) || m < 0 || m > 59)
-            return null;
-
-        return $"{h:00}:{m:00}";
+        return ParteItemEditValidation.NormalizeHora(value);
     }
 
     /// <summary>
@@ -1813,7 +1743,7 @@ public sealed partial class ParteItemEdit : Page
             if (digits.Length > 0)
             {
                 _suppressHoraFormatting = true;
-                txt.Text = digits[^1].ToString(); // Tomar último dígito
+                txt.Text = digits[^1].ToString();
                 txt.SelectionStart = txt.Text.Length;
                 _suppressHoraFormatting = false;
                 
@@ -1831,37 +1761,14 @@ public sealed partial class ParteItemEdit : Page
 
         var original = txt.Text ?? string.Empty;
 
-        // Mantener solo dígitos y limitar a 4
-        var allDigits = new string(original.Where(char.IsDigit).ToArray());
-        if (allDigits.Length > 4)
-            allDigits = allDigits[..4];
-
-        string formatted;
-        if (allDigits.Length == 0)
-        {
-            formatted = string.Empty;
-        }
-        else if (allDigits.Length <= 2)
-        {
-            formatted = allDigits;
-        }
-        else
-        {
-            // A partir de 3 dígitos, insertar dos puntos: HH:mm
-            formatted = allDigits[..2] + ":" + allDigits[2..];
-        }
-
-        if (formatted.Length > 5)
-            formatted = formatted[..5];
+        // Usar helper para formateo
+        var (formatted, cursorPosition) = ParteItemEditValidation.FormatHoraWhileTyping(original);
 
         if (!formatted.Equals(original, StringComparison.Ordinal))
         {
             _suppressHoraFormatting = true;
-
             txt.Text = formatted;
-            // Colocar el cursor al final
-            txt.SelectionStart = formatted.Length;
-
+            txt.SelectionStart = cursorPosition;
             _suppressHoraFormatting = false;
         }
 
@@ -2167,40 +2074,6 @@ public sealed partial class ParteItemEdit : Page
     /// </summary>
     private static string Trim(string? s, int maxLen)
     {
-        if (string.IsNullOrEmpty(s)) return "(vacío)";
-        if (s.Length <= maxLen) return s;
-        return s.Substring(0, maxLen) + "...";
+        return ParteItemEditValidation.TruncateForLog(s, maxLen);
     }
-}
-
-// ==================== DTOs DE RESPUESTA DEL API ====================
-
-// Clase DTO para respuesta de clientes
-public class ClienteResponse
-{
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-    
-    [JsonPropertyName("nombre")]
-    public string Nombre { get; set; } = string.Empty;
-}   
-
-// Clase DTO para respuesta de grupos
-public class GrupoResponse
-{
-    [JsonPropertyName("id_grupo")]
-    public int Id_grupo { get; set; }
-    
-    [JsonPropertyName("nombre")]
-    public string Nombre { get; set; } = string.Empty;
-}
-
-// Clase DTO para respuesta de tipos
-public class TipoResponse
-{
-    [JsonPropertyName("id_tipo")]
-    public int Id_tipo { get; set; }
-    
-    [JsonPropertyName("nombre")]
-    public string Nombre { get; set; } = string.Empty;
 }
