@@ -1,8 +1,18 @@
 <Window
     x:Class="GestionTime.Desktop.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:GestionTime.Desktop.Controls">
 
-    <Frame x:Name="RootFrame"/>
+    <Grid>
+        <!-- Capa principal: Navegación -->
+        <Frame x:Name="RootFrame"/>
+        
+        <!-- Capa overlay: Notificaciones (no interfiere con navegación) -->
+        <controls:NotificationHost
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            IsHitTestVisible="False"/>
+    </Grid>
 </Window>
 

@@ -136,7 +136,7 @@ public sealed class EstadoToIconConverter : IValueConverter
 }
 
 /// <summary>
-/// Convierte ParteEstado a Visibility para acciones específicas.
+/// Convierte ParteEstado a Visibility para acciones especÃ­ficas.
 /// Usar con ConverterParameter: "Pausar", "Reanudar", "Cerrar", "Duplicar"
 /// </summary>
 public sealed class EstadoToActionVisibilityConverter : IValueConverter
@@ -156,6 +156,36 @@ public sealed class EstadoToActionVisibilityConverter : IValueConverter
         };
 
         return visible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>Convierte string a Visibility (null/empty = Collapsed, otherwise = Visible).</summary>
+public sealed class StringToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        return string.IsNullOrWhiteSpace(value as string) ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>Convierte un count (int) a Visibility (0 = Collapsed, >0 = Visible).</summary>
+public sealed class CountToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is int count)
+            return count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        return Visibility.Collapsed;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)

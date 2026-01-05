@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Controls;
 
 using GestionTime.Desktop.Diagnostics;
 using GestionTime.Desktop.Services;
+using GestionTime.Desktop.Services.Notifications;
 
 namespace GestionTime.Desktop;
 
@@ -24,6 +25,9 @@ public partial class App : Application
     
     // 🆕 NUEVO: ProfileService como singleton compartido
     public static ProfileService ProfileService { get; private set; } = null!;
+    
+    // 🆕 NUEVO: NotificationService como singleton compartido
+    public static INotificationService? Notifications { get; private set; }
 
     public static void ApplyThemeFromSettings()
     {
@@ -155,6 +159,10 @@ public partial class App : Application
             
             // 🆕 NUEVO: Inicializar ProfileService como singleton
             ProfileService = new ProfileService(Api, null); // El ProfileService creará su propio logger si se necesita
+            
+            // 🆕 NUEVO: Inicializar NotificationService como singleton
+            Notifications = new NotificationService(LogFactory.CreateLogger<NotificationService>());
+            Log.LogInformation("NotificationService inicializado. Enabled={enabled}", Notifications.IsEnabled);
 
             HookGlobalExceptions();
 
@@ -185,6 +193,9 @@ public partial class App : Application
             
             // 🆕 NUEVO: Inicializar ProfileService incluso en fallback
             ProfileService = new ProfileService(Api, null);
+            
+            // 🆕 NUEVO: Inicializar NotificationService incluso en fallback
+            Notifications = new NotificationService(LogFactory.CreateLogger<NotificationService>());
         }
     }
 

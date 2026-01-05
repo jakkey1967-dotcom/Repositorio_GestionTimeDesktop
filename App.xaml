@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Application
     x:Class="GestionTime.Desktop.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:GestionTime.Desktop">
+    xmlns:local="using:GestionTime.Desktop"
+    xmlns:helpers="using:GestionTime.Desktop.Helpers">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -12,6 +13,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- 🆕 CONVERTERS GLOBALES -->
+            <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <helpers:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <helpers:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <helpers:EstadoToColorConverter x:Key="EstadoToColorConverter"/>
+            <helpers:EstadoToIconConverter x:Key="EstadoToIconConverter"/>
+            <helpers:EstadoToActionVisibilityConverter x:Key="EstadoToActionVisibilityConverter"/>
+            <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <helpers:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
 
             <!-- ========================= -->
             <!--  🎨 GLOBAL THEME SYSTEM   -->
