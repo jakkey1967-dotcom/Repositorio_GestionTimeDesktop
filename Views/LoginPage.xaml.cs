@@ -18,7 +18,6 @@ namespace GestionTime.Desktop.Views
     public sealed partial class LoginPage : Page
     {
         private bool _isPasswordVisible = false;
-        private DispatcherTimer? _messageTimer;
         
         // 🆕 NUEVO: Path alternativo para guardar el correo (no usa ApplicationData)
         private static string GetEmailSettingsPath()
@@ -45,17 +44,6 @@ namespace GestionTime.Desktop.Views
             
             // Iniciar fade in cuando se carga la página
             this.Loaded += OnPageLoaded;
-            
-            // 🆕 Inicializar timer para mensajes
-            _messageTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(10)
-            };
-            _messageTimer.Tick += (s, e) =>
-            {
-                _messageTimer.Stop();
-                HideMessage();
-            };
         }
 
         private async void OnPageLoaded(object sender, RoutedEventArgs e)
@@ -241,12 +229,14 @@ namespace GestionTime.Desktop.Views
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(pass))
             {
-                ShowMessage("Por favor, rellena correo y contraseña.", MessageType.Warning);
+                // 🔔 NOTIFICACIÓN: Campos vacíos
+                App.Notifications?.ShowWarning(
+                    "Por favor, rellena correo y contraseña",
+                    title: "⚠️ Campos Requeridos");
                 return;
             }
 
             SetBusy(true, "Conectando con el servidor...");
-            HideMessage();
             
             await Task.Delay(100);
 
@@ -260,7 +250,12 @@ namespace GestionTime.Desktop.Views
                 if (email.Equals("dev", StringComparison.OrdinalIgnoreCase))
                 {
                     App.Log?.LogWarning("⚠️ MODO DESARROLLO activado - Navegando sin validación");
-                    ShowMessage("MODO DESARROLLO - Acceso directo", MessageType.Warning);
+                    
+                    // 🔔 NOTIFICACIÓN: Modo desarrollo
+                    App.Notifications?.ShowWarning(
+                        "Acceso directo sin validación",
+                        title: "🛠️ MODO DESARROLLO");
+                    
                     await Task.Delay(500);
                     
                     if (App.MainWindowInstance?.Navigator != null)
@@ -341,7 +336,11 @@ namespace GestionTime.Desktop.Views
 
                 if (res == null)
                 {
-                    ShowMessage("Login fallido. Verifica tus credenciales.", MessageType.Error);
+                    // 🔔 NOTIFICACIÓN: Login fallido
+                    App.Notifications?.ShowError(
+                        "Verifica tus credenciales",
+                        title: "❌ Login Fallido");
+                    
                     SetBusy(false, "");
                     return;
                 }
@@ -513,7 +512,12 @@ namespace GestionTime.Desktop.Views
                 else
                 {
                     App.Log?.LogError("MainWindowInstance o Navigator es null. No se puede navegar.");
-                    ShowMessage("Error interno: No se puede navegar.", MessageType.Error);
+                    
+                    // 🔔 NOTIFICACIÓN: Error de navegación
+                    App.Notifications?.ShowError(
+                        "No se puede navegar a la página principal",
+                        title: "❌ Error Interno");
+                    
                     SetBusy(false, "");
                 }
             }
@@ -521,8 +525,9 @@ namespace GestionTime.Desktop.Views
             {
                 App.Log?.LogError(ex, "Login error inesperado");
                 
+                // 🔔 NOTIFICACIÓN: Error inesperado
                 var errorMsg = GetFriendlyErrorMessage(ex);
-                ShowMessage(errorMsg, MessageType.Error);
+                App.Notifications?.ShowError(errorMsg, title: "❌ Error Inesperado");
             }
             finally
             {
@@ -719,70 +724,6 @@ namespace GestionTime.Desktop.Views
             TxtStatus.Visibility = string.IsNullOrEmpty(status) ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        private enum MessageType
-        {
-            Success,
-            Error,
-            Warning,
-            Info
-        }
-
-        private void ShowMessage(string text, MessageType type)
-        {
-            // 🆕 Detener timer anterior si existe
-            _messageTimer?.Stop();
-            
-            MsgBox.Visibility = Visibility.Visible;
-            LblMsg.Text = text;
-
-            // Configurar colores e iconos según el tipo de mensaje
-            switch (type)
-            {
-                case MessageType.Success:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 252, 231)); // Verde claro
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 34, 197, 94)); // Verde
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 21, 128, 61)); // Verde oscuro
-                    MsgIcon.Glyph = "\uE73E"; // CheckMark
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 34, 197, 94));
-                    break;
-                
-                case MessageType.Error:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 226, 226)); // Rojo claro
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38)); // Rojo
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 127, 29, 29)); // Rojo oscuro
-                    MsgIcon.Glyph = "\uE783"; // Error/Warning
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38));
-                    break;
-                
-                case MessageType.Warning:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 243, 199)); // Amarillo claro
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 245, 158, 11)); // Amarillo
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 146, 64, 14)); // Marrón
-                    MsgIcon.Glyph = "\uE7BA"; // Info
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 245, 158, 11));
-                    break;
-                
-                case MessageType.Info:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 224, 242, 254)); // Azul claro
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 59, 130, 246)); // Azul
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 30, 64, 175)); // Azul oscuro
-                    MsgIcon.Glyph = "\uE946"; // Info icon
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 59, 130, 246));
-                    break;
-            }
-            
-            // 🆕 Iniciar timer para ocultar automáticamente después de 10 segundos
-            _messageTimer?.Start();
-        }
-
-        private void HideMessage()
-        {
-            // 🆕 Detener timer si está activo
-            _messageTimer?.Stop();
-            
-            MsgBox.Visibility = Visibility.Collapsed;
-        }
-
         /// <summary>
         /// Cargar el tema guardado en configuración
         /// </summary>
@@ -974,25 +915,33 @@ namespace GestionTime.Desktop.Views
                     // Validaciones
                     if (string.IsNullOrWhiteSpace(currentPassword))
                     {
-                        ShowMessage("Por favor, ingresa tu contraseña actual.", MessageType.Warning);
+                        App.Notifications?.ShowWarning(
+                            "Por favor, ingresa tu contraseña actual",
+                            title: "⚠️ Campo Requerido");
                         return;
                     }
 
                     if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
                     {
-                        ShowMessage("La nueva contraseña debe tener al menos 6 caracteres.", MessageType.Warning);
+                        App.Notifications?.ShowWarning(
+                            "La nueva contraseña debe tener al menos 6 caracteres",
+                            title: "⚠️ Contraseña Inválida");
                         return;
                     }
 
                     if (newPassword != confirmPassword)
                     {
-                        ShowMessage("Las contraseñas no coinciden.", MessageType.Warning);
+                        App.Notifications?.ShowWarning(
+                            "Las contraseñas no coinciden",
+                            title: "⚠️ Error de Validación");
                         return;
                     }
 
                     if (currentPassword == newPassword)
                     {
-                        ShowMessage("La nueva contraseña debe ser diferente a la actual.", MessageType.Warning);
+                        App.Notifications?.ShowWarning(
+                            "La nueva contraseña debe ser diferente a la actual",
+                            title: "⚠️ Contraseña Duplicada");
                         return;
                     }
 
@@ -1007,7 +956,11 @@ namespace GestionTime.Desktop.Views
             catch (Exception ex)
             {
                 App.Log?.LogError(ex, "Error mostrando diálogo de cambio de contraseña");
-                ShowMessage("Error interno. Intenta nuevamente.", MessageType.Error);
+                
+                // 🔔 NOTIFICACIÓN: Error mostrando diálogo
+                App.Notifications?.ShowError(
+                    "Error interno. Intenta nuevamente",
+                    title: "❌ Error al Mostrar Diálogo");
             }
         }
 
@@ -1056,7 +1009,11 @@ namespace GestionTime.Desktop.Views
             catch (Exception ex)
             {
                 App.Log?.LogError(ex, "Excepción al cambiar contraseña");
-                ShowMessage("Error de conexión. Verifica tu conexión a internet.", MessageType.Error);
+                
+                // 🔔 NOTIFICACIÓN: Error de conexión al cambiar contraseña
+                App.Notifications?.ShowError(
+                    "Error de conexión. Verifica tu conexión a internet",
+                    title: "🌐 Sin Conexión");
                 
                 // Volver a mostrar el diálogo si hubo error de conexión
                 await Task.Delay(2000);

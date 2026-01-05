@@ -105,7 +105,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- Título -->
@@ -175,30 +174,13 @@
                     </Grid>
                 </Button>
 
-                <!-- Mensaje de error/éxito -->
-                <Border Grid.Row="4" x:Name="MsgBox" Visibility="Collapsed" Background="#FEF3C7"
-                        BorderBrush="#F59E0B" BorderThickness="2" CornerRadius="8" Padding="10,8"
-                        Margin="0,8,0,4" HorizontalAlignment="Stretch">
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" x:Name="MsgIcon" Glyph="&#xE7BA;" FontSize="14"
-                                  Foreground="#D97706" VerticalAlignment="Top" Margin="0,1,0,0"/>
-                        <TextBlock Grid.Column="1" x:Name="LblMsg" TextWrapping="Wrap" FontSize="11"
-                                   LineHeight="16" Foreground="#92400E"/>
-                    </Grid>
-                </Border>
-
                 <!-- Status -->
-                <TextBlock Grid.Row="5" x:Name="TxtStatus" Text="" Foreground="{ThemeResource LabelForeground}"
+                <TextBlock Grid.Row="4" x:Name="TxtStatus" Text="" Foreground="{ThemeResource LabelForeground}"
                            FontSize="10" HorizontalAlignment="Center" TextAlignment="Center"
                            Margin="0,4,0,0" Visibility="Collapsed" TextWrapping="Wrap"/>
 
                 <!-- Enlaces -->
-                <Grid Grid.Row="6" HorizontalAlignment="Center" Margin="0,4,0,0" RowSpacing="2">
+                <Grid Grid.Row="5" HorizontalAlignment="Center" Margin="0,4,0,0" RowSpacing="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -214,17 +196,137 @@
                 </Grid>
 
                 <!-- Recordar sesión -->
-                <CheckBox Grid.Row="7" x:Name="ChkRemember" Content="Recordar sesión"
+                <CheckBox Grid.Row="6" x:Name="ChkRemember" Content="Recordar sesión"
                           Foreground="{ThemeResource LabelForeground}" FontSize="10"
                           HorizontalAlignment="Center" Margin="0,2,0,0"/>
 
                 <!-- Ayuda -->
-                <HyperlinkButton Grid.Row="8" Content="Ayuda" Foreground="{ThemeResource TealPrimary}"
+                <HyperlinkButton Grid.Row="7" Content="Ayuda" Foreground="{ThemeResource TealPrimary}"
                                  FontSize="10" HorizontalAlignment="Center" Padding="0,1" Margin="0,2,0,0"/>
             </Grid>
         </Border>
     </Grid>
 </Page>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
