@@ -26,8 +26,20 @@ public sealed class NotificationService : INotificationService
         _log = logger;
         _dispatcher = DispatcherQueue.GetForCurrentThread();
         
+        // 🔍 DEBUG: Log ANTES de cargar configuración
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════");
+        System.Diagnostics.Debug.WriteLine("🔔 NotificationService constructor INICIADO");
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════");
+        
         // Cargar configuración de appsettings.json
         var config = LoadConfiguration();
+        
+        // 🔍 DEBUG: Log de configuración cargada
+        System.Diagnostics.Debug.WriteLine($"   • Enabled: {config.Enabled}");
+        System.Diagnostics.Debug.WriteLine($"   • MaxVisible: {config.MaxVisible}");
+        System.Diagnostics.Debug.WriteLine($"   • DefaultDurationMs: {config.DefaultDurationMs}");
+        System.Diagnostics.Debug.WriteLine($"   • ThrottleWindowMs: {config.ThrottleWindowMs}");
+        
         _isEnabled = config.Enabled;
         _maxVisible = config.MaxVisible;
         _defaultDurationMs = config.DefaultDurationMs;
@@ -35,6 +47,11 @@ public sealed class NotificationService : INotificationService
         
         _log?.LogInformation("NotificationService inicializado. Enabled={enabled}, MaxVisible={max}, DefaultDuration={dur}ms",
             _isEnabled, _maxVisible, _defaultDurationMs);
+        
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════");
+        System.Diagnostics.Debug.WriteLine("🔔 NotificationService constructor COMPLETADO");
+        System.Diagnostics.Debug.WriteLine($"🔔 IsEnabled = {_isEnabled}");
+        System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════");
     }
     
     public string ShowInfo(string message, string? title = null, NotificationOptions? options = null)
