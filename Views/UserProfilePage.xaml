@@ -1,0 +1,329 @@
+<Page
+    x:Class="GestionTime.Desktop.Views.UserProfilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Loaded="OnPageLoaded"
+    Background="Transparent">
+
+    <Grid x:Name="RootGrid" Padding="10" Opacity="0">
+        <Grid.Background>
+            <ImageBrush x:Name="BackgroundImageBrush" 
+                       ImageSource="ms-appx:///Assets/diario_bg_dark.png" 
+                       Stretch="UniformToFill" 
+                       AlignmentX="Center" 
+                       AlignmentY="Center"/>
+        </Grid.Background>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- BANNER -->
+        <Border Grid.Row="0" Background="{ThemeResource BannerBg}" CornerRadius="10" Padding="16" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Logo -->
+                <Image x:Name="LogoImageBanner" 
+                       Grid.Column="0"
+                       Source="ms-appx:///Assets/LogoOscuro.png" 
+                       Stretch="Uniform"
+                       MaxHeight="60"
+                       VerticalAlignment="Center"
+                       Margin="0,0,16,0"/>
+                
+                <!-- Título -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="👤 Mi Perfil" 
+                               FontSize="28" 
+                               FontWeight="SemiBold" 
+                               Foreground="White"/>
+                    <TextBlock x:Name="TxtSubtitle"
+                               Text="Gestiona tu información personal y laboral" 
+                               FontSize="14" 
+                               Foreground="White" 
+                               Opacity="0.8"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+                
+                <!-- Botón Volver -->
+                <Button Grid.Column="2"
+                        x:Name="BtnVolver"
+                        Content="← Volver"
+                        Click="OnVolverClick"
+                        Background="Transparent"
+                        BorderBrush="White"
+                        BorderThickness="1"
+                        Foreground="White"
+                        CornerRadius="8"
+                        Padding="16,8"
+                        VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- CONTENIDO -->
+        <Border Grid.Row="1" 
+                Background="#1F000000"
+                BorderBrush="#330FA7B6"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="20">
+            
+            <Grid>
+                <!-- Loading State -->
+                <StackPanel x:Name="LoadingPanel" 
+                            Visibility="Visible"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center"
+                            Spacing="20">
+                    <ProgressRing IsActive="True" Width="60" Height="60"/>
+                    <TextBlock Text="Cargando perfil..." 
+                               FontSize="16" 
+                               Foreground="{ThemeResource TextMuted}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Content -->
+                <ScrollViewer x:Name="ContentScroll" 
+                              Visibility="Collapsed"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="24" MaxWidth="900">
+                        
+                        <!-- Información Personal -->
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="📋 Información Personal" 
+                                       FontSize="20" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{ThemeResource Accent}"/>
+                            
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Nombre -->
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <TextBlock Text="Nombre *" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtFirstName" 
+                                             PlaceholderText="Ej: Pedro"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                                
+                                <!-- Apellido -->
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <TextBlock Text="Apellido *" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtLastName" 
+                                             PlaceholderText="Ej: Santos"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <Grid ColumnSpacing="16" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Teléfono -->
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <TextBlock Text="📞 Teléfono" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtPhone" 
+                                             PlaceholderText="Ej: 912345678"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                                
+                                <!-- Móvil -->
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <TextBlock Text="📱 Móvil" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtMobile" 
+                                             PlaceholderText="Ej: 634567890"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Dirección -->
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="🏠 Dirección" 
+                                       FontSize="20" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{ThemeResource Accent}"/>
+                            
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Dirección" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBox x:Name="TxtAddress" 
+                                         PlaceholderText="Ej: Calle Mayor 1"
+                                         TextChanged="OnFieldChanged"/>
+                            </StackPanel>
+                            
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Ciudad -->
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <TextBlock Text="Ciudad" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtCity" 
+                                             PlaceholderText="Ej: Madrid"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                                
+                                <!-- Código Postal -->
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <TextBlock Text="C.P." 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtPostalCode" 
+                                             PlaceholderText="28001"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Información Laboral -->
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="💼 Información Laboral" 
+                                       FontSize="20" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{ThemeResource Accent}"/>
+                            
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Departamento -->
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <TextBlock Text="Departamento" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtDepartment" 
+                                             PlaceholderText="Ej: IT"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                                
+                                <!-- Cargo -->
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <TextBlock Text="Cargo" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBox x:Name="TxtPosition" 
+                                             PlaceholderText="Ej: Administrador"
+                                             TextChanged="OnFieldChanged"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <Grid ColumnSpacing="16" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Tipo de Empleado -->
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <TextBlock Text="Tipo de Empleado" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <ComboBox x:Name="CmbEmployeeType" 
+                                              PlaceholderText="Selecciona tipo"
+                                              HorizontalAlignment="Stretch"
+                                              SelectionChanged="OnFieldChanged">
+                                        <ComboBoxItem Content="Fijo"/>
+                                        <ComboBoxItem Content="Temporal"/>
+                                        <ComboBoxItem Content="Becario"/>
+                                        <ComboBoxItem Content="Freelance"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                
+                                <!-- Fecha de Contratación -->
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <TextBlock Text="Fecha de Contratación" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <CalendarDatePicker x:Name="DpHireDate" 
+                                                        PlaceholderText="Selecciona fecha"
+                                                        HorizontalAlignment="Stretch"
+                                                        DateChanged="OnFieldChanged"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Otros Datos -->
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="🎨 Otros Datos" 
+                                       FontSize="20" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{ThemeResource Accent}"/>
+                            
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="URL del Avatar" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBox x:Name="TxtAvatarUrl" 
+                                         PlaceholderText="https://ejemplo.com/avatar.jpg"
+                                         TextChanged="OnFieldChanged"/>
+                            </StackPanel>
+                            
+                            <StackPanel Spacing="6" Margin="0,10,0,0">
+                                <TextBlock Text="📝 Notas" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBox x:Name="TxtNotes" 
+                                         PlaceholderText="Notas adicionales..."
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         MinHeight="100"
+                                         MaxHeight="200"
+                                         TextChanged="OnFieldChanged"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Botones de Acción -->
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Right" 
+                                    Spacing="12"
+                                    Margin="0,20,0,20">
+                            <Button x:Name="BtnCancelar"
+                                    Content="Cancelar"
+                                    Click="OnCancelarClick"
+                                    MinWidth="120"
+                                    Background="{ThemeResource ButtonBg}"
+                                    BorderBrush="{ThemeResource ButtonStroke}"/>
+                            <Button x:Name="BtnGuardar"
+                                    Content="💾 Guardar Cambios"
+                                    Click="OnGuardarClick"
+                                    MinWidth="180"
+                                    Background="{ThemeResource Accent}"
+                                    Foreground="White"
+                                    IsEnabled="False"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

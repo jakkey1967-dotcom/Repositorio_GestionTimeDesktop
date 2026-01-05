@@ -1615,6 +1615,21 @@ public sealed partial class DiarioPage : Page
             await ShowInfoAsync("Error abriendo configuración. Revisa app.log.");
         }
     }
+    
+    /// <summary>Navega a la página de perfil de usuario.</summary>
+    private void OnMiPerfilClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("👤 MI PERFIL - Navegando a UserProfilePage");
+            App.MainWindowInstance?.Navigator?.Navigate(typeof(UserProfilePage));
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error navegando a UserProfilePage");
+        }
+    }
 
     private string GetCurrentUserRole()
     {

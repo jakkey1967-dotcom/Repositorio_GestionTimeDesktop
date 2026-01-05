@@ -1489,42 +1489,40 @@ public sealed partial class ParteItemEdit : Page
         _parentWindow?.Close();
     }
 
-    /// <summary>Carga la información del usuario desde LocalSettings y actualiza el banner.</summary>
+    /// <summary>Carga la información del usuario desde archivo JSON y actualiza el banner.</summary>
     private void LoadUserInfo()
     {
         try
         {
-            var settings = Windows.Storage.ApplicationData.Current.LocalSettings.Values;
+            var userInfo = UserInfoFileStorage.LoadUserInfo(App.Log);
             
-            var userName = settings.TryGetValue("UserName", out var nameObj) && nameObj is string name 
-                ? name 
-                : "Usuario";
+            if (userInfo != null)
+            {
+                _currentUserName = userInfo.UserName ?? "Usuario";
                 
-            var userEmail = settings.TryGetValue("UserEmail", out var emailObj) && emailObj is string email 
-                ? email 
-                : "usuario@empresa.com";
+                App.Log?.LogInformation("📋 Cargando información de usuario en ParteItemEdit desde archivo JSON:");
+                App.Log?.LogInformation("   • UserName: {name}", userInfo.UserName);
+                App.Log?.LogInformation("   • UserEmail: {email}", userInfo.UserEmail);
+                App.Log?.LogInformation("   • UserRole: {role}", userInfo.UserRole);
                 
-            var userRole = settings.TryGetValue("UserRole", out var roleObj) && roleObj is string role 
-                ? role 
-                : "Usuario";
-            
-            // 🆕 NUEVO: Guardar en variable de instancia para uso posterior
-            _currentUserName = userName;
-            
-            App.Log?.LogInformation("📋 Cargando información de usuario en ParteItemEdit:");
-            App.Log?.LogInformation("   • UserName: {name}", userName);
-            App.Log?.LogInformation("   • UserEmail: {email}", userEmail);
-            App.Log?.LogInformation("   • UserRole: {role}", userRole);
-            
-            // Actualizar banner
-            TxtUserName.Text = userName;
-            TxtUserEmail.Text = userEmail;
-            TxtUserRole.Text = userRole;
+                // Actualizar banner
+                TxtUserName.Text = userInfo.UserName ?? "Usuario";
+                TxtUserEmail.Text = userInfo.UserEmail ?? "usuario@empresa.com";
+                TxtUserRole.Text = userInfo.UserRole ?? "Usuario";
+            }
+            else
+            {
+                App.Log?.LogWarning("No se encontró información de usuario en archivo, usando valores por defecto");
+                _currentUserName = "Usuario";
+                TxtUserName.Text = "Usuario";
+                TxtUserEmail.Text = "usuario@empresa.com";
+                TxtUserRole.Text = "Usuario";
+            }
         }
         catch (Exception ex)
         {
-            App.Log?.LogWarning(ex, "Error cargando información del usuario en ParteItemEdit");
-            _currentUserName = "Usuario";  // 🆕 NUEVO: Fallback
+            App.Log?.LogWarning(ex, "Error cargando información del usuario desde archivo en ParteItemEdit");
+            _currentUserName = "Usuario";
             TxtUserName.Text = "Usuario";
             TxtUserEmail.Text = "usuario@empresa.com";
             TxtUserRole.Text = "Usuario";

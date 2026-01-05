@@ -269,53 +269,55 @@
                            HorizontalAlignment="Left"/>
                 </Border>
                 
-                <!-- TÍTULO + USUARIO (compacto) -->
+                <!-- TÍTULO + USUARIO (mismo tamaño que DiarioPage) -->
                 <StackPanel Grid.Column="1" 
                             VerticalAlignment="Center" 
-                            Spacing="2"
+                            Spacing="4"
                             Margin="8,0,0,0">
                     <!-- Título -->
                     <TextBlock x:Name="TxtTituloParte" 
                                Text="Nuevo Parte"
-                               FontSize="14"
+                               FontSize="22"
                                FontWeight="SemiBold"
                                Foreground="White"/>
                     
                     <!-- Usuario: Icono + Nombre • Rol • Email -->
-                    <StackPanel Orientation="Horizontal" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontFamily="Segoe MDL2 Assets" 
                                   Glyph="&#xE77B;" 
-                                  FontSize="10" 
+                                  FontSize="14" 
                                   Foreground="White" 
                                   Opacity="0.9"
                                   VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtUserName" 
-                                   Text="Francisco Santos"
-                                   FontSize="10"
-                                   Foreground="White"
-                                   Opacity="0.95"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="•" 
-                                   FontSize="10"
-                                   Foreground="White"
-                                   Opacity="0.6"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtUserRole" 
-                                   Text="Usuario"
-                                   FontSize="10"
-                                   Foreground="White"
-                                   Opacity="0.9"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="•" 
-                                   FontSize="10"
-                                   Foreground="White"
-                                   Opacity="0.6"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtUserEmail" 
-                                   Text="msn@tdkportal.com"
-                                   FontSize="9"
-                                   Foreground="White"
-                                   Opacity="0.75"/>
+                        <StackPanel Spacing="2">
+                            <!-- Línea 1: Nombre • Rol -->
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock x:Name="TxtUserName" 
+                                           Text="Francisco Santos"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="•" 
+                                           FontSize="14"
+                                           Foreground="White"
+                                           Opacity="0.6"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtUserRole" 
+                                           Text="Usuario"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"
+                                           Opacity="0.9"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <!-- Línea 2: Email -->
+                            <TextBlock x:Name="TxtUserEmail" 
+                                       Text="msn@tdkportal.com"
+                                       FontSize="12"
+                                       Foreground="White"
+                                       Opacity="0.8"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
                 

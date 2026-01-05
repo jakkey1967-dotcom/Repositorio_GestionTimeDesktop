@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="GestionTime.Desktop.Views.DiarioPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -160,7 +160,7 @@
                                FontWeight="SemiBold"
                                Foreground="White"/>
                     
-                    <!-- Usuario -->
+                    <!-- Usuario con botón Mi Perfil -->
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE77B;" 
                                   FontSize="14" 
@@ -182,6 +182,27 @@
                                            FontWeight="SemiBold"
                                            Foreground="White"
                                            Opacity="0.9"/>
+                                <!-- 🆕 NUEVO: Botón Mi Perfil -->
+                                <Button x:Name="BtnMiPerfil"
+                                        Click="OnMiPerfilClick"
+                                        Background="Transparent"
+                                        BorderBrush="White"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="8,2"
+                                        VerticalAlignment="Center"
+                                        ToolTipService.ToolTip="Ver mi perfil">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                                  Glyph="&#xE8B7;" 
+                                                  FontSize="10"
+                                                  Foreground="White"/>
+                                        <TextBlock Text="Mi Perfil" 
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="White"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                             <TextBlock Text="{x:Bind ViewModel.UserEmail, Mode=OneWay}"
                                        FontSize="12"

@@ -137,6 +137,10 @@
     <Page Include="Views\Styles\LoginPageThemes.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <!-- ✅ NUEVO: UserProfilePage -->
+    <Page Include="Views\UserProfilePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Extensions.Logging;
 using System;
@@ -9,6 +9,9 @@ namespace GestionTime.Desktop;
 public sealed partial class MainWindow : Window
 {
     public Frame Navigator => RootFrame;
+    
+    // 🆕 NUEVO: Rastrea el tipo de página actual para guardado correcto
+    private Type? _currentPageType;
 
     public MainWindow()
     {
@@ -33,9 +36,22 @@ public sealed partial class MainWindow : Window
     {
         if (e.SourcePageType != null)
         {
+            // 🆕 NUEVO: Guardar el tipo de página actual
+            _currentPageType = e.SourcePageType;
+            
             App.Log?.LogInformation("📐 Navegando a {page}, ajustando tamaño de ventana...", e.SourcePageType.Name);
-            WindowSizeManager.SetSizeForPage(this, e.SourcePageType);
+            
+            // Pasar la página correcta al WindowSizeManager
+            WindowSizeManager.SetSizeForPage(this, e.SourcePageType, _currentPageType);
         }
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Obtiene el tipo de página actualmente visible
+    /// </summary>
+    public Type? GetCurrentPageType()
+    {
+        return _currentPageType;
     }
 }
 

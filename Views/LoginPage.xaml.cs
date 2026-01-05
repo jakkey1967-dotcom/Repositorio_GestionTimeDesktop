@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.Extensions.Logging;
 using Windows.Storage;
 using GestionTime.Desktop.Services;
+using GestionTime.Desktop.Helpers;
 
 namespace GestionTime.Desktop.Views
 {
@@ -366,8 +367,6 @@ namespace GestionTime.Desktop.Views
                 // Guardar información del usuario
                 try
                 {
-                    var settings = ApplicationData.Current.LocalSettings.Values;
-                    
                     var userName = res.UserNameSafe;
                     var userEmail = res.UserEmailSafe;
                     var userRole = res.UserRoleSafe;
@@ -400,14 +399,41 @@ namespace GestionTime.Desktop.Views
                         }
                     }
                     
-                    settings["UserName"] = userName;
-                    settings["UserEmail"] = userEmail;
-                    settings["UserRole"] = userRole;
+                    // 🆕 NUEVO: Guardar información básica del usuario en archivo JSON
+                    App.Log?.LogInformation("💾 Guardando información básica de usuario en archivo JSON...");
                     
-                    App.Log?.LogInformation("📝 Guardando información de usuario:");
-                    App.Log?.LogInformation("   • UserName (API): {apiName} → Guardado: {name}", res.UserName ?? "(null)", userName);
-                    App.Log?.LogInformation("   • UserEmail (API): {apiEmail} → Guardado: {email}", res.UserEmail ?? "(null)", userEmail);
-                    App.Log?.LogInformation("   • UserRole (API): {apiRole} → Guardado: {role}", res.UserRole ?? "(null)", userRole);
+                    UserInfoFileStorage.SaveUserInfo(userName, userEmail, userRole, null, App.Log);
+                    
+                    // 🆕 NUEVO: Intentar cargar perfil completo desde /api/v1/profiles
+                    SetBusy(true, "Cargando perfil completo...");
+                    
+                    try
+                    {
+                        App.Log?.LogInformation("🔄 Cargando perfil completo desde /api/v1/profiles...");
+                        
+                        var profileLoaded = await ProfileService.LoadProfileAfterLoginAsync(App.Log);
+                        
+                        if (profileLoaded)
+                        {
+                            App.Log?.LogInformation("✅ Perfil completo cargado correctamente");
+                            // El ProfileService ya actualizó el archivo JSON con los datos del perfil
+                        }
+                        else
+                        {
+                            App.Log?.LogWarning("⚠️ No se pudo cargar el perfil completo, usando datos básicos del login");
+                        }
+                    }
+                    catch (Exception profileEx)
+                    {
+                        App.Log?.LogWarning(profileEx, "⚠️ Error cargando perfil completo, usando datos básicos del login");
+                    }
+                    
+                    // 🆕 Verificar qué datos finales tenemos
+                    var finalUserInfo = UserInfoFileStorage.LoadUserInfo(App.Log);
+                    App.Log?.LogInformation("📝 Información de usuario final:");
+                    App.Log?.LogInformation("   • UserName: {name}", finalUserInfo?.UserName ?? "NO DISPONIBLE");
+                    App.Log?.LogInformation("   • UserEmail: {email}", finalUserInfo?.UserEmail ?? "NO DISPONIBLE");
+                    App.Log?.LogInformation("   • UserRole: {role}", finalUserInfo?.UserRole ?? "NO DISPONIBLE");
                 }
                 catch (Exception ex)
                 {

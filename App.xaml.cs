@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
@@ -22,6 +22,9 @@ public partial class App : Application
     public static ApiClient Api { get; private set; } = null!;
     public static string PartesPath { get; private set; } = "/api/v1/partes";
     
+    // 🆕 NUEVO: ProfileService como singleton compartido
+    public static ProfileService ProfileService { get; private set; } = null!;
+
     public static void ApplyThemeFromSettings()
     {
         try
@@ -149,6 +152,9 @@ public partial class App : Application
             
             // 🆕 NUEVO: Suscribirse al evento de token expirado
             Api.TokenExpired += OnTokenExpired;
+            
+            // 🆕 NUEVO: Inicializar ProfileService como singleton
+            ProfileService = new ProfileService(Api, null); // El ProfileService creará su propio logger si se necesita
 
             HookGlobalExceptions();
 
@@ -176,6 +182,9 @@ public partial class App : Application
             System.Diagnostics.Debug.WriteLine($"loginPath FALLBACK HARDCODED: '{loginPath}'");
             
             Api = new ApiClient(baseUrl, loginPath, Log);
+            
+            // 🆕 NUEVO: Inicializar ProfileService incluso en fallback
+            ProfileService = new ProfileService(Api, null);
         }
     }
 
@@ -561,7 +570,7 @@ public partial class App : Application
             var dialog = new ContentDialog
             {
                 Title = "❌ Error Crítico de Inicio",
-                Content = $"La aplicación no pudo iniciarse correctamente.\n\n" +
+                Content = $"La aplicación no pudo inciarse correctamente.\n\n" +
                          $"Error: {ex.Message}\n\n" +
                          $"Por favor, verifica:\n" +
                          $"• Windows App Runtime está instalado\n" +

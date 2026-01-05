@@ -22,6 +22,8 @@ public static class WindowSizeManager
     private static readonly (int Width, int Height) DefaultGraficaSize = (1200, 800);
     private static readonly (int Width, int Height) DefaultRegisterSize = (1200, 750);
     private static readonly (int Width, int Height) DefaultForgotPasswordSize = (1100, 650);
+    // 🆕 NUEVO: Tamaño por defecto para UserProfilePage
+    private static readonly (int Width, int Height) DefaultUserProfileSize = (1300, 850);
     
     // ===== PROPIEDADES PÚBLICAS (CON CONFIG INI) =====
     
@@ -61,18 +63,24 @@ public static class WindowSizeManager
     public static (int Width, int Height) ForgotPasswordSize => 
         WindowConfigService.Instance.GetSizeForPage("ForgotPasswordPage") ?? DefaultForgotPasswordSize;
     
+    /// <summary>
+    /// 🆕 NUEVO: Tamaño para UserProfilePage (carga desde INI o usa default)
+    /// </summary>
+    public static (int Width, int Height) UserProfileSize => 
+        WindowConfigService.Instance.GetSizeForPage("UserProfilePage") ?? DefaultUserProfileSize;
+    
     // ===== MÉTODOS PÚBLICOS =====
     
     /// <summary>
     /// Establece el tamaño de la ventana principal según la página actual
     /// </summary>
-    public static void SetSizeForPage(Window window, Type pageType)
+    public static void SetSizeForPage(Window window, Type pageType, Type? currentPageType = null)
     {
         var size = GetSizeForPageType(pageType);
         SetWindowSizeAndCenter(window, size.Width, size.Height);
         
-        // 🆕 REGISTRAR ATAJO Ctrl+Alt+P para guardar tamaño actual
-        RegisterSaveHotkey(window, pageType);
+        // 🆕 MODIFICADO: Pasar el pageType correcto al registro de atajo
+        RegisterSaveHotkey(window, currentPageType ?? pageType);
     }
     
     /// <summary>
@@ -213,6 +221,7 @@ public static class WindowSizeManager
             "GraficaDiaPage" => GraficaSize,
             "RegisterPage" => RegisterSize,
             "ForgotPasswordPage" => ForgotPasswordSize,
+            "UserProfilePage" => UserProfileSize, // 🆕 NUEVO
             _ => DiarioSize // Por defecto, tamaño de Diario
         };
     }
@@ -259,16 +268,14 @@ public static class WindowSizeManager
         }
     }
     
-    /// <summary>
-    /// Registra el atajo de teclado Ctrl+Alt+P para guardar tamaño
-    /// </summary>
+    /// <summary>Registra el atajo de teclado Ctrl+Alt+P para guardar tamaño.</summary>
     private static void RegisterSaveHotkey(Window window, Type pageType)
     {
         try
         {
             if (window.Content is FrameworkElement rootElement)
             {
-                // Crear handler con closure para capturar window y pageType
+                // Crear handler que captura la ventana Y obtiene la página actual dinámicamente
                 KeyEventHandler handler = (sender, e) =>
                 {
                     try
@@ -282,7 +289,30 @@ public static class WindowSizeManager
                         
                         if (isCtrlPressed && isAltPressed && e.Key == Windows.System.VirtualKey.P)
                         {
-                            SaveCurrentWindowSize(window, pageType);
+                            // 🆕 CORREGIDO: Obtener la página ACTUAL desde MainWindow
+                            Type? currentPage = null;
+                            
+                            if (window is MainWindow mainWindow)
+                            {
+                                currentPage = mainWindow.GetCurrentPageType();
+                                App.Log?.LogInformation("🔍 Página actual detectada desde MainWindow: {page}", currentPage?.Name ?? "null");
+                            }
+                            else
+                            {
+                                // Fallback para ventanas child
+                                currentPage = pageType;
+                                App.Log?.LogInformation("🔍 Usando pageType para ventana child: {page}", pageType.Name);
+                            }
+                            
+                            if (currentPage != null)
+                            {
+                                SaveCurrentWindowSize(window, currentPage);
+                            }
+                            else
+                            {
+                                App.Log?.LogWarning("⚠️ No se pudo determinar la página actual para guardar tamaño");
+                            }
+                            
                             e.Handled = true;
                         }
                     }
@@ -294,6 +324,8 @@ public static class WindowSizeManager
                 
                 // Agregar handler
                 rootElement.KeyDown += handler;
+                
+                App.Log?.LogDebug("✅ Atajo Ctrl+Alt+P registrado para {page}", pageType.Name);
             }
         }
         catch (Exception ex)
@@ -302,9 +334,7 @@ public static class WindowSizeManager
         }
     }
     
-    /// <summary>
-    /// Muestra una notificación temporal al usuario
-    /// </summary>
+    /// <summary>Muestra una notificación temporal al usuario.</summary>
     private static async void ShowSaveNotification(Window window, string pageName, int width, int height)
     {
         try
