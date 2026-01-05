@@ -285,6 +285,12 @@ namespace GestionTime.Desktop.Views
                     sw.Stop();
                     
                     App.Log?.LogError(apiEx, "Error de API: {statusCode} - {message}", apiEx.StatusCode, apiEx.Message);
+                    
+                    // 🔔 NOTIFICACIÓN: Error de API
+                    App.Notifications?.ShowError(
+                        apiEx.Message,
+                        title: $"❌ Error de API ({apiEx.StatusCode})");
+                    
                     ShowMessage(apiEx.Message, MessageType.Error);
                     SetBusy(false, "");
                     return;
@@ -295,6 +301,12 @@ namespace GestionTime.Desktop.Views
                     
                     var errorMsg = GetHttpErrorMessage(httpEx);
                     App.Log?.LogError(httpEx, "Error de conexión HTTP: {msg}", errorMsg);
+                    
+                    // 🔔 NOTIFICACIÓN: Error de conexión HTTP
+                    App.Notifications?.ShowError(
+                        errorMsg,
+                        title: "🌐 Error de Conexión");
+                    
                     ShowMessage(errorMsg, MessageType.Error);
                     SetBusy(false, "");
                     return;
@@ -304,6 +316,12 @@ namespace GestionTime.Desktop.Views
                     sw.Stop();
                     
                     App.Log?.LogError("Timeout al conectar con el servidor");
+                    
+                    // 🔔 NOTIFICACIÓN: Timeout
+                    App.Notifications?.ShowError(
+                        "El servidor no responde. Verifica tu conexión.",
+                        title: "⏳ Tiempo de Espera Agotado");
+                    
                     ShowMessage("Timeout: El servidor no responde. Verifica tu conexión.", MessageType.Error);
                     SetBusy(false, "");
                     return;
@@ -339,12 +357,20 @@ namespace GestionTime.Desktop.Views
                     
                     SetBusy(false, "");
                     
+                    // 🔔 NOTIFICACIÓN: Contraseña debe cambiarse
+                    App.Notifications?.ShowWarning(
+                        "Tu contraseña ha expirado o debe ser cambiada por seguridad",
+                        title: "⚠️ Cambio de Contraseña Requerido");
+                    
                     await ShowChangePasswordDialog(email, res.PasswordExpired, res.DaysUntilExpiration);
                     return;
                 }
 
                 if (res.Message != null && !res.Message.Equals("ok", StringComparison.OrdinalIgnoreCase))
                 {
+                    // 🔔 NOTIFICACIÓN: Error en login
+                    App.Notifications?.ShowError(res.Message, title: "❌ Error de Autenticación");
+                    
                     ShowMessage($"Error: {res.Message}", MessageType.Error);
                     SetBusy(false, "");
                     return;
@@ -436,6 +462,11 @@ namespace GestionTime.Desktop.Views
                 {
                     App.Log?.LogWarning(ex, "Error guardando información de usuario");
                 }
+
+                // 🔔 NOTIFICACIÓN: Login exitoso
+                App.Notifications?.ShowSuccess(
+                    $"Bienvenido de vuelta, {res.UserNameSafe}",
+                    title: "✅ Inicio de Sesión Exitoso");
 
                 ShowMessage($"Inicio de sesión exitoso ({sw.ElapsedMilliseconds}ms)", MessageType.Success);
 
@@ -1002,6 +1033,12 @@ namespace GestionTime.Desktop.Views
                 if (response?.Success == true)
                 {
                     App.Log?.LogInformation("Contraseña cambiada exitosamente para: {email}", email);
+                    
+                    // 🔔 NOTIFICACIÓN: Contraseña cambiada exitosamente
+                    App.Notifications?.ShowSuccess(
+                        "Ahora puedes iniciar sesión con tu nueva contraseña",
+                        title: "✅ Contraseña Actualizada");
+                    
                     ShowMessage("Contraseña cambiada exitosamente. Puedes hacer login con la nueva contraseña.", MessageType.Success);
                     
                     // Limpiar campos
@@ -1013,6 +1050,12 @@ namespace GestionTime.Desktop.Views
                 {
                     var errorMessage = response?.Error ?? "Error desconocido al cambiar la contraseña";
                     App.Log?.LogWarning("Error al cambiar contraseña: {error}", errorMessage);
+                    
+                    // 🔔 NOTIFICACIÓN: Error al cambiar contraseña
+                    App.Notifications?.ShowError(
+                        errorMessage,
+                        title: "❌ Error al Cambiar Contraseña");
+                    
                     ShowMessage(errorMessage, MessageType.Error);
                     
                     // Volver a mostrar el diálogo si hubo error
