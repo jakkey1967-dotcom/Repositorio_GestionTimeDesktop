@@ -291,7 +291,6 @@ namespace GestionTime.Desktop.Views
                         apiEx.Message,
                         title: $"❌ Error de API ({apiEx.StatusCode})");
                     
-                    ShowMessage(apiEx.Message, MessageType.Error);
                     SetBusy(false, "");
                     return;
                 }
@@ -307,7 +306,6 @@ namespace GestionTime.Desktop.Views
                         errorMsg,
                         title: "🌐 Error de Conexión");
                     
-                    ShowMessage(errorMsg, MessageType.Error);
                     SetBusy(false, "");
                     return;
                 }
@@ -322,7 +320,6 @@ namespace GestionTime.Desktop.Views
                         "El servidor no responde. Verifica tu conexión.",
                         title: "⏳ Tiempo de Espera Agotado");
                     
-                    ShowMessage("Timeout: El servidor no responde. Verifica tu conexión.", MessageType.Error);
                     SetBusy(false, "");
                     return;
                 }
@@ -371,7 +368,6 @@ namespace GestionTime.Desktop.Views
                     // 🔔 NOTIFICACIÓN: Error en login
                     App.Notifications?.ShowError(res.Message, title: "❌ Error de Autenticación");
                     
-                    ShowMessage($"Error: {res.Message}", MessageType.Error);
                     SetBusy(false, "");
                     return;
                 }
@@ -467,8 +463,6 @@ namespace GestionTime.Desktop.Views
                 App.Notifications?.ShowSuccess(
                     $"Bienvenido de vuelta, {res.UserNameSafe}",
                     title: "✅ Inicio de Sesión Exitoso");
-
-                ShowMessage($"Inicio de sesión exitoso ({sw.ElapsedMilliseconds}ms)", MessageType.Success);
 
                 SetBusy(true, "Preparando...");
 
@@ -920,7 +914,7 @@ namespace GestionTime.Desktop.Views
         }
         
         /// <summary>
-        /// Mostrar diálogo para cambio de contraseña obligatorio
+        ///Mostrar diálogo para cambio de contraseña obligatorio
         /// </summary>
         private async Task ShowChangePasswordDialog(string email, bool passwordExpired, int daysUntilExpiration)
         {
@@ -1039,8 +1033,6 @@ namespace GestionTime.Desktop.Views
                         "Ahora puedes iniciar sesión con tu nueva contraseña",
                         title: "✅ Contraseña Actualizada");
                     
-                    ShowMessage("Contraseña cambiada exitosamente. Puedes hacer login con la nueva contraseña.", MessageType.Success);
-                    
                     // Limpiar campos
                     TxtUser.Text = email;
                     TxtPass.Password = "";
@@ -1055,8 +1047,6 @@ namespace GestionTime.Desktop.Views
                     App.Notifications?.ShowError(
                         errorMessage,
                         title: "❌ Error al Cambiar Contraseña");
-                    
-                    ShowMessage(errorMessage, MessageType.Error);
                     
                     // Volver a mostrar el diálogo si hubo error
                     await Task.Delay(2000);
