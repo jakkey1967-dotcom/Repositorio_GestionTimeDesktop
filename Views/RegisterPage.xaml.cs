@@ -46,7 +46,7 @@ namespace GestionTime.Desktop.Views
             }
             catch (Exception ex)
             {
-                App.Log?.LogWarning(ex, "Error en animaci�n de fade in");
+                App.Log?.LogWarning(ex, "Error en animación de fade in");
                 PageRootGrid.Opacity = 1;
             }
         }
@@ -118,7 +118,7 @@ namespace GestionTime.Desktop.Views
         private void OnThemeDark(object sender, RoutedEventArgs e) => SetTheme(ElementTheme.Dark);
 
         // =========================
-        // Navegaci�n
+        // Navegación
         // =========================
 
         private async void OnBackClick(object sender, RoutedEventArgs e)
@@ -158,7 +158,7 @@ namespace GestionTime.Desktop.Views
         }
 
         // =========================
-        // Toggle contrase�as
+        // Toggle contraseñas
         // =========================
 
         private void OnTogglePasswordClick(object sender, RoutedEventArgs e)
@@ -171,7 +171,7 @@ namespace GestionTime.Desktop.Views
                 TxtPassword.Visibility = Visibility.Collapsed;
                 TxtPasswordVisible.Visibility = Visibility.Visible;
                 IconPassword.Glyph = "\uED1A";
-                ToolTipService.SetToolTip(BtnTogglePassword, "Ocultar contrase�a");
+                ToolTipService.SetToolTip(BtnTogglePassword, "Ocultar contraseña");
                 TxtPasswordVisible.Focus(FocusState.Programmatic);
                 TxtPasswordVisible.SelectionStart = TxtPasswordVisible.Text.Length;
             }
@@ -181,7 +181,7 @@ namespace GestionTime.Desktop.Views
                 TxtPasswordVisible.Visibility = Visibility.Collapsed;
                 TxtPassword.Visibility = Visibility.Visible;
                 IconPassword.Glyph = "\uE7B3";
-                ToolTipService.SetToolTip(BtnTogglePassword, "Mostrar contrase�a");
+                ToolTipService.SetToolTip(BtnTogglePassword, "Mostrar contraseña");
                 TxtPassword.Focus(FocusState.Programmatic);
             }
         }
@@ -196,7 +196,7 @@ namespace GestionTime.Desktop.Views
                 TxtConfirmPassword.Visibility = Visibility.Collapsed;
                 TxtConfirmPasswordVisible.Visibility = Visibility.Visible;
                 IconConfirmPassword.Glyph = "\uED1A";
-                ToolTipService.SetToolTip(BtnToggleConfirmPassword, "Ocultar contrase�a");
+                ToolTipService.SetToolTip(BtnToggleConfirmPassword, "Ocultar contraseña");
                 TxtConfirmPasswordVisible.Focus(FocusState.Programmatic);
                 TxtConfirmPasswordVisible.SelectionStart = TxtConfirmPasswordVisible.Text.Length;
             }
@@ -206,7 +206,7 @@ namespace GestionTime.Desktop.Views
                 TxtConfirmPasswordVisible.Visibility = Visibility.Collapsed;
                 TxtConfirmPassword.Visibility = Visibility.Visible;
                 IconConfirmPassword.Glyph = "\uE7B3";
-                ToolTipService.SetToolTip(BtnToggleConfirmPassword, "Mostrar contrase�a");
+                ToolTipService.SetToolTip(BtnToggleConfirmPassword, "Mostrar contraseña");
                 TxtConfirmPassword.Focus(FocusState.Programmatic);
             }
         }
@@ -223,50 +223,61 @@ namespace GestionTime.Desktop.Views
             var confirmPassword = _isConfirmPasswordVisible ? TxtConfirmPasswordVisible.Text ?? "" : TxtConfirmPassword.Password ?? "";
             var empresa = TxtEmpresa.Text?.Trim() ?? "";
 
-            // Validaciones
+            // Validaciones con notificaciones
             if (string.IsNullOrWhiteSpace(nombre))
             {
-                ShowMessage("Por favor, ingrese su nombre completo.", MessageType.Warning);
+                App.Notifications?.ShowWarning(
+                    "Por favor, ingrese su nombre completo",
+                    title: "⚠️ Campo Requerido");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(email))
             {
-                ShowMessage("Por favor, ingrese su correo electr�nico.", MessageType.Warning);
+                App.Notifications?.ShowWarning(
+                    "Por favor, ingrese su correo electrónico",
+                    title: "⚠️ Campo Requerido");
                 return;
             }
 
             if (!IsValidEmail(email))
             {
-                ShowMessage("Por favor, ingrese un correo electr�nico v�lido.", MessageType.Warning);
+                App.Notifications?.ShowWarning(
+                    "Por favor, ingrese un correo electrónico válido",
+                    title: "⚠️ Email Inválido");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ShowMessage("Por favor, ingrese una contrase�a.", MessageType.Warning);
+                App.Notifications?.ShowWarning(
+                    "Por favor, ingrese una contraseña",
+                    title: "⚠️ Campo Requerido");
                 return;
             }
 
             if (password.Length < 8)
             {
-                ShowMessage("La contrase�a debe tener al menos 8 caracteres.", MessageType.Warning);
+                App.Notifications?.ShowWarning(
+                    "La contraseña debe tener al menos 8 caracteres",
+                    title: "⚠️ Contraseña Débil");
                 return;
             }
 
             if (password != confirmPassword)
             {
-                ShowMessage("Las contrase�as no coinciden.", MessageType.Warning);
+                App.Notifications?.ShowWarning(
+                    "Las contraseñas no coinciden",
+                    title: "⚠️ Error de Validación");
                 return;
             }
 
             SetBusy(true, "Registrando usuario...");
-            HideMessage();
 
             try
             {
-                App.Log?.LogInformation("???????????????????????????????????????????????????????????????");
-                App.Log?.LogInformation("?? REGISTRO DE USUARIO - Iniciando");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                App.Log?.LogInformation("📝 REGISTRO DE USUARIO - Iniciando");
                 App.Log?.LogInformation("   Email: {email}", email);
                 App.Log?.LogInformation("   Nombre: {nombre}", nombre);
 
@@ -275,7 +286,7 @@ namespace GestionTime.Desktop.Views
                 {
                     Email = email,
                     Password = password,
-                    FullName = nombre,  // ? Cambiado de Nombre a FullName
+                    FullName = nombre,
                     Empresa = empresa
                 };
 
@@ -283,22 +294,33 @@ namespace GestionTime.Desktop.Views
 
                 if (result == null)
                 {
-                    ShowMessage("Error al registrar usuario. Intente nuevamente.", MessageType.Error);
                     App.Log?.LogError("Respuesta nula del servidor");
+                    
+                    App.Notifications?.ShowError(
+                        "Error al registrar usuario. Intente nuevamente",
+                        title: "❌ Error de Registro");
+                    
                     SetBusy(false, "");
                     return;
                 }
 
                 if (!string.IsNullOrEmpty(result.Error))
                 {
-                    ShowMessage($"Error: {result.Error}", MessageType.Error);
                     App.Log?.LogWarning("Error en registro: {error}", result.Error);
+                    
+                    App.Notifications?.ShowError(
+                        result.Error,
+                        title: "❌ Error de Registro");
+                    
                     SetBusy(false, "");
                     return;
                 }
 
-                App.Log?.LogInformation("? Usuario registrado exitosamente");
-                ShowMessage("�Registro exitoso! Redirigiendo al login...", MessageType.Success);
+                App.Log?.LogInformation("✅ Usuario registrado exitosamente");
+                
+                App.Notifications?.ShowSuccess(
+                    "¡Registro exitoso! Redirigiendo al login...",
+                    title: "✅ Usuario Creado");
 
                 await Task.Delay(1500);
 
@@ -307,13 +329,19 @@ namespace GestionTime.Desktop.Views
             }
             catch (HttpRequestException httpEx)
             {
-                App.Log?.LogError(httpEx, "Error de conexi�n HTTP durante registro");
-                ShowMessage("Error de conexi�n. Verifique su red e intente nuevamente.", MessageType.Error);
+                App.Log?.LogError(httpEx, "Error de conexión HTTP durante registro");
+                
+                App.Notifications?.ShowError(
+                    "Error de conexión. Verifique su red e intente nuevamente",
+                    title: "🌐 Error de Conexión");
             }
             catch (Exception ex)
             {
                 App.Log?.LogError(ex, "Error inesperado durante registro");
-                ShowMessage($"Error: {ex.Message}", MessageType.Error);
+                
+                App.Notifications?.ShowError(
+                    ex.Message,
+                    title: "❌ Error Inesperado");
             }
             finally
             {
@@ -362,60 +390,6 @@ namespace GestionTime.Desktop.Views
             
             TxtStatus.Text = status;
             TxtStatus.Visibility = string.IsNullOrEmpty(status) ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        private enum MessageType
-        {
-            Success,
-            Error,
-            Warning,
-            Info
-        }
-
-        private void ShowMessage(string text, MessageType type)
-        {
-            MsgBox.Visibility = Visibility.Visible;
-            LblMsg.Text = text;
-
-            switch (type)
-            {
-                case MessageType.Success:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 252, 231));
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 34, 197, 94));
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 21, 128, 61));
-                    MsgIcon.Glyph = "\uE73E";
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 34, 197, 94));
-                    break;
-                
-                case MessageType.Error:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 226, 226));
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38));
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 127, 29, 29));
-                    MsgIcon.Glyph = "\uE783";
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38));
-                    break;
-                
-                case MessageType.Warning:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 243, 199));
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 245, 158, 11));
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 146, 64, 14));
-                    MsgIcon.Glyph = "\uE7BA";
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 245, 158, 11));
-                    break;
-                
-                case MessageType.Info:
-                    MsgBox.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 224, 242, 254));
-                    MsgBox.BorderBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 59, 130, 246));
-                    LblMsg.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 30, 64, 175));
-                    MsgIcon.Glyph = "\uE946";
-                    MsgIcon.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 59, 130, 246));
-                    break;
-            }
-        }
-
-        private void HideMessage()
-        {
-            MsgBox.Visibility = Visibility.Collapsed;
         }
 
         // =========================
