@@ -217,16 +217,23 @@ public sealed class ProfileService
                 ? profile.Position 
                 : currentInfo?.UserRole;
                 
-            var userEmail = currentInfo?.UserEmail; // Preservar email existente
+            // 🔥 CRÍTICO: SIEMPRE preservar email existente (del login)
+            var userEmail = currentInfo?.UserEmail;
             
             var userAvatar = !string.IsNullOrWhiteSpace(profile.AvatarUrl) 
                 ? profile.AvatarUrl 
                 : currentInfo?.UserAvatar;
             
+            _log?.LogDebug("💾 Actualizando archivo JSON con perfil...");
+            _log?.LogDebug("   • UserName: {name}", userName);
+            _log?.LogDebug("   • UserEmail: {email} (PRESERVADO)", userEmail);
+            _log?.LogDebug("   • UserRole: {role}", userRole);
+            _log?.LogDebug("   • UserAvatar: {avatar}", userAvatar ?? "(sin avatar)");
+            
             // Guardar en archivo JSON
             UserInfoFileStorage.SaveUserInfo(userName, userEmail, userRole, userAvatar, _log);
             
-            _log?.LogDebug("💾 Archivo JSON actualizado con datos del perfil");
+            _log?.LogDebug("✅ Archivo JSON actualizado con datos del perfil");
         }
         catch (Exception ex)
         {
@@ -235,7 +242,9 @@ public sealed class ProfileService
     }
 
     /// <summary>🆕 MODIFICADO: Carga el perfil del usuario al iniciar sesión y actualiza archivo JSON.</summary>
-    public static async Task<bool> LoadProfileAfterLoginAsync(ILogger? log = null)
+    /// <param name="log">Logger opcional para registrar el proceso</param>
+    /// <param name="loginEmail">Email del usuario que acaba de hacer login (para NO sobrescribirlo)</param>
+    public static async Task<bool> LoadProfileAfterLoginAsync(ILogger? log = null, string? loginEmail = null)
     {
         try
         {
@@ -251,11 +260,16 @@ public sealed class ProfileService
                     profile.FullName, 
                     profile.Position ?? "Sin cargo");
                 
-                // 🆕 MODIFICADO: Actualizar archivo JSON directamente
+                // 🆕 MODIFICADO: Actualizar archivo JSON directamente PRESERVANDO el email del login
                 try
                 {
-                    // Cargar información actual (para preservar el email)
+                    // Cargar información actual
                     var currentInfo = UserInfoFileStorage.LoadUserInfo(log);
+                    
+                    // 🔥 CRÍTICO: Usar el email del login si está disponible
+                    var userEmail = !string.IsNullOrWhiteSpace(loginEmail) 
+                        ? loginEmail 
+                        : currentInfo?.UserEmail;
                     
                     // Actualizar con datos del perfil
                     var userName = !string.IsNullOrWhiteSpace(profile.FullName) 
@@ -265,17 +279,21 @@ public sealed class ProfileService
                     var userRole = !string.IsNullOrWhiteSpace(profile.Position) 
                         ? profile.Position 
                         : currentInfo?.UserRole;
-                        
-                    var userEmail = currentInfo?.UserEmail; // Preservar email existente
                     
                     var userAvatar = !string.IsNullOrWhiteSpace(profile.AvatarUrl) 
                         ? profile.AvatarUrl 
                         : currentInfo?.UserAvatar;
                     
+                    log?.LogInformation("💾 Actualizando archivo JSON con perfil...");
+                    log?.LogInformation("   • UserName: {name}", userName);
+                    log?.LogInformation("   • UserEmail: {email} (PRESERVADO del login)", userEmail);
+                    log?.LogInformation("   • UserRole: {role}", userRole);
+                    log?.LogInformation("   • UserAvatar: {avatar}", userAvatar ?? "(sin avatar)");
+                    
                     // Guardar en archivo JSON
                     UserInfoFileStorage.SaveUserInfo(userName, userEmail, userRole, userAvatar, log);
                     
-                    log?.LogDebug("💾 Archivo JSON actualizado con datos del perfil después del login");
+                    log?.LogDebug("✅ Archivo JSON actualizado con datos del perfil después del login");
                 }
                 catch (Exception updateEx)
                 {

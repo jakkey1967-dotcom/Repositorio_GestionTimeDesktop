@@ -364,68 +364,51 @@ namespace GestionTime.Desktop.Views
                 App.Log?.LogInformation("✅ Correo guardado exitosamente");
                 App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
                 
-                // Guardar información del usuario
+                // ✅ PASO 1: Guardar información BÁSICA del usuario con el EMAIL DEL LOGIN
                 try
                 {
                     var userName = res.UserNameSafe;
-                    var userEmail = res.UserEmailSafe;
+                    var userEmail = email; // 🔥 USAR EMAIL DEL LOGIN, NO DEL RESPONSE
                     var userRole = res.UserRoleSafe;
                     
+                    App.Log?.LogInformation("💾 PASO 1: Guardando información básica del usuario...");
+                    App.Log?.LogInformation("   • UserName (de login): {name}", userName);
+                    App.Log?.LogInformation("   • UserEmail (del input): {email}", userEmail);
+                    App.Log?.LogInformation("   • UserRole (de login): {role}", userRole);
+                    
+                    // 🔥 CRÍTICO: Guardar SIEMPRE el email del login
+                    UserInfoFileStorage.SaveUserInfo(userName, userEmail, userRole, null, App.Log);
+                    
+                    App.Log?.LogInformation("✅ Información básica guardada correctamente");
+                    
+                    // ✅ PASO 2: Intentar cargar perfil completo (OPCIONAL - sin sobrescribir email)
                     if (string.IsNullOrEmpty(res.UserName) || string.IsNullOrEmpty(res.UserRole))
                     {
-                        App.Log?.LogInformation("🔄 LoginResponse no incluye userName/userRole, intentando obtener de /api/v1/users/me...");
+                        App.Log?.LogInformation("🔄 LoginResponse incompleto, intentando cargar perfil desde /api/v1/profiles/me...");
                         
-                        SetBusy(true, "Obteniendo perfil de usuario...");
+                        SetBusy(true, "Cargando perfil completo...");
                         
                         try
                         {
-                            var userInfo = await App.Api.GetAsync<UserInfoResponse>("/api/v1/users/me");
+                            var profileLoaded = await ProfileService.LoadProfileAfterLoginAsync(App.Log, userEmail);
                             
-                            if (userInfo != null)
+                            if (profileLoaded)
                             {
-                                userName = userInfo.Name ?? userName;
-                                userEmail = userInfo.Email ?? email;
-                                userRole = userInfo.Role ?? userRole;
-                                
-                                App.Log?.LogInformation("✅ Información de usuario obtenida de /api/v1/users/me");
-                                App.Log?.LogInformation("   • Name: {name}", userInfo.Name);
-                                App.Log?.LogInformation("   • Email: {email}", userInfo.Email);
-                                App.Log?.LogInformation("   • Role: {role}", userInfo.Role);
+                                App.Log?.LogInformation("✅ Perfil completo cargado correctamente");
+                            }
+                            else
+                            {
+                                App.Log?.LogWarning("⚠️ No se pudo cargar el perfil completo, usando datos básicos del login");
                             }
                         }
-                        catch (Exception userInfoEx)
+                        catch (Exception profileEx)
                         {
-                            App.Log?.LogWarning(userInfoEx, "⚠️ No se pudo obtener info de usuario desde /api/v1/users/me, usando defaults");
+                            App.Log?.LogWarning(profileEx, "⚠️ Error cargando perfil completo, usando datos básicos del login");
                         }
                     }
-                    
-                    // 🆕 NUEVO: Guardar información básica del usuario en archivo JSON
-                    App.Log?.LogInformation("💾 Guardando información básica de usuario en archivo JSON...");
-                    
-                    UserInfoFileStorage.SaveUserInfo(userName, userEmail, userRole, null, App.Log);
-                    
-                    // 🆕 NUEVO: Intentar cargar perfil completo desde /api/v1/profiles
-                    SetBusy(true, "Cargando perfil completo...");
-                    
-                    try
+                    else
                     {
-                        App.Log?.LogInformation("🔄 Cargando perfil completo desde /api/v1/profiles...");
-                        
-                        var profileLoaded = await ProfileService.LoadProfileAfterLoginAsync(App.Log);
-                        
-                        if (profileLoaded)
-                        {
-                            App.Log?.LogInformation("✅ Perfil completo cargado correctamente");
-                            // El ProfileService ya actualizó el archivo JSON con los datos del perfil
-                        }
-                        else
-                        {
-                            App.Log?.LogWarning("⚠️ No se pudo cargar el perfil completo, usando datos básicos del login");
-                        }
-                    }
-                    catch (Exception profileEx)
-                    {
-                        App.Log?.LogWarning(profileEx, "⚠️ Error cargando perfil completo, usando datos básicos del login");
+                        App.Log?.LogInformation("✅ LoginResponse completo, NO es necesario cargar perfil adicional");
                     }
                     
                     // 🆕 Verificar qué datos finales tenemos
@@ -434,6 +417,20 @@ namespace GestionTime.Desktop.Views
                     App.Log?.LogInformation("   • UserName: {name}", finalUserInfo?.UserName ?? "NO DISPONIBLE");
                     App.Log?.LogInformation("   • UserEmail: {email}", finalUserInfo?.UserEmail ?? "NO DISPONIBLE");
                     App.Log?.LogInformation("   • UserRole: {role}", finalUserInfo?.UserRole ?? "NO DISPONIBLE");
+                    
+                    // 🔥 VALIDACIÓN CRÍTICA: Verificar que el email sea correcto
+                    if (finalUserInfo?.UserEmail != email)
+                    {
+                        App.Log?.LogError("❌ ERROR CRÍTICO: Email guardado NO coincide con email del login");
+                        App.Log?.LogError("   • Email del login: {loginEmail}", email);
+                        App.Log?.LogError("   • Email guardado: {savedEmail}", finalUserInfo?.UserEmail);
+                        App.Log?.LogError("   • RE-GUARDANDO con email correcto...");
+                        
+                        // Forzar guardado con email correcto
+                        UserInfoFileStorage.SaveUserInfo(userName, email, userRole, null, App.Log);
+                        
+                        App.Log?.LogInformation("✅ Email corregido exitosamente");
+                    }
                 }
                 catch (Exception ex)
                 {
