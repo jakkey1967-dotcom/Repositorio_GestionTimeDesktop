@@ -308,7 +308,16 @@ public sealed class ProfileService
                 return false;
             }
             
-            log?.LogWarning("⚠️ No se pudo cargar el perfil del usuario");
+            log?.LogWarning("⚠️ No se pudo cargar el perfil del usuario (puede que no exista en el backend)");
+            log?.LogWarning("   → Esto NO es un error crítico, el sistema seguirá funcionando con datos básicos del login");
+            return false;
+        }
+        catch (ApiException apiEx) when (apiEx.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            // 🆕 NUEVO: Manejar específicamente el caso de perfil no encontrado
+            log?.LogWarning("⚠️ El perfil del usuario NO existe en el backend (404)");
+            log?.LogWarning("   → El sistema continuará funcionando con los datos básicos del login");
+            log?.LogWarning("   → El perfil se creará automáticamente cuando el usuario actualice sus datos por primera vez");
             return false;
         }
         catch (Exception ex)

@@ -92,22 +92,49 @@ public sealed partial class UserProfilePage : Page
 
             if (profile == null)
             {
-                App.Log?.LogError("❌ ERROR: GetCurrentUserProfileAsync() devolvió null");
+                App.Log?.LogWarning("⚠️ GetCurrentUserProfileAsync() devolvió null (perfil no encontrado en backend)");
                 
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ContentScroll.Visibility = Visibility.Collapsed;
                 
-                await ShowCriticalErrorAsync(
-                    "❌ Error de Sincronización de Datos",
-                    "Tu perfil de usuario no existe en el sistema.\n\n" +
-                    "Esto es un problema de sincronización que debe resolver el administrador.\n\n" +
-                    "Acciones recomendadas:\n" +
-                    "1. Cerrar sesión\n" +
-                    "2. Volver a iniciar sesión\n" +
-                    "3. Si el problema persiste, contactar al administrador\n\n" +
-                    "Código de error: PROFILE_NOT_FOUND");
+                // 🆕 MEJORADO: Mostrar opción para crear perfil básico
+                var dialog = new ContentDialog
+                {
+                    Title = "ℹ️ Perfil No Encontrado",
+                    Content = "Tu perfil de usuario aún no existe en el sistema.\n\n" +
+                              "Esto puede ocurrir si tu cuenta fue creada recientemente.\n\n" +
+                              "¿Qué deseas hacer?\n\n" +
+                              "• Crear Perfil Básico: Crea un perfil con tus datos de login\n" +
+                              "• Volver: Regresa a la pantalla principal\n\n" +
+                              "Nota: También puedes pedirle al administrador que cree tu perfil.",
+                    PrimaryButtonText = "Crear Perfil Básico",
+                    SecondaryButtonText = "Volver",
+                    CloseButtonText = "Cerrar Sesión",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
                 
-                return; // ✅ IMPORTANTE: Salir inmediatamente
+                var result = await dialog.ShowAsync();
+                
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Intentar crear perfil básico
+                    await CreateBasicProfileAsync();
+                }
+                else if (result == ContentDialogResult.Secondary)
+                {
+                    // Volver a DiarioPage
+                    App.MainWindowInstance?.Navigator?.Navigate(typeof(DiarioPage));
+                }
+                else
+                {
+                    // Cerrar sesión
+                    App.Api.ClearToken();
+                    App.Api.ClearGetCache();
+                    App.MainWindowInstance?.Navigator?.Navigate(typeof(LoginPage));
+                }
+                
+                return;
             }
 
             // ✅ Si llegamos aquí, el perfil existe
@@ -131,6 +158,100 @@ public sealed partial class UserProfilePage : Page
                 $"No se pudo cargar tu perfil de usuario.\n\n" +
                 $"Error: {ex.Message}\n\n" +
                 $"Por favor, intenta cerrar sesión y volver a iniciar.");
+        }
+    }
+
+    /// <summary>🆕 NUEVO: Crea un perfil básico usando los datos del login.</summary>
+    private async Task CreateBasicProfileAsync()
+    {
+        try
+        {
+            App.Log?.LogInformation("📝 Creando perfil básico del usuario...");
+            
+            LoadingPanel.Visibility = Visibility.Visible;
+            
+            // Obtener datos del usuario desde el archivo JSON
+            var userInfo = UserInfoFileStorage.LoadUserInfo(App.Log);
+            
+            if (userInfo == null || string.IsNullOrEmpty(userInfo.UserEmail))
+            {
+                App.Log?.LogError("❌ No se pudo obtener información del usuario del archivo JSON");
+                
+                await ShowErrorAsync(
+                    "No se pudo obtener tu información de usuario.\n\n" +
+                    "Por favor, cierra sesión e inicia sesión nuevamente.");
+                
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+            
+            // Extraer nombre y apellido del UserName o Email
+            var nameParts = (userInfo.UserName ?? userInfo.UserEmail.Split('@')[0]).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var firstName = nameParts.Length > 0 ? nameParts[0] : userInfo.UserEmail.Split('@')[0];
+            var lastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "";
+            
+            // Crear el request básico
+            var createRequest = new UpdateProfileRequest
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Position = userInfo.UserRole ?? "Usuario",
+                Department = "",
+                Phone = "",
+                Mobile = "",
+                Address = "",
+                City = "",
+                PostalCode = "",
+                EmployeeType = "Permanente"
+            };
+            
+            App.Log?.LogInformation("   • FirstName: {first}", createRequest.FirstName);
+            App.Log?.LogInformation("   • LastName: {last}", createRequest.LastName);
+            App.Log?.LogInformation("   • Position: {position}", createRequest.Position);
+            
+            // Intentar crear el perfil usando el endpoint PUT (que debería crearlo si no existe)
+            var createdProfile = await _profileService.UpdateUserProfileAsync(createRequest);
+            
+            if (createdProfile != null)
+            {
+                App.Log?.LogInformation("✅ Perfil básico creado exitosamente");
+                
+                _originalProfile = createdProfile;
+                PopulateFields(createdProfile);
+                
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                ContentScroll.Visibility = Visibility.Visible;
+                
+                await ShowSuccessAsync(
+                    "✅ Perfil creado exitosamente\n\n" +
+                    "Puedes completar ahora tus datos personales.");
+            }
+            else
+            {
+                App.Log?.LogError("❌ No se pudo crear el perfil (UpdateUserProfileAsync devolvió null)");
+                
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                
+                await ShowErrorAsync(
+                    "No se pudo crear tu perfil automáticamente.\n\n" +
+                    "Por favor, contacta al administrador del sistema para que cree tu perfil manualmente.");
+                
+                // Volver a DiarioPage
+                App.MainWindowInstance?.Navigator?.Navigate(typeof(DiarioPage));
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error creando perfil básico");
+            
+            LoadingPanel.Visibility = Visibility.Collapsed;
+            
+            await ShowErrorAsync(
+                $"Error creando perfil básico:\n\n{ex.Message}\n\n" +
+                $"Por favor, contacta al administrador del sistema.");
+            
+            // Volver a DiarioPage
+            App.MainWindowInstance?.Navigator?.Navigate(typeof(DiarioPage));
         }
     }
 
