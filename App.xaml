@@ -8,13 +8,11 @@
 
     <Application.Resources>
         <ResourceDictionary>
-
-            <!-- WinUI default styles -->
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- 🆕 CONVERTERS GLOBALES -->
+            <!-- CONVERTERS GLOBALES -->
             <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <helpers:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <helpers:BoolToColorConverter x:Key="BoolToColorConverter"/>
@@ -24,52 +22,28 @@
             <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <helpers:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
 
-            <!-- ========================= -->
-            <!--  🎨 GLOBAL THEME SYSTEM   -->
-            <!-- ========================= -->
+            <!-- GLOBAL THEME SYSTEM -->
             <ResourceDictionary.ThemeDictionaries>
-
-                <!-- ============================================ -->
-                <!-- 🌙 TEMA OSCURO (Default) - NO MODIFICADO  -->
-                <!-- ============================================ -->
+                <!-- TEMA OSCURO (Default) -->
                 <ResourceDictionary x:Key="Default">
-                    <!-- Fondos -->
                     <SolidColorBrush x:Key="AppBgFallback" Color="#0F1113"/>
                     <SolidColorBrush x:Key="AppBg" Color="#0F1113"/>
                     <SolidColorBrush x:Key="SurfaceBg" Color="#1A1D21"/>
                     <SolidColorBrush x:Key="CardBg" Color="#121416"/>
-                    
-                    <!-- Bordes -->
                     <SolidColorBrush x:Key="Stroke" Color="#30363D"/>
-                    
-                    <!-- Textos -->
                     <SolidColorBrush x:Key="TextMain" Color="#EDEFF2"/>
                     <SolidColorBrush x:Key="TextMuted" Color="#A8B0B8"/>
-                    
-                    <!-- Acentos -->
                     <SolidColorBrush x:Key="Accent" Color="#0B8C99"/>
                     <SolidColorBrush x:Key="AccentDark" Color="#08707A"/>
-                    
-                    <!-- Inputs -->
                     <SolidColorBrush x:Key="InputBg" Color="#0B8C99"/>
                     <SolidColorBrush x:Key="InputText" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="InputBorder" Color="#0B8C99"/>
-                    
-                    <!-- Botones -->
                     <SolidColorBrush x:Key="ButtonBg" Color="#1E2328"/>
                     <SolidColorBrush x:Key="ButtonStroke" Color="#30363D"/>
-                    
-                    <!-- Banner -->
                     <SolidColorBrush x:Key="BannerBg" Color="#0B8C99"/>
-                    
-                    <!-- Zebra rows -->
                     <SolidColorBrush x:Key="EvenRowBrush" Color="#121820"/>
                     <SolidColorBrush x:Key="OddRowBrush" Color="#141C24"/>
-                    
-                    <!-- Logos -->
                     <BitmapImage x:Key="LogoImage" UriSource="ms-appx:///Assets/LogoOscuro.png"/>
-                    
-                    <!-- Legacy (Material Design tokens) -->
                     <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0B8C99"/>
                     <SolidColorBrush x:Key="AppOnPrimaryBrush" Color="#001E22"/>
                     <SolidColorBrush x:Key="AppPrimaryContainerBrush" Color="#0A3A40"/>
@@ -85,47 +59,26 @@
                     <SolidColorBrush x:Key="AppOnErrorBrush" Color="#3A0A07"/>
                 </ResourceDictionary>
 
-                <!-- ============================================ -->
-                <!-- ☀️ TEMA CLARO (Light) - MEJORADO          -->
-                <!-- ============================================ -->
+                <!-- TEMA CLARO (Light) -->
                 <ResourceDictionary x:Key="Light">
-                    <!-- 🎨 Fondos -->
                     <SolidColorBrush x:Key="AppBgFallback" Color="#F4F7FA"/>
                     <SolidColorBrush x:Key="AppBg" Color="#F4F7FA"/>
                     <SolidColorBrush x:Key="SurfaceBg" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="CardBg" Color="#FFFFFF"/>
-                    
-                    <!-- 📐 Bordes -->
                     <SolidColorBrush x:Key="Stroke" Color="#D8E1EA"/>
-                    
-                    <!-- 📝 Textos -->
                     <SolidColorBrush x:Key="TextMain" Color="#0F172A"/>
                     <SolidColorBrush x:Key="TextMuted" Color="#475569"/>
-                    
-                    <!-- 🎨 Acentos (mantener teal) -->
                     <SolidColorBrush x:Key="Accent" Color="#0FA7B6"/>
                     <SolidColorBrush x:Key="AccentDark" Color="#0B8C99"/>
-                    
-                    <!-- 🔘 Inputs - fondo blanco con texto oscuro -->
                     <SolidColorBrush x:Key="InputBg" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="InputText" Color="#0F172A"/>
                     <SolidColorBrush x:Key="InputBorder" Color="#CBD5E1"/>
-                    
-                    <!-- 🔳 Botones -->
                     <SolidColorBrush x:Key="ButtonBg" Color="#F8FAFC"/>
                     <SolidColorBrush x:Key="ButtonStroke" Color="#D8E1EA"/>
-                    
-                    <!-- 🎭 Banner (mantener teal) -->
                     <SolidColorBrush x:Key="BannerBg" Color="#0FA7B6"/>
-                    
-                    <!-- 📊 Zebra rows claros y sutiles -->
                     <SolidColorBrush x:Key="EvenRowBrush" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="OddRowBrush" Color="#F7FAFC"/>
-                    
-                    <!-- 🖼️ Logos -->
                     <BitmapImage x:Key="LogoImage" UriSource="ms-appx:///Assets/LogoClaro.png"/>
-                    
-                    <!-- Legacy (Material Design tokens) -->
                     <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0FA7B6"/>
                     <SolidColorBrush x:Key="AppOnPrimaryBrush" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="AppPrimaryContainerBrush" Color="#CFEFF3"/>
@@ -140,12 +93,7 @@
                     <SolidColorBrush x:Key="AppErrorBrush" Color="#B3261E"/>
                     <SolidColorBrush x:Key="AppOnErrorBrush" Color="#FFFFFF"/>
                 </ResourceDictionary>
-
             </ResourceDictionary.ThemeDictionaries>
-
-            <!-- Fallback global -->
-            <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0B8C99"/>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

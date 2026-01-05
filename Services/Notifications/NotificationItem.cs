@@ -35,15 +35,29 @@ public sealed class NotificationItem
     /// <summary>Indica si la notificación ha sido leída/vista.</summary>
     public bool IsRead { get; set; }
     
-    /// <summary>Icono de la notificación (Segoe UI Symbol).</summary>
-    public string Icon { get; init; } = "\uE946"; // Info por defecto
+    /// <summary>Icono de la notificación (Segoe MDL2 Assets).</summary>
+    public string IconGlyph => Type switch
+    {
+        NotificationType.Success => "\uE73E",
+        NotificationType.Warning => "\uE7BA",
+        NotificationType.Error => "\uE711",
+        _ => "\uE946"
+    };
     
-    /// <summary>Brush de acento según el tipo.</summary>
-    public SolidColorBrush AccentBrush => Type switch
+    /// <summary>Color según el tipo de notificación.</summary>
+    public SolidColorBrush TypeColor => Type switch
     {
         NotificationType.Success => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 40, 167, 69)),
         NotificationType.Warning => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 193, 7)),
         NotificationType.Error => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 53, 69)),
         _ => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 123, 255))
     };
+    
+    /// <summary>Icono de la notificación (legacy, mantener por compatibilidad).</summary>
+    [Obsolete("Usar IconGlyph en su lugar")]
+    public string Icon { get; init; } = "\uE946";
+    
+    /// <summary>Brush de acento según el tipo (legacy, mantener por compatibilidad).</summary>
+    [Obsolete("Usar TypeColor en su lugar")]
+    public SolidColorBrush AccentBrush => TypeColor;
 }

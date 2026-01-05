@@ -1,34 +1,108 @@
 <UserControl
     x:Class="GestionTime.Desktop.Controls.NotificationHost"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GestionTime.Desktop.Services.Notifications"
+    x:Name="Root">
     
-    <!-- 🔍 DEBUG ULTRA SIMPLE - VERSIÓN MINIMALISTA PARA DIAGNÓSTICO -->
-    <Grid Background="Red" 
-          Width="400" 
-          Height="300" 
-          HorizontalAlignment="Right" 
+    <Grid HorizontalAlignment="Right" 
           VerticalAlignment="Bottom"
-          Margin="20">
+          Margin="0,0,24,24">
         
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="🔔 NOTIFICATIONHOST ACTIVO" 
-                       Foreground="White" 
-                       FontSize="24" 
-                       FontWeight="Bold"
-                       TextAlignment="Center"/>
+        <ItemsControl ItemsSource="{x:Bind ViewModel.ActiveNotifications, Mode=OneWay}"
+                      VerticalAlignment="Bottom">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Spacing="12" 
+                                VerticalAlignment="Bottom"
+                                MaxWidth="400"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
             
-            <TextBlock Text="{x:Bind ViewModel.ActiveNotifications.Count, Mode=OneWay}" 
-                       Foreground="Yellow" 
-                       FontSize="48" 
-                       FontWeight="Bold"
-                       TextAlignment="Center"
-                       Margin="0,20,0,0"/>
-            
-            <TextBlock Text="notificaciones activas" 
-                       Foreground="White" 
-                       FontSize="16"
-                       TextAlignment="Center"/>
-        </StackPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:NotificationItem">
+                    <Grid Background="{ThemeResource CardBg}"
+                          BorderBrush="{ThemeResource Stroke}"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          Padding="16"
+                          MinWidth="320"
+                          MaxWidth="400"
+                          IsHitTestVisible="True">
+                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Icono -->
+                        <FontIcon Grid.Column="0"
+                                  Glyph="{x:Bind IconGlyph}"
+                                  FontSize="20"
+                                  Foreground="{x:Bind TypeColor}"
+                                  VerticalAlignment="Top"
+                                  Margin="0,0,12,0"/>
+                        
+                        <!-- Contenido -->
+                        <StackPanel Grid.Column="1" Spacing="8">
+                            <!-- Título -->
+                            <TextBlock Text="{x:Bind Title}"
+                                       Foreground="{ThemeResource TextMain}"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       TextWrapping="Wrap"
+                                       Visibility="{x:Bind Title, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            
+                            <!-- Mensaje -->
+                            <TextBlock Text="{x:Bind Message}"
+                                       Foreground="{ThemeResource TextMuted}"
+                                       FontSize="13"
+                                       TextWrapping="Wrap"/>
+                            
+                            <!-- Acciones -->
+                            <ItemsControl ItemsSource="{x:Bind Actions}"
+                                          Margin="0,8,0,0"
+                                          Visibility="{x:Bind Actions.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="8"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:NotificationAction">
+                                        <Button Content="{x:Bind Label}"
+                                                Click="OnActionClick"
+                                                Tag="{x:Bind}"
+                                                Style="{ThemeResource AccentButtonStyle}"
+                                                FontSize="12"
+                                                Padding="12,6"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        
+                        <!-- Botón cerrar -->
+                        <Button Grid.Column="2"
+                                Content="&#xE711;"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="12"
+                                Click="OnCloseClick"
+                                Tag="{x:Bind Id}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="8"
+                                VerticalAlignment="Top"
+                                Margin="8,0,0,0">
+                            <Button.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#10FFFFFF"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#20FFFFFF"/>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </UserControl>

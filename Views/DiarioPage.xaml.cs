@@ -259,6 +259,9 @@ public sealed partial class DiarioPage : Page
         {
             App.Log?.LogInformation("DiarioPage Loaded ✅");
 
+            // 🧪 TEST TEMPORAL: Mostrar notificación al cargar
+            App.Notifications?.ShowSuccess("Sistema funcionando correctamente", title: "✅ DiarioPage Cargado");
+
             // Inicializar tema y assets
             UpdateThemeAssets(this.RequestedTheme);
 

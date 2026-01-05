@@ -71,9 +71,6 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Controls\NotificationHost.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
     <None Update="Doc\EJEMPLO_RESPONSIVE_COMPLETO.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
@@ -127,20 +124,21 @@
     <Page Include="Controls\DonutChartControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\NotificationHost.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\GraficaDiaPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\CerrarParteDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <!-- ✅ NUEVO: ResourceDictionaries para LoginPage -->
     <Page Include="Views\Styles\LoginPageStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Styles\LoginPageThemes.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <!-- ✅ NUEVO: UserProfilePage -->
     <Page Include="Views\UserProfilePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
