@@ -112,38 +112,6 @@ public sealed partial class DiarioPage : Page
         }
     }
 
-    /// <summary>
-    /// OBSOLETO: Ya no usamos OnListViewContainerContentChanging (se reemplaza por OnContainerContentChanging)
-    /// </summary>
-    private void OnListViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
-    {
-        // Ya no se usa - el nuevo método OnContainerContentChanging lo reemplaza
-    }
-
-    /// <summary>
-    /// OBSOLETO: Ya no necesitamos OnContainerLoaded
-    /// </summary>
-    private void OnContainerLoaded(object sender, RoutedEventArgs e)
-    {
-        // Ya no se usa - zebra rows se aplican en OnContainerContentChanging
-    }
-
-    /// <summary>
-    /// OBSOLETO: Ya no necesitamos ApplyZebraRowBackground
-    /// </summary>
-    private void ApplyZebraRowBackground(ListViewBase listView, ListViewItem container)
-    {
-        // Ya no se usa - zebra rows se aplican en OnContainerContentChanging
-    }
-
-    /// <summary>
-    /// OBSOLETO: Ya no necesitamos RefreshAllZebraRows
-    /// </summary>
-    private void RefreshAllZebraRows()
-    {
-        // Ya no se usa - zebra rows se aplican automáticamente con ItemIndex
-    }
-
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
         // Detener el monitoreo del servicio
@@ -684,20 +652,20 @@ public sealed partial class DiarioPage : Page
         if (!string.IsNullOrWhiteSpace(q))
         {
             query = query.Where(p =>
-                Has(p.Cliente, q) ||
-                Has(p.Tienda, q) ||
-                Has(p.Accion, q) ||
-                Has(p.Ticket, q) ||
-                Has(p.Grupo, q) ||
-                Has(p.Tipo, q) ||
-                Has(p.Tecnico, q) ||
-                Has(p.Estado, q)
+                DiarioPageHelpers.Has(p.Cliente, q) ||
+                DiarioPageHelpers.Has(p.Tienda, q) ||
+                DiarioPageHelpers.Has(p.Accion, q) ||
+                DiarioPageHelpers.Has(p.Ticket, q) ||
+                DiarioPageHelpers.Has(p.Grupo, q) ||
+                DiarioPageHelpers.Has(p.Tipo, q) ||
+                DiarioPageHelpers.Has(p.Tecnico, q) ||
+                DiarioPageHelpers.Has(p.Estado, q)
             );
         }
 
         query = query
             .OrderByDescending(p => p.Fecha)
-            .ThenByDescending(p => ParseTime(p.HoraInicio));
+            .ThenByDescending(p => DiarioPageHelpers.ParseTime(p.HoraInicio));
 
         Partes.Clear();
         foreach (var p in query)
@@ -712,12 +680,6 @@ public sealed partial class DiarioPage : Page
         // 🆕 NUEVO: Actualizar tooltip de cobertura de tiempo
         UpdateTimeCoverageTooltip();
     }
-
-    private static bool Has(string? s, string q)
-        => !string.IsNullOrWhiteSpace(s) && s.Contains(q, StringComparison.OrdinalIgnoreCase);
-
-    private static TimeSpan ParseTime(string? hhmm)
-        => TimeSpan.TryParse(hhmm, out var ts) ? ts : TimeSpan.Zero;
 
     // ===================== Filtros =====================
 
@@ -899,7 +861,7 @@ public sealed partial class DiarioPage : Page
                     var p = Partes[i];
                     // Si el parte actual tiene fecha más reciente, o misma fecha pero hora más reciente
                     if (parteActualizado.Fecha > p.Fecha ||
-                        (parteActualizado.Fecha == p.Fecha && ParseTime(parteActualizado.HoraInicio) > ParseTime(p.HoraInicio)))
+                        (parteActualizado.Fecha == p.Fecha && DiarioPageHelpers.ParseTime(parteActualizado.HoraInicio) > DiarioPageHelpers.ParseTime(p.HoraInicio)))
                     {
                         insertIndex = i;
                         break;
@@ -1128,7 +1090,7 @@ public sealed partial class DiarioPage : Page
             Title = "⚠️ Confirmar eliminación DEFINITIVA",
             Content = $"¿Estás seguro de que deseas ELIMINAR DEFINITIVAMENTE el parte ID {parte.Id}?\n\nCliente: {parte.Cliente}\nFecha: {parte.FechaText}\nAcción: {parte.Accion}\n\n⚠️ ATENCIÓN: Esta acción NO se puede deshacer. El registro se borrará permanentemente de la base de datos.",
             PrimaryButtonText = "Eliminar definitivamente",
-            CloseButtonText = "Cancelar",
+            CloseButtonText = "Cancelarse",
             DefaultButton = ContentDialogButton.Close,
             XamlRoot = XamlRoot
         };
@@ -1279,7 +1241,7 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogInformation("   • HoraInicio: {inicio}", parte.HoraInicio ?? "(vacío)");
             App.Log?.LogInformation("   • HoraFin ANTES: '{fin}'", string.IsNullOrEmpty(parte.HoraFin) ? "(vacío)" : parte.HoraFin);
             App.Log?.LogInformation("   • Ticket: {ticket}", parte.Ticket ?? "(sin ticket)");
-            App.Log?.LogInformation("   • Acción: {accion}", TrimForLog(parte.Accion, 50));
+            App.Log?.LogInformation("   • Acción: {accion}", DiarioPageHelpers.TrimForLog(parte.Accion, 50));
             App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
 
             // 🆕 NUEVO: Pasar el objeto parte completo al diálogo
@@ -1345,7 +1307,7 @@ public sealed partial class DiarioPage : Page
                 App.Log?.LogWarning("⚠️ POST /close FALLÓ - Código: {status}", postEx.StatusCode);
                 App.Log?.LogWarning("   💬 Mensaje: {message}", postEx.Message);
                 App.Log?.LogWarning("   📄 Mensaje del servidor: {serverMsg}",
-                    TrimForLog(postEx.ServerMessage ?? postEx.ServerError ?? "(sin respuesta)", 200));
+                    DiarioPageHelpers.TrimForLog(postEx.ServerMessage ?? postEx.ServerError ?? "(sin respuesta)", 200));
                 App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
                 App.Log?.LogInformation("🔄 MÉTODO 2 (FALLBACK): Intentando PUT completo...");
 
@@ -1379,7 +1341,7 @@ public sealed partial class DiarioPage : Page
                     App.Log?.LogInformation("      - tienda: '{tienda}'", putPayload.tienda);
                     App.Log?.LogInformation("      - id_grupo: {id}", putPayload.id_grupo?.ToString() ?? "null");
                     App.Log?.LogInformation("      - id_tipo: {id}", putPayload.id_tipo?.ToString() ?? "null");
-                    App.Log?.LogInformation("      - accion: '{accion}'", TrimForLog(putPayload.accion, 50));
+                    App.Log?.LogInformation("      - accion: '{accion}'", DiarioPageHelpers.TrimForLog(putPayload.accion, 50));
                     App.Log?.LogInformation("      - ticket: '{ticket}'", putPayload.ticket);
                     App.Log?.LogInformation("      - estado: {estado} (Cerrado)", putPayload.estado);
                     App.Log?.LogDebug("   📋 Payload completo: {@payload}", putPayload);
@@ -1404,7 +1366,7 @@ public sealed partial class DiarioPage : Page
                     App.Log?.LogError("❌ PUT TAMBIÉN FALLÓ - Código: {status}", putEx.StatusCode);
                     App.Log?.LogError("   💬 Mensaje: {message}", putEx.Message);
                     App.Log?.LogError("   📄 Mensaje del servidor: {serverMsg}",
-                        TrimForLog(putEx.ServerMessage ?? putEx.ServerError ?? "(sin respuesta)", 500));
+                        DiarioPageHelpers.TrimForLog(putEx.ServerMessage ?? putEx.ServerError ?? "(sin respuesta)", 500));
                     App.Log?.LogError("   🔍 Stack trace: {stack}", putEx.StackTrace);
                     throw;
                 }
@@ -1488,7 +1450,7 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogError("   • Path: {path}", apiEx.Path);
             App.Log?.LogError("   • Mensaje del servidor: {serverMsg}", apiEx.ServerMessage ?? "(sin mensaje)");
             App.Log?.LogError("   • Error del servidor: {serverError}",
-                TrimForLog(apiEx.ServerError ?? "(sin error)", 1000));
+                DiarioPageHelpers.TrimForLog(apiEx.ServerError ?? "(sin error)", 1000));
             App.Log?.LogError("   • Stack trace: {stack}", apiEx.StackTrace);
             App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
             App.Log?.LogError("═══════════════════════════════════════════════════════════════");
@@ -1875,13 +1837,6 @@ public sealed partial class DiarioPage : Page
         }
         catch { }
     }
-
-    private static string TrimForLog(string s, int max)
-    {
-        if (string.IsNullOrEmpty(s)) return "";
-        if (s.Length <= max) return s;
-        return s.Substring(0, max) + "…";
-    }
     
     /// <summary>
     /// 🆕 NUEVO: Invalida las entradas de caché relacionadas con un parte en una fecha específica
@@ -1991,38 +1946,12 @@ public sealed partial class DiarioPage : Page
                 return;
             }
             
-            var tooltipText = BuildCoverageTooltipText(coverage);
+            var tooltipText = DiarioPageHelpers.BuildCoverageTooltipText(coverage);
             ToolTipService.SetToolTip(DuracionHeader, tooltipText);
         }
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "Error actualizando tooltip");
         }
-    }
-    
-    /// <summary>
-    /// 🆕 NUEVO: Construye el texto del tooltip
-    /// </summary>
-    private static string BuildCoverageTooltipText(IntervalMerger.CoverageResult coverage)
-    {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("⏱️ TIEMPO REAL OCUPADO (SIN SOLAPAMIENTO)");
-        sb.AppendLine();
-        sb.AppendLine($"📊 Cubierto: {IntervalMerger.FormatDuration(coverage.TotalCovered)}");
-        
-        if (coverage.TotalOverlap.TotalMinutes > 0)
-            sb.AppendLine($"⚠️ Solapado: {IntervalMerger.FormatDuration(coverage.TotalOverlap)}");
-        
-        sb.AppendLine();
-        sb.AppendLine($"🕐 Intervalos cubiertos ({coverage.MergedIntervals.Count}):");
-        
-        foreach (var interval in coverage.MergedIntervals)
-        {
-            var formatted = IntervalMerger.FormatInterval(interval);
-            var duration = IntervalMerger.FormatDuration(interval.Duration);
-            sb.AppendLine($"   • {formatted} ({duration})");
-        }
-        
-        return sb.ToString().TrimEnd();
     }
 }
