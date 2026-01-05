@@ -8,11 +8,19 @@
         <!-- Capa principal: Navegación -->
         <Frame x:Name="RootFrame"/>
         
-        <!-- Capa overlay: Notificaciones (no interfiere con navegación) -->
-        <controls:NotificationHost
-            HorizontalAlignment="Stretch"
+        <!-- Capa overlay: Notificaciones -->
+        <!-- IMPORTANTE: El contenedor NO debe ser hit-testable, pero SÍ las notificaciones dentro -->
+        <Grid 
+            HorizontalAlignment="Stretch" 
             VerticalAlignment="Stretch"
-            IsHitTestVisible="False"/>
+            IsHitTestVisible="False"
+            Background="Transparent">
+            
+            <controls:NotificationHost
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                IsHitTestVisible="True"/>
+        </Grid>
     </Grid>
 </Window>
 
