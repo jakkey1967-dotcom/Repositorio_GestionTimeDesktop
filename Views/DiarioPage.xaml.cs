@@ -151,11 +151,6 @@ public sealed partial class DiarioPage : Page
         accelEditar.Invoked += (s, e) => { if (BtnEditar.IsEnabled) OnEditar(this, new RoutedEventArgs()); e.Handled = true; };
         this.KeyboardAccelerators.Add(accelEditar);
 
-        // F8 - Gráfica
-        var accelGrafica = new KeyboardAccelerator { Key = Windows.System.VirtualKey.F8 };
-        accelGrafica.Invoked += (s, e) => { OnAbrirGrafica(this, new RoutedEventArgs()); e.Handled = true; };
-        this.KeyboardAccelerators.Add(accelGrafica);
-
         // Delete - Borrar
         var accelBorrar = new KeyboardAccelerator { Key = Windows.System.VirtualKey.Delete };
         accelBorrar.Invoked += (s, e) => { OnBorrar(this, new RoutedEventArgs()); e.Handled = true; };
@@ -174,7 +169,7 @@ public sealed partial class DiarioPage : Page
 
         // ❌ ELIMINADO: F12 - Configuración (botón removido del UI)
 
-        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, F8, Delete, Ctrl+Q, F5");
+        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, Delete, Ctrl+Q, F5");
     }
 
     // ===================== ANIMACIONES HOVER =====================
@@ -1033,50 +1028,6 @@ public sealed partial class DiarioPage : Page
         }
     }
 
-    private async void OnGrabar(object sender, RoutedEventArgs e)
-        => await ShowInfoAsync("Grabar: pendiente de implementar 💾");
-
-    private void OnAbrirGrafica(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            var fecha = DpFiltroFecha.Date?.DateTime ?? DateTime.Today;
-
-            var window = new Microsoft.UI.Xaml.Window
-            {
-                Title = $"📊 Gráfica del Día - {fecha:dd/MM/yyyy}"
-            };
-
-            var graficaPage = new GraficaDiaPage();
-
-            // 🆕 NUEVO: Aplicar tema global a la ventana de gráfica
-            ThemeService.Instance.ApplyTheme(graficaPage);
-
-            graficaPage.ViewModel.FechaSeleccionada = fecha;
-
-            window.Content = graficaPage;
-            ConfigureGraficaWindow(window);
-            window.Activate();
-
-            App.Log?.LogInformation("Ventana de gráfica abierta para fecha {fecha}", fecha.ToString("yyyy-MM-dd"));
-        }
-        catch (Exception ex)
-        {
-            App.Log?.LogError(ex, "Error abriendo ventana de gráfica");
-        }
-    }
-
-    private void ConfigureGraficaWindow(Microsoft.UI.Xaml.Window window)
-    {
-        // ✅ Usar WindowSizeManager para GraficaPage
-        WindowSizeManager.SetChildWindowSize(window,
-            typeof(GraficaDiaPage),
-            WindowSizeManager.GraficaSize.Width,
-            WindowSizeManager.GraficaSize.Height,
-            resizable: true,
-            maximizable: true);
-    }
-
     private async void OnBorrar(object sender, RoutedEventArgs e)
     {
         if (LvPartes.SelectedItem is not ParteDto parte)
@@ -1732,7 +1683,7 @@ public sealed partial class DiarioPage : Page
                 }
                 catch (Exception animEx)
                 {
-                    App.Log?.LogWarning(animEx, "Error en animación de fade out, continuando con navegación");
+                    App.Log?.LogWarning(animEx, "Error in animación de fade out, continuando con navegación");
                     App.MainWindowInstance?.Navigator?.Navigate(typeof(LoginPage));
                 }
             }

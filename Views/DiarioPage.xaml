@@ -368,15 +368,6 @@
                         <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
                         
                         <!-- Grupo: Visualización -->
-                        <Button x:Name="BtnGrafica" Style="{StaticResource ToolbarButton}" Click="OnAbrirGrafica" 
-                                ToolTipService.ToolTip="Ver gráfica del día (F8)"
-                                PointerEntered="OnButtonPointerEntered"
-                                PointerExited="OnButtonPointerExited">
-                            <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE9D2;" FontSize="24" Foreground="#F59E0B"/>
-                                <TextBlock Text="Gráfica" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
                         
                         <!-- Separador -->
                         <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
