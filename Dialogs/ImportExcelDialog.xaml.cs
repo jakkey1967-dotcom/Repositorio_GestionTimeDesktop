@@ -129,18 +129,48 @@ public sealed partial class ImportExcelDialog : ContentDialog
 
                 try
                 {
+                    // 🆕 NUEVO: Log detallado del item ANTES de enviar
+                    App.Log?.LogDebug("═══ Importando item {i}/{total} ═══", i + 1, total);
+                    App.Log?.LogDebug("  FechaTrabajo: {fecha}", item.FechaTrabajo);
+                    App.Log?.LogDebug("  IdCliente: {id}", item.IdCliente);
+                    App.Log?.LogDebug("  Tienda: '{tienda}'", item.Tienda ?? "(null)");
+                    App.Log?.LogDebug("  HoraInicio: {inicio}", item.HoraInicio);
+                    App.Log?.LogDebug("  HoraFin: {fin}", item.HoraFin ?? "(null)");
+                    App.Log?.LogDebug("  DuracionMin: {duracion}", item.DuracionMin?.ToString() ?? "(null)");
+                    App.Log?.LogDebug("  Accion: '{accion}'", item.Accion?.Length > 50 ? item.Accion.Substring(0, 50) + "..." : item.Accion);
+                    App.Log?.LogDebug("  Ticket: '{ticket}'", item.Ticket ?? "(null)");
+                    App.Log?.LogDebug("  IdGrupo: {id}", item.IdGrupo?.ToString() ?? "(null)");
+                    App.Log?.LogDebug("  IdTipo: {id}", item.IdTipo?.ToString() ?? "(null)");
+                    App.Log?.LogDebug("  Estado: {estado}", item.Estado);
+
                     // POST a /api/v1/partes
-                    await App.Api.PostAsync<Models.Dtos.ParteCreateRequest, object>("/api/v1/partes", item, ct);
+                    var response = await App.Api.PostAsync<Models.Dtos.ParteCreateRequest, object>("/api/v1/partes", item, ct);
                     success++;
                     
-                    App.Log?.LogDebug("✅ Parte {i}/{total} importado: {fecha} - {cliente}", 
-                        i + 1, total, item.FechaTrabajo, item.IdCliente);
+                    App.Log?.LogDebug("✅ Parte {i}/{total} importado correctamente", i + 1, total);
+                }
+                catch (Services.ApiException apiEx)
+                {
+                    failed++;
+                    App.Log?.LogWarning("❌ Error importando parte {i}/{total}:", i + 1, total);
+                    App.Log?.LogWarning("   • StatusCode: {code}", apiEx.StatusCode);
+                    App.Log?.LogWarning("   • Message: {msg}", apiEx.Message);
+                    App.Log?.LogWarning("   • ServerMessage: {serverMsg}", apiEx.ServerMessage ?? "(null)");
+                    App.Log?.LogWarning("   • ServerError: {serverError}", apiEx.ServerError ?? "(null)");
+                    
+                    // 🆕 NUEVO: Log del payload que causó el error
+                    App.Log?.LogWarning("   📦 Payload que falló:");
+                    App.Log?.LogWarning("      - FechaTrabajo: {fecha}", item.FechaTrabajo);
+                    App.Log?.LogWarning("      - IdCliente: {id}", item.IdCliente);
+                    App.Log?.LogWarning("      - Accion: {accion}", item.Accion?.Length > 100 ? item.Accion.Substring(0, 100) + "..." : item.Accion);
                 }
                 catch (Exception ex)
                 {
                     failed++;
-                    App.Log?.LogWarning("❌ Error importando parte {i}/{total}: {error}", 
-                        i + 1, total, ex.Message);
+                    App.Log?.LogWarning("❌ Error inesperado importando parte {i}/{total}:", i + 1, total);
+                    App.Log?.LogWarning("   • Exception: {type}", ex.GetType().Name);
+                    App.Log?.LogWarning("   • Message: {error}", ex.Message);
+                    App.Log?.LogWarning("   • StackTrace: {stack}", ex.StackTrace?.Split('\n').FirstOrDefault() ?? "(no stack)");
                 }
 
                 // Actualizar progreso
