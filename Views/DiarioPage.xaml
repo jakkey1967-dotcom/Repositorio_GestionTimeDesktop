@@ -396,6 +396,17 @@
                         
                         <!-- Separador -->
                         <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
+                        
+                        <!-- 🆕 NUEVO: Botón Salir -->
+                        <Button x:Name="BtnSalir" Style="{StaticResource ToolbarButton}" Click="OnLogout" 
+                                ToolTipService.ToolTip="Cerrar sesión (Ctrl+Q)"
+                                PointerEntered="OnButtonPointerEntered"
+                                PointerExited="OnButtonPointerExited">
+                            <StackPanel Spacing="4">
+                                <FontIcon Glyph="&#xE7E8;" FontSize="24" Foreground="#EF4444"/>
+                                <TextBlock Text="Salir" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
             </Grid>
