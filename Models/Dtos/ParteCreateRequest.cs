@@ -39,6 +39,8 @@ public sealed class ParteCreateRequest
     [JsonPropertyName("tecnico")]
     public string? Tecnico { get; set; }
     
+    /// <summary>Estado del parte: 1=Abierto, 2=Cerrado, 3=Pausado. Solo se envía si se especifica explícitamente (importación).</summary>
     [JsonPropertyName("estado")]
-    public int Estado { get; set; } = 2; // 2=Cerrado por defecto
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Estado { get; set; } = null; // ✅ MODIFICADO: null por defecto para que no se envíe
 }
