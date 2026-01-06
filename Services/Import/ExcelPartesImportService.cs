@@ -273,11 +273,23 @@ public sealed class ExcelPartesImportService
         return null;
     }
 
-    /// <summary>Intenta parsear hora en formato HH:mm o TimeSpan.</summary>
+    /// <summary>Intenta parsear hora en formato HH:mm, TimeSpan o DateTime completo.</summary>
     private bool TryParseTime(string input, out string result)
     {
         result = string.Empty;
 
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+
+        // 🆕 NUEVO: Intentar parsear como DateTime completo (ej: "31/12/1899 8:30:00")
+        if (DateTime.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime))
+        {
+            // Extraer solo la parte de hora
+            result = $"{dateTime.Hour:D2}:{dateTime.Minute:D2}";
+            return true;
+        }
+
+        // Intentar parsear como TimeSpan
         if (TimeSpan.TryParse(input, out var ts))
         {
             result = $"{ts.Hours:D2}:{ts.Minutes:D2}";
@@ -290,8 +302,12 @@ public sealed class ExcelPartesImportService
             var parts = input.Split(':');
             if (parts.Length >= 2 && int.TryParse(parts[0], out var h) && int.TryParse(parts[1], out var m))
             {
-                result = $"{h:D2}:{m:D2}";
-                return true;
+                // Validar rangos
+                if (h >= 0 && h <= 23 && m >= 0 && m <= 59)
+                {
+                    result = $"{h:D2}:{m:D2}";
+                    return true;
+                }
             }
         }
 
