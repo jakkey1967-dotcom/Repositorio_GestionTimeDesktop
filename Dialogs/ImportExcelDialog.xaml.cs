@@ -126,6 +126,7 @@ public sealed partial class ImportExcelDialog : ContentDialog
                 }
 
                 var item = _importResult.ValidItems[i];
+                int? createdParteId = null; // 🆕 NUEVO: Guardar ID del parte creado
 
                 try
                 {
@@ -141,13 +142,52 @@ public sealed partial class ImportExcelDialog : ContentDialog
                     App.Log?.LogDebug("  Ticket: '{ticket}'", item.Ticket ?? "(null)");
                     App.Log?.LogDebug("  IdGrupo: {id}", item.IdGrupo?.ToString() ?? "(null)");
                     App.Log?.LogDebug("  IdTipo: {id}", item.IdTipo?.ToString() ?? "(null)");
-                    App.Log?.LogDebug("  Estado: {estado}", item.Estado);
+                    App.Log?.LogDebug("  Estado: {estado} (será actualizado a 2 después de crear)", item.Estado);
 
-                    // POST a /api/v1/partes
-                    var response = await App.Api.PostAsync<Models.Dtos.ParteCreateRequest, object>("/api/v1/partes", item, ct);
-                    success++;
+                    // 1️⃣ POST a /api/v1/partes (crear parte con estado por defecto del backend)
+                    var response = await App.Api.PostAsync<Models.Dtos.ParteCreateRequest, Models.Dtos.ParteDto>("/api/v1/partes", item, ct);
                     
-                    App.Log?.LogDebug("✅ Parte {i}/{total} importado correctamente", i + 1, total);
+                    if (response != null && response.Id > 0)
+                    {
+                        createdParteId = response.Id;
+                        App.Log?.LogDebug("✅ Parte creado con ID: {id}, Estado actual: {estado}", response.Id, response.EstadoInt);
+                        
+                        // 2️⃣ PUT a /api/v1/partes/{id} para actualizar estado a Cerrado (2)
+                        try
+                        {
+                            var updatePayload = new Models.Dtos.ParteCreateRequest
+                            {
+                                FechaTrabajo = item.FechaTrabajo,
+                                HoraInicio = item.HoraInicio,
+                                HoraFin = item.HoraFin,
+                                DuracionMin = item.DuracionMin,
+                                IdCliente = item.IdCliente,
+                                Tienda = item.Tienda,
+                                IdGrupo = item.IdGrupo,
+                                IdTipo = item.IdTipo,
+                                Accion = item.Accion,
+                                Ticket = item.Ticket,
+                                Tecnico = item.Tecnico,
+                                Estado = 2  // 🔒 FORZAR: Estado = 2 (Cerrado)
+                            };
+                            
+                            App.Log?.LogDebug("🔄 Actualizando estado del parte {id} a Cerrado (2)...", createdParteId);
+                            await App.Api.PutAsync<Models.Dtos.ParteCreateRequest, object>($"/api/v1/partes/{createdParteId}", updatePayload, ct);
+                            
+                            App.Log?.LogInformation("✅ Parte {i}/{total} importado y actualizado a Cerrado (ID: {id})", i + 1, total, createdParteId);
+                        }
+                        catch (Exception updateEx)
+                        {
+                            App.Log?.LogWarning("⚠️ Parte {id} creado pero fallo al actualizar estado: {error}", createdParteId, updateEx.Message);
+                            // No marcar como failed porque el parte SÍ se creó
+                        }
+                    }
+                    else
+                    {
+                        App.Log?.LogWarning("⚠️ Backend no devolvió ID del parte creado");
+                    }
+                    
+                    success++;
                 }
                 catch (Services.ApiException apiEx)
                 {
