@@ -382,16 +382,20 @@
                                 <TextBlock Text="Borrar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
-                        <!-- Botón Salir -->
-                        <Button x:Name="BtnSalir" Style="{StaticResource ToolbarButton}" Click="OnSalir" 
-                                ToolTipService.ToolTip="Cerrar sesión (Ctrl+Q)"
+                        
+                        <!-- 🆕 NUEVO: Botón Importar Excel -->
+                        <Button x:Name="BtnImportar" Style="{StaticResource ToolbarButton}" Click="OnImportarExcel" 
+                                ToolTipService.ToolTip="Importar partes desde Excel (Ctrl+I)"
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE7E8;" FontSize="24" Foreground="#F59E0B"/>
-                                <TextBlock Text="Salir" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE8B5;" FontSize="24" Foreground="#8B5CF6"/>
+                                <TextBlock Text="Importar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
+                        
+                        <!-- Separador -->
+                        <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
             </Grid>

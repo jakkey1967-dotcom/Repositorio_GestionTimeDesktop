@@ -1,0 +1,177 @@
+<ContentDialog
+    x:Class="GestionTime.Desktop.Dialogs.ImportExcelDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="📊 Importar Partes desde Excel"
+    PrimaryButtonText="Importar"
+    CloseButtonText="Cancelar"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnImportClick"
+    CloseButtonClick="OnCancelClick"
+    RequestedTheme="Dark">
+
+    <ScrollViewer MaxHeight="600" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Padding="16">
+            
+            <!-- Información del archivo -->
+            <Border Background="#1F2937" 
+                    BorderBrush="#0FA7B6" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="📁 Archivo Seleccionado" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="White"/>
+                    <TextBlock x:Name="TxtFileName" 
+                               Text="Ninguno" 
+                               FontSize="12" 
+                               Foreground="#9CA3AF"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Resumen -->
+            <Border x:Name="SummaryPanel" 
+                    Background="#1F2937" 
+                    BorderBrush="#0FA7B6" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16"
+                    Visibility="Collapsed">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="📊 Resumen de Importación" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="White"/>
+
+                    <Grid Grid.Row="1" ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Total Filas" 
+                                       FontSize="11" 
+                                       Foreground="#9CA3AF"/>
+                            <TextBlock x:Name="TxtTotalRows" 
+                                       Text="0" 
+                                       FontSize="20" 
+                                       FontWeight="Bold" 
+                                       Foreground="#3B82F6"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="✅ Válidos" 
+                                       FontSize="11" 
+                                       Foreground="#9CA3AF"/>
+                            <TextBlock x:Name="TxtValidRows" 
+                                       Text="0" 
+                                       FontSize="20" 
+                                       FontWeight="Bold" 
+                                       Foreground="#10B981"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="❌ Errores" 
+                                       FontSize="11" 
+                                       Foreground="#9CA3AF"/>
+                            <TextBlock x:Name="TxtErrorRows" 
+                                       Text="0" 
+                                       FontSize="20" 
+                                       FontWeight="Bold" 
+                                       Foreground="#EF4444"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Lista de errores (colapsable) -->
+                    <StackPanel Grid.Row="2" Spacing="8" x:Name="ErrorListPanel" Visibility="Collapsed">
+                        <TextBlock Text="⚠️ Detalles de Errores:" 
+                                   FontSize="12" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="#F59E0B"
+                                   Margin="0,8,0,0"/>
+                        <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="ErrorList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#1A1D21" 
+                                                BorderBrush="#EF4444" 
+                                                BorderThickness="1" 
+                                                CornerRadius="4" 
+                                                Padding="8" 
+                                                Margin="0,4,0,0">
+                                            <StackPanel Spacing="2">
+                                                <TextBlock FontSize="11" Foreground="#EF4444">
+                                                    <Run Text="Fila "/>
+                                                    <Run Text="{Binding RowIndex}" FontWeight="Bold"/>
+                                                    <Run Text=": "/>
+                                                    <Run Text="{Binding Reason}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding RawData}" 
+                                                           FontSize="10" 
+                                                           Foreground="#6B7280" 
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Progreso de importación -->
+            <StackPanel x:Name="ProgressPanel" Spacing="8" Visibility="Collapsed">
+                <TextBlock x:Name="TxtProgress" 
+                           Text="Importando..." 
+                           FontSize="12" 
+                           Foreground="White"/>
+                <ProgressBar x:Name="ImportProgress" 
+                             Minimum="0" 
+                             Maximum="100" 
+                             Value="0" 
+                             Height="8"/>
+                <TextBlock x:Name="TxtProgressDetail" 
+                           Text="0 / 0" 
+                           FontSize="11" 
+                           Foreground="#9CA3AF" 
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Resultado final -->
+            <Border x:Name="ResultPanel" 
+                    Background="#1F2937" 
+                    BorderBrush="#10B981" 
+                    BorderThickness="2" 
+                    CornerRadius="8" 
+                    Padding="16"
+                    Visibility="Collapsed">
+                <StackPanel Spacing="8">
+                    <TextBlock x:Name="TxtResult" 
+                               Text="✅ Importación Completada" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="#10B981"/>
+                    <TextBlock x:Name="TxtResultDetail" 
+                               Text="" 
+                               FontSize="12" 
+                               Foreground="#9CA3AF" 
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

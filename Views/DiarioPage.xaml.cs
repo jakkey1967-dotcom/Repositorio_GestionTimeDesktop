@@ -151,6 +151,12 @@ public sealed partial class DiarioPage : Page
         accelEditar.Invoked += (s, e) => { if (BtnEditar.IsEnabled) OnEditar(this, new RoutedEventArgs()); e.Handled = true; };
         this.KeyboardAccelerators.Add(accelEditar);
 
+        // Ctrl+I - Importar Excel
+        var accelImportar = new KeyboardAccelerator { Key = Windows.System.VirtualKey.I };
+        accelImportar.Modifiers = Windows.System.VirtualKeyModifiers.Control;
+        accelImportar.Invoked += (s, e) => { OnImportarExcel(this, new RoutedEventArgs()); e.Handled = true; };
+        this.KeyboardAccelerators.Add(accelImportar);
+
         // Delete - Borrar
         var accelBorrar = new KeyboardAccelerator { Key = Windows.System.VirtualKey.Delete };
         accelBorrar.Invoked += (s, e) => { OnBorrar(this, new RoutedEventArgs()); e.Handled = true; };
@@ -169,7 +175,7 @@ public sealed partial class DiarioPage : Page
 
         // ❌ ELIMINADO: F12 - Configuración (botón removido del UI)
 
-        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, Delete, Ctrl+Q, F5");
+        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, Ctrl+I, Delete, Ctrl+Q, F5");
     }
 
     // ===================== ANIMACIONES HOVER =====================
@@ -1025,6 +1031,63 @@ public sealed partial class DiarioPage : Page
         {
             App.Log?.LogError(ex, "Error abriendo ventana de edición");
             await ShowInfoAsync("❌ Error abriendo ventana de edición. Revisa app.log.");
+        }
+    }
+
+    /// <summary>📊 Importa partes desde un archivo Excel.</summary>
+    private async void OnImportarExcel(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("📊 IMPORTAR EXCEL - Iniciando selector de archivo");
+
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.List,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
+            };
+            picker.FileTypeFilter.Add(".xls");
+            picker.FileTypeFilter.Add(".xlsx");
+
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hWnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file == null)
+            {
+                App.Log?.LogInformation("Usuario canceló selección de archivo");
+                return;
+            }
+
+            App.Log?.LogInformation("Archivo seleccionado: {file}", file.Path);
+
+            var dialog = new ImportExcelDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
+
+            await dialog.LoadFileAsync(file.Path);
+            await dialog.ShowAsync();
+
+            if (dialog.ImportCompleted)
+            {
+                App.Log?.LogInformation("Importación completada - Recargando lista de partes...");
+                
+                App.Notifications?.ShowSuccess(
+                    "Los nuevos partes ya están disponibles en la lista",
+                    title: "✅ Importación Exitosa");
+                
+                await LoadPartesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error en proceso de importación");
+            
+            App.Notifications?.ShowError(
+                $"Error: {ex.Message}",
+                title: "❌ Error de Importación");
         }
     }
 
