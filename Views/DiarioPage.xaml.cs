@@ -1186,7 +1186,8 @@ public sealed partial class DiarioPage : Page
                     "Los nuevos partes ya están disponibles en la lista",
                     title: "✅ Importación Exitosa");
                 
-                await LoadPartesAsync();
+                // 🆕 NUEVO: Mostrar spinner de carga durante la recarga
+                await ShowLoadingAndReloadAsync();
             }
         }
         catch (Exception ex)
@@ -1196,6 +1197,49 @@ public sealed partial class DiarioPage : Page
             App.Notifications?.ShowError(
                 $"Error: {ex.Message}",
                 title: "❌ Error de Importación");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 NUEVO: Muestra el spinner de carga y recarga los datos
+    /// </summary>
+    private async Task ShowLoadingAndReloadAsync()
+    {
+        try
+        {
+            // Mostrar overlay de carga
+            LoadingOverlay.Visibility = Visibility.Visible;
+            LoadingRing.IsActive = true;
+            
+            App.Log?.LogInformation("🔄 Mostrando spinner de carga...");
+            
+            // Recargar datos con invalidación de caché
+            App.Log?.LogInformation("🗑️ Invalidando caché completo de partes...");
+            App.Api.ClearGetCache();
+            
+            _cache30dias.Clear();
+            Partes.Clear();
+            
+            // Recargar desde el servidor
+            await LoadPartesAsync();
+            
+            App.Log?.LogInformation("✅ Recarga completada exitosamente");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error durante la recarga");
+            
+            App.Notifications?.ShowError(
+                "Error al recargar los datos",
+                title: "❌ Error");
+        }
+        finally
+        {
+            // Ocultar overlay de carga
+            LoadingRing.IsActive = false;
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            
+            App.Log?.LogInformation("🔄 Spinner de carga ocultado");
         }
     }
 
