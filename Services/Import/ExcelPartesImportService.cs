@@ -265,8 +265,22 @@ public sealed class ExcelPartesImportService
             if (col != null && !row.IsNull(col))
             {
                 var val = row[col];
+                
+                // ✅ CORREGIDO: Solo formatear como fecha si es el campo "Fecha"
                 if (val is DateTime dt)
-                    return dt.ToString("yyyy-MM-dd");
+                {
+                    // Si es una columna de fecha, devolver solo la fecha
+                    if (name.Equals("Fecha", StringComparison.OrdinalIgnoreCase) || 
+                        name.Equals("FECHA", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return dt.ToString("yyyy-MM-dd");
+                    }
+                    
+                    // Si es una columna de hora, devolver el DateTime completo como string
+                    // para que TryParseTime lo procese correctamente
+                    return dt.ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                
                 return val?.ToString()?.Trim();
             }
         }
