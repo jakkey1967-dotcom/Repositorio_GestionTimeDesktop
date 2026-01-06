@@ -28,11 +28,27 @@ public sealed partial class ImportExcelDialog : ContentDialog
     {
         try
         {
+            // 🆕 NUEVO: Mostrar spinner de carga
+            LoadingOverlay.Visibility = Visibility.Visible;
+            LoadingRing.IsActive = true;
+            LoadingText.Text = "Leyendo archivo Excel...";
+            
             IsPrimaryButtonEnabled = false;
+            IsSecondaryButtonEnabled = false;
             TxtFileName.Text = $"Cargando {System.IO.Path.GetFileName(filePath)}...";
+
+            App.Log?.LogInformation("📂 Leyendo archivo Excel: {file}", System.IO.Path.GetFileName(filePath));
+
+            // Pequeño delay para que el spinner se muestre antes de bloquear el hilo
+            await Task.Delay(100);
+            
+            LoadingText.Text = "Validando datos...";
 
             var service = new ExcelPartesImportService();
             _importResult = await service.ReadExcelAsync(filePath, App.Log);
+
+            App.Log?.LogInformation("✅ Archivo leído: {total} filas, {valid} válidos, {errors} errores", 
+                _importResult.TotalRows, _importResult.ValidItems.Count, _importResult.Errors.Count);
 
             // Actualizar UI
             TxtFileName.Text = _importResult.FileName;
@@ -51,6 +67,7 @@ public sealed partial class ImportExcelDialog : ContentDialog
 
             // Habilitar botón solo si hay válidos
             IsPrimaryButtonEnabled = _importResult.ValidItems.Any();
+            IsSecondaryButtonEnabled = true;
 
             if (!_importResult.ValidItems.Any())
             {
@@ -80,6 +97,14 @@ public sealed partial class ImportExcelDialog : ContentDialog
             await errorDialog.ShowAsync();
             
             Hide();
+        }
+        finally
+        {
+            // 🆕 NUEVO: Ocultar spinner de carga
+            LoadingRing.IsActive = false;
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            
+            App.Log?.LogInformation("🔄 Spinner de carga ocultado");
         }
     }
 
