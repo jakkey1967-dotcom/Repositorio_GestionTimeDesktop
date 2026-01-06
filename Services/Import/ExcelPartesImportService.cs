@@ -1,5 +1,6 @@
 using ExcelDataReader;
 using GestionTime.Desktop.Models.Dtos;
+using GestionTime.Desktop.Helpers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GestionTime.Desktop.Services.Import;
@@ -15,6 +17,13 @@ namespace GestionTime.Desktop.Services.Import;
 /// <summary>Servicio para leer e importar partes desde archivos Excel (.xls/.xlsx).</summary>
 public sealed class ExcelPartesImportService
 {
+    private readonly CatalogManager _catalogManager;
+
+    public ExcelPartesImportService()
+    {
+        _catalogManager = new CatalogManager();
+    }
+
     /// <summary>Lee un archivo Excel y retorna partes válidos + errores.</summary>
     public async Task<ImportResult> ReadExcelAsync(string filePath, ILogger? logger = null)
     {
@@ -31,6 +40,15 @@ public sealed class ExcelPartesImportService
             logger?.LogInformation("═══════════════════════════════════════════════════════════════");
             logger?.LogInformation("📊 IMPORTACIÓN EXCEL - Iniciando");
             logger?.LogInformation("   Archivo: {file}", result.FileName);
+
+            // 🆕 NUEVO: Cargar catálogos para búsqueda de cliente, grupo y tipo
+            logger?.LogInformation("📚 Cargando catálogos...");
+            await _catalogManager.LoadGruposAsync();
+            await _catalogManager.LoadTiposAsync();
+            
+            // Cargar clientes desde API
+            await LoadClientesAsync(logger);
+            logger?.LogInformation("✅ Catálogos cargados correctamente");
 
             await Task.Run(() =>
             {
@@ -93,6 +111,37 @@ public sealed class ExcelPartesImportService
         return result;
     }
 
+    // 🆕 NUEVO: Lista de clientes cargada desde API
+    private List<ClienteResponse>? _clientesCache = null;
+
+    /// <summary>Carga catálogo de clientes desde API.</summary>
+    private async Task LoadClientesAsync(ILogger? logger)
+    {
+        try
+        {
+            var path = "/api/v1/catalog/clientes?limit=500&offset=0";
+            logger?.LogDebug("🔄 Cargando clientes desde {path}", path);
+            
+            var response = await App.Api.GetAsync<ClienteResponse[]>(path, CancellationToken.None);
+            
+            if (response != null)
+            {
+                _clientesCache = response.ToList();
+                logger?.LogInformation("✅ {count} clientes cargados", _clientesCache.Count);
+            }
+            else
+            {
+                logger?.LogWarning("⚠️ API devolvió null para clientes");
+                _clientesCache = new List<ClienteResponse>();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "❌ Error cargando catálogo de clientes");
+            _clientesCache = new List<ClienteResponse>();
+        }
+    }
+
     /// <summary>Mapea una fila de Excel a ParteCreateRequest.</summary>
     private ParteCreateRequest MapRowToParte(DataRow row, DataTable table, int rowIndex, ILogger? logger)
     {
@@ -151,20 +200,17 @@ public sealed class ExcelPartesImportService
                 : "18:00";
         }
 
-        // Calcular duración si no viene
-        int? duracionMinutos = null;
-        if (!string.IsNullOrWhiteSpace(duracionMin) && int.TryParse(duracionMin, out var dur))
+        // ✅ MEJORADO: Calcular duración SIEMPRE desde horas
+        int? duracionMinutos = CalcularDuracion(horaInicioStr, horaFinStr, logger);
+        
+        // Si viene duración en Excel, validar contra calculado
+        if (!string.IsNullOrWhiteSpace(duracionMin) && int.TryParse(duracionMin, out var durExcel))
         {
-            duracionMinutos = dur;
-        }
-        else if (horaFinStr != null)
-        {
-            // Calcular desde horas
-            if (TimeSpan.TryParse(horaInicioStr, out var inicio) && TimeSpan.TryParse(horaFinStr, out var fin))
-            {
-                duracionMinutos = (int)(fin - inicio).TotalMinutes;
-                if (duracionMinutos < 0) duracionMinutos = 0;
-            }
+            logger?.LogDebug("Fila {row}: Duración Excel={excel}min vs Calculada={calc}min", 
+                rowIndex, durExcel, duracionMinutos);
+            
+            // Usar calculada (más confiable)
+            duracionMinutos = duracionMinutos ?? durExcel;
         }
 
         // Estado: mapear texto a int (1=Abierto, 2=Cerrado, 3=Pausado)
@@ -176,16 +222,23 @@ public sealed class ExcelPartesImportService
             else if (int.TryParse(estado, out var est)) estadoInt = est;
         }
 
+        // ✅ MEJORADO: Buscar cliente por nombre en catálogo
+        int clienteId = BuscarClienteId(cliente, logger);
+        if (clienteId == 0)
+        {
+            throw new Exception($"Cliente '{cliente}' no encontrado en catálogo");
+        }
+
         return new ParteCreateRequest
         {
             FechaTrabajo = fechaDate.ToString("yyyy-MM-dd"),
             HoraInicio = horaInicioStr,
             HoraFin = horaFinStr,
             DuracionMin = duracionMinutos,
-            IdCliente = ParseClienteId(cliente), // Simplificado: ID=1 si no hay
+            IdCliente = clienteId, // ✅ CORREGIDO: ID real desde catálogo
             Tienda = tienda,
-            IdGrupo = ParseGrupoId(grupo),
-            IdTipo = ParseTipoId(tipo),
+            IdGrupo = BuscarGrupoId(grupo, logger),
+            IdTipo = BuscarTipoId(tipo, logger),
             Accion = accion?.Trim() ?? "",
             Ticket = ticket?.Trim(),
             Tecnico = tecnico?.Trim(),
@@ -237,7 +290,112 @@ public sealed class ExcelPartesImportService
         return false;
     }
 
-    /// <summary>Parsea cliente (simplificado: retorna 1 siempre o implementa lookup).</summary>
+    /// <summary>🆕 NUEVO: Calcula duración en minutos entre dos horas HH:mm.</summary>
+    private int? CalcularDuracion(string horaInicio, string? horaFin, ILogger? logger)
+    {
+        if (string.IsNullOrWhiteSpace(horaFin))
+            return null;
+
+        if (!TimeSpan.TryParse(horaInicio, out var inicio))
+        {
+            logger?.LogWarning("⚠️ No se pudo parsear hora inicio: {hora}", horaInicio);
+            return null;
+        }
+
+        if (!TimeSpan.TryParse(horaFin, out var fin))
+        {
+            logger?.LogWarning("⚠️ No se pudo parsear hora fin: {hora}", horaFin);
+            return null;
+        }
+
+        var duracion = (fin - inicio).TotalMinutes;
+        
+        // Si duración negativa, probablemente cruzó medianoche
+        if (duracion < 0)
+        {
+            duracion += 24 * 60; // Añadir 24 horas
+        }
+
+        return (int)Math.Round(duracion);
+    }
+
+    /// <summary>✅ MEJORADO: Busca cliente por nombre en catálogo cargado.</summary>
+    private int BuscarClienteId(string? cliente, ILogger? logger)
+    {
+        if (string.IsNullOrWhiteSpace(cliente))
+            return 0;
+
+        if (_clientesCache == null || !_clientesCache.Any())
+        {
+            logger?.LogWarning("⚠️ Catálogo de clientes no cargado");
+            return 0;
+        }
+
+        // Buscar por nombre exacto (case-insensitive)
+        var clienteEncontrado = _clientesCache.FirstOrDefault(c => 
+            string.Equals(c.Nombre, cliente.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        if (clienteEncontrado != null)
+        {
+            logger?.LogDebug("✅ Cliente '{nombre}' → ID={id}", cliente, clienteEncontrado.Id);
+            return clienteEncontrado.Id;
+        }
+
+        // Buscar por coincidencia parcial
+        clienteEncontrado = _clientesCache.FirstOrDefault(c => 
+            c.Nombre.Contains(cliente.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        if (clienteEncontrado != null)
+        {
+            logger?.LogDebug("✅ Cliente '{nombre}' (parcial) → ID={id}", cliente, clienteEncontrado.Id);
+            return clienteEncontrado.Id;
+        }
+
+        logger?.LogWarning("⚠️ Cliente '{nombre}' NO encontrado en catálogo", cliente);
+        return 0;
+    }
+
+    /// <summary>✅ MEJORADO: Busca grupo por nombre en catálogo.</summary>
+    private int? BuscarGrupoId(string? grupo, ILogger? logger)
+    {
+        if (string.IsNullOrWhiteSpace(grupo))
+            return null;
+
+        var grupoId = _catalogManager.GetGrupoId(grupo.Trim());
+        
+        if (grupoId.HasValue)
+        {
+            logger?.LogDebug("✅ Grupo '{nombre}' → ID={id}", grupo, grupoId.Value);
+        }
+        else
+        {
+            logger?.LogDebug("⚠️ Grupo '{nombre}' no encontrado", grupo);
+        }
+
+        return grupoId;
+    }
+
+    /// <summary>✅ MEJORADO: Busca tipo por nombre en catálogo.</summary>
+    private int? BuscarTipoId(string? tipo, ILogger? logger)
+    {
+        if (string.IsNullOrWhiteSpace(tipo))
+            return null;
+
+        var tipoId = _catalogManager.GetTipoId(tipo.Trim());
+        
+        if (tipoId.HasValue)
+        {
+            logger?.LogDebug("✅ Tipo '{nombre}' → ID={id}", tipo, tipoId.Value);
+        }
+        else
+        {
+            logger?.LogDebug("⚠️ Tipo '{nombre}' no encontrado", tipo);
+        }
+
+        return tipoId;
+    }
+
+    /// <summary>Parsea cliente (DEPRECADO - usar BuscarClienteId).</summary>
     private int ParseClienteId(string? cliente)
     {
         // TODO: Implementar lookup en catálogo si existe
@@ -256,7 +414,7 @@ public sealed class ExcelPartesImportService
         return 1; // Fallback
     }
 
-    /// <summary>Parsea grupo (simplificado).</summary>
+    /// <summary>Parsea grupo (DEPRECADO - usar BuscarGrupoId).</summary>
     private int? ParseGrupoId(string? grupo)
     {
         if (string.IsNullOrWhiteSpace(grupo))
@@ -273,7 +431,7 @@ public sealed class ExcelPartesImportService
         return null;
     }
 
-    /// <summary>Parsea tipo (simplificado).</summary>
+    /// <summary>Parsea tipo (DEPRECADO - usar BuscarTipoId).</summary>
     private int? ParseTipoId(string? tipo)
     {
         if (string.IsNullOrWhiteSpace(tipo))
