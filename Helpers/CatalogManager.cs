@@ -177,8 +177,16 @@ public sealed class CatalogManager
         
         App.Log?.LogDebug("🔍 GetGrupoId: Buscando '{nombre}' en {count} grupos", nombre, _gruposCache.Count);
         
+        // 🆕 NUEVO: Normalizar errores ortográficos comunes
+        var nombreNormalizado = NormalizarNombreGrupo(nombre);
+        
+        if (!string.Equals(nombre, nombreNormalizado, StringComparison.Ordinal))
+        {
+            App.Log?.LogDebug("📝 Corrección ortográfica: '{original}' → '{corregido}'", nombre, nombreNormalizado);
+        }
+        
         var resultado = _gruposCache.FirstOrDefault(g => 
-            string.Equals(g.Nombre, nombre, StringComparison.OrdinalIgnoreCase));
+            string.Equals(g.Nombre, nombreNormalizado, StringComparison.OrdinalIgnoreCase));
         
         if (resultado != null)
         {
@@ -187,11 +195,33 @@ public sealed class CatalogManager
         }
         else
         {
-            App.Log?.LogDebug("❌ NO encontrado: '{nombre}'", nombre);
+            App.Log?.LogDebug("❌ NO encontrado: '{nombre}'", nombreNormalizado);
             App.Log?.LogDebug("   Comparando con: {grupos}", string.Join(", ", _gruposCache.Select(g => $"'{g.Nombre}'").Take(5)));
         }
         
         return null;
+    }
+    
+    /// <summary>Normaliza nombres de grupos corrigiendo errores ortográficos comunes.</summary>
+    private static string NormalizarNombreGrupo(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            return nombre;
+        
+        // Diccionario de correcciones ortográficas comunes
+        var correcciones = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Mobilidad", "Movilidad" },  // b → v (error común de escritura)
+            { "Movibilidad", "Movilidad" }, // doble error
+            { "Mobiilidad", "Movilidad" },  // doble 'i'
+        };
+        
+        if (correcciones.TryGetValue(nombre, out var nombreCorregido))
+        {
+            return nombreCorregido;
+        }
+        
+        return nombre;
     }
     
     private static bool IsGruposCacheValid()
@@ -263,8 +293,61 @@ public sealed class CatalogManager
     
     public int? GetTipoId(string nombre)
     {
-        return _tiposCache?.FirstOrDefault(t => 
-            string.Equals(t.Nombre, nombre, StringComparison.OrdinalIgnoreCase))?.Id_tipo;
+        if (_tiposCache == null || !_tiposCache.Any())
+        {
+            App.Log?.LogWarning("⚠️ GetTipoId: Cache de tipos está vacío o null");
+            return null;
+        }
+        
+        App.Log?.LogDebug("🔍 GetTipoId: Buscando '{nombre}' en {count} tipos", nombre, _tiposCache.Count);
+        
+        // 🆕 NUEVO: Normalizar errores ortográficos comunes
+        var nombreNormalizado = NormalizarNombreTipo(nombre);
+        
+        if (!string.Equals(nombre, nombreNormalizado, StringComparison.Ordinal))
+        {
+            App.Log?.LogDebug("📝 Corrección ortográfica: '{original}' → '{corregido}'", nombre, nombreNormalizado);
+        }
+        
+        var resultado = _tiposCache.FirstOrDefault(t => 
+            string.Equals(t.Nombre, nombreNormalizado, StringComparison.OrdinalIgnoreCase));
+        
+        if (resultado != null)
+        {
+            App.Log?.LogDebug("✅ Encontrado: [{id}] '{nombre}'", resultado.Id_tipo, resultado.Nombre);
+            return resultado.Id_tipo;
+        }
+        else
+        {
+            App.Log?.LogDebug("❌ NO encontrado: '{nombre}'", nombreNormalizado);
+            App.Log?.LogDebug("   Comparando con: {tipos}", string.Join(", ", _tiposCache.Select(t => $"'{t.Nombre}'").Take(5)));
+        }
+        
+        return null;
+    }
+    
+    /// <summary>Normaliza nombres de tipos corrigiendo errores ortográficos comunes.</summary>
+    private static string NormalizarNombreTipo(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            return nombre;
+        
+        // Diccionario de correcciones ortográficas comunes
+        var correcciones = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Incidencia", "Incidencia" },
+            { "Insidencia", "Incidencia" },  // s → c
+            { "LLamada", "Llamada" },        // LL mayúscula → Ll
+            { "Llamada Overlay", "Llamada Overlay" },
+            { "LLamada Overlay", "Llamada Overlay" },
+        };
+        
+        if (correcciones.TryGetValue(nombre, out var nombreCorregido))
+        {
+            return nombreCorregido;
+        }
+        
+        return nombre;
     }
     
     private static bool IsTiposCacheValid()
