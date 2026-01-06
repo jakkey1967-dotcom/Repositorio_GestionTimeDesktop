@@ -23,7 +23,7 @@ public static class DiarioPageHelpers
     }
 
     /// <summary>Construye el texto del tooltip de cobertura de tiempo.</summary>
-    public static string BuildCoverageTooltipText(IntervalMerger.CoverageResult coverage)
+    public static string BuildCoverageTooltipText(IntervalMerger.CoverageResult coverage, int totalPartes)
     {
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("⏱️ TIEMPO REAL OCUPADO (SIN SOLAPAMIENTO)");
@@ -34,7 +34,9 @@ public static class DiarioPageHelpers
             sb.AppendLine($"⚠️ Solapado: {IntervalMerger.FormatDuration(coverage.TotalOverlap)}");
         
         sb.AppendLine();
-        sb.AppendLine($"🕐 Intervalos cubiertos ({coverage.MergedIntervals.Count}):");
+        sb.AppendLine($"📋 Partes con tiempo registrado: {totalPartes}");
+        sb.AppendLine($"🕐 Intervalos cubiertos (unidos): {coverage.MergedIntervals.Count}");
+        sb.AppendLine();
         
         foreach (var interval in coverage.MergedIntervals)
         {

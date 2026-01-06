@@ -2002,8 +2002,11 @@ public sealed partial class DiarioPage : Page
     {
         try
         {
-            var intervals = Partes
+            var partesConTiempo = Partes
                 .Where(p => !string.IsNullOrWhiteSpace(p.HoraInicio))
+                .ToList();
+            
+            var intervals = partesConTiempo
                 .Select(p =>
                 {
                     if (!TimeSpan.TryParse(p.HoraInicio, out var inicio))
@@ -2032,28 +2035,30 @@ public sealed partial class DiarioPage : Page
             
             if (!intervals.Any())
             {
-                UpdateDuracionHeaderTooltip(null);
+                UpdateDuracionHeaderTooltip(null, 0);
                 return;
             }
             
             var coverage = IntervalMerger.ComputeCoverage(intervals);
-            UpdateDuracionHeaderTooltip(coverage);
+            UpdateDuracionHeaderTooltip(coverage, partesConTiempo.Count);
             
-            App.Log?.LogInformation("⏱️ Cobertura: {covered}, Solapado: {overlap}",
+            App.Log?.LogInformation("⏱️ Cobertura calculada - Partes: {count}, Intervalos: {intervals}, Cubierto: {covered}, Solapado: {overlap}",
+                partesConTiempo.Count,
+                coverage.MergedIntervals.Count,
                 IntervalMerger.FormatDuration(coverage.TotalCovered),
                 IntervalMerger.FormatDuration(coverage.TotalOverlap));
         }
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "Error calculando cobertura");
-            UpdateDuracionHeaderTooltip(null);
+            UpdateDuracionHeaderTooltip(null, 0);
         }
     }
     
     /// <summary>
     /// 🆕 NUEVO: Actualiza el tooltip del header "Dur."
     /// </summary>
-    private void UpdateDuracionHeaderTooltip(IntervalMerger.CoverageResult? coverage)
+    private void UpdateDuracionHeaderTooltip(IntervalMerger.CoverageResult? coverage, int totalPartes)
     {
         try
         {
@@ -2066,7 +2071,7 @@ public sealed partial class DiarioPage : Page
                 return;
             }
             
-            var tooltipText = DiarioPageHelpers.BuildCoverageTooltipText(coverage);
+            var tooltipText = DiarioPageHelpers.BuildCoverageTooltipText(coverage, totalPartes);
             ToolTipService.SetToolTip(DuracionHeader, tooltipText);
         }
         catch (Exception ex)
