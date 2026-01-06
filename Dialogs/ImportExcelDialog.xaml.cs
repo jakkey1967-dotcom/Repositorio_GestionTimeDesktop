@@ -224,6 +224,16 @@ public sealed partial class ImportExcelDialog : ContentDialog
     /// <summary>Cancela la importación.</summary>
     private void OnCancelClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        _cts?.Cancel();
+        try
+        {
+            if (_cts != null && !_cts.IsCancellationRequested)
+            {
+                _cts.Cancel();
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+            // CTS ya fue disposed, ignorar
+        }
     }
 }
