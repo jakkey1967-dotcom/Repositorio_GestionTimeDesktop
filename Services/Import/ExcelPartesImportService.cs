@@ -145,26 +145,26 @@ public sealed class ExcelPartesImportService
     /// <summary>Mapea una fila de Excel a ParteCreateRequest.</summary>
     private ParteCreateRequest MapRowToParte(DataRow row, DataTable table, int rowIndex, ILogger? logger)
     {
-        // Mapeo de columnas (case-insensitive)
-        var fecha = GetCellValue(row, table, "Fecha");
-        var cliente = GetCellValue(row, table, "Cliente");
-        var tienda = GetCellValue(row, table, "Tienda");
-        var accion = GetCellValue(row, table, "Accion", "Acción");
-        var horaInicio = GetCellValue(row, table, "HoraInicio", "Hora Inicio", "Inicio");
-        var horaFin = GetCellValue(row, table, "HoraFin", "Hora Fin", "Fin");
-        var duracionMin = GetCellValue(row, table, "Duracion_min", "Duracion", "Duración");
-        var ticket = GetCellValue(row, table, "Ticket");
-        var grupo = GetCellValue(row, table, "Grupo");
-        var tipo = GetCellValue(row, table, "Tipo");
-        var tecnico = GetCellValue(row, table, "Tecnico", "Técnico");
-        var estado = GetCellValue(row, table, "Estado");
+        // Mapeo de columnas (case-insensitive) con ALIAS ALTERNATIVOS
+        var fecha = GetCellValue(row, table, "Fecha", "FECHA");
+        var cliente = GetCellValue(row, table, "Cliente", "PROYECTO", "cliente");  // ✅ NUEVO: Alias "PROYECTO"
+        var tienda = GetCellValue(row, table, "Tienda", "tienda");
+        var accion = GetCellValue(row, table, "Accion", "Acción", "TAREA", "Tarea");  // ✅ NUEVO: Alias "TAREA"
+        var horaInicio = GetCellValue(row, table, "HoraInicio", "Hora Inicio", "Inicio", "HORA INICIO", "HORA_INICIO");
+        var horaFin = GetCellValue(row, table, "HoraFin", "Hora Fin", "Fin", "HORA FIN", "HORA_FIN");
+        var duracionMin = GetCellValue(row, table, "Duracion_min", "Duracion", "Duración", "DURACION");
+        var ticket = GetCellValue(row, table, "Ticket", "ticket");
+        var grupo = GetCellValue(row, table, "Grupo", "GRUPO", "grupo");
+        var tipo = GetCellValue(row, table, "Tipo", "TIPO", "tipo");
+        var tecnico = GetCellValue(row, table, "Tecnico", "Técnico", "tecnico");
+        var estado = GetCellValue(row, table, "Estado", "ESTADO", "estado");
 
         // 🆕 NUEVO: Log detallado de valores leídos para debug
         logger?.LogDebug("═══ Fila {row} - Valores leídos ═══", rowIndex);
         logger?.LogDebug("  Fecha: '{value}'", fecha ?? "(null)");
-        logger?.LogDebug("  Cliente: '{value}'", cliente ?? "(null)");
+        logger?.LogDebug("  Cliente/Proyecto: '{value}'", cliente ?? "(null)");
         logger?.LogDebug("  Tienda: '{value}'", tienda ?? "(null)");
-        logger?.LogDebug("  Accion: '{value}'", accion ?? "(null)");
+        logger?.LogDebug("  Accion/Tarea: '{value}'", accion ?? "(null)");
         logger?.LogDebug("  HoraInicio: '{value}'", horaInicio ?? "(null)");
         logger?.LogDebug("  HoraFin: '{value}'", horaFin ?? "(null)");
         logger?.LogDebug("  Ticket: '{value}'", ticket ?? "(null)");
@@ -176,9 +176,9 @@ public sealed class ExcelPartesImportService
         if (string.IsNullOrWhiteSpace(fecha))
             throw new Exception("Fecha vacía");
         if (string.IsNullOrWhiteSpace(cliente))
-            throw new Exception("Cliente vacío");
+            throw new Exception("Cliente/Proyecto vacío");
         if (string.IsNullOrWhiteSpace(accion))
-            throw new Exception("Acción vacía");
+            throw new Exception("Acción/Tarea vacía");
         if (string.IsNullOrWhiteSpace(horaInicio))
             throw new Exception("Hora Inicio vacía");
 
