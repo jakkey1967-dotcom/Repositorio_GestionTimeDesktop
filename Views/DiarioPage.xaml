@@ -382,15 +382,6 @@
                         <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
                         
                         <!-- Grupo: Administración -->
-                        <Button x:Name="BtnConfig" Style="{StaticResource ToolbarButton}" Click="OnConfiguracion" 
-                                ToolTipService.ToolTip="Configuración de la aplicación (F12)"
-                                PointerEntered="OnButtonPointerEntered"
-                                PointerExited="OnButtonPointerExited">
-                            <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE713;" FontSize="24" Foreground="#6366F1"/>
-                                <TextBlock Text="Config" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
                         <Button x:Name="BtnBorrar" Style="{StaticResource ToolbarButton}" Click="OnBorrar" IsEnabled="False"
                                 ToolTipService.ToolTip="Borrar parte seleccionado (Delete)"
                                 PointerEntered="OnButtonPointerEntered"
@@ -400,10 +391,6 @@
                                 <TextBlock Text="Borrar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
-                        
-                        <!-- Separador -->
-                        <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
-                        
                         <!-- Botón Salir -->
                         <Button x:Name="BtnSalir" Style="{StaticResource ToolbarButton}" Click="OnSalir" 
                                 ToolTipService.ToolTip="Cerrar sesión (Ctrl+Q)"

@@ -172,12 +172,9 @@ public sealed partial class DiarioPage : Page
         accelRefrescar.Invoked += async (s, e) => { await LoadPartesAsync(); e.Handled = true; };
         this.KeyboardAccelerators.Add(accelRefrescar);
 
-        // F12 - Configuración
-        var accelConfig = new KeyboardAccelerator { Key = Windows.System.VirtualKey.F12 };
-        accelConfig.Invoked += (s, e) => { OnConfiguracion(this, new RoutedEventArgs()); e.Handled = true; };
-        this.KeyboardAccelerators.Add(accelConfig);
+        // ❌ ELIMINADO: F12 - Configuración (botón removido del UI)
 
-        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, F8, Delete, Ctrl+Q, F5, F12");
+        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, F8, Delete, Ctrl+Q, F5");
     }
 
     // ===================== ANIMACIONES HOVER =====================
