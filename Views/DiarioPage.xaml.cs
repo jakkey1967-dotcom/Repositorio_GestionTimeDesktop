@@ -1355,7 +1355,7 @@ public sealed partial class DiarioPage : Page
                     App.Log?.LogInformation("      - tienda: '{tienda}'", putPayload.tienda);
                     App.Log?.LogInformation("      - id_grupo: {id}", putPayload.id_grupo?.ToString() ?? "null");
                     App.Log?.LogInformation("      - id_tipo: {id}", putPayload.id_tipo?.ToString() ?? "null");
-                    App.Log?.LogInformation("      - accion: '{accion}'", DiarioPageHelpers.TrimForLog(putPayload.accion, 50));
+                    App.Log?.LogInformation("      -accion: '{accion}'", DiarioPageHelpers.TrimForLog(putPayload.accion, 50));
                     App.Log?.LogInformation("      - ticket: '{ticket}'", putPayload.ticket);
                     App.Log?.LogInformation("      - estado: {estado} (Cerrado)", putPayload.estado);
                     App.Log?.LogDebug("   📋 Payload completo: {@payload}", putPayload);
@@ -1649,62 +1649,16 @@ public sealed partial class DiarioPage : Page
                 App.Log?.LogInformation("🚪 LOGOUT - Limpiando sesión y datos");
                 App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
 
-                // 🔥 CORRECCIÓN: Acceso seguro a ApplicationData con try-catch robusto
-                bool rememberSession = false;
-                string? savedEmail = null;
-                
+                // ✅ CORREGIDO: Usar UserInfoFileStorage en lugar de ApplicationData.Current
                 try
                 {
-                    var settings = Windows.Storage.ApplicationData.Current.LocalSettings;
-                    
-                    // Verificar si el usuario tenía "Recordar sesión" activado ANTES de limpiar
-                    if (settings.Values.TryGetValue("RememberSession", out var remObj) && remObj is bool rem)
-                    {
-                        rememberSession = rem;
-                        App.Log?.LogInformation("📧 RememberSession estaba en: {value}", rememberSession);
-                    }
-                    
-                    if (rememberSession && settings.Values.TryGetValue("RememberedEmail", out var emailObj) && emailObj is string email)
-                    {
-                        savedEmail = email;
-                        App.Log?.LogInformation("📧 Correo guardado encontrado: {email}", savedEmail);
-                    }
-
-                    // 1. Limpiar LocalSettings (sesión de usuario)
-                    settings.Values.Remove("UserToken");
-                    settings.Values.Remove("UserName");
-                    settings.Values.Remove("UserEmail");
-                    settings.Values.Remove("UserRole");
-                    App.Log?.LogInformation("✅ LocalSettings de sesión limpiados");
-                    
-                    // 🔥 IMPORTANTE: NO eliminar RememberSession, RememberedEmail ni SavedEmail
-                    // si el usuario tenía activado "Recordar sesión"
-                    if (rememberSession && !string.IsNullOrEmpty(savedEmail))
-                    {
-                        App.Log?.LogInformation("✅ Preservando preferencias de 'Recordar sesión':");
-                        App.Log?.LogInformation("   • RememberSession: {value}", rememberSession);
-                        App.Log?.LogInformation("   • RememberedEmail: {email}", savedEmail);
-                        App.Log?.LogInformation("   • SavedEmail: {email}", savedEmail);
-                        // No eliminar estas claves
-                    }
-                    else
-                    {
-                        // Si NO tenía activado "Recordar sesión", limpiar todo
-                        settings.Values.Remove("RememberSession");
-                        settings.Values.Remove("RememberedEmail");
-                        settings.Values.Remove("SavedEmail");
-                        App.Log?.LogInformation("🗑️ Preferencias de 'Recordar sesión' eliminadas (no estaba activado)");
-                    }
+                    // Limpiar archivo de información de usuario
+                    UserInfoFileStorage.ClearUserInfo(App.Log);
+                    App.Log?.LogInformation("✅ Información de usuario limpiada del archivo");
                 }
-                catch (InvalidOperationException invOpEx)
+                catch (Exception fileEx)
                 {
-                    // Este error ocurre cuando ApplicationData.Current no está disponible
-                    App.Log?.LogError(invOpEx, "⚠️ ApplicationData.Current no disponible durante logout");
-                    App.Log?.LogWarning("Se continuará con la limpieza de otros datos");
-                }
-                catch (Exception settingsEx)
-                {
-                    App.Log?.LogError(settingsEx, "Error accediendo a ApplicationData.Current.LocalSettings");
+                    App.Log?.LogError(fileEx, "Error limpiando archivo de usuario");
                 }
 
                 // 2. Limpiar token del ApiClient
@@ -1746,7 +1700,7 @@ public sealed partial class DiarioPage : Page
                 }
                 catch (Exception animEx)
                 {
-                    App.Log?.LogWarning(animEx, "Error in animación de fade out, continuando con navegación");
+                    App.Log?.LogWarning(animEx, "Error en animación de fade out, continuando con navegación");
                     App.MainWindowInstance?.Navigator?.Navigate(typeof(LoginPage));
                 }
             }
