@@ -335,11 +335,9 @@ public sealed class CatalogManager
         // Diccionario de correcciones ortográficas comunes
         var correcciones = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "Incidencia", "Incidencia" },
             { "Insidencia", "Incidencia" },  // s → c
             { "LLamada", "Llamada" },        // LL mayúscula → Ll
-            { "Llamada Overlay", "Llamada Overlay" },
-            { "LLamada Overlay", "Llamada Overlay" },
+            { "LLamada Overlay", "Llamada Overlay" },  // LL mayúscula → Ll (con Overlay)
         };
         
         if (correcciones.TryGetValue(nombre, out var nombreCorregido))
