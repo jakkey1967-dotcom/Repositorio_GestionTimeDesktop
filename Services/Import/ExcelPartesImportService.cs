@@ -157,7 +157,7 @@ public sealed class ExcelPartesImportService
         var grupo = GetCellValue(row, table, "Grupo", "GRUPO", "grupo");
         var tipo = GetCellValue(row, table, "Tipo", "TIPO", "tipo");
         var tecnico = GetCellValue(row, table, "Tecnico", "Técnico", "tecnico");
-        var estado = GetCellValue(row, table, "Estado", "ESTADO", "estado");
+        // 🔒 NOTA: No se lee el campo "Estado" del Excel, siempre será Cerrado (2)
 
         // 🆕 NUEVO: Log detallado de valores leídos para debug
         logger?.LogDebug("═══ Fila {row} - Valores leídos ═══", rowIndex);
@@ -170,7 +170,7 @@ public sealed class ExcelPartesImportService
         logger?.LogDebug("  Ticket: '{value}'", ticket ?? "(null)");
         logger?.LogDebug("  Grupo: '{value}'", grupo ?? "(null)");
         logger?.LogDebug("  Tipo: '{value}'", tipo ?? "(null)");
-        logger?.LogDebug("  Estado: '{value}'", estado ?? "(null)");
+        logger?.LogDebug("  Estado: FORZADO → Cerrado (2)");
 
         // Validar campos requeridos
         if (string.IsNullOrWhiteSpace(fecha))
@@ -227,13 +227,8 @@ public sealed class ExcelPartesImportService
         }
 
         // Estado: mapear texto a int (1=Abierto, 2=Cerrado, 3=Pausado)
-        int estadoInt = 2; // Por defecto cerrado
-        if (!string.IsNullOrWhiteSpace(estado))
-        {
-            if (estado.Contains("abierto", StringComparison.OrdinalIgnoreCase)) estadoInt = 1;
-            else if (estado.Contains("pausado", StringComparison.OrdinalIgnoreCase)) estadoInt = 3;
-            else if (int.TryParse(estado, out var est)) estadoInt = est;
-        }
+        // 🔒 FORZADO: SIEMPRE Estado = 2 (Cerrado) para importación Excel
+        int estadoInt = 2; // FIJO: Todos los partes importados son CERRADOS
 
         // ✅ MEJORADO: Buscar cliente por nombre en catálogo
         int clienteId = BuscarClienteId(cliente, logger);
@@ -255,7 +250,7 @@ public sealed class ExcelPartesImportService
             Accion = accion?.Trim() ?? "",
             Ticket = ticket?.Trim(),
             Tecnico = tecnico?.Trim(),
-            Estado = estadoInt
+            Estado = 2  // 🔒 FORZADO: SIEMPRE Cerrado (2)
         };
     }
 
