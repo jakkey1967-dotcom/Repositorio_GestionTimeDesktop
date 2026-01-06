@@ -10,7 +10,7 @@
 
 ### **Error en Importación Excel:**
 
-Cuando se importaban partes desde Excel, ocurrían dos problemas graves:
+Cuando se importaban partes desde Excel, ocurrían DOS problemas graves:
 
 1. ❌ **Cliente Vacío/Incorrecto:**
    - El sistema asignaba `IdCliente = 1` (hardcoded) a TODOS los partes
@@ -22,21 +22,29 @@ Cuando se importaban partes desde Excel, ocurrían dos problemas graves:
    - Se dependía del valor de duración del Excel (que podía estar vacío o incorrecto)
    - No había validación de la duración calculada
 
+3. ❌ **Columnas del Excel NO reconocidas:**
+   - El Excel del usuario usa columnas: **PROYECTO**, **TAREA**, **HORA INICIO**, **HORA FIN**
+   - El código buscaba: **Cliente**, **Accion**, **HoraInicio**, **HoraFin**
+   - Resultado: NO encontraba las columnas → valores NULL → errores
+
 ### **Impacto:**
 
 ```
 Excel:
-  Cliente: "Yebenes"
-  HoraInicio: 16:50
-  HoraFin: 18:00
-  Duracion: (vacío)
+  PROYECTO: "Yebenes"
+  TAREA: "Ver mas temas de la Overlay..."
+  HORA INICIO: 16:50
+  HORA FIN: 18:00
+  DURACION: (vacío)
 
 ❌ ANTES (INCORRECTO):
-  IdCliente: 1 (cliente incorrecto)
+  Cliente: NULL → Exception "Cliente vacío"
+  O bien: IdCliente: 1 (hardcoded)
   Duracion: null (sin calcular)
 
 ✅ DESPUÉS (CORRECTO):
-  IdCliente: 123 (ID real de "Yebenes")
+  Cliente: "Yebenes" (leído desde columna PROYECTO)
+  IdCliente: 123 (ID real de "Yebenes" desde API)
   Duracion: 70 minutos (calculado: 18:00 - 16:50)
 ```
 
@@ -136,7 +144,31 @@ if (!string.IsNullOrWhiteSpace(duracionMin) && int.TryParse(duracionMin, out var
 }
 ```
 
-### **3. Validación de Cliente**
+### **3. 🆕 NUEVO: Soporte para Nombres Alternativos de Columnas**
+
+**Problema:**
+- Excel del usuario usa: **PROYECTO**, **TAREA**, **HORA INICIO**, **HORA FIN**
+- Código buscaba: **Cliente**, **Accion**, **HoraInicio**, **HoraFin**
+
+**Solución:**
+```csharp
+// ✅ Mapeo con ALIAS ALTERNATIVOS (case-insensitive)
+var fecha = GetCellValue(row, table, "Fecha", "FECHA");
+var cliente = GetCellValue(row, table, "Cliente", "PROYECTO", "cliente");  
+var accion = GetCellValue(row, table, "Accion", "Acción", "TAREA", "Tarea");  
+var horaInicio = GetCellValue(row, table, "HoraInicio", "Hora Inicio", "Inicio", "HORA INICIO", "HORA_INICIO");
+var horaFin = GetCellValue(row, table, "HoraFin", "Hora Fin", "Fin", "HORA FIN", "HORA_FIN");
+var grupo = GetCellValue(row, table, "Grupo", "GRUPO", "grupo");
+var tipo = GetCellValue(row, table, "Tipo", "TIPO", "tipo");
+```
+
+**Beneficios:**
+- ✅ Soporta múltiples formatos de columnas
+- ✅ Compatible con Excel del usuario (PROYECTO, TAREA, etc.)
+- ✅ Compatible con formato estándar (Cliente, Accion, etc.)
+- ✅ Case-insensitive (PROYECTO = Proyecto = proyecto)
+
+### **4. Validación de Cliente**
 
 **Nuevo (Seguridad):**
 ```csharp
@@ -154,6 +186,28 @@ if (clienteId == 0)
 
 ---
 
+## 📋 **MAPEO DE COLUMNAS EXCEL → DTO**
+
+| Columna Excel | Alias Soportados | Campo DTO | Requerido |
+|---------------|------------------|-----------|-----------|
+| **PROYECTO** | `Cliente`, `PROYECTO`, `cliente` | `IdCliente` | ✅ Sí |
+| **FECHA** | `Fecha`, `FECHA` | `FechaTrabajo` | ✅ Sí |
+| **TAREA** | `Accion`, `Acción`, `TAREA`, `Tarea` | `Accion` | ✅ Sí |
+| **HORA INICIO** | `HoraInicio`, `Hora Inicio`, `Inicio`, `HORA INICIO`, `HORA_INICIO` | `HoraInicio` | ✅ Sí |
+| **HORA FIN** | `HoraFin`, `Hora Fin`, `Fin`, `HORA FIN`, `HORA_FIN` | `HoraFin` | ❌ No* |
+| **DURACION** | `Duracion_min`, `Duracion`, `Duración`, `DURACION` | `DuracionMin` | ❌ No** |
+| **GRUPO** | `Grupo`, `GRUPO`, `grupo` | `IdGrupo` | ❌ No |
+| **TIPO** | `Tipo`, `TIPO`, `tipo` | `IdTipo` | ❌ No |
+| `Tienda` | `Tienda`, `tienda` | `Tienda` | ❌ No |
+| `Ticket` | `Ticket`, `ticket` | `Ticket` | ❌ No |
+| `Tecnico` | `Tecnico`, `Técnico`, `tecnico` | `Tecnico` | ❌ No |
+| `Estado` | `Estado`, `ESTADO`, `estado` | `Estado` | ❌ No |
+
+*Si `HoraFin` está vacía, se asigna automáticamente (hora actual si es hoy, sino 18:00)  
+**Si `Duracion` está vacía, se calcula automáticamente desde `HoraInicio` y `HoraFin`
+
+---
+
 ## 🔧 **ARCHIVOS MODIFICADOS**
 
 ### **1. `Services/Import/ExcelPartesImportService.cs`**
@@ -163,6 +217,8 @@ if (clienteId == 0)
 - 🆕 `LoadClientesAsync()` - Carga catálogo de clientes desde API
 - 🆕 `BuscarClienteId()` - Busca cliente por nombre (exacto o parcial)
 - 🆕 `CalcularDuracion()` - Calcula duración siempre desde horas
+- 🆕 **Alias alternativos para columnas** (`PROYECTO`, `TAREA`, `HORA INICIO`, etc.)
+- 🆕 **Logs detallados** para debug de valores leídos
 - ✅ `BuscarGrupoId()` - Usa `CatalogManager` (antes hardcoded)
 - ✅ `BuscarTipoId()` - Usa `CatalogManager` (antes hardcoded)
 - ✅ `MapRowToParte()` - Usa nuevos métodos de búsqueda
@@ -178,28 +234,29 @@ using System.Threading; // Para CancellationToken
 
 ## 📊 **COMPARACIÓN ANTES/DESPUÉS**
 
-### **Escenario 1: Cliente "Yebenes" con duración vacía**
+### **Escenario 1: Excel con columnas PROYECTO/TAREA**
 
 ```
-Excel:
-  Cliente: "Yebenes"
-  HoraInicio: 16:50
-  HoraFin: 18:00
-  Duracion: (vacío)
+Excel (formato usuario):
+  PROYECTO: "Yebenes"
+  FECHA: 2025-10-31
+  TAREA: "Ver mas temas de la Overlay..."
+  HORA INICIO: 16:50
+  HORA FIN: 18:00
+  DURACION: (vacío)
 
 ❌ ANTES:
-  POST /api/v1/partes
-  {
-    "id_cliente": 1,              // ❌ Incorrecto (cliente ID 1)
-    "duracion_min": null          // ❌ Sin calcular
-  }
+  GetCellValue(row, table, "Cliente") → NULL (no encuentra "PROYECTO")
+  Exception: "Cliente vacío"
   
-  Resultado: Parte creado con cliente incorrecto
+  Resultado: ERROR en importación
 
 ✅ DESPUÉS:
-  1. LoadClientesAsync() → Carga catálogo
-  2. BuscarClienteId("Yebenes") → ID=123
-  3. CalcularDuracion("16:50", "18:00") → 70 min
+  1. GetCellValue busca: "Cliente" → NO
+  2. GetCellValue busca: "PROYECTO" → ✅ SÍ → "Yebenes"
+  3. LoadClientesAsync() → Carga 500 clientes
+  4. BuscarClienteId("Yebenes") → ID=123
+  5. CalcularDuracion("16:50", "18:00") → 70 min
   
   POST /api/v1/partes
   {
@@ -207,16 +264,16 @@ Excel:
     "duracion_min": 70            // ✅ Calculado (18:00 - 16:50)
   }
   
-  Resultado: Parte creado correctamente
+  Resultado: ✅ Parte creado correctamente
 ```
 
 ### **Escenario 2: Cliente inexistente**
 
 ```
 Excel:
-  Cliente: "ClienteInexistente"
-  HoraInicio: 10:00
-  HoraFin: 12:00
+  PROYECTO: "ClienteInexistente"
+  HORA INICIO: 10:00
+  HORA FIN: 12:00
 
 ❌ ANTES:
   POST /api/v1/partes
@@ -239,7 +296,7 @@ Excel:
 
 ```
 Excel:
-  Cliente: "Yeben"              // ❌ Mal escrito (falta "es")
+  PROYECTO: "Yeben"              // ❌ Mal escrito (falta "es")
   
 ✅ SOLUCIÓN:
   1. Búsqueda exacta: NO encontrado
@@ -253,34 +310,43 @@ Excel:
 
 ## 🧪 **TESTING**
 
-### **Test 1: Importación con Cliente Existente**
+### **Test 1: Importación con Excel del Usuario (PROYECTO/TAREA)**
 
 **Excel:**
-| Fecha | Cliente | HoraInicio | HoraFin | Duracion |
-|-------|---------|------------|---------|----------|
-| 2025-01-27 | Yebenes | 16:50 | 18:00 | |
+| PROYECTO | FECHA | HORA INICIO | HORA FIN | DURACION | TAREA | GRUPO | TIPO |
+|----------|-------|-------------|----------|----------|-------|-------|------|
+| Yebenes | 2025-10-31 | 16:50 | 18:00 | | Ver mas temas de la Overlay... | | |
 
 **Resultado Esperado:**
 ```
-✅ Carga catálogo de clientes (500 clientes)
-✅ Busca "Yebenes" → ID=123
-✅ Calcula duración: 70 minutos
-✅ Parte creado correctamente:
-   - Cliente: Yebenes (ID=123)
-   - Duración: 70 minutos
+[INFO] 📊 IMPORTACIÓN EXCEL - Iniciando
+[INFO] 📚 Cargando catálogos...
+[INFO] ✅ 234 clientes cargados
+[INFO]    Columnas detectadas: PROYECTO, FECHA, HORA INICIO, HORA FIN, DURACION, TAREA, GRUPO, TIPO
+[DEBUG] ═══ Fila 2 - Valores leídos ═══
+[DEBUG]   Fecha: '2025-10-31'
+[DEBUG]   Cliente/Proyecto: 'Yebenes'
+[DEBUG]   Accion/Tarea: 'Ver mas temas de la Overlay...'
+[DEBUG]   HoraInicio: '16:50'
+[DEBUG]   HoraFin: '18:00'
+[DEBUG] ✅ Cliente 'Yebenes' → ID=123
+[DEBUG] Fila 2: Duración Excel=(vacío) vs Calculada=70min
+[INFO] ✅ Lectura completada:
+[INFO]    • Válidos: 1
+[INFO]    • Errores: 0
 ```
 
 ### **Test 2: Importación con Cliente Inexistente**
 
 **Excel:**
-| Fecha | Cliente | HoraInicio | HoraFin |
-|-------|---------|------------|---------|
-| 2025-01-27 | ClienteNoExiste | 10:00 | 12:00 |
+| PROYECTO | FECHA | HORA INICIO | HORA FIN | TAREA |
+|----------|-------|-------------|----------|-------|
+| ClienteNoExiste | 2025-01-27 | 10:00 | 12:00 | Test |
 
 **Resultado Esperado:**
 ```
 ✅ Carga catálogo de clientes
-❌ Cliente 'ClienteNoExiste' no encontrado
+❌ Cliente 'ClienteNoExiste' NO encontrado
 ❌ Fila 2: Cliente 'ClienteNoExiste' no encontrado en catálogo
 ❌ ERROR mostrado en ImportExcelDialog
 ```
@@ -288,9 +354,9 @@ Excel:
 ### **Test 3: Cálculo de Duración con Cruce de Medianoche**
 
 **Excel:**
-| Fecha | Cliente | HoraInicio | HoraFin | Duracion |
-|-------|---------|------------|---------|----------|
-| 2025-01-27 | Yebenes | 23:30 | 01:00 | |
+| PROYECTO | FECHA | HORA INICIO | HORA FIN | DURACION | TAREA |
+|----------|-------|-------------|----------|----------|-------|
+| Yebenes | 2025-01-27 | 23:30 | 01:00 | | Guardia nocturna |
 
 **Resultado Esperado:**
 ```
@@ -305,24 +371,33 @@ Excel:
 
 ## 📝 **LOGS GENERADOS**
 
-### **Importación Exitosa:**
+### **Importación Exitosa (con nuevo formato):**
 
 ```
 [INFO] ═══════════════════════════════════════════════════════════════
 [INFO] 📊 IMPORTACIÓN EXCEL - Iniciando
-[INFO]    Archivo: partes_2025.xlsx
+[INFO]    Archivo: partes_usuario_2025.xlsx
 [INFO] 📚 Cargando catálogos...
 [DEBUG] 🔄 Cargando clientes desde /api/v1/catalog/clientes?limit=500&offset=0
 [INFO] ✅ 234 clientes cargados
 [INFO] ✅ Catálogos cargados correctamente
-[INFO]    Total filas: 3
-[INFO]    Columnas detectadas: Fecha, Cliente, HoraInicio, HoraFin, Ticket, Accion
+[INFO]    Total filas: 1
+[INFO]    Columnas detectadas: PROYECTO, FECHA, HORA INICIO, HORA FIN, DURACION, TAREA, GRUPO, TIPO
+[DEBUG] ═══ Fila 2 - Valores leídos ═══
+[DEBUG]   Fecha: '2025-10-31'
+[DEBUG]   Cliente/Proyecto: 'Yebenes'
+[DEBUG]   Tienda: '(null)'
+[DEBUG]   Accion/Tarea: 'Ver mas temas de la Overlay, pruebas de...'
+[DEBUG]   HoraInicio: '16:50'
+[DEBUG]   HoraFin: '18:00'
+[DEBUG]   Ticket: '(null)'
+[DEBUG]   Grupo: '(null)'
+[DEBUG]   Tipo: '(null)'
+[DEBUG]   Estado: '(null)'
 [DEBUG] ✅ Cliente 'Yebenes' → ID=123
 [DEBUG] Fila 2: Duración Excel=(vacío) vs Calculada=70min
-[DEBUG] ✅ Cliente 'ACME Corp' → ID=456
-[DEBUG] Fila 3: Duración Excel=90min vs Calculada=90min
 [INFO] ✅ Lectura completada:
-[INFO]    • Válidos: 3
+[INFO]    • Válidos: 1
 [INFO]    • Errores: 0
 [INFO] ═══════════════════════════════════════════════════════════════
 ```
@@ -336,6 +411,8 @@ Excel:
 [INFO] ✅ 234 clientes cargados
 [INFO] ✅ Catálogos cargados correctamente
 [INFO]    Total filas: 2
+[DEBUG] ═══ Fila 2 - Valores leídos ═══
+[DEBUG]   Cliente/Proyecto: 'ClienteNoExiste'
 [WARNING] ⚠️ Cliente 'ClienteNoExiste' NO encontrado en catálogo
 [WARNING] Fila 2: Cliente 'ClienteNoExiste' no encontrado en catálogo
 [INFO] ✅ Lectura completada:
@@ -357,7 +434,7 @@ git commit -m "feat: Anadir boton Salir a la barra de herramientas"
 - Icono rojo de logout (Glyph E7E8)
 - Llama a `OnLogout()` existente
 
-### **Commit 2: Fix Importación Excel**
+### **Commit 2: Fix Importación Excel - Cliente y Duración**
 ```bash
 git commit -m "fix: Corregir busqueda de cliente y calculo de duracion en importacion Excel"
 ```
@@ -368,6 +445,26 @@ git commit -m "fix: Corregir busqueda de cliente y calculo de duracion en import
 - Calcular duración SIEMPRE desde horas
 - Validar existencia de cliente
 - Usar `CatalogManager` para Grupo y Tipo
+
+### **Commit 3: Logs de Debug**
+```bash
+git commit -m "debug: Anadir logs detallados para diagnosticar lectura de columnas Excel"
+```
+
+**Cambios:**
+- Añadidos logs detallados de valores leídos por fila
+- Facilita diagnóstico de problemas con columnas
+
+### **Commit 4: 🆕 NUEVO - Alias de Columnas**
+```bash
+git commit -m "fix: Anadir alias alternativos para columnas Excel (PROYECTO=Cliente, TAREA=Accion)"
+```
+
+**Cambios:**
+- ✅ Soporte para columna `PROYECTO` (alias de `Cliente`)
+- ✅ Soporte para columna `TAREA` (alias de `Accion`)
+- ✅ Soporte para columnas `HORA INICIO` y `HORA FIN`
+- ✅ Soporte para variaciones en mayúsculas/minúsculas
 
 ### **Push a GitHub:**
 ```bash
@@ -389,6 +486,8 @@ git push origin main
 | **Duración Calculada** | ❌ A veces null | ✅ Siempre calculada |
 | **Validación Cliente** | ❌ Ninguna | ✅ Error si no existe |
 | **Búsqueda Parcial** | ❌ No soportada | ✅ Tolerante a errores |
+| **Formato Excel Usuario** | ❌ NO soportado (PROYECTO/TAREA) | ✅ Totalmente soportado |
+| **Logs de Debug** | ❌ Mínimos | ✅ Detallados |
 | **Compilación** | ✅ OK | ✅ OK |
 | **Performance** | ✅ Buena | ✅ Igual (1 petición API inicial) |
 
@@ -397,6 +496,7 @@ git push origin main
 - ✅ **Todos los usuarios** que importen desde Excel
 - ✅ **Administradores** que carguen partes masivamente
 - ✅ **Técnicos** con archivos Excel de backup
+- ✅ **Usuario específico** con formato PROYECTO/TAREA
 
 ---
 
@@ -406,27 +506,30 @@ git push origin main
 
 1. ✅ Código corregido
 2. ✅ Compilación exitosa
-3. ✅ Commits creados (2 commits)
+3. ✅ Commits creados (4 commits)
 4. ✅ Push a GitHub realizado
-5. ⏳ Testing manual recomendado
-6. ⏳ Desplegar a producción
+5. ✅ Documentación actualizada
+6. ⏳ Testing manual recomendado
+7. ⏳ Desplegar a producción
 
 ### **Testing Manual Recomendado:**
 
-1. Importar Excel con clientes existentes → ✅ Debe asignar IDs correctos
-2. Importar Excel con cliente inexistente → ❌ Debe mostrar error
-3. Importar Excel sin duración → ✅ Debe calcularla automáticamente
-4. Verificar logs → ✅ Debe mostrar búsqueda de clientes
+1. ✅ Importar Excel con columnas **PROYECTO/TAREA** → Debe funcionar correctamente
+2. ✅ Importar Excel con columnas **Cliente/Accion** → Debe seguir funcionando
+3. ✅ Importar Excel con cliente inexistente → Debe mostrar error claro
+4. ✅ Importar Excel sin duración → Debe calcularla automáticamente
+5. ✅ Verificar logs → Debe mostrar valores leídos de cada fila
 
 ---
 
 ## 📚 **ARCHIVOS RELACIONADOS**
 
-- `Services/Import/ExcelPartesImportService.cs` - Servicio corregido
+- `Services/Import/ExcelPartesImportService.cs` - Servicio corregido ✅
 - `Helpers/CatalogManager.cs` - Gestor de catálogos (usado)
 - `Models/Dtos/CatalogResponses.cs` - DTOs de catálogos
 - `Dialogs/ImportExcelDialog.xaml.cs` - UI de importación (sin cambios)
 - `Views/DiarioPage.xaml` - Botón Salir añadido
+- `Docs/FIX_IMPORTACION_EXCEL_CLIENTE_DURACION.md` - Esta documentación ✅
 
 ---
 
@@ -434,16 +537,19 @@ git push origin main
 
 - [x] Identificar el problema de cliente hardcoded
 - [x] Identificar el problema de duración no calculada
+- [x] Identificar el problema de columnas no reconocidas (PROYECTO/TAREA)
 - [x] Cargar catálogo de clientes desde API
 - [x] Implementar búsqueda de cliente por nombre
 - [x] Implementar búsqueda parcial de cliente
 - [x] Implementar cálculo automático de duración
 - [x] Validar existencia de cliente
 - [x] Usar `CatalogManager` para Grupo y Tipo
+- [x] Añadir alias alternativos para columnas (PROYECTO, TAREA, etc.)
 - [x] Añadir logs detallados
 - [x] Compilar sin errores
 - [x] Crear commits
 - [x] Push a GitHub
+- [x] Actualizar documentación
 - [ ] Testing manual
 - [ ] Desplegar a producción
 
@@ -451,8 +557,10 @@ git push origin main
 
 **🎉 FIX COMPLETADO Y SUBIDO A GITHUB!**
 
-**✅ ESTADO:** Código corregido, compilado y subido. Listo para testing y despliegue.
+**✅ ESTADO:** Código corregido, compilado, subido y documentado. Listo para testing y despliegue.
+
+**🆕 NOVEDAD:** Ahora soporta el formato de Excel del usuario con columnas **PROYECTO**, **TAREA**, **HORA INICIO**, **HORA FIN**.
 
 ---
 
-*Última actualización: 2025-01-27*
+*Última actualización: 2025-01-27 (añadido soporte para alias de columnas)*
