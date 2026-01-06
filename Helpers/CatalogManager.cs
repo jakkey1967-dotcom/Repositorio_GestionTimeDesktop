@@ -169,8 +169,29 @@ public sealed class CatalogManager
     
     public int? GetGrupoId(string nombre)
     {
-        return _gruposCache?.FirstOrDefault(g => 
-            string.Equals(g.Nombre, nombre, StringComparison.OrdinalIgnoreCase))?.Id_grupo;
+        if (_gruposCache == null || !_gruposCache.Any())
+        {
+            App.Log?.LogWarning("⚠️ GetGrupoId: Cache de grupos está vacío o null");
+            return null;
+        }
+        
+        App.Log?.LogDebug("🔍 GetGrupoId: Buscando '{nombre}' en {count} grupos", nombre, _gruposCache.Count);
+        
+        var resultado = _gruposCache.FirstOrDefault(g => 
+            string.Equals(g.Nombre, nombre, StringComparison.OrdinalIgnoreCase));
+        
+        if (resultado != null)
+        {
+            App.Log?.LogDebug("✅ Encontrado: [{id}] '{nombre}'", resultado.Id_grupo, resultado.Nombre);
+            return resultado.Id_grupo;
+        }
+        else
+        {
+            App.Log?.LogDebug("❌ NO encontrado: '{nombre}'", nombre);
+            App.Log?.LogDebug("   Comparando con: {grupos}", string.Join(", ", _gruposCache.Select(g => $"'{g.Nombre}'").Take(5)));
+        }
+        
+        return null;
     }
     
     private static bool IsGruposCacheValid()

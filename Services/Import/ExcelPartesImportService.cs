@@ -367,17 +367,33 @@ public sealed class ExcelPartesImportService
     private int? BuscarGrupoId(string? grupo, ILogger? logger)
     {
         if (string.IsNullOrWhiteSpace(grupo))
+        {
+            logger?.LogDebug("⚠️ Grupo vacío o null");
             return null;
+        }
 
-        var grupoId = _catalogManager.GetGrupoId(grupo.Trim());
+        logger?.LogDebug("🔍 Buscando grupo: '{nombre}'", grupo);
+        
+        var gruposTrimmed = grupo.Trim();
+        logger?.LogDebug("   Trimmed: '{trimmed}'", gruposTrimmed);
+        
+        var grupoId = _catalogManager.GetGrupoId(gruposTrimmed);
         
         if (grupoId.HasValue)
         {
-            logger?.LogDebug("✅ Grupo '{nombre}' → ID={id}", grupo, grupoId.Value);
+            logger?.LogInformation("✅ Grupo '{nombre}' → ID={id}", grupo, grupoId.Value);
         }
         else
         {
-            logger?.LogDebug("⚠️ Grupo '{nombre}' no encontrado", grupo);
+            // 🆕 NUEVO: Log más detallado cuando no se encuentra
+            logger?.LogWarning("⚠️ Grupo '{nombre}' NO encontrado en catálogo", grupo);
+            
+            var todosGrupos = _catalogManager.GetAllGrupos();
+            logger?.LogDebug("📋 Grupos disponibles en catálogo ({count}):", todosGrupos.Count);
+            foreach (var g in todosGrupos.Take(10))
+            {
+                logger?.LogDebug("   - [{id}] '{nombre}'", g.Id_grupo, g.Nombre);
+            }
         }
 
         return grupoId;
