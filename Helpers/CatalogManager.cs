@@ -185,8 +185,12 @@ public sealed class CatalogManager
             App.Log?.LogDebug("📝 Corrección ortográfica: '{original}' → '{corregido}'", nombre, nombreNormalizado);
         }
         
+        // 🆕 NUEVO: Normalizar para comparación (sin acentos, mayúsculas)
+        var nombreBusquedaNormalizado = NormalizarTextoParaBusqueda(nombreNormalizado);
+        App.Log?.LogDebug("🔍 Búsqueda normalizada: '{original}' → '{normalizado}'", nombreNormalizado, nombreBusquedaNormalizado);
+        
         var resultado = _gruposCache.FirstOrDefault(g => 
-            string.Equals(g.Nombre, nombreNormalizado, StringComparison.OrdinalIgnoreCase));
+            string.Equals(NormalizarTextoParaBusqueda(g.Nombre), nombreBusquedaNormalizado, StringComparison.Ordinal));
         
         if (resultado != null)
         {
@@ -309,8 +313,12 @@ public sealed class CatalogManager
             App.Log?.LogDebug("📝 Corrección ortográfica: '{original}' → '{corregido}'", nombre, nombreNormalizado);
         }
         
+        // 🆕 NUEVO: Normalizar para comparación (sin acentos, mayúsculas)
+        var nombreBusquedaNormalizado = NormalizarTextoParaBusqueda(nombreNormalizado);
+        App.Log?.LogDebug("🔍 Búsqueda normalizada: '{original}' → '{normalizado}'", nombreNormalizado, nombreBusquedaNormalizado);
+        
         var resultado = _tiposCache.FirstOrDefault(t => 
-            string.Equals(t.Nombre, nombreNormalizado, StringComparison.OrdinalIgnoreCase));
+            string.Equals(NormalizarTextoParaBusqueda(t.Nombre), nombreBusquedaNormalizado, StringComparison.Ordinal));
         
         if (resultado != null)
         {
@@ -410,5 +418,48 @@ public sealed class CatalogManager
         }
         
         return new List<string>();
+    }
+    
+    /// <summary>Normaliza texto para búsqueda: sin acentos, en mayúsculas, sin espacios duplicados.</summary>
+    private static string NormalizarTextoParaBusqueda(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+            return string.Empty;
+        
+        // 1. Convertir a mayúsculas
+        var textoNormalizado = texto.ToUpperInvariant();
+        
+        // 2. Eliminar acentos
+        textoNormalizado = RemoverAcentos(textoNormalizado);
+        
+        // 3. Eliminar espacios múltiples
+        textoNormalizado = System.Text.RegularExpressions.Regex.Replace(textoNormalizado, @"\s+", " ");
+        
+        // 4. Trim final
+        return textoNormalizado.Trim();
+    }
+    
+    /// <summary>Elimina acentos y diacríticos de un texto.</summary>
+    private static string RemoverAcentos(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+            return texto;
+        
+        // Normalizar a FormD (descomponer caracteres con acentos)
+        var normalizedString = texto.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        
+        foreach (var c in normalizedString)
+        {
+            // Solo agregar caracteres que NO sean marcas de acento
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        
+        // Re-normalizar a FormC (composición)
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
 }

@@ -355,9 +355,12 @@ public sealed class ExcelPartesImportService
             return 0;
         }
 
-        // Buscar por nombre exacto (case-insensitive)
+        var clienteNormalizado = NormalizarTexto(cliente.Trim());
+        logger?.LogDebug("🔍 Buscando cliente normalizado: '{original}' → '{normalizado}'", cliente, clienteNormalizado);
+
+        // Buscar por nombre exacto (normalizado, sin acentos ni mayúsculas)
         var clienteEncontrado = _clientesCache.FirstOrDefault(c => 
-            string.Equals(c.Nombre, cliente.Trim(), StringComparison.OrdinalIgnoreCase));
+            string.Equals(NormalizarTexto(c.Nombre), clienteNormalizado, StringComparison.Ordinal));
 
         if (clienteEncontrado != null)
         {
@@ -365,9 +368,9 @@ public sealed class ExcelPartesImportService
             return clienteEncontrado.Id;
         }
 
-        // Buscar por coincidencia parcial
+        // Buscar por coincidencia parcial (normalizado)
         clienteEncontrado = _clientesCache.FirstOrDefault(c => 
-            c.Nombre.Contains(cliente.Trim(), StringComparison.OrdinalIgnoreCase));
+            NormalizarTexto(c.Nombre).Contains(clienteNormalizado, StringComparison.Ordinal));
 
         if (clienteEncontrado != null)
         {
@@ -377,6 +380,49 @@ public sealed class ExcelPartesImportService
 
         logger?.LogWarning("⚠️ Cliente '{nombre}' NO encontrado en catálogo", cliente);
         return 0;
+    }
+    
+    /// <summary>Normaliza texto: elimina acentos, convierte a mayúsculas y elimina espacios duplicados.</summary>
+    private static string NormalizarTexto(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+            return string.Empty;
+        
+        // 1. Convertir a mayúsculas
+        var textoNormalizado = texto.ToUpperInvariant();
+        
+        // 2. Eliminar acentos
+        textoNormalizado = RemoverAcentos(textoNormalizado);
+        
+        // 3. Eliminar espacios múltiples
+        textoNormalizado = System.Text.RegularExpressions.Regex.Replace(textoNormalizado, @"\s+", " ");
+        
+        // 4. Trim final
+        return textoNormalizado.Trim();
+    }
+    
+    /// <summary>Elimina acentos y diacríticos de un texto.</summary>
+    private static string RemoverAcentos(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+            return texto;
+        
+        // Normalizar a FormD (descomponer caracteres con acentos)
+        var normalizedString = texto.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        
+        foreach (var c in normalizedString)
+        {
+            // Solo agregar caracteres que NO sean marcas de acento
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        
+        // Re-normalizar a FormC (composición)
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
 
     /// <summary>✅ MEJORADO: Busca grupo por nombre en catálogo.</summary>
