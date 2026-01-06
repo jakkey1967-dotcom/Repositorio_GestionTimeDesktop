@@ -342,40 +342,37 @@ public sealed partial class DiarioPage : Page
 
             var selectedDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
 
-            // 🆕 OPTIMIZACIÓN: Determinar si el usuario seleccionó HOY o una fecha específica
+            // 🆕 MODIFICADO: Determinar si es carga inicial (HOY sin cambios) o filtro específico
             var isToday = selectedDate.Date == DateTime.Today;
 
-            DateTime fromDate;
-            DateTime toDate = selectedDate;
-
-            if (isToday)
-            {
-                // Vista por defecto: Últimos 7 días (no 30)
-                fromDate = selectedDate.AddDays(-7);
-                App.Log?.LogInformation("📅 Carga INICIAL: Últimos 7 días (desde {from} hasta HOY)", fromDate.ToString("yyyy-MM-dd"));
-            }
-            else
-            {
-                // Fecha específica: SOLO ese día
-                fromDate = selectedDate;
-                App.Log?.LogInformation("📅 Carga FILTRADA: Solo día {date}", selectedDate.ToString("yyyy-MM-dd"));
-            }
-
             using var loadScope = PerformanceLogger.BeginScope(SpecializedLoggers.Data, "LoadPartes",
-                new { FromDate = fromDate, ToDate = toDate, IsFiltered = !isToday });
+                new { IsInitialLoad = isToday, SelectedDate = selectedDate });
 
             SpecializedLoggers.Data.LogInformation("══════════════════════════════════════════════════════════════─");
             SpecializedLoggers.Data.LogInformation("📥 CARGA DE PARTES");
-            SpecializedLoggers.Data.LogInformation("   • Fecha inicio: {from}", fromDate.ToString("yyyy-MM-dd"));
-            SpecializedLoggers.Data.LogInformation("   • Fecha fin: {to}", toDate.ToString("yyyy-MM-dd"));
 
-            // 🆕 CORREGIDO: Cálculo preciso de días
-            var totalDays = isToday ? 7 : 1;  // Simplificado: 7 días para HOY, 1 para fecha específica
-            SpecializedLoggers.Data.LogInformation("   • Días a cargar: {days}", totalDays);
-            SpecializedLoggers.Data.LogInformation("   • Tipo: {type}", isToday ? "Vista inicial (últimos 7 días)" : "Fecha específica");
-
-            // 🆕 Usar método con estrategia dual (rango + fallback)
-            await LoadPartesAsync_Legacy();
+            if (isToday && _isInitialLoad)
+            {
+                // 🆕 NUEVO: Carga inicial - Últimos 25 partes sin filtro de fecha
+                SpecializedLoggers.Data.LogInformation("   • Tipo: CARGA INICIAL - Últimos 25 partes (sin filtro de fecha)");
+                SpecializedLoggers.Data.LogInformation("   • Orden: Fecha descendente (más recientes primero)");
+                
+                await LoadPartesWithLimitAsync(limit: 25, ct);
+            }
+            else if (!isToday)
+            {
+                // Fecha específica: SOLO ese día
+                SpecializedLoggers.Data.LogInformation("   • Tipo: FECHA ESPECÍFICA - {date}", selectedDate.ToString("yyyy-MM-dd"));
+                
+                await LoadPartesByDateAsync(selectedDate, ct);
+            }
+            else
+            {
+                // HOY pero NO es carga inicial (es un refresh o volver a HOY)
+                SpecializedLoggers.Data.LogInformation("   • Tipo: RECARGA - Últimos 25 partes");
+                
+                await LoadPartesWithLimitAsync(limit: 25, ct);
+            }
         }
         catch (OperationCanceledException)
         {
@@ -384,8 +381,6 @@ public sealed partial class DiarioPage : Page
         catch (Exception ex)
         {
             SpecializedLoggers.Data.LogError(ex, "Error cargando partes");
-
-            // NO mostrar diálogo de error, solo loguear
             SpecializedLoggers.Data.LogWarning("La lista quedará vacía. El usuario puede intentar refrescar (F5).");
         }
         finally
@@ -394,7 +389,120 @@ public sealed partial class DiarioPage : Page
         }
     }
 
-    // 🔄 MÉTODO CON ESTRATEGIA DUAL
+    /// <summary>
+    /// 🆕 NUEVO: Carga los últimos N partes ordenados por fecha descendente (sin filtro de fecha)
+    /// </summary>
+    private async Task LoadPartesWithLimitAsync(int limit, CancellationToken ct)
+    {
+        try
+        {
+            // Usar parámetros limit y offset para paginación
+            // El backend debe ordenar por fecha_trabajo DESC por defecto
+            var path = $"/api/v1/partes?limit={limit}&offset=0";
+            
+            SpecializedLoggers.Data.LogInformation("📡 Endpoint: GET {path}", path);
+            SpecializedLoggers.Data.LogInformation("   • Limit: {limit} registros", limit);
+            SpecializedLoggers.Data.LogInformation("   • Offset: 0 (primeros registros)");
+            SpecializedLoggers.Data.LogInformation("   • Orden esperado: fecha_trabajo DESC");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = await App.Api.GetAsync<List<ParteDto>>(path, ct);
+            sw.Stop();
+
+            if (result == null)
+            {
+                SpecializedLoggers.Data.LogWarning("⚠️ Endpoint devolvió null - Lista vacía");
+                _cache30dias = new List<ParteDto>();
+            }
+            else
+            {
+                _cache30dias = result;
+                SpecializedLoggers.Data.LogInformation("✅ Petición exitosa en {ms}ms - {count} partes cargados",
+                    sw.ElapsedMilliseconds, _cache30dias.Count);
+
+                // Log de estadísticas por estado
+                var estadoStats = _cache30dias
+                    .GroupBy(p => p.EstadoTexto)
+                    .Select(g => $"{g.Key}: {g.Count()}")
+                    .ToList();
+
+                if (estadoStats.Any())
+                {
+                    SpecializedLoggers.Data.LogInformation("📊 Estados: {estados}", string.Join(", ", estadoStats));
+                }
+
+                // Log de rango de fechas cargadas
+                if (_cache30dias.Any())
+                {
+                    var minFecha = _cache30dias.Min(p => p.Fecha);
+                    var maxFecha = _cache30dias.Max(p => p.Fecha);
+                    SpecializedLoggers.Data.LogInformation("📅 Rango de fechas: {min} a {max}", 
+                        minFecha.ToString("yyyy-MM-dd"), maxFecha.ToString("yyyy-MM-dd"));
+                }
+            }
+
+            ApplyFilterToListView();
+        }
+        catch (Exception ex)
+        {
+            SpecializedLoggers.Data.LogError(ex, "Error cargando partes con limit");
+            _cache30dias = new List<ParteDto>();
+            ApplyFilterToListView();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 🆕 NUEVO: Carga partes de una fecha específica
+    /// </summary>
+    private async Task LoadPartesByDateAsync(DateTime fecha, CancellationToken ct)
+    {
+        try
+        {
+            var path = $"/api/v1/partes?fecha={fecha:yyyy-MM-dd}";
+            
+            SpecializedLoggers.Data.LogInformation("📡 Endpoint: GET {path}", path);
+            SpecializedLoggers.Data.LogInformation("   • Fecha específica: {fecha}", fecha.ToString("yyyy-MM-dd"));
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result = await App.Api.GetAsync<List<ParteDto>>(path, ct);
+            sw.Stop();
+
+            if (result == null)
+            {
+                SpecializedLoggers.Data.LogWarning("⚠️ Endpoint devolvió null - Lista vacía");
+                _cache30dias = new List<ParteDto>();
+            }
+            else
+            {
+                _cache30dias = result;
+                SpecializedLoggers.Data.LogInformation("✅ Petición exitosa en {ms}ms - {count} partes cargados",
+                    sw.ElapsedMilliseconds, _cache30dias.Count);
+
+                // Log de estadísticas por estado
+                var estadoStats = _cache30dias
+                    .GroupBy(p => p.EstadoTexto)
+                    .Select(g => $"{g.Key}: {g.Count()}")
+                    .ToList();
+
+                if (estadoStats.Any())
+                {
+                    SpecializedLoggers.Data.LogInformation("📊 Estados: {estados}", string.Join(", ", estadoStats));
+                }
+            }
+
+            ApplyFilterToListView();
+        }
+        catch (Exception ex)
+        {
+            SpecializedLoggers.Data.LogError(ex, "Error cargando partes por fecha");
+            _cache30dias = new List<ParteDto>();
+            ApplyFilterToListView();
+            throw;
+        }
+    }
+
+    // 🔄 MÉTODO LEGACY - Mantener por compatibilidad pero ya no se usa en carga inicial
     private async Task LoadPartesAsync_Legacy()
     {
         var ct = _loadCts?.Token ?? CancellationToken.None;
