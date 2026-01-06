@@ -159,6 +159,19 @@ public sealed class ExcelPartesImportService
         var tecnico = GetCellValue(row, table, "Tecnico", "Técnico");
         var estado = GetCellValue(row, table, "Estado");
 
+        // 🆕 NUEVO: Log detallado de valores leídos para debug
+        logger?.LogDebug("═══ Fila {row} - Valores leídos ═══", rowIndex);
+        logger?.LogDebug("  Fecha: '{value}'", fecha ?? "(null)");
+        logger?.LogDebug("  Cliente: '{value}'", cliente ?? "(null)");
+        logger?.LogDebug("  Tienda: '{value}'", tienda ?? "(null)");
+        logger?.LogDebug("  Accion: '{value}'", accion ?? "(null)");
+        logger?.LogDebug("  HoraInicio: '{value}'", horaInicio ?? "(null)");
+        logger?.LogDebug("  HoraFin: '{value}'", horaFin ?? "(null)");
+        logger?.LogDebug("  Ticket: '{value}'", ticket ?? "(null)");
+        logger?.LogDebug("  Grupo: '{value}'", grupo ?? "(null)");
+        logger?.LogDebug("  Tipo: '{value}'", tipo ?? "(null)");
+        logger?.LogDebug("  Estado: '{value}'", estado ?? "(null)");
+
         // Validar campos requeridos
         if (string.IsNullOrWhiteSpace(fecha))
             throw new Exception("Fecha vacía");
