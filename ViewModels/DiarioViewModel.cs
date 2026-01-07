@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using GestionTime.Desktop.Models.Dtos;
@@ -29,6 +29,16 @@ public partial class DiarioViewModel : ObservableObject
 
     [ObservableProperty]
     private string userRole = "Usuario";
+
+    // 🆕 NUEVO: Propiedades para mostrar en el banner (dinámicas desde perfil)
+    [ObservableProperty]
+    private string displayName = "Usuario";
+
+    [ObservableProperty]
+    private string displayEmail = "usuario@empresa.com";
+
+    [ObservableProperty]
+    private string displayPhone = "";
 
     [ObservableProperty]
     private bool isServiceOnline = false;

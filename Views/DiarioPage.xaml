@@ -168,21 +168,13 @@
                                   Opacity="0.9"
                                   VerticalAlignment="Center"/>
                         <StackPanel Spacing="2">
+                            <!-- Nombre completo dinámico -->
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="{x:Bind ViewModel.UserName, Mode=OneWay}"
+                                <TextBlock Text="{x:Bind ViewModel.DisplayName, Mode=OneWay}"
                                            FontSize="14"
                                            FontWeight="SemiBold"
                                            Foreground="White"/>
-                                <TextBlock Text="•" 
-                                           FontSize="14"
-                                           Foreground="White"
-                                           Opacity="0.6"/>
-                                <TextBlock Text="{x:Bind ViewModel.UserRole, Mode=OneWay}"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"
-                                           Opacity="0.9"/>
-                                <!-- 🆕 NUEVO: Botón Mi Perfil -->
+                                <!-- Botón Mi Perfil -->
                                 <Button x:Name="BtnMiPerfil"
                                         Click="OnMiPerfilClick"
                                         Background="Transparent"
@@ -204,10 +196,19 @@
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
-                            <TextBlock Text="{x:Bind ViewModel.UserEmail, Mode=OneWay}"
+                            
+                            <!-- Email dinámico -->
+                            <TextBlock Text="{x:Bind ViewModel.DisplayEmail, Mode=OneWay}"
                                        FontSize="12"
                                        Foreground="White"
                                        Opacity="0.8"/>
+                            
+                            <!-- Teléfono dinámico (sin icono, alineado como tarjeta) -->
+                            <TextBlock Text="{x:Bind ViewModel.DisplayPhone, Mode=OneWay}"
+                                       FontSize="12" 
+                                       Foreground="White" 
+                                       Opacity="0.8"
+                                       Visibility="{x:Bind ViewModel.DisplayPhone, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
