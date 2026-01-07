@@ -281,42 +281,35 @@
                                FontWeight="SemiBold"
                                Foreground="White"/>
                     
-                    <!-- Usuario: Icono + Nombre • Rol • Email -->
+                    <!-- Usuario con información dinámica (igual que DiarioPage) -->
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" 
-                                  Glyph="&#xE77B;" 
+                        <FontIcon Glyph="&#xE77B;" 
                                   FontSize="14" 
                                   Foreground="White" 
                                   Opacity="0.9"
                                   VerticalAlignment="Center"/>
                         <StackPanel Spacing="2">
-                            <!-- Línea 1: Nombre • Rol -->
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock x:Name="TxtUserName" 
-                                           Text="Francisco Santos"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="•" 
-                                           FontSize="14"
-                                           Foreground="White"
-                                           Opacity="0.6"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock x:Name="TxtUserRole" 
-                                           Text="Usuario"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"
-                                           Opacity="0.9"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <!-- Línea 2: Email -->
+                            <!-- Nombre completo dinámico -->
+                            <TextBlock x:Name="TxtUserName" 
+                                       Text="Usuario"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="White"/>
+                            
+                            <!-- Email dinámico -->
                             <TextBlock x:Name="TxtUserEmail" 
-                                       Text="msn@tdkportal.com"
+                                       Text="usuario@empresa.com"
                                        FontSize="12"
                                        Foreground="White"
                                        Opacity="0.8"/>
+                            
+                            <!-- Teléfono dinámico (sin icono, alineado como tarjeta) -->
+                            <TextBlock x:Name="TxtUserPhone"
+                                       Text=""
+                                       FontSize="12" 
+                                       Foreground="White" 
+                                       Opacity="0.8"
+                                       Visibility="Collapsed"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

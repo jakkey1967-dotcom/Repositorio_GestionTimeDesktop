@@ -1489,43 +1489,102 @@ public sealed partial class ParteItemEdit : Page
         _parentWindow?.Close();
     }
 
-    /// <summary>Carga la información del usuario desde archivo JSON y actualiza el banner.</summary>
-    private void LoadUserInfo()
+    /// <summary>Carga la información del usuario desde el perfil API y actualiza el banner.</summary>
+    private async void LoadUserInfo()
     {
         try
         {
-            var userInfo = UserInfoFileStorage.LoadUserInfo(App.Log);
-            
-            if (userInfo != null)
+            // Intentar cargar perfil desde cache global primero
+            if (App.CurrentUserProfile == null)
             {
-                _currentUserName = userInfo.UserName ?? "Usuario";
+                App.Log?.LogInformation("📥 Cargando perfil del usuario desde API (ParteItemEdit)...");
                 
-                App.Log?.LogInformation("📋 Cargando información de usuario en ParteItemEdit desde archivo JSON:");
-                App.Log?.LogInformation("   • UserName: {name}", userInfo.UserName);
-                App.Log?.LogInformation("   • UserEmail: {email}", userInfo.UserEmail);
-                App.Log?.LogInformation("   • UserRole: {role}", userInfo.UserRole);
+                try
+                {
+                    App.CurrentUserProfile = await App.ProfileService.GetCurrentUserProfileAsync();
+                    
+                    if (App.CurrentUserProfile != null)
+                    {
+                        App.Log?.LogInformation("✅ Perfil cargado: {firstName} {lastName} | {phone}", 
+                            App.CurrentUserProfile.FirstName, 
+                            App.CurrentUserProfile.LastName,
+                            App.CurrentUserProfile.Phone);
+                    }
+                    else
+                    {
+                        App.Log?.LogWarning("⚠️ Perfil no encontrado en backend, usando fallback");
+                    }
+                }
+                catch (Exception profileEx)
+                {
+                    App.Log?.LogWarning(profileEx, "⚠️ Error cargando perfil, usando fallback");
+                }
+            }
+            
+            // Construir información para mostrar en el banner
+            string displayName;
+            string displayEmail;
+            string displayPhone;
+            
+            if (App.CurrentUserProfile != null)
+            {
+                // Usar datos del perfil completo
+                displayName = $"{App.CurrentUserProfile.FirstName} {App.CurrentUserProfile.LastName}".Trim();
+                displayEmail = App.CurrentLoginEmail ?? App.CurrentUserProfile.FullName ?? "usuario@empresa.com";
+                displayPhone = App.CurrentUserProfile.Phone ?? "";
                 
-                // Actualizar banner
-                TxtUserName.Text = userInfo.UserName ?? "Usuario";
-                TxtUserEmail.Text = userInfo.UserEmail ?? "usuario@empresa.com";
-                TxtUserRole.Text = userInfo.UserRole ?? "Usuario";
+                if (string.IsNullOrWhiteSpace(displayName))
+                {
+                    displayName = displayEmail.Split('@')[0];
+                }
+                
+                // Para el técnico, usar FirstName + LastName
+                _currentUserName = displayName;
             }
             else
             {
-                App.Log?.LogWarning("No se encontró información de usuario en archivo, usando valores por defecto");
-                _currentUserName = "Usuario";
-                TxtUserName.Text = "Usuario";
-                TxtUserEmail.Text = "usuario@empresa.com";
-                TxtUserRole.Text = "Usuario";
+                // Fallback: Usar email del login
+                var settings = Windows.Storage.ApplicationData.Current.LocalSettings.Values;
+                
+                var userName = settings.TryGetValue("UserName", out var nameObj) && nameObj is string name 
+                    ? name 
+                    : "Usuario";
+                    
+                displayName = userName;
+                displayEmail = App.CurrentLoginEmail ?? "usuario@empresa.com";
+                displayPhone = "";
+                
+                _currentUserName = displayName;
             }
+            
+            // Actualizar banner
+            TxtUserName.Text = displayName;
+            TxtUserEmail.Text = displayEmail;
+            
+            // Actualizar teléfono (solo si tiene valor)
+            if (!string.IsNullOrWhiteSpace(displayPhone))
+            {
+                TxtUserPhone.Text = displayPhone;
+                TxtUserPhone.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TxtUserPhone.Visibility = Visibility.Collapsed;
+            }
+            
+            App.Log?.LogInformation("🎨 Banner ParteItemEdit actualizado: {name} | {email} | {phone}", 
+                displayName, displayEmail, 
+                string.IsNullOrEmpty(displayPhone) ? "(sin teléfono)" : displayPhone);
         }
         catch (Exception ex)
         {
-            App.Log?.LogWarning(ex, "Error cargando información del usuario desde archivo en ParteItemEdit");
+            App.Log?.LogWarning(ex, "Error cargando perfil del usuario en ParteItemEdit");
+            
+            // Fallback seguro
             _currentUserName = "Usuario";
             TxtUserName.Text = "Usuario";
-            TxtUserEmail.Text = "usuario@empresa.com";
-            TxtUserRole.Text = "Usuario";
+            TxtUserEmail.Text = App.CurrentLoginEmail ?? "usuario@empresa.com";
+            TxtUserPhone.Visibility = Visibility.Collapsed;
         }
     }
     
