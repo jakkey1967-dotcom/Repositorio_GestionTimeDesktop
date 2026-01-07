@@ -489,7 +489,7 @@
                                 <TextBox x:Name="TxtTicket"
                                        Style="{StaticResource ModernTextBox}"
                                        PlaceholderText="Número de ticket"
-                                       TextChanged="OnHoraTextChanged"
+                                       TextChanged="OnFieldChanged"
                                        TabIndex="5"/>
                             </StackPanel>
                             

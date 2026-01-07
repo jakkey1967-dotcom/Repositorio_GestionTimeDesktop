@@ -184,8 +184,8 @@ public sealed partial class ParteItemEdit : Page
         // Enter para navegar entre TextBox
         TxtTienda.KeyDown += OnTextBoxEnterKey;
         TxtHoraInicio.KeyDown += OnTextBoxEnterKey;
-		TxtHoraFin.KeyDown += OnTextBoxEnterKey;
-		TxtTicket.KeyDown += OnTextBoxEnterKey;
+        TxtHoraFin.KeyDown += OnTextBoxEnterKey;
+        TxtTicket.KeyDown += OnTextBoxEnterKey;
         
         // ComboBox: Enter para confirmar selección y avanzar
         CmbGrupo.KeyDown += OnComboBoxEnterKey;
