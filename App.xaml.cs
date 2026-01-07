@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml.Controls;
 using GestionTime.Desktop.Diagnostics;
 using GestionTime.Desktop.Services;
 using GestionTime.Desktop.Services.Notifications;
+using GestionTime.Desktop.Models.Dtos; // 🆕 NUEVO: Para UserProfileResponse
 
 namespace GestionTime.Desktop;
 
@@ -28,6 +29,12 @@ public partial class App : Application
     
     // 🆕 NUEVO: NotificationService como singleton compartido
     public static INotificationService? Notifications { get; private set; }
+
+    // 🆕 NUEVO: Session Store Global para perfil de usuario
+    public static UserProfileResponse? CurrentUserProfile { get; set; }
+    
+    // 🆕 NUEVO: Email del login (guardado cuando el usuario hace login)
+    public static string? CurrentLoginEmail { get; set; }
 
     public static void ApplyThemeFromSettings()
     {

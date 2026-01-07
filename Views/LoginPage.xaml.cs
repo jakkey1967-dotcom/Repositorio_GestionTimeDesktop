@@ -503,6 +503,10 @@ namespace GestionTime.Desktop.Views
                     App.Log?.LogWarning(animEx, "Error en animación de fade out");
                 }
 
+                // 🆕 NUEVO: Guardar email del login en sesión global
+                App.CurrentLoginEmail = email;
+                App.Log?.LogInformation("📧 Email del login guardado en sesión global: {email}", App.CurrentLoginEmail);
+
                 // Navega a Diario
                 if (App.MainWindowInstance?.Navigator != null)
                 {
