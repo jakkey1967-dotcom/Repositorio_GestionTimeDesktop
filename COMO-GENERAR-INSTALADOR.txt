@@ -1,0 +1,97 @@
+### 🚀 CREAR INSTALADOR MSIX - INSTRUCCIONES PASO A PASO
+
+**IMPORTANTE:** Los archivos de instalación (.msix, .msi, .exe) NO se generan automáticamente.
+Solo se crearon los SCRIPTS para generarlos.
+
+---
+
+## ✅ MÉTODO MÁS FÁCIL: VISUAL STUDIO
+
+### Paso 1: Abrir Visual Studio
+```
+1. Abrir Visual Studio 2022
+2. File → Open → Project/Solution
+3. Seleccionar: C:\GestionTime\GestionTimeDesktop\GestionTime.Desktop.sln
+```
+
+### Paso 2: Crear Paquete MSIX
+```
+1. Click derecho en proyecto "GestionTime.Desktop" (en Solution Explorer)
+2. Seleccionar "Publish"
+3. Click en "Create App Packages"
+4. Seleccionar: "Sideloading"
+5. Arquitectura: x64
+6. Version: 1.2.0.0
+7. Click "Create"
+8. Esperar 2-3 minutos
+```
+
+### Paso 3: Ubicación del Instalador Generado
+```
+C:\GestionTime\GestionTimeDesktop\AppPackages\
+└── GestionTime.Desktop_1.2.0.0_x64_Test\
+    └── GestionTime.Desktop_1.2.0.0_x64.msix ← ESTE ES EL INSTALADOR
+```
+
+---
+
+## 🔧 MÉTODO ALTERNATIVO: POWERSHELL (Si Visual Studio no funciona)
+
+### Paso 1: Compilar el Proyecto Primero
+```powershell
+cd C:\GestionTime\GestionTimeDesktop
+dotnet build -c Release -r win-x64
+```
+
+### Paso 2: Ejecutar Script de Empaquetado
+```powershell
+# Permitir ejecución
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+
+# Ejecutar script
+.\CREATE-MSIX-INSTALLER.ps1
+```
+
+---
+
+## ❌ PROBLEMA ACTUAL
+
+**Estado Actual:**
+- ✅ Scripts creados (CREATE-MSIX-INSTALLER.ps1, etc.)
+- ✅ Documentación creada (README-*.md)
+- ❌ Instalador NO generado (falta ejecutar script o Visual Studio)
+
+**Carpetas que NO existen aún:**
+- C:\GestionTime\GestionTimeDesktop\AppPackages\ (se crea al ejecutar)
+- C:\GestionTime\GestionTimeDesktop\Installer\Output\ (se crea al ejecutar)
+
+---
+
+## 🎯 ACCIÓN REQUERIDA
+
+**OPCIÓN A - Visual Studio (Recomendado):**
+```
+Seguir "Paso 1" y "Paso 2" arriba
+```
+
+**OPCIÓN B - PowerShell:**
+```powershell
+# 1. Abrir PowerShell como Administrador
+# 2. Ejecutar:
+cd C:\GestionTime\GestionTimeDesktop
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\CREATE-MSIX-INSTALLER.ps1
+```
+
+---
+
+## 📞 ¿NECESITAS AYUDA?
+
+Si tienes problemas para ejecutar los scripts o Visual Studio, puedo:
+1. Crear un instalador más simple (ZIP portable)
+2. Guiarte paso a paso con capturas de pantalla
+3. Crear un BAT file que haga todo automáticamente
+
+---
+
+**Última actualización:** 08/01/2026 10:30
