@@ -20,10 +20,8 @@ $msiPath = "$outputDir\GestionTime-Desktop-1.2.0-Complete-Setup.msi"
 
 Write-Host "[1/5] Recopilando archivos..." -ForegroundColor Yellow
 
-# Obtener todos los archivos
-$allFiles = Get-ChildItem -Path $binDir -File -Recurse | Where-Object { 
-    $_.Extension -in @('.exe', '.dll', '.json', '.config', '.xml', '.ico', '.png', '.jpg', '.jpeg', '.md') 
-}
+# Obtener TODOS los archivos (sin filtrar por extensión)
+$allFiles = Get-ChildItem -Path $binDir -File -Recurse
 
 Write-Host "   Archivos encontrados: $($allFiles.Count)" -ForegroundColor Green
 
