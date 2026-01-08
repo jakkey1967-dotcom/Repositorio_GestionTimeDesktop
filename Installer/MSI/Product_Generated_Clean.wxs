@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="GestionTime Desktop" Version="1.2.0.0" Manufacturer="Global Retail Solutions" UpgradeCode="F1E2D3C4-B5A6-9780-ABCD-123456789012" Language="1034">
+    <MajorUpgrade DowngradeErrorMessage="Ya existe version mas reciente" />
+    <MediaTemplate EmbedCab="yes" />
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="GestionTime Desktop" />
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="MenuDir" Name="GestionTime Desktop" />
+    </StandardDirectory>
+    <Feature Id="Main" Level="1">
+      <ComponentGroupRef Id="Files" />
+      <ComponentRef Id="Menu" />
+    </Feature>
+  </Package>
+  <Fragment>
+    <ComponentGroup Id="Files" Directory="INSTALLFOLDER">
+      <Component Id="F1" Guid="05FCA687-248B-45D7-9435-7C23D6456B3C">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\App.xbf" />
+      </Component>
+      <Component Id="F2" Guid="25A03F77-0D33-41C7-8138-D125114A5A13">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\appsettings.json" />
+      </Component>
+      <Component Id="F3" Guid="AFD2E77D-B700-4D73-9B3A-DB3D91920B0E">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\CommunityToolkit.Mvvm.dll" />
+      </Component>
+      <Component Id="F4" Guid="56B62930-AD0C-4CD3-A170-4E5ED3972D38">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\ExcelDataReader.DataSet.dll" />
+      </Component>
+      <Component Id="F5" Guid="75C03E46-F650-45E8-A96F-CC1D6F105EDD">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\ExcelDataReader.dll" />
+      </Component>
+      <Component Id="F6" Guid="955430D9-8740-489D-8F7B-66E23610A9AE">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\FluentAssertions.dll" />
+      </Component>
+      <Component Id="F7" Guid="AC024230-E6CC-409D-B4E2-3972B7202874">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.deps.json" />
+      </Component>
+      <Component Id="F8" Guid="D31C7BFD-3D49-4086-89C1-5AF5297E556A">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.dll" />
+      </Component>
+      <Component Id="F9" Guid="11DEF748-65A7-4595-BB31-B72B211AB51F">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.exe" />
+      </Component>
+      <Component Id="F10" Guid="2C5ADE65-5230-4D52-A828-170C25B24EDF">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.pdb" />
+      </Component>
+      <Component Id="F11" Guid="7B10A05E-3675-4083-9A79-4B20D7022885">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.pri" />
+      </Component>
+      <Component Id="F12" Guid="D6FC92E7-08A0-49FB-9992-9349D1B2B690">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.runtimeconfig.json" />
+      </Component>
+      <Component Id="F13" Guid="6AF43AD6-1853-4D68-9A84-89433EBDA81C">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\MainWindow.xbf" />
+      </Component>
+      <Component Id="F14" Guid="0D1A8B66-ADCE-4580-A49C-4D577197B446">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Configuration.Abstractions.dll" />
+      </Component>
+      <Component Id="F15" Guid="594C5BF1-5B7A-4F50-96FF-DF40FCA1C6CF">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Configuration.Binder.dll" />
+      </Component>
+      <Component Id="F16" Guid="2EF8F6F8-5AE6-4371-91C2-C04C9B62D3A1">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Configuration.dll" />
+      </Component>
+      <Component Id="F17" Guid="2E51F185-C2B0-4A5C-8752-7F8FFAC21027">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Configuration.FileExtensions.dll" />
+      </Component>
+      <Component Id="F18" Guid="FCE378E1-107D-46A2-A07E-6D53AB57171D">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Configuration.Json.dll" />
+      </Component>
+      <Component Id="F19" Guid="88C3D68C-61D8-49DE-A405-8816D7FF584C">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+      <Component Id="F20" Guid="F9D1CBE1-8812-42D1-AB1D-0C838FDFCFD5">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+      <Component Id="F21" Guid="C8D231FD-BD4A-4334-B3F4-A286329ACFCA">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+      </Component>
+      <Component Id="F22" Guid="B06C2DA7-8C75-447D-B122-C6CF85488CDB">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.FileProviders.Physical.dll" />
+      </Component>
+      <Component Id="F23" Guid="60696A1F-B881-4FD5-8073-8C34E232B915">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.FileSystemGlobbing.dll" />
+      </Component>
+      <Component Id="F24" Guid="14201481-7ED4-4730-83C9-17D72BAEA967">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+      <Component Id="F25" Guid="28F618F9-1F86-4A2B-B4D2-202B0D9CEBB9">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Logging.dll" />
+      </Component>
+      <Component Id="F26" Guid="F782D15F-A99B-4505-B23B-ED6D72BCC451">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Options.dll" />
+      </Component>
+      <Component Id="F27" Guid="E40F5F7D-4917-432F-9878-F53B5B853D8E">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Extensions.Primitives.dll" />
+      </Component>
+      <Component Id="F28" Guid="24AD05E8-1A84-4613-8F11-D4BDE3112289">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Graphics.Imaging.Projection.dll" />
+      </Component>
+      <Component Id="F29" Guid="648E3916-0A06-4698-AB39-D1F02917C843">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.InteractiveExperiences.Projection.dll" />
+      </Component>
+      <Component Id="F30" Guid="E3773B62-7B12-409F-9F45-731730352C9F">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.ML.OnnxRuntime.dll" />
+      </Component>
+      <Component Id="F31" Guid="965C1863-BB92-4398-84E1-3A3AA9FB1773">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Security.Authentication.OAuth.Projection.dll" />
+      </Component>
+      <Component Id="F32" Guid="F3BC88F6-8E44-47B9-9772-8DD7B0B4E952">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Web.WebView2.Core.dll" />
+      </Component>
+      <Component Id="F33" Guid="7BCE877C-7FDA-47B4-911C-D9DEDA69700A">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Web.WebView2.Core.Projection.dll" />
+      </Component>
+      <Component Id="F34" Guid="5B250573-BA11-426D-8E17-4D2FFFE0C231">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AI.ContentSafety.Projection.dll" />
+      </Component>
+      <Component Id="F35" Guid="86BD521E-9D56-4E09-BE85-171581471CB2">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AI.Foundation.Projection.dll" />
+      </Component>
+      <Component Id="F36" Guid="4F97D31F-5408-48DA-8987-704859CB6A07">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AI.Imaging.Projection.dll" />
+      </Component>
+      <Component Id="F37" Guid="D870F8BE-2A08-43F5-8D4B-6A911D4E4912">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AI.MachineLearning.Projection.dll" />
+      </Component>
+      <Component Id="F38" Guid="BAAD1D82-C926-48B2-BEAD-0B5635E7BB7B">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AI.Projection.dll" />
+      </Component>
+      <Component Id="F39" Guid="887F73F5-00BF-4CF3-9E4F-C1F2E9FBE0C6">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AI.Text.Projection.dll" />
+      </Component>
+      <Component Id="F40" Guid="8AFB0DC7-40F5-45E8-B93F-59B41CC58E14">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.ApplicationModel.Background.Projection.dll" />
+      </Component>
+      <Component Id="F41" Guid="33697328-5548-4E16-A2E1-F1AE2221D441">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll" />
+      </Component>
+      <Component Id="F42" Guid="7287CD63-AB7C-4965-A042-1A097A177885">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.ApplicationModel.Resources.Projection.dll" />
+      </Component>
+      <Component Id="F43" Guid="0E615AEF-BDEC-4324-B3C3-9A0A366A076D">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll" />
+      </Component>
+      <Component Id="F44" Guid="47175528-AB30-483C-B3E0-C39D5FAF3CF6">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AppLifecycle.Projection.dll" />
+      </Component>
+      <Component Id="F45" Guid="80995CD0-F5F7-473D-AEF5-DE3D61C0FB90">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AppNotifications.Builder.Projection.dll" />
+      </Component>
+      <Component Id="F46" Guid="34D7C529-EA58-4A8F-8FD7-AEA167A41AA7">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.AppNotifications.Projection.dll" />
+      </Component>
+      <Component Id="F47" Guid="ADB57251-B4A4-4C4C-B72F-CC00D00D2F2D">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.BadgeNotifications.Projection.dll" />
+      </Component>
+      <Component Id="F48" Guid="7B43DB9D-E9E1-4077-B8D0-4CC28C8902A9">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Foundation.Projection.dll" />
+      </Component>
+      <Component Id="F49" Guid="8BBE5A3B-F6F7-43D1-B9DC-D12F46CC748B">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Management.Deployment.Projection.dll" />
+      </Component>
+      <Component Id="F50" Guid="0558B6A6-4A98-4C85-9F39-AEAD79878454">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Media.Capture.Projection.dll" />
+      </Component>
+      <Component Id="F51" Guid="246F474C-8C05-4FEA-9056-6168FB08AAC0">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.PushNotifications.Projection.dll" />
+      </Component>
+      <Component Id="F52" Guid="0B936775-E215-485B-BABB-55C1A28B9C28">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.SDK.NET.dll" />
+      </Component>
+      <Component Id="F53" Guid="556F168A-BED5-4D36-98F2-C5CF3675675F">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Security.AccessControl.Projection.dll" />
+      </Component>
+      <Component Id="F54" Guid="68FE92F3-DDE8-47CF-B603-12FEA260C378">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Storage.Pickers.Projection.dll" />
+      </Component>
+      <Component Id="F55" Guid="A45E4A75-D504-4423-816D-9212AA9F3719">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Storage.Projection.dll" />
+      </Component>
+      <Component Id="F56" Guid="4AFFA74F-0621-43E0-A8C4-217CE1C12BC9">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.System.Power.Projection.dll" />
+      </Component>
+      <Component Id="F57" Guid="E95F0852-B7EB-47C8-9E42-199C744274D2">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.System.Projection.dll" />
+      </Component>
+      <Component Id="F58" Guid="873BE654-A8AD-4F25-AADF-B3A3B675A797">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.Windows.Widgets.Projection.dll" />
+      </Component>
+      <Component Id="F59" Guid="6F50F789-A210-420B-B6A9-CAA35BF67F44">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.WindowsAppRuntime.Bootstrap.Net.dll" />
+      </Component>
+      <Component Id="F60" Guid="6064F25F-9441-4D26-8149-BF102CD39BA3">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.WinUI.dll" />
+      </Component>
+      <Component Id="F61" Guid="0D2DB50F-A654-466E-9E93-D833A810DD60">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\System.Diagnostics.DiagnosticSource.dll" />
+      </Component>
+      <Component Id="F62" Guid="5EBF941C-7A1D-4F4F-9753-053F48240ED1">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\System.Diagnostics.EventLog.dll" />
+      </Component>
+      <Component Id="F63" Guid="C1F6A6CB-3010-4871-9F4D-FF3514814B85">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\System.IO.Pipelines.dll" />
+      </Component>
+      <Component Id="F64" Guid="D0508E98-6231-4CBA-93ED-A754F55C37D2">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\System.Numerics.Tensors.dll" />
+      </Component>
+      <Component Id="F65" Guid="E1CB6539-6763-4DD7-A4FF-7F25560EBCEA">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\System.Text.Encodings.Web.dll" />
+      </Component>
+      <Component Id="F66" Guid="0EAEF348-648C-41BC-B512-83D645F4EECF">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\System.Text.Json.dll" />
+      </Component>
+      <Component Id="F67" Guid="F151CB89-9079-40D6-9288-BD25F7DF5EAF">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\window-config.ini" />
+      </Component>
+      <Component Id="F68" Guid="48BFC7F7-0F28-4618-A65B-6212616EB545">
+        <File Source="C:\GestionTime\GestionTimeDesktop\bin\x64\Debug\net8.0-windows10.0.19041.0\WinRT.Runtime.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <Fragment>
+    <Component Id="Menu" Directory="MenuDir">
+      <Shortcut Name="GestionTime Desktop" Target="[INSTALLFOLDER]GestionTime.Desktop.exe" WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="Del" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\GestionTime" Name="Installed" Value="1" Type="integer" KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>
