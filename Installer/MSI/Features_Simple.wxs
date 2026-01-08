@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+  <!-- ============================================================ -->
+  <!-- COMPONENTES PRINCIPALES                                      -->
+  <!-- ============================================================ -->
+  
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      
+      <!-- Ejecutable Principal -->
+      <Component Id="MainExe" Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF">
+        <File Id="GestionTimeExe" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.exe" KeyPath="yes" />
+      </Component>
+      
+      <Component Id="MainDll" Guid="B2C3D4E5-F6A7-8901-2345-67890ABCDEF0">
+        <File Id="GestionTimeDll" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.dll" />
+      </Component>
+      
+      <!-- Configuracion -->
+      <Component Id="ConfigFiles" Guid="C3D4E5F6-A7B8-9012-3456-7890ABCDEF01">
+        <File Id="AppSettings" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\appsettings.json" />
+        <File Id="DepsJson" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.deps.json" />
+        <File Id="RuntimeConfig" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\GestionTime.Desktop.runtimeconfig.json" />
+      </Component>
+      
+      <!-- DLLs Principales -->
+      <Component Id="CoreDlls" Guid="D4E5F6A7-B8C9-0123-4567-890ABCDEF012">
+        <File Id="NewtonsoftJson" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\Newtonsoft.Json.dll" />
+        <File Id="SerilogDll" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\Serilog.dll" />
+        <File Id="RestSharp" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\RestSharp.dll" />
+      </Component>
+      
+      <!-- Microsoft UI Xaml -->
+      <Component Id="MicrosoftUI" Guid="E5F6A7B8-C9D0-1234-5678-90ABCDEF0123">
+        <File Id="MicrosoftUIXaml" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.UI.Xaml.dll" />
+        <File Id="MicrosoftUIXamlControls" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.UI.Xaml.Controls.dll" />
+      </Component>
+      
+      <!-- Windows App Runtime -->
+      <Component Id="WindowsAppRuntime" Guid="F6A7B8C9-D0E1-2345-6789-0ABCDEF01234">
+        <File Id="WinAppRuntime" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.WindowsAppRuntime.dll" />
+        <File Id="WinAppRuntimeBootstrap" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\Microsoft.WindowsAppRuntime.Bootstrap.dll" />
+      </Component>
+      
+      <!-- System DLLs -->
+      <Component Id="SystemDlls" Guid="A7B8C9D0-E1F2-3456-7890-ABCDEF012345">
+        <File Id="SystemTextJson" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\System.Text.Json.dll" />
+        <File Id="SystemTextEncodings" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\System.Text.Encodings.Web.dll" />
+      </Component>
+      
+    </ComponentGroup>
+  </Fragment>
+  
+  <!-- ============================================================ -->
+  <!-- ASSETS                                                       -->
+  <!-- ============================================================ -->
+  
+  <Fragment>
+    <ComponentGroup Id="AssetsComponents">
+      <Component Id="AssetsFolder" Directory="INSTALLFOLDER" Guid="B8C9D0E1-F2A3-4567-8901-BCDEF0123456">
+        <File Id="AppIcon" Source="Assets\app.ico" />
+        <File Id="LogoClaro" Source="Assets\LogoClaro.png" />
+        <File Id="LogoOscuro" Source="Assets\LogoOscuro.png" />
+        <File Id="SplashScreen" Source="Assets\SplashScreen.scale-200.png" />
+        <File Id="StoreLogo" Source="Assets\StoreLogo.png" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  
+  <!-- ============================================================ -->
+  <!-- RUNTIMES                                                     -->
+  <!-- ============================================================ -->
+  
+  <Fragment>
+    <ComponentGroup Id="RuntimesComponents">
+      <Component Id="RuntimesWinX64" Directory="INSTALLFOLDER" Guid="C9D0E1F2-A3B4-5678-9012-CDEF01234567">
+        <File Id="RuntimeBootstrap" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\runtimes\win-x64\native\Microsoft.WindowsAppRuntime.Bootstrap.dll" />
+        <File Id="RuntimeWebView2" Source="bin\x64\Debug\net8.0-windows10.0.19041.0\runtimes\win-x64\native\WebView2Loader.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  
+  <!-- ============================================================ -->
+  <!-- DOCUMENTACION                                                -->
+  <!-- ============================================================ -->
+  
+  <Fragment>
+    <ComponentGroup Id="DocsComponents">
+      <Component Id="DocsFolder" Directory="INSTALLFOLDER" Guid="D0E1F2A3-B4C5-6789-0123-DEF012345678">
+        <File Id="ManualUsuario" Source="Docs\MANUAL_USUARIO_GESTIONTIME_DESKTOP.md" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  
+</Wix>
