@@ -61,7 +61,8 @@ Write-Host "[3/5] Creando archivo WiX completo..." -ForegroundColor Yellow
 
 $wxsContent = @"
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   
   <Package Name="GestionTime Desktop"
            Language="1034"
@@ -76,8 +77,20 @@ $wxsContent = @"
     
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
+    <!-- Propiedades para Panel de Control -->
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="ARPCONTACT" Value="soporte@gestiontime.com" />
+    <Property Id="ARPCOMMENTS" Value="Sistema de gestion de partes de trabajo - GestionTime Desktop v1.2.0" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop" />
+    <Property Id="ARPURLINFOABOUT" Value="https://gestiontime.com" />
+
+    <!-- Icono de la aplicación -->
+    <Icon Id="AppIcon" SourceFile="$projectDir\Assets\app_logo.ico" />
+
     <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="GestionTime Desktop" />
+      <Directory Id="ManufacturerFolder" Name="GestionTime">
+        <Directory Id="INSTALLFOLDER" Name="Desktop" />
+      </Directory>
     </StandardDirectory>
 
     <StandardDirectory Id="ProgramMenuFolder">
@@ -86,11 +99,21 @@ $wxsContent = @"
 
     <StandardDirectory Id="DesktopFolder" />
 
-    <Feature Id="MainApplication" Title="GestionTime Desktop" Level="1">
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop" 
+             Level="1"
+             Description="Aplicacion completa de gestion de partes de trabajo"
+             ConfigurableDirectory="INSTALLFOLDER">
       <ComponentGroupRef Id="AllAppFiles" />
       <ComponentRef Id="StartMenuShortcut" />
       <ComponentRef Id="DesktopShortcut" />
     </Feature>
+
+    <!-- UI con seleccion de directorio -->
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    
+    <!-- Personalizar licencia -->
+    <WixVariable Id="WixUILicenseRtf" Value="$projectDir\Installer\MSI\License.rtf" />
 
   </Package>
 
@@ -102,12 +125,14 @@ $($componentsXml.ToString())
                 Name="GestionTime Desktop"
                 Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
                 WorkingDirectory="INSTALLFOLDER"
-                Description="Sistema de gestion de partes de trabajo" />
+                Description="Sistema de gestion de partes de trabajo"
+                Icon="AppIcon" />
       
       <Shortcut Id="UninstallShortcut"
                 Name="Desinstalar GestionTime Desktop"
                 Target="[System64Folder]msiexec.exe"
-                Arguments="/x [ProductCode]" />
+                Arguments="/x [ProductCode]"
+                Description="Desinstalar GestionTime Desktop del sistema" />
       
       <RemoveFolder Id="RemoveProgramMenuDir" On="uninstall" />
       
@@ -126,7 +151,8 @@ $($componentsXml.ToString())
                 Name="GestionTime Desktop"
                 Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
                 WorkingDirectory="INSTALLFOLDER"
-                Description="Sistema de gestion de partes de trabajo" />
+                Description="Sistema de gestion de partes de trabajo"
+                Icon="AppIcon" />
       
       <RemoveFolder Id="RemoveDesktopFolder" On="uninstall" />
       
@@ -159,6 +185,7 @@ try {
         -arch x64 `
         -out $msiPath `
         -bindpath $binDir `
+        -ext WixToolset.UI.wixext `
         -nologo
     
     if ($LASTEXITCODE -ne 0) {
