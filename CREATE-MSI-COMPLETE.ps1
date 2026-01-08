@@ -20,6 +20,16 @@ $msiPath = "$outputDir\GestionTime-Desktop-1.2.0-Complete-Setup.msi"
 
 Write-Host "[1/5] Recopilando archivos..." -ForegroundColor Yellow
 
+# Copiar window-config.ini personalizado al directorio bin si existe
+$customWindowConfig = "$projectDir\Installer\window-config.ini"
+$targetWindowConfig = "$binDir\window-config.ini"
+
+if (Test-Path $customWindowConfig) {
+    Write-Host "   Copiando window-config.ini personalizado a bin..." -ForegroundColor Cyan
+    Copy-Item -Path $customWindowConfig -Destination $targetWindowConfig -Force
+    Write-Host "   ✓ window-config.ini copiado" -ForegroundColor Green
+}
+
 # Obtener TODOS los archivos (sin filtrar por extensión)
 $allFiles = Get-ChildItem -Path $binDir -File -Recurse
 
@@ -44,10 +54,6 @@ foreach ($criticalFile in $criticalFiles) {
 
 Write-Host ""
 Write-Host "[2/5] Generando componentes WiX con estructura de directorios..." -ForegroundColor Yellow
-
-# Archivo de configuración personalizado para reemplazar
-$customWindowConfig = "$projectDir\Installer\window-config.ini"
-$hasCustomConfig = Test-Path $customWindowConfig
 
 # Crear estructura de directorios en WiX
 $directoriesXml = New-Object System.Text.StringBuilder
@@ -105,36 +111,23 @@ $componentId = 1
 $fileId = 1
 
 foreach ($file in $allFiles) {
-    # Si es window-config.ini del bin, lo saltamos porque usaremos el personalizado
-    if ($file.Name -eq "window-config.ini" -and $hasCustomConfig) {
-        Write-Host "   ⚠ Omitiendo window-config.ini de bin (se usará versión personalizada)" -ForegroundColor Yellow
-        continue
-    }
-    
     $fileDir = Split-Path $file.FullName -Parent
     $targetDirId = $dirMap[$fileDir]
     
     $guid = [System.Guid]::NewGuid().ToString().ToUpper()
     $uniqueFileId = "File$fileId"
     
-    [void]$componentsXml.AppendLine("      <Component Id=`"Cmp$componentId`" Directory=`"$targetDirId`" Guid=`"$guid`">")
-    [void]$componentsXml.AppendLine("        <File Id=`"$uniqueFileId`" Source=`"$($file.FullName)`" Name=`"$($file.Name)`" KeyPath=`"yes`" />")
-    [void]$componentsXml.AppendLine("      </Component>")
-    
-    $componentId++
-    $fileId++
-}
-
-# Agregar window-config.ini personalizado si existe
-if ($hasCustomConfig) {
-    $guid = [System.Guid]::NewGuid().ToString().ToUpper()
-    $uniqueFileId = "File$fileId"
-    
-    [void]$componentsXml.AppendLine("      <Component Id=`"CmpCustomWindowConfig`" Directory=`"INSTALLFOLDER`" Guid=`"$guid`">")
-    [void]$componentsXml.AppendLine("        <File Id=`"$uniqueFileId`" Source=`"$customWindowConfig`" Name=`"window-config.ini`" KeyPath=`"yes`" NeverOverwrite=`"yes`" />")
-    [void]$componentsXml.AppendLine("      </Component>")
-    
-    Write-Host "   ✓ window-config.ini personalizado agregado (NeverOverwrite)" -ForegroundColor Green
+    # Para window-config.ini, usar NeverOverwrite para preservar configuración del usuario
+    if ($file.Name -eq "window-config.ini") {
+        [void]$componentsXml.AppendLine("      <Component Id=`"Cmp$componentId`" Directory=`"$targetDirId`" Guid=`"$guid`">")
+        [void]$componentsXml.AppendLine("        <File Id=`"$uniqueFileId`" Source=`"$($file.FullName)`" Name=`"$($file.Name)`" KeyPath=`"yes`" NeverOverwrite=`"yes`" />")
+        [void]$componentsXml.AppendLine("      </Component>")
+        Write-Host "   ✓ window-config.ini agregado con NeverOverwrite" -ForegroundColor Green
+    } else {
+        [void]$componentsXml.AppendLine("      <Component Id=`"Cmp$componentId`" Directory=`"$targetDirId`" Guid=`"$guid`">")
+        [void]$componentsXml.AppendLine("        <File Id=`"$uniqueFileId`" Source=`"$($file.FullName)`" Name=`"$($file.Name)`" KeyPath=`"yes`" />")
+        [void]$componentsXml.AppendLine("      </Component>")
+    }
     
     $componentId++
     $fileId++
