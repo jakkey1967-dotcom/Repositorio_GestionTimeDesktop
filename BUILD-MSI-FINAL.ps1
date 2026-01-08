@@ -1,7 +1,7 @@
 # ===========================================================================
-# COMPILAR MSI CON WIX TOOLSET - GESTIONTIME DESKTOP
-# VERSION: 2.0 - ENERO 2026
-# DESCRIPCION: Compila el instalador MSI usando WiX Toolset
+# COMPILAR MSI CON WIX TOOLSET v6.0 - GESTIONTIME DESKTOP
+# VERSION: 3.0 - ENERO 2026
+# DESCRIPCION: Compila el instalador MSI usando WiX Toolset v6.0
 # ===========================================================================
 
 $ErrorActionPreference = "Stop"
@@ -9,46 +9,40 @@ $ErrorActionPreference = "Stop"
 Write-Host ""
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host "  COMPILAR MSI - GESTIONTIME DESKTOP" -ForegroundColor Cyan
+Write-Host "  WiX Toolset v6.0" -ForegroundColor Cyan
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host ""
 
 # ===========================================================================
-# VERIFICAR WIX TOOLSET
+# VERIFICAR WIX TOOLSET v6.0
 # ===========================================================================
 
-Write-Host "[1/6] Verificando WiX Toolset..." -ForegroundColor Yellow
+Write-Host "[1/5] Verificando WiX Toolset..." -ForegroundColor Yellow
 
-$wixPath = "C:\Program Files (x86)\WiX Toolset v3.14\bin"
-$candleExe = Join-Path $wixPath "candle.exe"
-$lightExe = Join-Path $wixPath "light.exe"
+$wixPath = "C:\Program Files\WiX Toolset v6.0\bin"
+$wixExe = Join-Path $wixPath "wix.exe"
 
-if (-not (Test-Path $candleExe)) {
+if (-not (Test-Path $wixExe)) {
     Write-Host ""
-    Write-Host "ERROR: WiX Toolset NO esta instalado" -ForegroundColor Red
+    Write-Host "ERROR: WiX Toolset v6.0 NO esta instalado" -ForegroundColor Red
     Write-Host ""
     Write-Host "INSTALAR WiX Toolset:" -ForegroundColor Yellow
     Write-Host "  1. Visitar: https://wixtoolset.org/releases/" -ForegroundColor White
-    Write-Host "  2. Descargar: wix314.exe" -ForegroundColor White
+    Write-Host "  2. Descargar instalador de WiX v6.0" -ForegroundColor White
     Write-Host "  3. Ejecutar instalador" -ForegroundColor White
-    Write-Host "  4. Reiniciar PowerShell" -ForegroundColor White
-    Write-Host "  5. Volver a ejecutar este script" -ForegroundColor White
+    Write-Host "  4. Volver a ejecutar este script" -ForegroundColor White
     Write-Host ""
-    
-    $response = Read-Host "Abrir pagina de descarga ahora? (S/N)"
-    if ($response -match '^[Ss]$') {
-        Start-Process "https://wixtoolset.org/releases/"
-    }
     exit 1
 }
 
-Write-Host "   WiX Toolset encontrado: OK" -ForegroundColor Green
+Write-Host "   WiX Toolset v6.0 encontrado: OK" -ForegroundColor Green
 
 # ===========================================================================
 # VERIFICAR ARCHIVOS FUENTE
 # ===========================================================================
 
 Write-Host ""
-Write-Host "[2/6] Verificando archivos fuente..." -ForegroundColor Yellow
+Write-Host "[2/5] Verificando archivos fuente..." -ForegroundColor Yellow
 
 $projectDir = "C:\GestionTime\GestionTimeDesktop"
 $binDir = "$projectDir\bin\x64\Debug\net8.0-windows10.0.19041.0"
@@ -65,125 +59,49 @@ if (-not (Test-Path $exePath)) {
 
 Write-Host "   Ejecutable: OK" -ForegroundColor Green
 
-# Verificar archivos WiX
-$productWxs = Join-Path $msiDir "Product.wxs"
-$featuresWxs = Join-Path $msiDir "Features_Simple.wxs"
-
-if (-not (Test-Path $productWxs)) {
-    Write-Host "   ERROR: No se encuentra Product.wxs" -ForegroundColor Red
-    exit 1
-}
-
-if (-not (Test-Path $featuresWxs)) {
-    Write-Host "   ERROR: No se encuentra Features_Simple.wxs" -ForegroundColor Red
-    exit 1
-}
-
-Write-Host "   Archivos WiX: OK" -ForegroundColor Green
-
 # Crear directorio de salida
 if (-not (Test-Path $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 }
 
 # ===========================================================================
-# COMPILAR PRODUCT.WXS
+# COMPILAR Y ENLAZAR MSI CON WIX v6.0
 # ===========================================================================
 
 Write-Host ""
-Write-Host "[3/6] Compilando Product.wxs..." -ForegroundColor Yellow
+Write-Host "[3/5] Compilando MSI con WiX v6.0..." -ForegroundColor Yellow
 
-Push-Location $projectDir
-
-try {
-    $productObj = Join-Path $msiDir "Product.wixobj"
-    
-    & $candleExe `
-        -nologo `
-        -arch x64 `
-        -ext WixUIExtension `
-        -out $productObj `
-        $productWxs
-    
-    if ($LASTEXITCODE -ne 0) {
-        throw "Error al compilar Product.wxs (codigo: $LASTEXITCODE)"
-    }
-    
-    Write-Host "   Product.wixobj: OK" -ForegroundColor Green
-    
-} catch {
-    Write-Host ""
-    Write-Host "ERROR al compilar Product.wxs:" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Pop-Location
-    exit 1
-}
-
-# ===========================================================================
-# COMPILAR FEATURES_SIMPLE.WXS
-# ===========================================================================
-
-Write-Host ""
-Write-Host "[4/6] Compilando Features_Simple.wxs..." -ForegroundColor Yellow
-
-try {
-    $featuresObj = Join-Path $msiDir "Features_Simple.wixobj"
-    
-    & $candleExe `
-        -nologo `
-        -arch x64 `
-        -ext WixUIExtension `
-        -out $featuresObj `
-        $featuresWxs
-    
-    if ($LASTEXITCODE -ne 0) {
-        throw "Error al compilar Features_Simple.wxs (codigo: $LASTEXITCODE)"
-    }
-    
-    Write-Host "   Features_Simple.wixobj: OK" -ForegroundColor Green
-    
-} catch {
-    Write-Host ""
-    Write-Host "ERROR al compilar Features_Simple.wxs:" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    Pop-Location
-    exit 1
-}
-
-# ===========================================================================
-# ENLAZAR (LINK) MSI
-# ===========================================================================
-
-Write-Host ""
-Write-Host "[5/6] Enlazando MSI..." -ForegroundColor Yellow
+# Cambiar al directorio del proyecto para que las rutas relativas funcionen
+Set-Location $projectDir
 
 try {
     $msiPath = Join-Path $outputDir "GestionTime-Desktop-1.2.0-Setup.msi"
+    $productWxs = Join-Path $msiDir "Product_Simple.wxs"
     
-    & $lightExe `
-        -nologo `
-        -ext WixUIExtension `
-        -ext WixUtilExtension `
+    # WiX v6.0 usa un comando unificado
+    & $wixExe build `
+        -arch x64 `
         -out $msiPath `
-        "$msiDir\Product.wixobj" `
-        "$msiDir\Features_Simple.wixobj" `
-        -sval
+        $productWxs `
+        -ext WixToolset.UI.wixext `
+        -culture es-ES `
+        -d "ProjectDir=$projectDir" `
+        -bindpath "$projectDir"
     
     if ($LASTEXITCODE -ne 0) {
-        throw "Error al enlazar MSI (codigo: $LASTEXITCODE)"
+        throw "Error al compilar MSI con WiX v6.0 (codigo: $LASTEXITCODE)"
     }
     
-    Write-Host "   MSI enlazado: OK" -ForegroundColor Green
+    Write-Host "   MSI compilado: OK" -ForegroundColor Green
     
 } catch {
     Write-Host ""
-    Write-Host "ERROR al enlazar MSI:" -ForegroundColor Red
+    Write-Host "ERROR al compilar MSI:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
-    Pop-Location
+    Write-Host ""
+    Write-Host "NOTA: WiX v6.0 tiene sintaxis diferente a v3.x" -ForegroundColor Yellow
+    Write-Host "Es posible que los archivos .wxs necesiten actualizarse" -ForegroundColor Yellow
     exit 1
-    
-} finally {
-    Pop-Location
 }
 
 # ===========================================================================
@@ -191,7 +109,7 @@ try {
 # ===========================================================================
 
 Write-Host ""
-Write-Host "[6/6] Verificando instalador MSI..." -ForegroundColor Yellow
+Write-Host "[4/5] Verificando instalador MSI..." -ForegroundColor Yellow
 
 $msiFile = Get-Item $msiPath -ErrorAction SilentlyContinue
 
@@ -225,8 +143,11 @@ if ($msiFile) {
 } else {
     Write-Host ""
     Write-Host "ERROR: No se pudo crear el MSI" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "ALTERNATIVA: Usar instalador ZIP portable ya creado:" -ForegroundColor Yellow
+    Write-Host "  $outputDir\GestionTime-Desktop-1.2.0-Portable.zip" -ForegroundColor White
     exit 1
 }
 
-Write-Host "Listo!" -ForegroundColor Green
+Write-Host "[5/5] Proceso completado!" -ForegroundColor Green
 Write-Host ""
