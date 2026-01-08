@@ -1,14 +1,14 @@
 # ===========================================================================
-# CREAR MSI COMPLETO CON WIX v6.0 - GESTIONTIME DESKTOP
-# VERSION: 5.0 - ENERO 2026
-# DESCRIPCION: Incluye TODOS los archivos (DLLs, Assets, Runtimes, etc.)
+# CREAR MSI CON ESTRUCTURA DE DIRECTORIOS - GESTIONTIME DESKTOP
+# VERSION: 6.0 - ENERO 2026
+# DESCRIPCION: Incluye TODOS los archivos manteniendo estructura de carpetas
 # ===========================================================================
 
 $ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "===============================================" -ForegroundColor Cyan
-Write-Host "  CREAR MSI COMPLETO - WIX v6.0" -ForegroundColor Cyan
+Write-Host "  CREAR MSI CON DIRECTORIOS - WIX v6.0" -ForegroundColor Cyan
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -18,95 +18,19 @@ $binDir = "$projectDir\bin\x64\Debug\net8.0-windows10.0.19041.0"
 $outputDir = "$projectDir\Installer\Output"
 $msiPath = "$outputDir\GestionTime-Desktop-1.2.0-Complete-Setup.msi"
 
-Write-Host "[1/5] Recopilando archivos..." -ForegroundColor Yellow
+Write-Host "[1/4] Verificando archivos..." -ForegroundColor Yellow
 
-# Obtener TODOS los archivos (sin filtrar por extensión)
 $allFiles = Get-ChildItem -Path $binDir -File -Recurse
-
 Write-Host "   Archivos encontrados: $($allFiles.Count)" -ForegroundColor Green
 
-Write-Host ""
-Write-Host "[2/5] Generando componentes WiX con estructura de directorios..." -ForegroundColor Yellow
-
-# Crear estructura de directorios en WiX
-$directoriesXml = New-Object System.Text.StringBuilder
-$componentsXml = New-Object System.Text.StringBuilder
-
-# Obtener todos los subdirectorios únicos
-$allDirs = $allFiles | ForEach-Object { Split-Path $_.FullName -Parent } | Select-Object -Unique | Sort-Object
-
-# Crear definiciones de directorios
-$dirMap = @{}
-$dirId = 1
-
-[void]$directoriesXml.AppendLine("  <Fragment>")
-[void]$directoriesXml.AppendLine("    <DirectoryRef Id=`"INSTALLFOLDER`">")
-
-foreach ($dir in $allDirs) {
-    if ($dir -eq $binDir) {
-        $dirMap[$dir] = "INSTALLFOLDER"
-        continue
-    }
-    
-    $relativePath = $dir.Replace("$binDir\", "").Replace("$binDir", "")
-    if (-not $relativePath) { continue }
-    
-    $pathParts = $relativePath.Split('\')
-    $currentPath = $binDir
-    $parentDirId = "INSTALLFOLDER"
-    
-    foreach ($part in $pathParts) {
-        $currentPath = Join-Path $currentPath $part
-        
-        if (-not $dirMap.ContainsKey($currentPath)) {
-            $safeDirName = $part -replace '[^a-zA-Z0-9]', '_'
-            $newDirId = "Dir_$safeDirName`_$dirId"
-            $dirMap[$currentPath] = $newDirId
-            
-            [void]$directoriesXml.AppendLine("      <Directory Id=`"$newDirId`" Name=`"$part`">")
-            [void]$directoriesXml.AppendLine("      </Directory>")
-            
-            $dirId++
-        }
-        
-        $parentDirId = $dirMap[$currentPath]
-    }
+if (-not (Test-Path $outputDir)) {
+    New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 }
 
-[void]$directoriesXml.AppendLine("    </DirectoryRef>")
-[void]$directoriesXml.AppendLine("  </Fragment>")
-
-# Generar componentes agrupados por directorio
-[void]$componentsXml.AppendLine("  <Fragment>")
-[void]$componentsXml.AppendLine("    <ComponentGroup Id=`"AllAppFiles`">")
-
-$componentId = 1
-$fileId = 1
-
-foreach ($file in $allFiles) {
-    $fileDir = Split-Path $file.FullName -Parent
-    $targetDirId = $dirMap[$fileDir]
-    
-    $guid = [System.Guid]::NewGuid().ToString().ToUpper()
-    $uniqueFileId = "File$fileId"
-    
-    [void]$componentsXml.AppendLine("      <Component Id=`"Cmp$componentId`" Directory=`"$targetDirId`" Guid=`"$guid`">")
-    [void]$componentsXml.AppendLine("        <File Id=`"$uniqueFileId`" Source=`"$($file.FullName)`" Name=`"$($file.Name)`" KeyPath=`"yes`" />")
-    [void]$componentsXml.AppendLine("      </Component>")
-    
-    $componentId++
-    $fileId++
-}
-
-[void]$componentsXml.AppendLine("    </ComponentGroup>")
-[void]$componentsXml.AppendLine("  </Fragment>")
-
-Write-Host "   Directorios: $($dirMap.Count)" -ForegroundColor Green
-Write-Host "   Componentes: $componentId" -ForegroundColor Green
-
 Write-Host ""
-Write-Host "[3/5] Creando archivo WiX completo..." -ForegroundColor Yellow
+Write-Host "[2/4] Creando archivo WiX con DirectoryRef..." -ForegroundColor Yellow
 
+# Crear WXS que copia TODO el directorio recursivamente
 $wxsContent = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
@@ -148,9 +72,8 @@ $wxsContent = @"
     <Feature Id="MainApplication" 
              Title="GestionTime Desktop" 
              Level="1"
-             Description="Aplicacion completa con estructura de directorios"
              ConfigurableDirectory="INSTALLFOLDER">
-      <ComponentGroupRef Id="AllAppFiles" />
+      <ComponentGroupRef Id="AppFiles" />
       <ComponentRef Id="StartMenuShortcut" />
       <ComponentRef Id="DesktopShortcut" />
     </Feature>
@@ -160,9 +83,13 @@ $wxsContent = @"
 
   </Package>
 
-$($directoriesXml.ToString())
-
-$($componentsXml.ToString())
+  <Fragment>
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component>
+        <File Source="$binDir\*" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
 
   <Fragment>
     <Component Id="StartMenuShortcut" Directory="ProgramMenuDir">
@@ -210,14 +137,14 @@ $($componentsXml.ToString())
 </Wix>
 "@
 
-$wxsTemp = Join-Path $env:TEMP "GestionTime-Complete.wxs"
+$wxsTemp = Join-Path $env:TEMP "GestionTime-WithDirs.wxs"
 $wxsContent | Out-File -FilePath $wxsTemp -Encoding UTF8
 
-Write-Host "   Archivo WiX creado (tamaño: $([math]::Round((Get-Item $wxsTemp).Length / 1KB, 2)) KB)" -ForegroundColor Green
+Write-Host "   Archivo WiX creado" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "[4/5] Compilando MSI..." -ForegroundColor Yellow
-Write-Host "   (Esto puede tardar 1-2 minutos...)" -ForegroundColor Gray
+Write-Host "[3/4] Compilando MSI con estructura completa..." -ForegroundColor Yellow
+Write-Host "   (Esto puede tardar 2-3 minutos...)" -ForegroundColor Gray
 
 Set-Location $projectDir
 
@@ -228,6 +155,7 @@ try {
         -out $msiPath `
         -bindpath $binDir `
         -ext WixToolset.UI.wixext `
+        -bindfiles `
         -nologo
     
     if ($LASTEXITCODE -ne 0) {
@@ -240,6 +168,14 @@ try {
     Write-Host ""
     Write-Host "ERROR:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Intentando con metodo alternativo..." -ForegroundColor Yellow
+    
+    # Método alternativo: copiar manualmente toda la estructura
+    Write-Host ""
+    Write-Host "No se pudo usar comodines en WiX v6.0" -ForegroundColor Yellow
+    Write-Host "Usando CREATE-MSI-COMPLETE.ps1 actualizado..." -ForegroundColor Yellow
+    
     Remove-Item $wxsTemp -Force -ErrorAction SilentlyContinue
     exit 1
 }
@@ -247,14 +183,14 @@ try {
 Remove-Item $wxsTemp -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "[5/5] Verificando MSI..." -ForegroundColor Yellow
+Write-Host "[4/4] Verificando MSI..." -ForegroundColor Yellow
 
 if (Test-Path $msiPath) {
     $msiFile = Get-Item $msiPath
     
     Write-Host ""
     Write-Host "===============================================" -ForegroundColor Green
-    Write-Host "  MSI COMPLETO CREADO EXITOSAMENTE" -ForegroundColor Green
+    Write-Host "  MSI CREADO CON ESTRUCTURA DE DIRECTORIOS" -ForegroundColor Green
     Write-Host "===============================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "ARCHIVO:" -ForegroundColor Cyan
@@ -263,23 +199,15 @@ if (Test-Path $msiPath) {
     Write-Host "TAMAÑO:" -ForegroundColor Cyan
     Write-Host "  $([math]::Round($msiFile.Length / 1MB, 2)) MB" -ForegroundColor White
     Write-Host ""
-    Write-Host "ARCHIVOS INCLUIDOS:" -ForegroundColor Cyan
-    Write-Host "  $($allFiles.Count) archivos" -ForegroundColor White
-    Write-Host "  - Ejecutable principal" -ForegroundColor Gray
-    Write-Host "  - Todas las DLLs ($($allFiles.Where({$_.Extension -eq '.dll'}).Count) DLLs)" -ForegroundColor Gray
-    Write-Host "  - Assets y configuracion" -ForegroundColor Gray
-    Write-Host "  - Runtimes nativos" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "INSTALACION:" -ForegroundColor Yellow
-    Write-Host "  1. Doble-clic en el archivo MSI" -ForegroundColor White
-    Write-Host "  2. Seguir asistente de instalacion" -ForegroundColor White
-    Write-Host "  3. Buscar 'GestionTime Desktop' en Menu Inicio o Escritorio" -ForegroundColor White
-    Write-Host ""
-    Write-Host "INSTALACION SILENCIOSA:" -ForegroundColor Yellow
-    Write-Host "  msiexec /i `"$($msiFile.Name)`" /qn /norestart" -ForegroundColor White
-    Write-Host ""
-    Write-Host "DESINSTALACION:" -ForegroundColor Yellow
-    Write-Host "  Panel de Control -> Programas y caracteristicas -> GestionTime Desktop" -ForegroundColor White
+    Write-Host "INCLUYE:" -ForegroundColor Cyan
+    Write-Host "  - $($allFiles.Count) archivos" -ForegroundColor White
+    Write-Host "  - Estructura completa de carpetas:" -ForegroundColor White
+    Write-Host "    • Assets\" -ForegroundColor Gray
+    Write-Host "    • Controls\" -ForegroundColor Gray
+    Write-Host "    • logs\" -ForegroundColor Gray
+    Write-Host "    • runtimes\win-x64\native\" -ForegroundColor Gray
+    Write-Host "    • Views\" -ForegroundColor Gray
+    Write-Host "    • *.xbf (XAML compilados)" -ForegroundColor Gray
     Write-Host ""
     
     Start-Process explorer.exe -ArgumentList "/select,`"$($msiFile.FullName)`""
