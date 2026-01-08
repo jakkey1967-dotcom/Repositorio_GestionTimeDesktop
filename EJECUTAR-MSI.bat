@@ -1,3 +1,4 @@
-# Script wrapper que ejecuta CREATE-MSI-COMPLETE.ps1 correctamente
-cd C:\GestionTime\GestionTimeDesktop
-powershell_ise.exe .\CREATE-MSI-COMPLETE.ps1
+@echo off
+REM Script para ejecutar CREATE-MSI-COMPLETE.ps1 en PowerShell ISE
+cd /d C:\GestionTime\GestionTimeDesktop
+powershell_ise.exe -File ".\CREATE-MSI-COMPLETE.ps1"
