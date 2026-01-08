@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+  <Product Id="*"
+           Name="GestionTime Desktop"
+           Language="1034"
+           Version="1.2.0.0"
+           Manufacturer="Global Retail Solutions"
+           UpgradeCode="F1E2D3C4-B5A6-9780-ABCD-123456789012">
+    
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    
+    <MajorUpgrade DowngradeErrorMessage="Ya existe una version mas reciente instalada." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Iconos -->
+    <Icon Id="AppIcon.ico" SourceFile="Assets\app_logo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <Property Id="ARPCONTACT" Value="soporte@gestiontime.com" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop" />
+
+    <!-- Estructura de directorios -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="ManufacturerFolder" Name="GestionTime">
+          <Directory Id="INSTALLFOLDER" Name="Desktop" />
+        </Directory>
+      </Directory>
+      
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="GestionTime Desktop" />
+      </Directory>
+      
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <!-- Features -->
+    <Feature Id="ProductFeature" Title="GestionTime Desktop" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <!-- UI -->
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    
+  </Product>
+
+  <!-- Acceso directo Menu Inicio -->
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="B2C3D4E5-F6A7-8901-BCDE-F12345678901">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="GestionTime Desktop"
+                  Description="Sistema de gestion de partes de trabajo"
+                  Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.ico" />
+        
+        <Shortcut Id="UninstallProduct"
+                  Name="Desinstalar GestionTime Desktop"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]" />
+        
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime\Desktop" 
+                       Name="installed" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+  <!-- Acceso directo Escritorio -->
+  <Fragment>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="C3D4E5F6-A7B8-9012-CDEF-123456789012">
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Name="GestionTime Desktop"
+                  Description="Sistema de gestion de partes de trabajo"
+                  Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.ico" />
+        
+        <RemoveFolder Id="RemoveDesktopFolder" Directory="DesktopFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime\Desktop" 
+                       Name="desktopShortcut" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+</Wix>
