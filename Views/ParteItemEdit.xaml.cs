@@ -1095,6 +1095,10 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogInformation("   • ticket: '{ticket}'", payload.Ticket ?? "(null)");
             App.Log?.LogInformation("   • 🆕 estado: {estado}", payload.Estado?.ToString() ?? "(null - CREATE)");
             App.Log?.LogInformation("---------------------------------------------------------------");
+            
+            // Variables para determinar el tipo de operación y mostrar notificación apropiada
+            bool esCreacion = Parte.Id == 0;
+            string tipoOperacion = esCreacion ? "creado" : "actualizado";
 
             if (Parte.Id > 0)
             {
@@ -1300,6 +1304,27 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogInformation("   • Guardado = true");
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             
+            // 🆕 NUEVO: Mostrar notificación de éxito
+            string mensajeNotificacion;
+            if (cerrarParte)
+            {
+                mensajeNotificacion = esCreacion 
+                    ? $"Parte #{Parte.Id} creado y cerrado correctamente" 
+                    : $"Parte #{Parte.Id} actualizado y cerrado correctamente";
+            }
+            else
+            {
+                mensajeNotificacion = esCreacion 
+                    ? $"Parte #{Parte.Id} creado correctamente" 
+                    : $"Parte #{Parte.Id} actualizado correctamente";
+            }
+            
+            App.Notifications?.ShowSuccess(
+                mensajeNotificacion,
+                title: "✅ Guardado Exitoso");
+            
+            App.Log?.LogInformation("🔔 Notificación mostrada: {mensaje}", mensajeNotificacion);
+            
             _parentWindow?.Close();
         }
         catch (ApiException apiEx)
@@ -1314,6 +1339,11 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogError("   • Mensaje del servidor: {serverMsg}", apiEx.ServerMessage ?? "(sin mensaje)");
             App.Log?.LogError("   • Error del servidor: {serverError}", apiEx.ServerError ?? "(sin error)");
             App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            
+            // 🆕 NUEVO: Mostrar notificación de error
+            App.Notifications?.ShowError(
+                $"Error: {apiEx.Message}\n\nCódigo: {apiEx.StatusCode}",
+                title: "❌ Error al Guardar");
             
             await ShowErrorAsync($"Error guardando parte:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}");
         }
@@ -1331,6 +1361,11 @@ public sealed partial class ParteItemEdit : Page
                 App.Log?.LogError("   • Inner exception: {inner}", ex.InnerException.Message);
             }
             App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            
+            // 🆕 NUEVO: Mostrar notificación de error
+            App.Notifications?.ShowError(
+                $"Error: {ex.Message}",
+                title: "❌ Error Inesperado");
             
             await ShowErrorAsync($"Error guardando parte: {ex.Message}");
         }
