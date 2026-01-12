@@ -1,0 +1,174 @@
+═══════════════════════════════════════════════════════════════════════
+  🚀 GENERAR INSTALADOR GESTIONTIME DESKTOP - GUÍA VISUAL
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  ¿QUÉ QUIERES HACER?                                                │
+│                                                                     │
+│  [A] Generar instalador rápido (ZIP)                               │
+│      👉 Doble clic en: GENERAR-INSTALADOR-PORTABLE.bat             │
+│      ⏱️ Tiempo: 1-2 minutos                                        │
+│      📦 Resultado: ZIP de ~45 MB                                    │
+│      ✅ Más fácil - Solo requiere .NET SDK 8                       │
+│                                                                     │
+│  [B] Generar instalador profesional (MSIX)                         │
+│      👉 Doble clic en: GENERAR-INSTALADOR-MSIX.bat                 │
+│      ⏱️ Tiempo: 2-3 minutos                                        │
+│      📦 Resultado: Instalador MSIX de ~42 MB                       │
+│      ⚙️ Requiere: Visual Studio 2022                               │
+│                                                                     │
+│  [C] Ver todas las opciones con menú                               │
+│      👉 Doble clic en: GENERAR-INSTALADOR-MENU.bat                 │
+│      📋 Menú interactivo con todas las opciones                     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+  📂 ESTRUCTURA DE ARCHIVOS
+═══════════════════════════════════════════════════════════════════════
+
+GestionTimeDesktop/
+│
+├── 🎯 INICIO-RAPIDO.md                       ← Lee esto primero
+├── 📖 COMO-GENERAR-INSTALADOR-SIMPLE.md      ← Guía completa
+│
+├── 🔵 GENERAR-INSTALADOR-MENU.bat            ← Menú principal
+├── ⚡ GENERAR-INSTALADOR-PORTABLE.bat        ← Opción más rápida
+├── 🏢 GENERAR-INSTALADOR-MSIX.bat            ← Opción profesional
+│
+├── Scripts PowerShell (se ejecutan automáticamente):
+│   ├── GENERAR-INSTALADOR-PORTABLE.ps1
+│   ├── GENERAR-MSIX-VISUAL-STUDIO.ps1
+│   └── CREATE-MSIX-INSTALLER.ps1
+│
+├── Installer/
+│   ├── Output/                               ← Instaladores generados aquí
+│   │   └── GestionTime-Desktop-X.X.X-Portable.zip
+│   └── README-*.md                           ← Documentación técnica
+│
+└── AppPackages/                              ← Paquetes MSIX aquí
+    └── GestionTime.Desktop_X.X.X_x64_Test/
+        └── GestionTime.Desktop_X.X.X_x64.msix
+
+═══════════════════════════════════════════════════════════════════════
+  ⚡ COMANDO RÁPIDO (1 MINUTO)
+═══════════════════════════════════════════════════════════════════════
+
+Si quieres el instalador YA sin leer nada:
+
+  1. Doble clic en: GENERAR-INSTALADOR-PORTABLE.bat
+  2. Esperar 1-2 minutos
+  3. Listo - ZIP generado en Installer\Output\
+
+═══════════════════════════════════════════════════════════════════════
+  📋 REQUISITOS MÍNIMOS
+═══════════════════════════════════════════════════════════════════════
+
+Para Portable (Opción A):
+  ✅ .NET SDK 8
+  ✅ PowerShell (incluido en Windows)
+
+Para MSIX (Opción B):
+  ✅ .NET SDK 8
+  ✅ Visual Studio 2022
+  ✅ PowerShell
+
+Verificar .NET SDK:
+  Abrir PowerShell → Escribir: dotnet --version
+  Debe mostrar: 8.0.xxx
+
+Descargar .NET SDK 8:
+  https://dotnet.microsoft.com/download/dotnet/8.0
+
+═══════════════════════════════════════════════════════════════════════
+  🎯 FLUJO DE TRABAJO RECOMENDADO
+═══════════════════════════════════════════════════════════════════════
+
+Primera vez:
+  1. Lee: INICIO-RAPIDO.md (2 minutos)
+  2. Ejecuta: GENERAR-INSTALADOR-MENU.bat
+  3. Elige opción 1 (Portable)
+
+Ya sabes cómo funciona:
+  1. Ejecuta directo: GENERAR-INSTALADOR-PORTABLE.bat
+  2. Espera 1-2 minutos
+  3. Distribuye el ZIP
+
+Para producción:
+  1. Ejecuta: GENERAR-INSTALADOR-MSIX.bat
+  2. Sigue instrucciones en Visual Studio
+  3. Distribuye el MSIX
+
+═══════════════════════════════════════════════════════════════════════
+  📊 COMPARACIÓN RÁPIDA
+═══════════════════════════════════════════════════════════════════════
+
+┌──────────────────┬─────────────────┬────────────────────┐
+│ Característica   │ Portable (ZIP)  │ MSIX               │
+├──────────────────┼─────────────────┼────────────────────┤
+│ Facilidad        │ ⭐⭐⭐⭐⭐        │ ⭐⭐⭐⭐           │
+│ Velocidad        │ 1-2 min         │ 2-3 min            │
+│ Tamaño           │ ~45 MB          │ ~42 MB             │
+│ Requisitos       │ Solo .NET SDK   │ Visual Studio      │
+│ Instalación      │ Extraer ZIP     │ Instalador Windows │
+│ Desinstalación   │ Borrar carpeta  │ Panel de Control   │
+│ Actualizaciones  │ Manual          │ Automáticas        │
+│ Apariencia       │ Carpeta simple  │ Profesional        │
+│ Windows 10/11    │ ✅              │ ✅                 │
+│ Windows 7/8      │ ✅              │ ❌                 │
+└──────────────────┴─────────────────┴────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+  🆘 SOLUCIÓN RÁPIDA DE PROBLEMAS
+═══════════════════════════════════════════════════════════════════════
+
+❌ "dotnet no se reconoce como comando"
+   → Instalar .NET SDK 8
+
+❌ "Error al compilar"
+   → Abrir Visual Studio
+   → Build > Rebuild Solution
+   → Volver a ejecutar script
+
+❌ "Visual Studio no encontrado"
+   → Usar método Portable (no lo requiere)
+
+❌ "El MSIX pide certificado"
+   → Click "Más información"
+   → Click "Instalar de todos modos"
+   → Es normal en desarrollo
+
+❌ "Tarda mucho tiempo"
+   → Es normal la primera vez (descarga NuGet)
+   → Siguientes veces serán más rápidas
+
+═══════════════════════════════════════════════════════════════════════
+  📞 SOPORTE
+═══════════════════════════════════════════════════════════════════════
+
+Email: soporte@gestiontime.com
+GitHub: https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop
+Docs: Ver carpeta Docs/ y Installer/
+
+═══════════════════════════════════════════════════════════════════════
+  ✅ VERIFICACIÓN POST-GENERACIÓN
+═══════════════════════════════════════════════════════════════════════
+
+Portable (ZIP):
+  1. Extraer ZIP en carpeta de prueba
+  2. Ejecutar: GestionTime.Desktop.exe
+  3. Verificar que abre correctamente
+
+MSIX:
+  1. Doble-clic en archivo .msix
+  2. Click "Instalar"
+  3. Buscar "GestionTime Desktop" en Menú Inicio
+  4. Ejecutar y verificar
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 RESUMEN: Para el 90% de los casos, usa GENERAR-INSTALADOR-PORTABLE.bat
+
+═══════════════════════════════════════════════════════════════════════
+                        Versión 1.2.0 - Enero 2026
