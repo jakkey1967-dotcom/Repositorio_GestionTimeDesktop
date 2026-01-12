@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Extensions.Logging; // 🆕 AGREGADO
 using System;
@@ -100,8 +100,23 @@ public sealed partial class CerrarParteDialog : ContentDialog
     /// </summary>
     private void ConfigurarEstadoInicial()
     {
-        // Pre-rellenar con hora actual
-        TxtHoraCierre.Text = DateTime.Now.ToString("HH:mm");
+        // 🆕 CORREGIDO: Pre-rellenar con HoraFin del parte (o hora actual como fallback)
+        string horaInicial;
+        
+        if (!string.IsNullOrWhiteSpace(_parte.HoraFin))
+        {
+            // Usar HoraFin del parte si existe
+            horaInicial = _parte.HoraFin;
+            App.Log?.LogDebug("📋 Usando HoraFin del parte: {hora}", horaInicial);
+        }
+        else
+        {
+            // Fallback: Si el parte no tiene HoraFin, usar hora actual
+            horaInicial = DateTime.Now.ToString("HH:mm");
+            App.Log?.LogDebug("🕐 Parte sin HoraFin - Usando hora actual: {hora}", horaInicial);
+        }
+        
+        TxtHoraCierre.Text = horaInicial;
         
         // Deshabilitar botón primario inicialmente (se habilitará al validar)
         this.IsPrimaryButtonEnabled = false;
