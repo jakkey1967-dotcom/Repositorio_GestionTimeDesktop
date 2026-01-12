@@ -37,48 +37,48 @@ public sealed partial class ParteItemEdit : Page
     private ComboBoxEventManager? _tipoEventManager;
     
     // Cache local de clientes (todavía usado para compatibilidad)
-    private static List<ClienteResponse>? _clientesCache = null;
-    private static DateTime? _cacheLoadedAt = null;
+    private static List<ClienteResponse>? _clientesCache;
+    private static DateTime? _cacheLoadedAt;
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
     
     // Cache local de grupos (usado por ComboBoxEventManager)
-    private static List<GrupoResponse>? _gruposCache = null;
-    private static DateTime? _gruposCacheLoadedAt = null;
+    private static List<GrupoResponse>? _gruposCache;
+    private static DateTime? _gruposCacheLoadedAt;
     
     // Cache local de tipos (usado por ComboBoxEventManager)
-    private static List<TipoResponse>? _tiposCache = null;
-    private static DateTime? _tiposCacheLoadedAt = null;
+    private static List<TipoResponse>? _tiposCache;
+    private static DateTime? _tiposCacheLoadedAt;
     
     // Items de Cliente para AutoSuggestBox
-    private ObservableCollection<string> _clienteSuggestions = new();
+    private readonly ObservableCollection<string> _clienteSuggestions = new();
     private DispatcherTimer? _clienteSearchTimer;
     private CancellationTokenSource? _clienteSearchCts;
     private string _lastClienteQuery = string.Empty;
     
     // Items de Cliente originales
-    private ObservableCollection<string> _clienteItems = new();
+    private readonly ObservableCollection<string> _clienteItems = new();
     private CancellationTokenSource? _clienteLoadCts;
-    private bool _clientesLoaded = false;
+    private bool _clientesLoaded;
     
     // Items de Grupo (usados por ComboBoxEventManager)
-    private ObservableCollection<string> _grupoItems = new();
+    private readonly ObservableCollection<string> _grupoItems = new();
     
     // Items de Tipo (usados por ComboBoxEventManager)
-    private ObservableCollection<string> _tipoItems = new();
+    private readonly ObservableCollection<string> _tipoItems = new();
     
     // Sistema de tracking de foco
     private string _lastFocusedControl = "";
-    private int _focusChangeCounter = 0;
+    private int _focusChangeCounter;
     private DateTime _lastFocusChangeTime = DateTime.Now;
 
     private bool _suppressHoraFormatting;
     
     // Flags para detectar si es la primera tecla después de recibir foco
-    private bool _horaInicioFirstKey = false;
-    private bool _horaFinFirstKey = false;
+    private bool _horaInicioFirstKey;
+    private bool _horaFinFirstKey;
     
     // Sistema de timestamp automático para TxtAccion
-    private bool _suppressAccionTimestamp = false;
+    private bool _suppressAccionTimestamp;
 
     public ParteItemEdit()
     {
@@ -109,7 +109,7 @@ public sealed partial class ParteItemEdit : Page
             await SearchClientesAsync();
         };
         
-        App.Log?.LogDebug("✅ AutoSuggestBox Cliente configurado com búsqueda dinámica");
+        App.Log?.LogDebug("✅ AutoSuggestBox Cliente configurado con búsqueda dinámica");
         
         // Configurar ComboBox de Grupo (solo lectura)
         CmbGrupo.ItemsSource = _grupoItems;
@@ -471,64 +471,13 @@ public sealed partial class ParteItemEdit : Page
                 }
                 
                 // Marcar como modificado
-                OnFieldChanged(combo, null!);
+                OnFieldChanged(combo, EventArgs.Empty);
                 
                 // Navegar al siguiente campo
                 MoveToNextControl(combo);
                 e.Handled = true;
             }
         }
-    }
-
-    /// <summary>Mueve el foco al siguiente control según el orden de TabIndex.</summary>
-    private void MoveToNextControl(Control? currentControl)
-    {
-        if (currentControl == null) return;
-        
-        var currentTabIndex = currentControl.TabIndex;
-        App.Log?.LogDebug("Moviendo desde {name} (TabIndex={index})", currentControl.Name, currentTabIndex);
-        
-        // Buscar el siguiente control con TabIndex mayor
-        var nextControl = FindNextTabControl(currentTabIndex);
-        
-        if (nextControl != null)
-        {
-            App.Log?.LogDebug("Siguiente control: {name} (TabIndex={index})", nextControl.Name, nextControl.TabIndex);
-            nextControl.Focus(FocusState.Keyboard);
-        }
-        else
-        {
-            App.Log?.LogDebug("No se encontró siguiente control");
-        }
-    }
-    
-    /// <summary>Encuentra el siguiente control navegable según su TabIndex.</summary>
-    private Control? FindNextTabControl(int currentTabIndex)
-    {
-        // Lista de controles en orden de TabIndex
-        var controls = new List<(Control control, int tabIndex)>
-        {
-            (DpFecha, DpFecha.TabIndex),
-            (TxtCliente, TxtCliente.TabIndex),
-            (TxtTienda, TxtTienda.TabIndex),
-            (TxtHoraInicio, TxtHoraInicio.TabIndex),
-            (TxtHoraFin, TxtHoraFin.TabIndex),
-            (TxtTicket, TxtTicket.TabIndex),
-            (CmbGrupo, CmbGrupo.TabIndex),
-            (CmbTipo, CmbTipo.TabIndex),
-            (TxtAccion, TxtAccion.TabIndex),
-            (BtnGuardar, BtnGuardar.TabIndex),
-            (BtnCancelar, BtnCancelar.TabIndex),
-            (BtnSalir, BtnSalir.TabIndex)
-        };
-
-        // Filtrar controles con TabIndex mayor al atual, ordenar y tomar el primero
-        var nextControl = controls
-            .Where(c => c.tabIndex > currentTabIndex && c.control.IsTabStop)
-            .OrderBy(c => c.tabIndex)
-            .FirstOrDefault();
-        
-        return nextControl.control;
     }
 
     private void OnAccionKeyDown(object? sender, KeyRoutedEventArgs e)
@@ -540,7 +489,7 @@ public sealed partial class ParteItemEdit : Page
         {
             if (BtnGuardar.IsEnabled)
             {
-                OnGuardarClick(sender, null!);
+                OnGuardarClick(sender, new RoutedEventArgs());
                 e.Handled = true;
             }
         }
@@ -605,7 +554,7 @@ public sealed partial class ParteItemEdit : Page
         {
             if (BtnGuardar.IsEnabled)
             {
-                OnGuardarClick(sender, null!);
+                OnGuardarClick(sender, new RoutedEventArgs());
                 e.Handled = true;
             }
         }
@@ -1812,7 +1761,7 @@ public sealed partial class ParteItemEdit : Page
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogDebug("🚫 Búsqueda de clientes cancelada");
+            App.Log?.LogDebug("🚫 Carga de clientes cancelada");
         }
         catch (Exception ex)
         {
@@ -1850,7 +1799,7 @@ public sealed partial class ParteItemEdit : Page
         {
             App.Log?.LogInformation("✅ Cliente seleccionado: {cliente}", selectedCliente);
             sender.Text = selectedCliente;
-            OnFieldChanged(sender, null!);
+            OnFieldChanged(sender, EventArgs.Empty);
         }
     }
     
@@ -1885,12 +1834,12 @@ public sealed partial class ParteItemEdit : Page
         }
         
         sender.Text = selectedCliente;
-        OnFieldChanged(sender, null!);
+        OnFieldChanged(sender, EventArgs.Empty);
         
         // Mover foco al siguiente campo (Tienda)
         TxtTienda.Focus(FocusState.Keyboard);
     }
-    
+
     /// <summary>Helper para truncar strings en logs con un máximo de caracteres.</summary>
     private static string Trim(string? s, int maxLen)
     {
@@ -1917,4 +1866,54 @@ public sealed partial class ParteItemEdit : Page
         
         return (int)Math.Round(duracion.TotalMinutes);
     }
-}
+    
+    /// <summary>Mueve el foco al siguiente control según el orden de TabIndex.</summary>
+    private void MoveToNextControl(Control? currentControl)
+    {
+        if (currentControl == null) return;
+        
+        var currentTabIndex = currentControl.TabIndex;
+        App.Log?.LogDebug("Moviendo desde {name} (TabIndex={index})", currentControl.Name, currentTabIndex);
+        
+        // Buscar el siguiente control con TabIndex mayor
+        var nextControl = FindNextTabControl(currentTabIndex);
+        
+        if (nextControl != null)
+        {
+            App.Log?.LogDebug("Siguiente control: {name} (TabIndex={index})", nextControl.Name, nextControl.TabIndex);
+            nextControl.Focus(FocusState.Keyboard);
+        }
+        else
+        {
+            App.Log?.LogDebug("No se encontró siguiente control");
+        }
+    }
+    
+    /// <summary>Encuentra el siguiente control navegable según su TabIndex.</summary>
+    private Control? FindNextTabControl(int currentTabIndex)
+    {
+        // Lista de controles en orden de TabIndex
+        var controls = new List<(Control control, int tabIndex)>
+        {
+            (DpFecha, DpFecha.TabIndex),
+            (TxtCliente, TxtCliente.TabIndex),
+            (TxtTienda, TxtTienda.TabIndex),
+            (TxtHoraInicio, TxtHoraInicio.TabIndex),
+            (TxtHoraFin, TxtHoraFin.TabIndex),
+            (TxtTicket, TxtTicket.TabIndex),
+            (CmbGrupo, CmbGrupo.TabIndex),
+            (CmbTipo, CmbTipo.TabIndex),
+            (TxtAccion, TxtAccion.TabIndex),
+            (BtnGuardar, BtnGuardar.TabIndex),
+            (BtnCancelar, BtnCancelar.TabIndex),
+            (BtnSalir, BtnSalir.TabIndex)
+        };
+
+        // Filtrar controles con TabIndex mayor al actual, ordenar y tomar el primero
+        var nextControl = controls
+            .Where(c => c.tabIndex > currentTabIndex && c.control.IsTabStop)
+            .OrderBy(c => c.tabIndex)
+            .FirstOrDefault();
+        
+        return nextControl.control;
+    }

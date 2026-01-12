@@ -1536,7 +1536,7 @@ public sealed partial class DiarioPage : Page
                     App.Notifications?.ShowInfo(
                         "Este parte ya está cerrado. Si necesitas trabajar en él de nuevo, usa la opción 'Duplicar' del menú contextual.",
                         title: "⚠️ Parte Ya Cerrado");
-                    
+                        
                     // No continuar con el fallback PUT
                     App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
                     return;
@@ -1613,98 +1613,172 @@ public sealed partial class DiarioPage : Page
                 App.Log?.LogInformation("   ⏱️ Tiempo total de peticiones HTTP: {ms}ms", requestStart.ElapsedMilliseconds);
             }
 
-        // Verificar que el cierre fue exitoso
-        if (!cierreCorrecto)
-        {
-            App.Log?.LogError("❌ CIERRE FALLIDO: No se pudo cerrar el parte {id}", parteId);
-            App.Log?.LogError("   ⚠️ Ambos métodos (POST y PUT) fallaron");
+            // Verificar que el cierre fue exitoso
+            if (!cierreCorrecto)
+            {
+                App.Log?.LogError("❌ CIERRE FALLIDO: No se pudo cerrar el parte {id}", parteId);
+                App.Log?.LogError("   ⚠️ Ambos métodos (POST y PUT) fallaron");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                await ShowInfoAsync($"❌ Error: No se pudo cerrar el parte.\n\nRevisa los logs para más detalles.");
+                return;
+            }
+
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            App.Log?.LogInformation("✅ CIERRE EXITOSO usando: {metodo}", metodoUsado);
+            App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
+            App.Log?.LogInformation("🎯 PASO 3: Actualización de caché local...");
+
+            // 🆕 CORREGIDO: Actualizar el objeto local INMEDIATAMENTE sin recargar desde servidor
+            var cacheUpdateStart = System.Diagnostics.Stopwatch.StartNew();
+            
+            // Actualizar en _cache30dias
+            var indexCache = _cache30dias.FindIndex(p => p.Id == parteId);
+            if (indexCache >= 0)
+            {
+                var parteCache = _cache30dias[indexCache];
+                parteCache.HoraFin = horaFin;
+                parteCache.EstadoInt = 2; // Cerrado
+                parteCache.EstadoNombre = "Cerrado";
+                parteCache.DuracionMin = CalcularDuracionMinutos(parteCache.HoraInicio, horaFin);
+                
+                _cache30dias[indexCache] = parteCache;
+                App.Log?.LogInformation("   ✅ Parte actualizado en _cache30dias (index: {index})", indexCache);
+                App.Log?.LogInformation("      • HoraFin: {hora}", horaFin);
+                App.Log?.LogInformation("      • Estado: Cerrado (2)");
+                App.Log?.LogInformation("      • Duración: {duracion} minutos", parteCache.DuracionMin);
+            }
+            else
+            {
+                App.Log?.LogWarning("   ⚠️ Parte ID {id} no encontrado en _cache30dias", parteId);
+            }
+            
+            // Actualizar en Partes (ObservableCollection)
+            var parteEnLista = Partes.FirstOrDefault(p => p.Id == parteId);
+            if (parteEnLista != null)
+            {
+                var indexLista = Partes.IndexOf(parteEnLista);
+                
+                // Crear nuevo objeto para forzar actualización de la UI
+                var parteActualizado = new ParteDto
+                {
+                    Id = parteEnLista.Id,
+                    Fecha = parteEnLista.Fecha,
+                    Cliente = parteEnLista.Cliente,
+                    Tienda = parteEnLista.Tienda,
+                    HoraInicio = parteEnLista.HoraInicio,
+                    HoraFin = horaFin, // 🆕 Actualizado
+                    Ticket = parteEnLista.Ticket,
+                    Grupo = parteEnLista.Grupo,
+                    Tipo = parteEnLista.Tipo,
+                    Accion = parteEnLista.Accion,
+                    DuracionMin = CalcularDuracionMinutos(parteEnLista.HoraInicio, horaFin), // 🆕 Recalculado
+                    Tecnico = parteEnLista.Tecnico,
+                    EstadoInt = 2, // 🆕 Cerrado
+                    EstadoNombre = "Cerrado", // 🆕 Actualizado
+                    IdCliente = parteEnLista.IdCliente,
+                    IdGrupo = parteEnLista.IdGrupo,
+                    IdTipo = parteEnLista.IdTipo
+                };
+                
+                Partes[indexLista] = parteActualizado;
+                App.Log?.LogInformation("   ✅ Parte actualizado en Partes (ObservableCollection, index: {index})", indexLista);
+            }
+            else
+            {
+                App.Log?.LogWarning("   ⚠️ Parte ID {id} no encontrado en Partes (ObservableCollection)", parteId);
+            }
+            
+            cacheUpdateStart.Stop();
+            App.Log?.LogInformation("   ⏱️ Cache local actualizado en {ms}ms", cacheUpdateStart.ElapsedMilliseconds);
+
+            // 🆕 NUEVO: Actualizar también el caché del ApiClient
+            App.Log?.LogInformation("   🗑️ Actualizando caché del ApiClient...");
+            
+            var parteEndpoint = $"/api/v1/partes/{parteId}";
+            if (parteEnLista != null)
+            {
+                var parteCacheDto = new ParteDto
+                {
+                    Id = parteEnLista.Id,
+                    Fecha = parteEnLista.Fecha,
+                    Cliente = parteEnLista.Cliente,
+                    Tienda = parteEnLista.Tienda,
+                    HoraInicio = parteEnLista.HoraInicio,
+                    HoraFin = horaFin,
+                    Ticket = parteEnLista.Ticket,
+                    Grupo = parteEnLista.Grupo,
+                    Tipo = parteEnLista.Tipo,
+                    Accion = parteEnLista.Accion,
+                    DuracionMin = CalcularDuracionMinutos(parteEnLista.HoraInicio, horaFin),
+                    Tecnico = parteEnLista.Tecnico,
+                    EstadoInt = 2,
+                    EstadoNombre = "Cerrado",
+                    IdCliente = parteEnLista.IdCliente,
+                    IdGrupo = parteEnLista.IdGrupo,
+                    IdTipo = parteEnLista.IdTipo
+                };
+                
+                App.Api.UpdateCacheEntry(parteEndpoint, parteCacheDto);
+                App.Log?.LogInformation("   ✅ Cache del ApiClient actualizado: {endpoint}", parteEndpoint);
+            }
+
+            stopwatch.Stop();
+
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-            await ShowInfoAsync($"❌ Error: No se pudo cerrar el parte.\n\nRevisa los logs para más detalles.");
-            return;
+            App.Log?.LogInformation("✅ PROCESO COMPLETADO EXITOSAMENTE");
+            App.Log?.LogInformation("   ⏱️ Tiempo total: {ms}ms ({seconds:F2}s)",
+                stopwatch.ElapsedMilliseconds, stopwatch.Elapsed.TotalSeconds);
+            App.Log?.LogInformation("   📊 Resumen:");
+            App.Log?.LogInformation("      • Método usado: {metodo}", metodoUsado);
+            App.Log?.LogInformation("      • Parte ID: {id}", parteId);
+            App.Log?.LogInformation("      • Hora de cierre: {hora}", horaFin);
+            App.Log?.LogInformation("      • Estado final: Cerrado (2)");
+            App.Log?.LogInformation("      • Actualización: Local instantánea (sin recarga)");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
         }
-
-        App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
-        App.Log?.LogInformation("✅ CIERRE EXITOSO usando: {metodo}", metodoUsado);
-        App.Log?.LogInformation("───────────────────────────────────────────────────────────────");
-        App.Log?.LogInformation("🎯 PASO 3: Post-procesamiento...");
-
-        // 🆕 NUEVO: Invalidar caché después de cerrar el parte
-        App.Log?.LogInformation("   🗑️ Invalidando caché de partes...");
-        var cacheStart = System.Diagnostics.Stopwatch.StartNew();
-
-        InvalidatePartesCache(parte.Fecha);
-
-        cacheStart.Stop();
-        App.Log?.LogInformation("   ✅ Caché invalidado en {ms}ms", cacheStart.ElapsedMilliseconds);
-
-        // CRUCIAL: Esperar un momento antes de recargar para asegurar que el backend procesó el cambio
-        App.Log?.LogInformation("   ⏳ Esperando 500ms para sincronización del backend...");
-        await Task.Delay(500);
-
-        App.Log?.LogInformation("   🔄 Recargando lista de partes desde el servidor...");
-        var reloadStart = System.Diagnostics.Stopwatch.StartNew();
-
-        await LoadPartesAsync();
-
-        reloadStart.Stop();
-        App.Log?.LogInformation("   ✅ Lista recargada en {ms}ms", reloadStart.ElapsedMilliseconds);
-
-        stopwatch.Stop();
-
-        App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-        App.Log?.LogInformation("✅ PROCESO COMPLETADO EXITOSAMENTE");
-        App.Log?.LogInformation("   ⏱️ Tiempo total: {ms}ms ({seconds:F2}s)",
-            stopwatch.ElapsedMilliseconds, stopwatch.Elapsed.TotalSeconds);
-        App.Log?.LogInformation("   📊 Resumen:");
-        App.Log?.LogInformation("      • Método usado: {metodo}", metodoUsado);
-        App.Log?.LogInformation("      • Parte ID: {id}", parteId);
-        App.Log?.LogInformation("      • Hora de cierre: {hora}", horaFin);
-        App.Log?.LogInformation("      • Estado final: Cerrado (2)");
-        App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-    }
-    catch (ApiException apiEx)
-    {
-        stopwatch.Stop();
-
-        App.Log?.LogError("═══════════════════════════════════════════════════════════════");
-        App.Log?.LogError("❌ ERROR API AL CERRAR PARTE {id}", parteId);
-        App.Log?.LogError("═══════════════════════════════════════════════════════════════");
-        App.Log?.LogError("🔴 DETALLES DEL ERROR:");
-        App.Log?.LogError("   • Tipo: ApiException");
-        App.Log?.LogError("   • StatusCode: {status} ({statusInt})", apiEx.StatusCode, (int)apiEx.StatusCode);
-        App.Log?.LogError("   • Mensaje: {message}", apiEx.Message);
-        App.Log?.LogError("   • Path: {path}", apiEx.Path);
-        App.Log?.LogError("   • Mensaje del servidor: {serverMsg}", apiEx.ServerMessage ?? "(sin mensaje)");
-        App.Log?.LogError("   • Error del servidor: {serverError}",
-            DiarioPageHelpers.TrimForLog(apiEx.ServerError ?? "(sin error)", 1000));
-        App.Log?.LogError("   • Stack trace: {stack}", apiEx.StackTrace);
-        App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
-        App.Log?.LogError("═══════════════════════════════════════════════════════════════");
-
-        await ShowInfoAsync($"❌ Error cerrando parte:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}\n\nRevisa los logs para más detalles.");
-    }
-    catch (Exception ex)
-    {
-        stopwatch.Stop();
-
-        App.Log?.LogError("═══════════════════════════════════════════════════════════════");
-        App.Log?.LogError("❌ ERROR INESPERADO AL CERRAR PARTE {id}", parteId);
-        App.Log?.LogError("═══════════════════════════════════════════════════════════════");
-        App.Log?.LogError("🔴 DETALLES DEL ERROR:");
-        App.Log?.LogError("   • Tipo: {type}", ex.GetType().Name);
-        App.Log?.LogError("   • Mensaje: {message}", ex.Message);
-        App.Log?.LogError("   • Stack trace: {stack}", ex.StackTrace);
-        if (ex.InnerException != null)
+        catch (ApiException apiEx)
         {
-            App.Log?.LogError("   • Inner exception: {inner}", ex.InnerException.Message);
-            App.Log?.LogError("   • Inner stack: {stack}", ex.InnerException.StackTrace);
-        }
-        App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
-        App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            stopwatch.Stop();
 
-        await ShowInfoAsync($"❌ Error inesperado cerrando parte:\n\n{ex.Message}\n\nRevisa los logs para más detalles.");
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("❌ ERROR API AL CERRAR PARTE {id}", parteId);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("🔴 DETALLES DEL ERROR:");
+            App.Log?.LogError("   • Tipo: ApiException");
+            App.Log?.LogError("   • StatusCode: {status} ({statusInt})", apiEx.StatusCode, (int)apiEx.StatusCode);
+            App.Log?.LogError("   • Mensaje: {message}", apiEx.Message);
+            App.Log?.LogError("   • Path: {path}", apiEx.Path);
+            App.Log?.LogError("   • Mensaje del servidor: {serverMsg}", apiEx.ServerMessage ?? "(sin mensaje)");
+            App.Log?.LogError("   • Error del servidor: {serverError}",
+                DiarioPageHelpers.TrimForLog(apiEx.ServerError ?? "(sin error)", 1000));
+            App.Log?.LogError("   • Stack trace: {stack}", apiEx.StackTrace);
+            App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+
+            await ShowInfoAsync($"❌ Error cerrando parte:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}\n\nRevisa los logs para más detalles.");
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("❌ ERROR INESPERADO AL CERRAR PARTE {id}", parteId);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogError("🔴 DETALLES DEL ERROR:");
+            App.Log?.LogError("   • Tipo: {type}", ex.GetType().Name);
+            App.Log?.LogError("   • Mensaje: {message}", ex.Message);
+            App.Log?.LogError("   • Stack trace: {stack}", ex.StackTrace);
+            if (ex.InnerException != null)
+            {
+                App.Log?.LogError("   • Inner exception: {inner}", ex.InnerException.Message);
+                App.Log?.LogError("   • Inner stack: {stack}", ex.InnerException.StackTrace);
+            }
+            App.Log?.LogError("   ⏱️ Tiempo transcurrido: {ms}ms", stopwatch.ElapsedMilliseconds);
+            App.Log?.LogError("═══════════════════════════════════════════════════════════════");
+
+            await ShowInfoAsync($"❌ Error inesperado cerrando parte:\n\n{ex.Message}\n\nRevisa los logs para más detalles.");
+        }
     }
-}
 
 /// <summary>
 /// Muestra el diálogo mejorado para cerrar un parte
@@ -1761,8 +1835,10 @@ private async void OnDuplicarClick(object sender, RoutedEventArgs e)
     {
         App.Log?.LogInformation("📋 DUPLICAR PARTE - ID: {id}", parteId);
 
+        // 🆕 CORREGIDO: Crear parte duplicado con ID = 0 para indicar que es NUEVO
         var nuevoParte = new ParteDto
         {
+            Id = 0,  // 🆕 IMPORTANTE: ID = 0 indica que es un parte NUEVO (no edición)
             Fecha = DateTime.Today,
             HoraInicio = DateTime.Now.ToString("HH:mm"),
             HoraFin = "",
@@ -1772,9 +1848,13 @@ private async void OnDuplicarClick(object sender, RoutedEventArgs e)
             Ticket = "",
             Grupo = parte.Grupo,
             Tipo = parte.Tipo,
-            EstadoParte = ParteEstado.Abierto
+            EstadoParte = ParteEstado.Abierto,
+            IdCliente = parte.IdCliente,
+            IdGrupo = parte.IdGrupo,
+            IdTipo = parte.IdTipo
         };
 
+        App.Log?.LogInformation("📝 Abriendo editor con parte duplicado (ID=0 indica NUEVO)...");
         await OpenParteEditorAsync(nuevoParte, $"📋 Duplicar Parte #{parte.Id}");
     }
     catch (Exception ex)
@@ -2138,5 +2218,26 @@ private async void OnDuplicarClick(object sender, RoutedEventArgs e)
         {
             App.Log?.LogError(ex, "Error actualizando tooltip");
         }
+    }
+    
+    /// <summary>Calcula la duración en minutos entre dos horas en formato HH:mm.</summary>
+    private static int CalcularDuracionMinutos(string? horaInicio, string? horaFin)
+    {
+        if (string.IsNullOrWhiteSpace(horaInicio) || string.IsNullOrWhiteSpace(horaFin))
+            return 0;
+        
+        if (!TimeSpan.TryParse(horaInicio, out var inicio))
+            return 0;
+        
+        if (!TimeSpan.TryParse(horaFin, out var fin))
+            return 0;
+        
+        var duracion = fin - inicio;
+        
+        // Si la duración es negativa, probablemente cruzó medianoche
+        if (duracion.TotalMinutes < 0)
+            duracion = duracion.Add(TimeSpan.FromDays(1));
+        
+        return (int)Math.Round(duracion.TotalMinutes);
     }
 }
