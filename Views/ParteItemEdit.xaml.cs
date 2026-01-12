@@ -1221,10 +1221,51 @@ public sealed partial class ParteItemEdit : Page
                     return;
                 }
                 
+                // 🆕 NUEVO: Si cerrarParte=true, llamar al endpoint /close
+                if (cerrarParte && nuevoEstado == 2)
+                {
+                    App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                    App.Log?.LogInformation("🔒 PASO 4.5: Cerrar parte recién creado");
+                    App.Log?.LogInformation("   • Parte ID: {id}", nuevoId);
+                    App.Log?.LogInformation("   • HoraFin: {hora}", horaFin);
+                    
+                    try
+                    {
+                        var closeEndpoint = $"/api/v1/partes/{nuevoId}/close?horaFin={Uri.EscapeDataString(horaFin)}";
+                        var closeFullUrl = $"{App.Api.BaseUrl}{closeEndpoint}";
+                        
+                        App.Log?.LogInformation("   📡 Endpoint: POST {endpoint}", closeEndpoint);
+                        App.Log?.LogInformation("   🌐 URL completa: {url}", closeFullUrl);
+                        App.Log?.LogInformation("   ⏳ Enviando petición de cierre...");
+                        
+                        var closeStart = System.Diagnostics.Stopwatch.StartNew();
+                        await App.Api.PostAsync(closeEndpoint);
+                        closeStart.Stop();
+                        
+                        App.Log?.LogInformation("✅ Parte {id} cerrado correctamente en {ms}ms", nuevoId, closeStart.ElapsedMilliseconds);
+                        App.Log?.LogInformation("   🕐 Hora de fin aplicada en servidor: {hora}", horaFin);
+                        App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                    }
+                    catch (ApiException closeEx)
+                    {
+                        App.Log?.LogError("❌ Error cerrando parte - StatusCode: {status}", closeEx.StatusCode);
+                        App.Log?.LogError("   💬 Mensaje: {message}", closeEx.Message);
+                        App.Log?.LogError("   📄 Mensaje del servidor: {serverMsg}", closeEx.ServerMessage ?? "(sin respuesta)");
+                        
+                        // No fallar el guardado completo, pero mostrar warning
+                        App.Notifications?.ShowWarning(
+                            $"El parte #{nuevoId} fue creado pero no se pudo cerrar automáticamente. Ciérralo manualmente desde la lista.",
+                            title: "⚠️ Cierre Parcial");
+                        
+                        // Continuar con estado Abierto en lugar de Cerrado
+                        nuevoEstado = 0;
+                    }
+                }
+                
                 int duracionCalculada = CalcularDuracionMinutos(Parte.HoraInicio, Parte.HoraFin);
                 var tecnicoNombre = _currentUserName;
                 
-                // 🆕 MODIFICADO: Usar el nuevo estado calculado (para parte nuevo)
+                // 🆕 MODIFICADO: Usar el estado REAL según si se cerró o no
                 var nuevoEstadoNombre = nuevoEstado switch
                 {
                     0 => "Abierto",
@@ -1246,7 +1287,7 @@ public sealed partial class ParteItemEdit : Page
                     Accion = Parte.Accion,
                     DuracionMin = duracionCalculada,
                     Tecnico = tecnicoNombre,
-                    // 🆕 MODIFICADO: Usar el nuevo estado calculado
+                    // 🆕 MODIFICADO: Usar el nuevo estado REAL (puede ser 0 si el cierre falló)
                     EstadoInt = nuevoEstado,
                     EstadoNombre = nuevoEstadoNombre,
                     IdCliente = clienteId,
