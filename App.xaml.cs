@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using MsLogLevel = Microsoft.Extensions.Logging.LogLevel; // Alias para evitar conflicto
 using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
@@ -12,6 +13,7 @@ using GestionTime.Desktop.Diagnostics;
 using GestionTime.Desktop.Services;
 using GestionTime.Desktop.Services.Notifications;
 using GestionTime.Desktop.Models.Dtos; // 🆕 NUEVO: Para UserProfileResponse
+using GestionTime.Desktop.Models; // 🆕 NUEVO: Para UpdateInfo
 
 namespace GestionTime.Desktop;
 
@@ -127,9 +129,9 @@ public partial class App : Application
             LogFactory = LoggerFactory.Create(builder =>
             {
                 #if DEBUG
-                    builder.SetMinimumLevel(LogLevel.Debug);
+                    builder.SetMinimumLevel(MsLogLevel.Debug);
                 #else
-                    builder.SetMinimumLevel(LogLevel.Information);
+                    builder.SetMinimumLevel(MsLogLevel.Information);
                 #endif
                 
                 // TEMPORAL: Usar solo DebugFileLoggerProvider para debugging
@@ -192,7 +194,7 @@ public partial class App : Application
             WriteEmergencyLog($"Logging init failed: {ex}");
             
             // Crear logger básico como fallback
-            LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug));
+            LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(MsLogLevel.Debug));
             Log = LogFactory.CreateLogger("GestionTime");
             
             // TEMPORAL: URLs hardcoded en fallback también
@@ -450,7 +452,14 @@ public partial class App : Application
         if (Notifications != null && Notifications.IsEnabled)
         {
             var message = $"Nueva versión {updateInfo.LatestVersion} disponible. ¡Descárgala ahora!";
-            Notifications.Show(message, NotificationService.NotificationType.Info, 10000);
+            var title = "Actualización disponible";
+            
+            var options = new NotificationOptions
+            {
+                DurationMs = 10000
+            };
+            
+            Notifications.ShowInfo(message, title, options);
             return;
         }
         
@@ -525,9 +534,9 @@ public partial class App : Application
             LogFactory = LoggerFactory.Create(builder =>
             {
                 #if DEBUG
-                    builder.SetMinimumLevel(LogLevel.Debug);
+                    builder.SetMinimumLevel(MsLogLevel.Debug);
                 #else
-                    builder.SetMinimumLevel(LogLevel.Information);
+                    builder.SetMinimumLevel(MsLogLevel.Information);
                 #endif
                 
                 builder.AddProvider(new DebugFileLoggerProvider(newLogPath));
@@ -554,7 +563,7 @@ public partial class App : Application
             // Intentar crear un logger de emergencia
             try
             {
-                LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug));
+                LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(MsLogLevel.Debug));
                 Log = LogFactory.CreateLogger("GestionTime");
                 Log.LogError(ex, "Error reconfigurando logger - usando logger de emergencia");
             }
