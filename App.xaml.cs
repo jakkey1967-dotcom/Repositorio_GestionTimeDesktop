@@ -29,6 +29,9 @@ public partial class App : Application
     
     // 🆕 NUEVO: NotificationService como singleton compartido
     public static INotificationService? Notifications { get; private set; }
+    
+    // 🆕 NUEVO: UpdateService para verificar actualizaciones
+    public static IUpdateService UpdateService { get; private set; } = null!;
 
     // 🆕 NUEVO: Session Store Global para perfil de usuario
     public static UserProfileResponse? CurrentUserProfile { get; set; }
@@ -170,6 +173,10 @@ public partial class App : Application
             // 🆕 NUEVO: Inicializar NotificationService como singleton
             Notifications = new NotificationService(LogFactory.CreateLogger<NotificationService>());
             Log.LogInformation("NotificationService inicializado. Enabled={enabled}", Notifications.IsEnabled);
+            
+            // 🆕 NUEVO: Inicializar UpdateService
+            UpdateService = new UpdateService(LogFactory.CreateLogger<UpdateService>());
+            Log.LogInformation("UpdateService inicializado");
 
             HookGlobalExceptions();
 
@@ -305,6 +312,10 @@ public partial class App : Application
             ApplyThemeFromSettings();
             System.Diagnostics.Debug.WriteLine("   ✅ Tema aplicado");
             
+            // 🆕 NUEVO: Verificar actualizaciones en segundo plano
+            System.Diagnostics.Debug.WriteLine("   Verificando actualizaciones...");
+            _ = CheckForUpdatesAsync();
+            
             Log.LogInformation("✅ Aplicación iniciada correctamente");
             System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════════════");
             System.Diagnostics.Debug.WriteLine("✅ OnLaunched() completado exitosamente");
@@ -398,6 +409,86 @@ public partial class App : Application
             Log.LogError(e.Exception, "UnobservedTaskException");
             e.SetObserved();
         };
+    }
+    
+    // ===== VERIFICACIÓN DE ACTUALIZACIONES =====
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            Log.LogInformation("Verificando actualizaciones disponibles...");
+            
+            // Esperar un poco para no bloquear el inicio
+            await Task.Delay(2000);
+            
+            var updateInfo = await UpdateService.CheckForUpdatesAsync();
+            
+            if (updateInfo.UpdateAvailable)
+            {
+                Log.LogInformation("Nueva versión disponible: {LatestVersion}", updateInfo.LatestVersion);
+                
+                // Mostrar notificación al usuario
+                MainWindowInstance.DispatcherQueue.TryEnqueue(() =>
+                {
+                    ShowUpdateNotification(updateInfo);
+                });
+            }
+            else
+            {
+                Log.LogInformation("Aplicación actualizada. Versión actual: {CurrentVersion}", updateInfo.CurrentVersion);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning(ex, "No se pudo verificar actualizaciones");
+        }
+    }
+    
+    private void ShowUpdateNotification(UpdateInfo updateInfo)
+    {
+        // Si hay un NotificationService, usar ese
+        if (Notifications != null && Notifications.IsEnabled)
+        {
+            var message = $"Nueva versión {updateInfo.LatestVersion} disponible. ¡Descárgala ahora!";
+            Notifications.Show(message, NotificationService.NotificationType.Info, 10000);
+            return;
+        }
+        
+        // Fallback: Crear un InfoBar en la ventana principal
+        try
+        {
+            if (MainWindowInstance?.Content is Microsoft.UI.Xaml.Controls.Frame frame &&
+                frame.Content is FrameworkElement pageRoot)
+            {
+                var infoBar = new Microsoft.UI.Xaml.Controls.InfoBar
+                {
+                    Title = "Actualización disponible",
+                    Message = $"Nueva versión {updateInfo.LatestVersion} disponible. Tu versión actual es {updateInfo.CurrentVersion}.",
+                    Severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational,
+                    IsOpen = true,
+                    IsClosable = true
+                };
+                
+                // Agregar botón de descarga
+                var button = new Microsoft.UI.Xaml.Controls.HyperlinkButton
+                {
+                    Content = "Ver actualizaciones",
+                    NavigateUri = new Uri("https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases")
+                };
+                
+                infoBar.ActionButton = button;
+                
+                // Intentar agregarlo al panel raíz de la página
+                if (pageRoot is Microsoft.UI.Xaml.Controls.Panel panel)
+                {
+                    panel.Children.Insert(0, infoBar);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning(ex, "No se pudo mostrar notificación de actualización");
+        }
     }
 
     // ===== RECONFIGURACIÓN DINÁMICA DEL LOGGER =====
