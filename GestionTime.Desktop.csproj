@@ -13,6 +13,7 @@
     <Nullable>enable</Nullable>
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <Utf8Output>true</Utf8Output>
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
     
     <!-- Configuración de plataforma corregida -->
     <Platform>x64</Platform>
@@ -207,4 +208,13 @@
     <PublisherName>GestionTime Solutions</PublisherName>
     <ProductName>GestionTime Desktop</ProductName>
   </PropertyGroup>
+
+  <!-- Target para copiar el archivo .pri a la carpeta de publicación -->
+  <Target Name="CopyPriFile" AfterTargets="Publish">
+    <ItemGroup>
+      <PriFile Include="$(OutDir)$(AssemblyName).pri" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PriFile)" DestinationFolder="$(PublishDir)" Condition="Exists('$(OutDir)$(AssemblyName).pri')" />
+    <Message Text="Copiando archivo PRI: $(OutDir)$(AssemblyName).pri -> $(PublishDir)" Importance="high" Condition="Exists('$(OutDir)$(AssemblyName).pri')" />
+  </Target>
 </Project>
