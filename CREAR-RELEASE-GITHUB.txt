@@ -1,0 +1,160 @@
+═══════════════════════════════════════════════════════════════
+CREAR RELEASE EN GITHUB - GESTIONTIME DESKTOP v1.1.0
+═══════════════════════════════════════════════════════════════
+
+📋 INSTRUCCIONES PARA CREAR EL RELEASE
+
+1. Ve a GitHub:
+   https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases
+
+2. Haz clic en "Draft a new release" o "Create a new release"
+
+3. Completa los campos:
+
+   Tag version: v1.1.0
+   ⚠️ IMPORTANTE: Debe empezar con 'v' seguido del número de versión
+   
+   Release title: GestionTime Desktop v1.1.0
+   
+   Description:
+   ```markdown
+   ## GestionTime Desktop v1.1.0
+   
+   ### ✨ Novedades
+   
+   - Sistema de actualización automática
+   - Verificación de nuevas versiones al iniciar
+   - Notificaciones cuando hay actualizaciones disponibles
+   - Instalador portable completo
+   - Todas las imágenes y recursos incluidos
+   
+   ### 📦 Instalación
+   
+   1. Descarga `GestionTime-v1.1.0.zip`
+   2. Descomprime el archivo
+   3. Ejecuta `INSTALAR.bat`
+   4. Acepta permisos de Administrador
+   5. ¡Listo!
+   
+   ### 📋 Requisitos
+   
+   - Windows 10 (1809+) o Windows 11
+   - Procesador x64
+   - 4 GB RAM
+   - 500 MB espacio libre
+   
+   ### 🔧 Características
+   
+   - ✅ Self-contained (.NET 8 incluido)
+   - ✅ Portable (no modifica registro)
+   - ✅ Instalador automático
+   - ✅ Accesos directos automáticos
+   - ✅ Verificación de actualizaciones
+   
+   ### 📦 Contenido
+   
+   - Aplicación completa (108.81 MB)
+   - Instalador automático INSTALAR.bat
+   - Carpeta Assets con todas las imágenes
+   - Archivo .pri con recursos XAML
+   - window-config.ini
+   - appsettings.json
+   
+   ### 🐛 Problemas corregidos
+   
+   - Error "Cannot locate resource from MainWindow.xaml"
+   - Imágenes de fondo no aparecían
+   - window-config.ini no se copiaba
+   - Carpeta Assets faltante
+   
+   ### 📞 Soporte
+   
+   Repositorio: https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop
+   Email: soporte@gestiontime.com
+   ```
+
+4. Sube el archivo:
+   
+   - Haz clic en "Attach binaries by dropping them here or selecting them"
+   - Selecciona el archivo: GestionTime-v1.1.0.zip (108.81 MB)
+   - Ubicación: C:\GestionTime\GestionTimeDesktop\GestionTime-v1.1.0.zip
+   - Espera a que se suba (puede tardar unos minutos)
+
+5. Configuraciones:
+
+   - ✅ Marca "Set as the latest release"
+   - ⚠️ NO marques "Set as a pre-release" (a menos que sea una versión beta)
+
+6. Haz clic en "Publish release"
+
+═══════════════════════════════════════════════════════════════
+
+🎯 VERIFICACIÓN POST-RELEASE
+
+Después de publicar, verifica:
+
+1. El release aparece en:
+   https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases
+
+2. El archivo ZIP se puede descargar
+
+3. La API de GitHub devuelve el release:
+   https://api.github.com/repos/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases/latest
+
+4. El tag v1.1.0 aparece en el repositorio
+
+═══════════════════════════════════════════════════════════════
+
+🔄 CÓMO FUNCIONA LA ACTUALIZACIÓN AUTOMÁTICA
+
+1. Al iniciar la aplicación, se conecta a la API de GitHub
+2. Obtiene información del último release
+3. Compara la versión actual (1.1.0) con la última disponible
+4. Si hay una nueva versión:
+   - Muestra una notificación al usuario
+   - Proporciona un enlace para descargar
+5. El usuario puede:
+   - Ver las notas de la versión
+   - Descargar la nueva versión
+   - Instalarla manualmente
+
+═══════════════════════════════════════════════════════════════
+
+📝 PARA FUTURAS VERSIONES
+
+Cuando publiques una nueva versión (ej: v1.2.0):
+
+1. Actualiza AssemblyVersion en GestionTime.Desktop.csproj:
+   <AssemblyVersion>1.2.0.0</AssemblyVersion>
+   <FileVersion>1.2.0.0</FileVersion>
+
+2. Publica la aplicación:
+   dotnet publish GestionTime.Desktop.csproj -c Release -r win-x64 --self-contained true -o publish\portable
+
+3. Verifica que se copien:
+   - GestionTime.Desktop.pri
+   - Carpeta Assets/
+   - window-config.ini
+
+4. Crea el instalador y el ZIP
+
+5. Crea un nuevo release en GitHub:
+   - Tag: v1.2.0
+   - Sube el nuevo ZIP
+   - Describe los cambios
+
+6. Publica el release
+
+7. Los usuarios que tengan v1.1.0 recibirán una notificación
+   automática de que hay v1.2.0 disponible
+
+═══════════════════════════════════════════════════════════════
+
+🎉 ¡SISTEMA DE ACTUALIZACIONES LISTO!
+
+Una vez publiques el release v1.1.0:
+- La aplicación verificará automáticamente nuevas versiones
+- Los usuarios serán notificados cuando haya actualizaciones
+- Todo funciona automáticamente desde GitHub Releases
+
+═══════════════════════════════════════════════════════════════
