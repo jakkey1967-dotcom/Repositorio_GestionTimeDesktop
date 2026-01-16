@@ -1,5 +1,5 @@
 ═══════════════════════════════════════════════════════════════
-GESTIONTIME DESKTOP v1.1.0 - PAQUETE SIMPLIFICADO
+GESTIONTIME DESKTOP v1.1.0 - PAQUETE SIMPLIFICADO (CORREGIDO)
 ═══════════════════════════════════════════════════════════════
 
 ✅ ARCHIVO LISTO PARA DISTRIBUIR
@@ -11,14 +11,18 @@ GESTIONTIME DESKTOP v1.1.0 - PAQUETE SIMPLIFICADO
    103.22 MB (comprimido)
    ~281 MB (descomprimido)
 
+🔧 CORRECCIÓN APLICADA:
+   El instalador ahora está completamente integrado en INSTALAR.bat
+   No requiere archivos .ps1 separados
+   Funciona 100% con comandos Windows nativos
+
 ═══════════════════════════════════════════════════════════════
 
-📂 CONTENIDO DEL ZIP (SIMPLIFICADO)
+📂 CONTENIDO DEL ZIP (SIMPLIFICADO Y CORREGIDO)
 
 GestionTime-v1.1.0.zip
 │
-├── INSTALAR.bat ⭐ (Doble clic aquí)
-├── Instalar.ps1 (Script PowerShell)
+├── INSTALAR.bat ⭐ (Instalador completo - TODO EN UNO)
 ├── LEEME.txt (Instrucciones breves)
 └── App\
     └── [355 archivos de la aplicación]
