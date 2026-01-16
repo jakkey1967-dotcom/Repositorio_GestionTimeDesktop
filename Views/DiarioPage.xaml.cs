@@ -157,6 +157,12 @@ public sealed partial class DiarioPage : Page
         accelImportar.Invoked += (s, e) => { OnImportarExcel(this, new RoutedEventArgs()); e.Handled = true; };
         this.KeyboardAccelerators.Add(accelImportar);
 
+        // Ctrl+X - Exportar Excel
+        var accelExportar = new KeyboardAccelerator { Key = Windows.System.VirtualKey.X };
+        accelExportar.Modifiers = Windows.System.VirtualKeyModifiers.Control;
+        accelExportar.Invoked += (s, e) => { OnExportarExcel(this, new RoutedEventArgs()); e.Handled = true; };
+        this.KeyboardAccelerators.Add(accelExportar);
+
         // Delete - Borrar
         var accelBorrar = new KeyboardAccelerator { Key = Windows.System.VirtualKey.Delete };
         accelBorrar.Invoked += (s, e) => { OnBorrar(this, new RoutedEventArgs()); e.Handled = true; };
@@ -175,7 +181,7 @@ public sealed partial class DiarioPage : Page
 
         // ❌ ELIMINADO: F12 - Configuración (botón removido del UI)
 
-        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, Ctrl+I, Delete, Ctrl+Q, F5");
+        App.Log?.LogDebug("Atajos de teclado configurados: Ctrl+T, Ctrl+N, Ctrl+E, Ctrl+I, Ctrl+X, Delete, Ctrl+Q, F5");
     }
 
     // ===================== ANIMACIONES HOVER =====================
@@ -1312,6 +1318,193 @@ public sealed partial class DiarioPage : Page
             
             App.Log?.LogInformation("🔄 Spinner de carga ocultado");
         }
+    }
+
+    private async void OnExportarExcel(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.IsBusy)
+        {
+            App.Log?.LogWarning("⚠️ Exportación ya en proceso, ignorando nueva petición");
+            return;
+        }
+
+        try
+        {
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogInformation("📊 EXPORTAR A EXCEL - Iniciando proceso");
+            
+            // Paso 1: Calcular semanas disponibles desde los datos actuales
+            var weeks = CalculateAvailableWeeks(Partes);
+            
+            if (!weeks.Any())
+            {
+                App.Log?.LogWarning("⚠️ No hay datos disponibles para exportar");
+                App.Notifications?.ShowWarning(
+                    "No hay partes cargados para exportar. Carga datos primero.",
+                    title: "⚠️ Sin Datos");
+                return;
+            }
+            
+            App.Log?.LogInformation("📅 Semanas disponibles: {count}", weeks.Count);
+            
+            // Paso 2: Calcular conteo de registros por semana
+            var recordCounts = CalculateRecordCountsByWeek(Partes, weeks);
+            
+            // Paso 3: Mostrar diálogo de selección de semana
+            var dialog = new ExportWeekDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
+            
+            dialog.SetWeeks(weeks, recordCounts);
+            
+            var result = await dialog.ShowAsync();
+            
+            if (result != ContentDialogResult.Primary || dialog.SelectedWeek == null)
+            {
+                App.Log?.LogInformation("❌ Usuario canceló la exportación");
+                return;
+            }
+            
+            var selectedWeek = dialog.SelectedWeek;
+            App.Log?.LogInformation("✅ Semana seleccionada: {week} (Año: {year}, Semana: {num})",
+                selectedWeek.DisplayText, selectedWeek.Year, selectedWeek.WeekNumber);
+            
+            // Paso 4: Filtrar partes por semana seleccionada
+            var partesToExport = Partes
+                .Where(p => System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha) == selectedWeek.WeekNumber &&
+                           System.Globalization.ISOWeek.GetYear(p.Fecha) == selectedWeek.Year)
+                .OrderBy(p => p.Fecha)
+                .ThenBy(p => p.HoraInicio)
+                .ToList();
+            
+            App.Log?.LogInformation("📊 Registros a exportar: {count}", partesToExport.Count);
+            
+            if (!partesToExport.Any())
+            {
+                App.Log?.LogWarning("⚠️ No hay registros en la semana seleccionada");
+                App.Notifications?.ShowWarning(
+                    "La semana seleccionada no tiene registros para exportar.",
+                    title: "⚠️ Sin Registros");
+                return;
+            }
+            
+            // Paso 5: Solicitar ubicación de guardado
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = $"GestionTime_Semana_{selectedWeek.Year}_{selectedWeek.WeekNumber:D2}"
+            };
+            
+            savePicker.FileTypeChoices.Add("Excel Workbook", new List<string> { ".xlsx" });
+            
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hWnd);
+            
+            var file = await savePicker.PickSaveFileAsync();
+            
+            if (file == null)
+            {
+                App.Log?.LogInformation("❌ Usuario canceló la selección de archivo");
+                return;
+            }
+            
+            App.Log?.LogInformation("📁 Archivo destino: {path}", file.Path);
+            
+            // Paso 6: Exportar (con loader)
+            ViewModel.IsBusy = true;
+            LoadingOverlay.Visibility = Visibility.Visible;
+            LoadingRing.IsActive = true;
+            
+            App.Log?.LogInformation("📤 Iniciando exportación...");
+            
+            var exportService = new Services.Export.ExcelExportService();
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            
+            await exportService.ExportAsync(partesToExport, file.Path, cts.Token);
+            
+            App.Log?.LogInformation("✅ Exportación completada exitosamente");
+            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+            
+            // Notificar éxito
+            App.Notifications?.ShowSuccess(
+                $"Se exportaron {partesToExport.Count} registros de la {selectedWeek.DisplayText}",
+                title: "✅ Exportación Exitosa");
+        }
+        catch (OperationCanceledException)
+        {
+            App.Log?.LogWarning("⚠️ Exportación cancelada por timeout o usuario");
+            App.Notifications?.ShowWarning(
+                "La exportación fue cancelada.",
+                title: "⚠️ Cancelado");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error durante la exportación");
+            App.Notifications?.ShowError(
+                $"Error: {ex.Message}",
+                title: "❌ Error de Exportación");
+        }
+        finally
+        {
+            ViewModel.IsBusy = false;
+            LoadingRing.IsActive = false;
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+            App.Log?.LogInformation("🔄 Exportación finalizada - Loader ocultado");
+        }
+    }
+
+    /// <summary>Calcula las semanas disponibles desde los partes cargados.</summary>
+    private List<Models.Export.WeekOption> CalculateAvailableWeeks(ObservableCollection<ParteDto> partes)
+    {
+        if (!partes.Any())
+            return new List<Models.Export.WeekOption>();
+        
+        var weekGroups = partes
+            .GroupBy(p => new
+            {
+                Year = System.Globalization.ISOWeek.GetYear(p.Fecha),
+                Week = System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha)
+            })
+            .OrderByDescending(g => g.Key.Year)
+            .ThenByDescending(g => g.Key.Week)
+            .ToList();
+        
+        var weeks = new List<Models.Export.WeekOption>();
+        
+        foreach (var group in weekGroups)
+        {
+            var startDate = System.Globalization.ISOWeek.ToDateTime(group.Key.Year, group.Key.Week, DayOfWeek.Monday);
+            var endDate = startDate.AddDays(6);
+            
+            weeks.Add(new Models.Export.WeekOption(
+                group.Key.Year,
+                group.Key.Week,
+                startDate,
+                endDate
+            ));
+        }
+        
+        return weeks;
+    }
+
+    /// <summary>Calcula el conteo de registros por cada semana.</summary>
+    private Dictionary<Models.Export.WeekOption, int> CalculateRecordCountsByWeek(
+        ObservableCollection<ParteDto> partes,
+        List<Models.Export.WeekOption> weeks)
+    {
+        var counts = new Dictionary<Models.Export.WeekOption, int>();
+        
+        foreach (var week in weeks)
+        {
+            var count = partes.Count(p =>
+                System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha) == week.WeekNumber &&
+                System.Globalization.ISOWeek.GetYear(p.Fecha) == week.Year);
+            
+            counts[week] = count;
+        }
+        
+        return counts;
     }
 
     private async void OnBorrar(object sender, RoutedEventArgs e)

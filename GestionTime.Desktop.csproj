@@ -85,6 +85,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
@@ -139,6 +140,9 @@
     <Page Include="Dialogs\ImportExcelDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialogs\ExportWeekDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Styles\LoginPageStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -157,6 +161,9 @@
   
   <ItemGroup>
     <None Include=".github\copilot-instructions.md" />
+    <None Include=".github\ISSUE_TEMPLATE\bug_report.md" />
+    <None Include=".github\ISSUE_TEMPLATE\feature_request.md" />
+    <None Include=".github\pull_request_template.md" />
     <None Include="bin\x64\Debug\net8.0-windows10.0.19041.0\window-config.ini" />
     <None Include="GestionTime.sln" />
   </ItemGroup>

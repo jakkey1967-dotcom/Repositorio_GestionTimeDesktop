@@ -137,8 +137,8 @@ public sealed class NotificationService : INotificationService
                     DurationMs = notification.DurationMs,
                     Actions = notification.Actions,
                     CorrelationId = notification.CorrelationId,
-                    IsRead = notification.IsRead,
-                    Icon = notification.Icon
+                    IsRead = notification.IsRead
+                    // ✅ IconGlyph se calcula automáticamente desde Type
                 };
                 
                 ActiveNotifications[index] = updatedNotification;
@@ -247,7 +247,6 @@ public sealed class NotificationService : INotificationService
         string? title,
         NotificationOptions? options)
     {
-        var icon = options?.CustomIcon ?? GetDefaultIcon(type);
         var duration = options?.DurationMs ?? _defaultDurationMs;
         
         return new NotificationItem
@@ -255,20 +254,12 @@ public sealed class NotificationService : INotificationService
             Type = type,
             Title = title,
             Message = TruncateMessage(message, 300),
-            Icon = icon,
+            // ✅ IconGlyph se calcula automáticamente desde Type
             DurationMs = duration,
             Actions = options?.Actions ?? new(),
             CorrelationId = options?.CorrelationId
         };
     }
-    
-    private static string GetDefaultIcon(NotificationType type) => type switch
-    {
-        NotificationType.Success => "\uE73E", // CheckMark
-        NotificationType.Warning => "\uE7BA", // Warning
-        NotificationType.Error => "\uE783",   // ErrorBadge
-        _ => "\uE946"                         // Info
-    };
     
     private static string TruncateMessage(string message, int maxLength)
     {

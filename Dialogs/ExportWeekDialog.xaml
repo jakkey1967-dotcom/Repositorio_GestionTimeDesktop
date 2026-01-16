@@ -1,0 +1,71 @@
+<ContentDialog
+    x:Class="GestionTime.Desktop.Dialogs.ExportWeekDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="📊 Exportar Partes a Excel"
+    PrimaryButtonText="Exportar"
+    CloseButtonText="Cancelar"
+    DefaultButton="Primary"
+    IsPrimaryButtonEnabled="{x:Bind IsWeekSelected, Mode=OneWay}"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="16" MinWidth="400">
+        <!-- Descripción -->
+        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextMuted}">
+            Selecciona la semana que deseas exportar. Se generará un archivo Excel (.xlsx) con todos los partes de esa semana.
+        </TextBlock>
+
+        <!-- Selector de semana -->
+        <StackPanel Spacing="8">
+            <TextBlock Text="Semana a exportar:" FontWeight="SemiBold"/>
+            <ComboBox x:Name="WeekComboBox"
+                      ItemsSource="{x:Bind Weeks}"
+                      SelectedItem="{x:Bind SelectedWeek, Mode=TwoWay}"
+                      DisplayMemberPath="DisplayText"
+                      HorizontalAlignment="Stretch"
+                      PlaceholderText="Selecciona una semana..."
+                      SelectionChanged="OnWeekSelectionChanged"/>
+        </StackPanel>
+
+        <!-- Info adicional -->
+        <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12"
+                Visibility="{x:Bind IsWeekSelected, Mode=OneWay}">
+            <StackPanel Spacing="8">
+                <TextBlock Text="📋 Información de exportación" FontWeight="SemiBold" FontSize="13"/>
+                
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8FD;" FontSize="14" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    <TextBlock>
+                        <Run Text="Registros a exportar:"/>
+                        <Run Text="{x:Bind RecordCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8A5;" FontSize="14" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    <TextBlock Text="Formato: Microsoft Excel (.xlsx)" FontSize="12" Foreground="{ThemeResource TextMuted}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8FE;" FontSize="14" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    <TextBlock FontSize="12" Foreground="{ThemeResource TextMuted}">
+                        <Run Text="Columnas: PROYECTO, FECHA, HORA INICIO, HORA FIN, DURACION, TAREA, GRUPO, TIPO"/>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Advertencia si no hay semanas -->
+        <InfoBar IsOpen="{x:Bind HasNoWeeks, Mode=OneWay}"
+                 Severity="Warning"
+                 Title="Sin datos"
+                 Message="No hay partes disponibles para exportar. Carga datos primero."/>
+    </StackPanel>
+</ContentDialog>

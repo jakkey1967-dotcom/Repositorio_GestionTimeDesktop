@@ -228,7 +228,7 @@ public sealed class ExcelPartesImportService
 
         // Estado: mapear texto a int (1=Abierto, 2=Cerrado, 3=Pausado)
         // 🔒 FORZADO: SIEMPRE Estado = 2 (Cerrado) para importación Excel
-        int estadoInt = 2; // FIJO: Todos los partes importados son CERRADOS
+        // (No es necesario variable intermedia, se usa directamente en el return)
 
         // ✅ MEJORADO: Buscar cliente por nombre en catálogo
         int clienteId = BuscarClienteId(cliente, logger);

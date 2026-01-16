@@ -41,13 +41,8 @@ public sealed partial class ParteItemEdit : Page
     private static DateTime? _cacheLoadedAt;
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
     
-    // Cache local de grupos (usado por ComboBoxEventManager)
-    private static List<GrupoResponse>? _gruposCache;
-    private static DateTime? _gruposCacheLoadedAt;
-    
-    // Cache local de tipos (usado por ComboBoxEventManager)
-    private static List<TipoResponse>? _tiposCache;
-    private static DateTime? _tiposCacheLoadedAt;
+    // ✅ ELIMINADO: Campos no usados (_gruposCache, _gruposCacheLoadedAt, _tiposCache, _tiposCacheLoadedAt)
+    // Los catálogos de Grupo y Tipo se gestionan ahora en CatalogManager
     
     // Items de Cliente para AutoSuggestBox
     private readonly ObservableCollection<string> _clienteSuggestions = new();
@@ -1917,3 +1912,4 @@ public sealed partial class ParteItemEdit : Page
         
         return nextControl.control;
     }
+}

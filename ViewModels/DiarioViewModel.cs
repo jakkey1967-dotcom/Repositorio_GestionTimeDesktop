@@ -49,6 +49,9 @@ public partial class DiarioViewModel : ObservableObject
     [ObservableProperty]
     private string lastCheckTime = "--:--";
 
+    [ObservableProperty]
+    private bool isBusy = false;
+
     public DiarioViewModel()
     {
         // Obtener el DispatcherQueue actual
@@ -148,4 +151,17 @@ public partial class DiarioViewModel : ObservableObject
         UserRole = role;
         App.Log?.LogInformation("👤 Usuario actualizado: {name} ({email}) - Rol: {role}", name, email, role);
     }
+
+    /// <summary>Referencia a la colección de partes visible (inyectada desde DiarioPage).</summary>
+    public ObservableCollection<ParteDto>? PartesVisibles { get; set; }
+
+    /// <summary>Comando para exportar partes a Excel por semana.</summary>
+    [RelayCommand]
+    private async Task ExportWeekAsync()
+    {
+        // La implementación está en DiarioPage.xaml.cs para acceder al XamlRoot
+        // Este comando solo sirve como punto de enlace desde el XAML
+        await Task.CompletedTask;
+    }
 }
+

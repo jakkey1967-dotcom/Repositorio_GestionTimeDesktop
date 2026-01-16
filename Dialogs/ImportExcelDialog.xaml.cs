@@ -145,8 +145,8 @@ public sealed partial class ImportExcelDialog : ContentDialog
                     App.Log?.LogDebug("  HoraInicio: {inicio}", item.HoraInicio);
                     App.Log?.LogDebug("  HoraFin: {fin}", item.HoraFin ?? "(null)");
                     App.Log?.LogDebug("  DuracionMin: {duracion}", item.DuracionMin?.ToString() ?? "(null)");
-                    App.Log?.LogDebug("  Accion: '{accion}'", item.Accion?.Length > 50 ? item.Accion.Substring(0, 50) + "..." : item.Accion);
-                    App.Log?.LogDebug("  Ticket: '{ticket}'", item.Ticket ?? "(null)");
+                    App.Log?.LogDebug("  Accion: '{accion}'", (item.Accion?.Length ?? 0) > 50 ? item.Accion!.Substring(0, 50) + "..." : (item.Accion ?? "(null)"));
+                    App.Log?.LogDebug("  Ticket: '{ticket}'", item.Tienda ?? "(null)");
                     App.Log?.LogDebug("  IdGrupo: {id}", item.IdGrupo?.ToString() ?? "(null)");
                     App.Log?.LogDebug("  IdTipo: {id}", item.IdTipo?.ToString() ?? "(null)");
                     App.Log?.LogDebug("  Estado: {estado} (será actualizado a 2 después de crear)", item.Estado);
@@ -172,7 +172,7 @@ public sealed partial class ImportExcelDialog : ContentDialog
                                 Tienda = item.Tienda,
                                 IdGrupo = item.IdGrupo,
                                 IdTipo = item.IdTipo,
-                                Accion = item.Accion,
+                                Accion = item.Accion ?? string.Empty,  // ✅ CORREGIDO: manejar null
                                 Ticket = item.Ticket,
                                 Tecnico = item.Tecnico,
                                 Estado = 2  // 🔒 FORZAR: Estado = 2 (Cerrado)
@@ -209,7 +209,7 @@ public sealed partial class ImportExcelDialog : ContentDialog
                     App.Log?.LogWarning("   📦 Payload que falló:");
                     App.Log?.LogWarning("      - FechaTrabajo: {fecha}", item.FechaTrabajo);
                     App.Log?.LogWarning("      - IdCliente: {id}", item.IdCliente);
-                    App.Log?.LogWarning("      - Accion: {accion}", item.Accion?.Length > 100 ? item.Accion.Substring(0, 100) + "..." : item.Accion);
+                    App.Log?.LogWarning("      - Accion: {accion}", (item.Accion?.Length ?? 0) > 100 ? item.Accion!.Substring(0, 100) + "..." : (item.Accion ?? "(null)"));
                 }
                 catch (Exception ex)
                 {
