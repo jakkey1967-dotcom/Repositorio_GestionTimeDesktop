@@ -1,0 +1,203 @@
+═══════════════════════════════════════════════════════════════
+GESTIONTIME DESKTOP v1.1.0 - INSTALADOR PORTABLE FINAL
+═══════════════════════════════════════════════════════════════
+
+✅ INSTALADOR COMPLETO Y FUNCIONAL
+
+Fecha: 16 de enero de 2026
+Estado: COMPLETADO Y PROBADO
+
+═══════════════════════════════════════════════════════════════
+
+📦 ARCHIVO FINAL PARA DISTRIBUIR
+
+Archivo: GestionTime-v1.1.0.zip
+Tamaño: 108.81 MB
+Ubicación: C:\GestionTime\GestionTimeDesktop\GestionTime-v1.1.0.zip
+
+═══════════════════════════════════════════════════════════════
+
+✅ PROBLEMAS RESUELTOS
+
+1. ✅ Instalador no funcionaba
+   → Creado INSTALAR.bat completo y funcional
+
+2. ✅ Faltaban archivos críticos
+   → window-config.ini ahora dentro de App/
+   → Agregado GestionTime.Desktop.pri (recursos XAML)
+
+3. ✅ Carpeta Assets faltante
+   → Todas las imágenes ahora incluidas (14 archivos)
+   → Actualizado .csproj para copiar Assets automáticamente
+
+4. ✅ Error "Cannot locate resource from MainWindow.xaml"
+   → Archivo .pri ahora se copia durante la publicación
+   → Target personalizado en .csproj
+
+═══════════════════════════════════════════════════════════════
+
+📂 ESTRUCTURA DEL PAQUETE FINAL
+
+GestionTime-v1.1.0.zip
+│
+├── INSTALAR.bat (Instalador automático con verificación)
+├── LEEME.txt (Instrucciones de instalación)
+├── app_logo.ico (Icono para accesos directos)
+│
+└── App/ (Aplicación completa)
+    ├── GestionTime.Desktop.exe
+    ├── GestionTime.Desktop.pri ⭐ (Recursos XAML)
+    ├── window-config.ini ⭐ (Configuración de ventanas)
+    ├── appsettings.json
+    ├── Assets/ ⭐ (14 imágenes)
+    │   ├── login_fondoClaro.png
+    │   ├── login_fondoOscuro.png
+    │   ├── diario_bg_Claro.png
+    │   ├── diario_bg_dark.png
+    │   ├── LogoClaro.png
+    │   ├── LogoOscuro.png
+    │   ├── app_logo.ico
+    │   └── [7 archivos más]
+    └── [355+ archivos DLL y recursos]
+
+═══════════════════════════════════════════════════════════════
+
+🚀 INSTRUCCIONES DE USO
+
+PARA EL USUARIO FINAL:
+
+1. Descomprime GestionTime-v1.1.0.zip
+2. Haz doble clic en INSTALAR.bat
+3. Acepta permisos de Administrador (UAC)
+4. Espera 1-2 minutos
+5. ¡Listo! Usa el acceso directo del Escritorio
+
+INSTALACIÓN AUTOMÁTICA EN:
+C:\app\gestiontime-desktop\
+
+═══════════════════════════════════════════════════════════════
+
+🔧 CARACTERÍSTICAS DEL INSTALADOR
+
+✅ Auto-elevación de permisos
+✅ Verificación de archivos críticos
+✅ Copia completa de Assets/
+✅ Crea accesos directos con icono
+✅ Acceso directo en Escritorio
+✅ Acceso directo en Menú Inicio
+✅ Mensajes de progreso (5 pasos)
+✅ Manejo de errores
+
+═══════════════════════════════════════════════════════════════
+
+🎯 VERIFICACIÓN POST-INSTALACIÓN
+
+El instalador verifica automáticamente:
+✅ GestionTime.Desktop.exe
+✅ GestionTime.Desktop.pri (CRÍTICO)
+✅ Carpeta Assets/
+✅ window-config.ini
+✅ appsettings.json
+
+═══════════════════════════════════════════════════════════════
+
+📋 CAMBIOS EN EL CÓDIGO FUENTE
+
+Archivo: GestionTime.Desktop.csproj
+
+1. Assets se copian automáticamente:
+   <Content Include="Assets\**\*.*">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </Content>
+
+2. Archivo .pri se copia durante publicación:
+   <Target Name="CopyPriFile" AfterTargets="Publish">
+     ...
+   </Target>
+
+═══════════════════════════════════════════════════════════════
+
+⚙️ REQUISITOS DEL SISTEMA
+
+Sistema Operativo:
+• Windows 10 (versión 1809 o superior)
+• Windows 11 (todas las versiones)
+
+Hardware:
+• Procesador x64 (64-bit)
+• RAM: 4 GB mínimo
+• Espacio en disco: 500 MB
+
+Permisos:
+• Administrador para instalar
+• Usuario normal para ejecutar
+
+═══════════════════════════════════════════════════════════════
+
+📤 PARA DISTRIBUIR
+
+OPCIÓN 1: Subir a servidor web
+- Archivo: GestionTime-v1.1.0.zip (108.81 MB)
+- Proporcionar link de descarga
+
+OPCIÓN 2: Compartir por email/USB
+- Archivo único y completo
+- Sin dependencias externas
+- Self-contained (.NET 8 Runtime incluido)
+
+═══════════════════════════════════════════════════════════════
+
+🐛 SOLUCIÓN DE PROBLEMAS
+
+P: "No aparecen las imágenes"
+R: ✅ RESUELTO - Assets incluido
+
+P: "Error de XAML al arrancar"
+R: ✅ RESUELTO - Archivo .pri incluido
+
+P: "No se guarda configuración de ventanas"
+R: ✅ RESUELTO - window-config.ini incluido
+
+P: "Falta un archivo DLL"
+R: Self-contained incluye todo
+
+═══════════════════════════════════════════════════════════════
+
+📞 SOPORTE
+
+GitHub: https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop
+Email: soporte@gestiontime.com
+
+═══════════════════════════════════════════════════════════════
+
+✅ COMMITS REALIZADOS
+
+1. feat: Anadir instalador portable completo
+2. docs: Crear paquete simplificado de instalacion
+3. fix: Corregir instalador - ahora funciona correctamente
+4. fix: Corregir instalador - incluir archivos faltantes
+5. fix: Agregar target para copiar archivo .pri en publicacion
+6. fix: Incluir carpeta Assets en publicacion
+
+═══════════════════════════════════════════════════════════════
+
+🎉 RESUMEN FINAL
+
+✅ Instalador completamente funcional
+✅ Todos los archivos críticos incluidos
+✅ Verificación automática durante instalación
+✅ Imágenes y recursos disponibles
+✅ Configuración personalizable
+✅ Código fuente actualizado en GitHub
+✅ Documentación completa
+
+ESTADO: LISTO PARA PRODUCCIÓN
+
+═══════════════════════════════════════════════════════════════
+
+© 2025 GestionTime Solutions
+Versión: 1.1.0
+.NET Framework: 8.0
+Plataforma: Windows x64
+
+═══════════════════════════════════════════════════════════════
