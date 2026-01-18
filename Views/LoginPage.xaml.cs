@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.IO;
@@ -32,6 +33,9 @@ namespace GestionTime.Desktop.Views
         {
             InitializeComponent();
             
+            // 🆕 NUEVO: Mostrar versión de la aplicación
+            SetAppVersion();
+            
             // 🆕 NUEVO: Cargar y aplicar tema global
             ThemeService.Instance.ApplyTheme(this);
             UpdateThemeCheckmarks();
@@ -44,6 +48,42 @@ namespace GestionTime.Desktop.Views
             
             // Iniciar fade in cuando se carga la página
             this.Loaded += OnPageLoaded;
+        }
+        
+        /// <summary>Establece la versión de la aplicación en el TextBlock.</summary>
+        private void SetAppVersion()
+        {
+            try
+            {
+                // Intentar obtener la versión informativa que incluye sufijos como "-beta"
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                
+                // 1. Intentar obtener InformationalVersion (incluye "-beta")
+                var infoVersionAttr = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                    .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute;
+                
+                if (infoVersionAttr != null && !string.IsNullOrWhiteSpace(infoVersionAttr.InformationalVersion))
+                {
+                    TxtVersion.Text = $"v{infoVersionAttr.InformationalVersion}";
+                }
+                else
+                {
+                    // 2. Fallback: usar FileVersion (no incluye sufijos)
+                    var version = assembly.GetName().Version;
+                    if (version != null)
+                    {
+                        TxtVersion.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
+                    }
+                    else
+                    {
+                        TxtVersion.Text = "v1.3.0-beta";
+                    }
+                }
+            }
+            catch
+            {
+                TxtVersion.Text = "v1.3.0-beta";
+            }
         }
 
         private async void OnPageLoaded(object sender, RoutedEventArgs e)

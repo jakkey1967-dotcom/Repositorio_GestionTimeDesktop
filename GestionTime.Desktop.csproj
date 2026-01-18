@@ -33,9 +33,9 @@
     <Product>GestionTime Desktop</Product>
     <Company>GestionTime Solutions</Company>
     <Copyright>© 2025 GestionTime Solutions</Copyright>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
-    <Version>1.2.0-beta</Version>
+    <AssemblyVersion>1.4.0.0</AssemblyVersion>
+    <FileVersion>1.4.0.0</FileVersion>
+    <Version>1.4.0-beta</Version>
     <Description>Aplicación de gestión de tiempo para partes de trabajo</Description>
   </PropertyGroup>
   
@@ -164,6 +164,7 @@
     <None Include=".github\ISSUE_TEMPLATE\feature_request.md" />
     <None Include=".github\pull_request_template.md" />
     <None Include="bin\x64\Debug\net8.0-windows10.0.19041.0\window-config.ini" />
+    <None Include="GestionTime.Installer\GestionTime.Installer.wixproj" />
     <None Include="GestionTime.sln" />
   </ItemGroup>
   
@@ -213,6 +214,6 @@
       <PriFile Include="$(OutDir)$(AssemblyName).pri" />
     </ItemGroup>
     <Copy SourceFiles="@(PriFile)" DestinationFolder="$(PublishDir)" Condition="Exists('$(OutDir)$(AssemblyName).pri')" />
-    <Message Text="Copiando archivo PRI: $(OutDir)$(AssemblyName).pri -> $(PublishDir)" Importance="high" Condition="Exists('$(OutDir)$(AssemblyName).pri')" />
+    <Message Text="Copiando archivo PRI: $(OutDir)$(AssemblyName).pri -&gt; $(PublishDir)" Importance="high" Condition="Exists('$(OutDir)$(AssemblyName).pri')" />
   </Target>
 </Project>

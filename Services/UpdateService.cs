@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -11,7 +12,9 @@ public class UpdateService : IUpdateService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<UpdateService> _logger;
-    private const string GitHubApiUrl = "https://api.github.com/repos/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases/latest";
+    
+    // Cambiado: Usar /releases en lugar de /releases/latest para incluir pre-releases
+    private const string GitHubApiUrl = "https://api.github.com/repos/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases";
     private const string GitHubReleasesUrl = "https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases";
 
     public UpdateService(ILogger<UpdateService> logger)
@@ -27,13 +30,42 @@ public class UpdateService : IUpdateService
         try
         {
             var assembly = Assembly.GetExecutingAssembly();
+            
+            // DEBUG: Logging extensivo
+            _logger.LogInformation("=== DEBUG GetCurrentVersion ===");
+            
+            // 1. Intentar obtener InformationalVersion (incluye sufijos como "-beta")
+            var allAttrs = assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
+            _logger.LogInformation("Atributos encontrados: {Count}", allAttrs.Length);
+            
+            var infoVersionAttr = allAttrs.FirstOrDefault() as AssemblyInformationalVersionAttribute;
+            
+            if (infoVersionAttr != null)
+            {
+                _logger.LogInformation("InformationalVersion encontrado: {Version}", infoVersionAttr.InformationalVersion);
+                if (!string.IsNullOrWhiteSpace(infoVersionAttr.InformationalVersion))
+                {
+                    _logger.LogInformation("Devolviendo InformationalVersion: {Version}", infoVersionAttr.InformationalVersion);
+                    return infoVersionAttr.InformationalVersion;
+                }
+            }
+            else
+            {
+                _logger.LogWarning("InformationalVersion NO encontrado");
+            }
+            
+            // 2. Fallback: usar AssemblyVersion (sin sufijos)
             var version = assembly.GetName().Version;
-            return version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.1.0";
+            _logger.LogInformation("AssemblyVersion: {Version}", version);
+            
+            var result = version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.3.0-beta";
+            _logger.LogInformation("Devolviendo AssemblyVersion: {Version}", result);
+            return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener la versión actual");
-            return "1.1.0";
+            return "1.4.0-beta";
         }
     }
 
@@ -46,7 +78,7 @@ public class UpdateService : IUpdateService
 
         try
         {
-            _logger.LogInformation("Verificando actualizaciones en GitHub...");
+            _logger.LogInformation("Verificando actualizaciones en GitHub (incluyendo pre-releases)...");
 
             var response = await _httpClient.GetAsync(GitHubApiUrl);
             
@@ -60,23 +92,32 @@ public class UpdateService : IUpdateService
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
 
+            // El endpoint /releases devuelve un array, tomamos el primer elemento (más reciente)
+            if (root.ValueKind != JsonValueKind.Array || root.GetArrayLength() == 0)
+            {
+                _logger.LogWarning("No se encontraron releases en GitHub");
+                return updateInfo;
+            }
+
+            var latestRelease = root[0]; // Primer release (más reciente, incluye pre-releases)
+
             // Obtener información del release
-            if (root.TryGetProperty("tag_name", out var tagName))
+            if (latestRelease.TryGetProperty("tag_name", out var tagName))
             {
                 updateInfo.LatestVersion = tagName.GetString()?.TrimStart('v') ?? string.Empty;
             }
 
-            if (root.TryGetProperty("name", out var name))
+            if (latestRelease.TryGetProperty("name", out var name))
             {
                 updateInfo.ReleaseName = name.GetString() ?? string.Empty;
             }
 
-            if (root.TryGetProperty("body", out var body))
+            if (latestRelease.TryGetProperty("body", out var body))
             {
                 updateInfo.ReleaseNotes = body.GetString() ?? string.Empty;
             }
 
-            if (root.TryGetProperty("published_at", out var publishedAt))
+            if (latestRelease.TryGetProperty("published_at", out var publishedAt))
             {
                 if (DateTime.TryParse(publishedAt.GetString(), out var date))
                 {
@@ -84,15 +125,16 @@ public class UpdateService : IUpdateService
                 }
             }
 
-            // Buscar el archivo .zip en los assets
-            if (root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
+            // Buscar el archivo .msi o .zip en los assets
+            if (latestRelease.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
             {
                 foreach (var asset in assets.EnumerateArray())
                 {
                     if (asset.TryGetProperty("name", out var assetName))
                     {
                         var fileName = assetName.GetString() ?? string.Empty;
-                        if (fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) && 
+                        if ((fileName.EndsWith(".msi", StringComparison.OrdinalIgnoreCase) || 
+                             fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) && 
                             fileName.Contains("GestionTime", StringComparison.OrdinalIgnoreCase))
                         {
                             if (asset.TryGetProperty("browser_download_url", out var downloadUrl))
@@ -106,17 +148,21 @@ public class UpdateService : IUpdateService
             }
 
             // Comparar versiones
+            _logger.LogInformation("=== Iniciando comparación de versiones ===");
+            _logger.LogInformation("CurrentVersion antes de comparar: '{CurrentVersion}'", updateInfo.CurrentVersion);
+            _logger.LogInformation("LatestVersion antes de comparar: '{LatestVersion}'", updateInfo.LatestVersion);
+            
             updateInfo.UpdateAvailable = IsNewerVersion(updateInfo.CurrentVersion, updateInfo.LatestVersion);
 
             if (updateInfo.UpdateAvailable)
             {
-                _logger.LogInformation("Nueva versión disponible: {LatestVersion} (actual: {CurrentVersion})", 
+                _logger.LogInformation("✅ NUEVA VERSIÓN DISPONIBLE: {LatestVersion} (actual: {CurrentVersion})", 
                     updateInfo.LatestVersion, updateInfo.CurrentVersion);
             }
             else
             {
-                _logger.LogInformation("La aplicación está actualizada. Versión: {CurrentVersion}", 
-                    updateInfo.CurrentVersion);
+                _logger.LogInformation("ℹ️ La aplicación está actualizada. Versión: {CurrentVersion} (GitHub: {LatestVersion})", 
+                    updateInfo.CurrentVersion, updateInfo.LatestVersion);
             }
 
             return updateInfo;
@@ -171,25 +217,58 @@ public class UpdateService : IUpdateService
     {
         try
         {
+            _logger.LogInformation("=== Comparando versiones ===");
+            _logger.LogInformation("Versión actual: '{CurrentVersion}'", currentVersion);
+            _logger.LogInformation("Versión última: '{LatestVersion}'", latestVersion);
+            
             if (string.IsNullOrEmpty(latestVersion))
+            {
+                _logger.LogWarning("latestVersion está vacío");
                 return false;
+            }
 
             // Limpiar prefijos como 'v'
             currentVersion = currentVersion.TrimStart('v');
             latestVersion = latestVersion.TrimStart('v');
+            
+            _logger.LogInformation("Después de limpiar 'v' - Actual: '{Current}', Última: '{Latest}'", currentVersion, latestVersion);
 
             var current = ParseVersion(currentVersion);
             var latest = ParseVersion(latestVersion);
+            
+            _logger.LogInformation("Parseado - Actual: {CurrentMajor}.{CurrentMinor}.{CurrentPatch}", current.Major, current.Minor, current.Patch);
+            _logger.LogInformation("Parseado - Última: {LatestMajor}.{LatestMinor}.{LatestPatch}", latest.Major, latest.Minor, latest.Patch);
 
             // Comparar major, minor, patch
-            if (latest.Major > current.Major) return true;
-            if (latest.Major < current.Major) return false;
+            if (latest.Major > current.Major)
+            {
+                _logger.LogInformation("✅ Nueva versión disponible (Major: {LatestMajor} > {CurrentMajor})", latest.Major, current.Major);
+                return true;
+            }
+            if (latest.Major < current.Major)
+            {
+                _logger.LogInformation("❌ Versión actual es más nueva (Major: {CurrentMajor} > {LatestMajor})", current.Major, latest.Major);
+                return false;
+            }
 
-            if (latest.Minor > current.Minor) return true;
-            if (latest.Minor < current.Minor) return false;
+            if (latest.Minor > current.Minor)
+            {
+                _logger.LogInformation("✅ Nueva versión disponible (Minor: {LatestMinor} > {CurrentMinor})", latest.Minor, current.Minor);
+                return true;
+            }
+            if (latest.Minor < current.Minor)
+            {
+                _logger.LogInformation("❌ Versión actual es más nueva (Minor: {CurrentMinor} > {LatestMinor})", current.Minor, latest.Minor);
+                return false;
+            }
 
-            if (latest.Patch > current.Patch) return true;
-
+            if (latest.Patch > current.Patch)
+            {
+                _logger.LogInformation("✅ Nueva versión disponible (Patch: {LatestPatch} > {CurrentPatch})", latest.Patch, current.Patch);
+                return true;
+            }
+            
+            _logger.LogInformation("❌ Versiones son iguales o actual es más nueva");
             return false;
         }
         catch (Exception ex)

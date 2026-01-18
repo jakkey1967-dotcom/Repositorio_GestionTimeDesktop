@@ -176,7 +176,7 @@ public partial class App : Application
             Notifications = new NotificationService(LogFactory.CreateLogger<NotificationService>());
             Log.LogInformation("NotificationService inicializado. Enabled={enabled}", Notifications.IsEnabled);
             
-            // 🆕 NUEVO: Inicializar UpdateService
+            // 🆕 NUEVO: Inicializar UpdateService REAL
             UpdateService = new UpdateService(LogFactory.CreateLogger<UpdateService>());
             Log.LogInformation("UpdateService inicializado");
 
@@ -420,10 +420,18 @@ public partial class App : Application
         {
             Log.LogInformation("Verificando actualizaciones disponibles...");
             
-            // Esperar un poco para no bloquear el inicio
-            await Task.Delay(2000);
+            // Esperar más tiempo para asegurar que la UI esté completamente cargada
+            await Task.Delay(5000);
             
             var updateInfo = await UpdateService.CheckForUpdatesAsync();
+            
+            // 🔍 DEBUG: Logging detallado
+            Log.LogInformation("=== RESULTADO CHECK UPDATE ===");
+            Log.LogInformation("CurrentVersion: {Current}", updateInfo.CurrentVersion);
+            Log.LogInformation("LatestVersion: {Latest}", updateInfo.LatestVersion);
+            Log.LogInformation("UpdateAvailable: {Available}", updateInfo.UpdateAvailable);
+            Log.LogInformation("ReleaseName: {Name}", updateInfo.ReleaseName);
+            Log.LogInformation("===============================");
             
             if (updateInfo.UpdateAvailable)
             {
@@ -448,55 +456,209 @@ public partial class App : Application
     
     private void ShowUpdateNotification(UpdateInfo updateInfo)
     {
-        // Si hay un NotificationService, usar ese
-        if (Notifications != null && Notifications.IsEnabled)
-        {
-            var message = $"Nueva versión {updateInfo.LatestVersion} disponible. ¡Descárgala ahora!";
-            var title = "Actualización disponible";
-            
-            var options = new NotificationOptions
-            {
-                DurationMs = 10000
-            };
-            
-            Notifications.ShowInfo(message, title, options);
-            return;
-        }
+        Log.LogInformation("ShowUpdateNotification llamado - Versión {Current} -> {Latest}", 
+            updateInfo.CurrentVersion, updateInfo.LatestVersion);
         
-        // Fallback: Crear un InfoBar en la ventana principal
         try
         {
-            if (MainWindowInstance?.Content is Microsoft.UI.Xaml.Controls.Frame frame &&
-                frame.Content is FrameworkElement pageRoot)
+            MainWindowInstance.DispatcherQueue.TryEnqueue(async () =>
             {
-                var infoBar = new Microsoft.UI.Xaml.Controls.InfoBar
+                try
                 {
-                    Title = "Actualización disponible",
-                    Message = $"Nueva versión {updateInfo.LatestVersion} disponible. Tu versión actual es {updateInfo.CurrentVersion}.",
-                    Severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational,
-                    IsOpen = true,
-                    IsClosable = true
-                };
-                
-                // Agregar botón de descarga
-                var button = new Microsoft.UI.Xaml.Controls.HyperlinkButton
-                {
-                    Content = "Ver actualizaciones",
-                    NavigateUri = new Uri("https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases")
-                };
-                
-                infoBar.ActionButton = button;
-                
-                // Intentar agregarlo al panel raíz de la página
-                if (pageRoot is Microsoft.UI.Xaml.Controls.Panel panel)
-                {
-                    panel.Children.Insert(0, infoBar);
+                    // Verificar que tengamos XamlRoot disponible
+                    if (MainWindowInstance?.Content?.XamlRoot == null)
+                    {
+                        Log.LogWarning("XamlRoot no disponible, esperando...");
+                        await Task.Delay(1000);
+                    }
+                    
+                    if (MainWindowInstance?.Content?.XamlRoot != null)
+                    {
+                        Log.LogInformation("Mostrando diálogo de actualización");
+                        
+                        // Mostrar un diálogo modal
+                        var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                        {
+                            Title = "🔔 Actualización disponible",
+                            Content = $"¡Hay una nueva versión disponible!\n\n" +
+                                     $"• Versión actual: {updateInfo.CurrentVersion}\n" +
+                                     $"• Nueva versión: {updateInfo.LatestVersion}\n\n" +
+                                     $"¿Deseas descargar e instalar ahora?",
+                            PrimaryButtonText = "📥 Descargar e Instalar",
+                            CloseButtonText = "Más tarde",
+                            DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Primary,
+                            XamlRoot = MainWindowInstance.Content.XamlRoot
+                        };
+                        
+                        var result = await dialog.ShowAsync();
+                        
+                        if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                        {
+                            Log.LogInformation("Usuario decidió descargar e instalar la actualización");
+                            await DownloadAndInstallUpdateAsync(updateInfo);
+                        }
+                        else
+                        {
+                            Log.LogInformation("Usuario decidió postergar la actualización");
+                        }
+                    }
+                    else
+                    {
+                        Log.LogWarning("XamlRoot todavía no disponible después de esperar");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Log.LogError(ex, "Error en el dispatcher al mostrar notificación");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(ex, "Error crítico al mostrar notificación de actualización");
+        }
+    }
+    
+    private async Task DownloadAndInstallUpdateAsync(UpdateInfo updateInfo)
+    {
+        Microsoft.UI.Xaml.Controls.ContentDialog? progressDialog = null;
+        
+        try
+        {
+            // 1. Mostrar diálogo de progreso
+            var progressBar = new Microsoft.UI.Xaml.Controls.ProgressBar
+            {
+                IsIndeterminate = true,
+                Width = 300
+            };
+            
+            var textBlock = new Microsoft.UI.Xaml.Controls.TextBlock
+            {
+                Text = "Descargando actualización...",
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 10),
+                TextAlignment = Microsoft.UI.Xaml.TextAlignment.Center
+            };
+            
+            var stackPanel = new Microsoft.UI.Xaml.Controls.StackPanel
+            {
+                Children = { textBlock, progressBar }
+            };
+            
+            progressDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "🔄 Actualizando",
+                Content = stackPanel,
+                CloseButtonText = null,
+                XamlRoot = MainWindowInstance.Content.XamlRoot,
+                IsPrimaryButtonEnabled = false
+            };
+            
+            // Mostrar sin esperar (no bloqueante)
+            _ = progressDialog.ShowAsync();
+            
+            // 2. Descargar el MSI
+            var tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"GestionTime-{updateInfo.LatestVersion}.msi");
+            
+            Log.LogInformation("Descargando actualización desde: {Url}", updateInfo.DownloadUrl);
+            
+            var success = await UpdateService.DownloadUpdateAsync(updateInfo.DownloadUrl, tempPath);
+            
+            if (!success)
+            {
+                Log.LogError("Error al descargar la actualización");
+                progressDialog?.Hide();
+                
+                // Mostrar error
+                var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "❌ Error",
+                    Content = "No se pudo descargar la actualización.\n\nPuedes descargarla manualmente desde GitHub.",
+                    CloseButtonText = "OK",
+                    PrimaryButtonText = "Abrir GitHub",
+                    XamlRoot = MainWindowInstance.Content.XamlRoot
+                };
+                
+                var errorResult = await errorDialog.ShowAsync();
+                
+                if (errorResult == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                {
+                    UpdateService.OpenReleasesPage();
+                }
+                
+                return;
+            }
+            
+            Log.LogInformation("Actualización descargada en: {Path}", tempPath);
+            
+            // 3. Cerrar el diálogo de progreso
+            progressDialog?.Hide();
+            
+            // 4. Confirmar instalación
+            var confirmDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "✅ Descarga completada",
+                Content = $"La actualización se descargó correctamente.\n\n" +
+                         $"¿Deseas instalarla ahora?\n\n" +
+                         $"La aplicación se cerrará para instalar la actualización.",
+                PrimaryButtonText = "Instalar ahora",
+                CloseButtonText = "Cancelar",
+                XamlRoot = MainWindowInstance.Content.XamlRoot
+            };
+            
+            var confirmResult = await confirmDialog.ShowAsync();
+            
+            if (confirmResult == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                Log.LogInformation("Iniciando instalación de la actualización");
+                
+                // 5. Ejecutar el instalador MSI
+                var processStartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "msiexec.exe",
+                    Arguments = $"/i \"{tempPath}\" /qb",  // /qb = interfaz básica con progreso
+                    UseShellExecute = false
+                };
+                
+                System.Diagnostics.Process.Start(processStartInfo);
+                
+                Log.LogInformation("Instalador iniciado. Cerrando aplicación...");
+                
+                // 6. Cerrar la aplicación actual
+                await Task.Delay(500); // Pequeña pausa para que el instalador se inicie
+                
+                MainWindowInstance?.Close();
+                Exit();
+            }
+            else
+            {
+                Log.LogInformation("Usuario canceló la instalación");
             }
         }
         catch (Exception ex)
         {
-            Log.LogWarning(ex, "No se pudo mostrar notificación de actualización");
+            Log.LogError(ex, "Error durante la descarga/instalación de la actualización");
+            
+            progressDialog?.Hide();
+            
+            // Mostrar error
+            var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "❌ Error",
+                Content = $"Error durante la actualización:\n\n{ex.Message}\n\nPuedes descargar manualmente desde GitHub.",
+                CloseButtonText = "OK",
+                PrimaryButtonText = "Abrir GitHub",
+                XamlRoot = MainWindowInstance?.Content?.XamlRoot
+            };
+            
+            if (MainWindowInstance?.Content?.XamlRoot != null)
+            {
+                var errorResult = await errorDialog.ShowAsync();
+                
+                if (errorResult == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                {
+                    UpdateService.OpenReleasesPage();
+                }
+            }
         }
     }
 
