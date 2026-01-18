@@ -33,8 +33,9 @@
     <Product>GestionTime Desktop</Product>
     <Company>GestionTime Solutions</Company>
     <Copyright>© 2025 GestionTime Solutions</Copyright>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.2.0-beta</Version>
     <Description>Aplicación de gestión de tiempo para partes de trabajo</Description>
   </PropertyGroup>
   
