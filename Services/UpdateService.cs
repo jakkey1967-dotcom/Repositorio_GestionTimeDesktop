@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
+using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.Models;
 using Microsoft.Extensions.Logging;
 
@@ -29,43 +30,18 @@ public class UpdateService : IUpdateService
     {
         try
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            // ✅ Usar VersionInfo centralizado
+            var version = VersionInfo.Version;
             
-            // DEBUG: Logging extensivo
-            _logger.LogInformation("=== DEBUG GetCurrentVersion ===");
+            _logger.LogInformation("=== GetCurrentVersion ===");
+            _logger.LogInformation("Versión actual (desde VersionInfo): {Version}", version);
             
-            // 1. Intentar obtener InformationalVersion (incluye sufijos como "-beta")
-            var allAttrs = assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
-            _logger.LogInformation("Atributos encontrados: {Count}", allAttrs.Length);
-            
-            var infoVersionAttr = allAttrs.FirstOrDefault() as AssemblyInformationalVersionAttribute;
-            
-            if (infoVersionAttr != null)
-            {
-                _logger.LogInformation("InformationalVersion encontrado: {Version}", infoVersionAttr.InformationalVersion);
-                if (!string.IsNullOrWhiteSpace(infoVersionAttr.InformationalVersion))
-                {
-                    _logger.LogInformation("Devolviendo InformationalVersion: {Version}", infoVersionAttr.InformationalVersion);
-                    return infoVersionAttr.InformationalVersion;
-                }
-            }
-            else
-            {
-                _logger.LogWarning("InformationalVersion NO encontrado");
-            }
-            
-            // 2. Fallback: usar AssemblyVersion (sin sufijos)
-            var version = assembly.GetName().Version;
-            _logger.LogInformation("AssemblyVersion: {Version}", version);
-            
-            var result = version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.3.0-beta";
-            _logger.LogInformation("Devolviendo AssemblyVersion: {Version}", result);
-            return result;
+            return version;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener la versión actual");
-            return "1.4.0-beta";
+            return "1.4.1-beta"; // Fallback actualizado
         }
     }
 

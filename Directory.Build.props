@@ -10,6 +10,21 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- VERSIÓN CENTRALIZADA - FUENTE ÚNICA DE VERDAD                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- 🎯 VERSIÓN DE LA APLICACIÓN - Modificar SOLO AQUÍ -->
+    <AppVersionMajor>1</AppVersionMajor>
+    <AppVersionMinor>4</AppVersionMinor>
+    <AppVersionPatch>1</AppVersionPatch>
+    <AppVersionSuffix>-beta</AppVersionSuffix>
+    
+    <!-- Versión completa calculada automáticamente -->
+    <AppVersion>$(AppVersionMajor).$(AppVersionMinor).$(AppVersionPatch)$(AppVersionSuffix)</AppVersion>
+    <AppVersionNumeric>$(AppVersionMajor).$(AppVersionMinor).$(AppVersionPatch).0</AppVersionNumeric>
+  </PropertyGroup>
+
   <!-- Información de ensamblado común -->
   <PropertyGroup>
     <Company>GestionTime Solutions</Company>

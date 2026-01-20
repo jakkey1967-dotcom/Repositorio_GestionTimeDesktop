@@ -29,13 +29,15 @@
     <ApplicationIcon>Assets\app_logo.ico</ApplicationIcon>
     
     <!-- Información del producto para el instalador -->
+    <!-- ✅ VERSIÓN HEREDADA DE Directory.Build.props -->
     <AssemblyTitle>GestionTime Desktop</AssemblyTitle>
     <Product>GestionTime Desktop</Product>
     <Company>GestionTime Solutions</Company>
     <Copyright>© 2025 GestionTime Solutions</Copyright>
-    <AssemblyVersion>1.4.1.0</AssemblyVersion>
-    <FileVersion>1.4.1.0</FileVersion>
-    <Version>1.4.1-beta</Version>
+    <AssemblyVersion>$(AppVersionNumeric)</AssemblyVersion>
+    <FileVersion>$(AppVersionNumeric)</FileVersion>
+    <Version>$(AppVersion)</Version>
+    <InformationalVersion>$(AppVersion)</InformationalVersion>
     <Description>Aplicación de gestión de tiempo para partes de trabajo</Description>
   </PropertyGroup>
   

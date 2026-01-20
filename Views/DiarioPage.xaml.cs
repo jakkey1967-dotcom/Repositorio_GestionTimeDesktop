@@ -2418,7 +2418,7 @@ public sealed partial class DiarioPage : Page
 
             var dialog = new ContentDialog
             {
-                Title = "📋 Notas de Versión - GestionTime Desktop v1.4.1-beta",
+                Title = $"📋 Notas de Versión - GestionTime Desktop {VersionInfo.VersionWithPrefix}",
                 Content = CreateChangelogContent(),
                 PrimaryButtonText = "Ver en GitHub",
                 CloseButtonText = "Cerrar",
@@ -2460,7 +2460,7 @@ public sealed partial class DiarioPage : Page
         // Header
         var headerText = new TextBlock
         {
-            Text = "🎉 Novedades de la Versión 1.4.1-beta",
+            Text = $"🎉 Novedades de la Versión {VersionInfo.Version}",
             FontSize = 20,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
         };
@@ -2565,7 +2565,7 @@ public sealed partial class DiarioPage : Page
         // Versión actual
         var versionText = new TextBlock
         {
-            Text = "Versión actual: 1.4.1-beta",
+            Text = $"Versión actual: {VersionInfo.Version}",
             FontSize = 12,
             Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
             HorizontalAlignment = HorizontalAlignment.Center,

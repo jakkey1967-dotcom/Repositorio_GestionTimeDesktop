@@ -55,34 +55,13 @@ namespace GestionTime.Desktop.Views
         {
             try
             {
-                // Intentar obtener la versión informativa que incluye sufijos como "-beta"
-                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                
-                // 1. Intentar obtener InformationalVersion (incluye "-beta")
-                var infoVersionAttr = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
-                    .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute;
-                
-                if (infoVersionAttr != null && !string.IsNullOrWhiteSpace(infoVersionAttr.InformationalVersion))
-                {
-                    TxtVersion.Text = $"v{infoVersionAttr.InformationalVersion}";
-                }
-                else
-                {
-                    // 2. Fallback: usar FileVersion (no incluye sufijos)
-                    var version = assembly.GetName().Version;
-                    if (version != null)
-                    {
-                        TxtVersion.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
-                    }
-                    else
-                    {
-                        TxtVersion.Text = "v1.3.0-beta";
-                    }
-                }
+                // ✅ Usar VersionInfo centralizado
+                TxtVersion.Text = VersionInfo.VersionWithPrefix;
             }
-            catch
+            catch (Exception ex)
             {
-                TxtVersion.Text = "v1.3.0-beta";
+                App.Log?.LogError(ex, "Error obteniendo versión de la aplicación");
+                TxtVersion.Text = "v1.4.1-beta"; // Fallback
             }
         }
 
