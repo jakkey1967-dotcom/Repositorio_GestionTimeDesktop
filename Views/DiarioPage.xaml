@@ -412,6 +412,17 @@
                         <!-- Separador -->
                         <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
                         
+                        <!-- 🆕 NUEVO: Botón Notas de Versión -->
+                        <Button x:Name="BtnNotasVersion" Style="{StaticResource ToolbarButton}" Click="OnNotasVersionClick" 
+                                ToolTipService.ToolTip="Ver notas de versión y cambios recientes"
+                                PointerEntered="OnButtonPointerEntered"
+                                PointerExited="OnButtonPointerExited">
+                            <StackPanel Spacing="4">
+                                <FontIcon Glyph="&#xE946;" FontSize="24" Foreground="#8B5CF6"/>
+                                <TextBlock Text="Ayuda" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
                         <!-- 🆕 NUEVO: Botón Salir -->
                         <Button x:Name="BtnSalir" Style="{StaticResource ToolbarButton}" Click="OnLogout" 
                                 ToolTipService.ToolTip="Cerrar sesión (Ctrl+Q)"
@@ -483,41 +494,41 @@
                           Background="Transparent" 
                           BorderThickness="0" 
                           SelectionChanged="OnPartesSelectionChanged">
-                    <!-- ✅ RECURSOS DE ESTADOS VISUALES CON COLORES DIRECTOS -->
+                    <!-- ✅ RECURSOS DE ESTADOS VISUALES CON COLORES MEJORADOS -->
                     <ListView.Resources>
-                        <!-- ✅ FONDO POR DEFECTO - TRANSPARENTE PARA PERMITIR ZEBRA ROWS -->
+                        <!-- FONDO POR DEFECTO - Transparente para zebra rows -->
                         <SolidColorBrush x:Key="ListViewItemBackground" Color="Transparent"/>
                         
-                        <!-- Fondo sutil para hover -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#22FFFFFF"/>
+                        <!-- HOVER - Fondo sutil blanco 12% opacidad -->
+                        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#1FFFFFFF"/>
                         
-                        <!-- Fondo más marcado para pressed -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#33FFFFFF"/>
+                        <!-- PRESSED - Fondo un poco más marcado -->
+                        <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#28FFFFFF"/>
                         
-                        <!-- Fondo suave con acento para selected -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#2A0FA7B6"/>
+                        <!-- SELECTED - Acento #0FA7B6 con 15% opacidad -->
+                        <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#260FA7B6"/>
                         
-                        <!-- Fondo más visible para selected + hover -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#3A0FA7B6"/>
+                        <!-- SELECTED + HOVER - Acento con 22% opacidad -->
+                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#380FA7B6"/>
                         
-                        <!-- Selected + Pressed -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#450FA7B6"/>
+                        <!-- SELECTED + PRESSED - Acento con 28% opacidad -->
+                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#470FA7B6"/>
                         
-                        <!-- Mantener bordes transparentes en todos los estados -->
+                        <!-- BORDES - Transparentes en todos los estados -->
                         <SolidColorBrush x:Key="ListViewItemBorderBrushPointerOver" Color="Transparent"/>
                         <SolidColorBrush x:Key="ListViewItemBorderBrushPressed" Color="Transparent"/>
                         <SolidColorBrush x:Key="ListViewItemBorderBrushSelected" Color="Transparent"/>
                         <SolidColorBrush x:Key="ListViewItemBorderBrushSelectedPointerOver" Color="Transparent"/>
                         <SolidColorBrush x:Key="ListViewItemBorderBrushSelectedPressed" Color="Transparent"/>
                         
-                        <!-- Color de texto para tema oscuro (blanco) -->
-                        <SolidColorBrush x:Key="ListViewItemForeground" Color="#EDEFF2"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundPointerOver" Color="#EDEFF2"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundPressed" Color="#EDEFF2"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#EDEFF2"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#EDEFF2"/>
+                        <!-- TEXTO - Blanco/near-white en todos los estados -->
+                        <SolidColorBrush x:Key="ListViewItemForeground" Color="#F5F7FA"/>
+                        <SolidColorBrush x:Key="ListViewItemForegroundPointerOver" Color="#FFFFFF"/>
+                        <SolidColorBrush x:Key="ListViewItemForegroundPressed" Color="#FFFFFF"/>
+                        <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#FFFFFF"/>
+                        <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#FFFFFF"/>
                         
-                        <!-- Desactivar efecto de revelación (Reveal) -->
+                        <!-- Desactivar Reveal (sin efectos extraños) -->
                         <x:Boolean x:Key="ListViewItemRevealBackgroundShowsAboveContent">False</x:Boolean>
                     </ListView.Resources>
                     
@@ -533,7 +544,7 @@
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="8,6">
+                            <Grid Padding="8,7">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="90"/>
@@ -547,9 +558,9 @@
                                     <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="90"/>  <!-- ✅ Aumentado para pill de estado -->
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding FechaText}" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Cliente}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Tienda}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="0" Text="{Binding FechaText}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Cliente}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Tienda}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
                                 
                                 <!-- ✅ Columna Acción con Multiline (MaxLines=2) y Tooltip -->
                                 <TextBlock Grid.Column="3" 
@@ -557,17 +568,17 @@
                                            TextWrapping="Wrap"
                                            TextTrimming="CharacterEllipsis"
                                            MaxLines="2"
-                                           FontSize="12" 
+                                           FontSize="13" 
                                            Foreground="{ThemeResource TextMain}"
                                            ToolTipService.ToolTip="{Binding Accion}"
                                            ToolTipService.Placement="Bottom"/>
                                 
-                                <TextBlock Grid.Column="4" Text="{Binding HoraInicio}" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="5" Text="{Binding HoraFin}" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="6" Text="{Binding DuracionText}" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="7" Text="{Binding Ticket}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="8" Text="{Binding Grupo}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="9" Text="{Binding Tipo}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="12" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="4" Text="{Binding HoraInicio}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="5" Text="{Binding HoraFin}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="6" Text="{Binding DuracionText}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="7" Text="{Binding Ticket}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="8" Text="{Binding Grupo}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
+                                <TextBlock Grid.Column="9" Text="{Binding Tipo}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
                                 
                                 <!-- ✅ Estado: Pill profesional con icono y texto -->
                                 <Button Grid.Column="10" 

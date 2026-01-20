@@ -15,6 +15,46 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.0] - 2026-01-XX (En desarrollo)
+
+### ✨ Nuevas Funcionalidades
+
+#### Importación Excel Mejorada
+- **Detección automática de duplicados** por fecha + hora + cliente + acción
+- **Actualización inteligente** de registros duplicados (UPDATE en lugar de INSERT)
+- **Soporte para columna INCIDENCIA** como alias de Ticket
+- **Validación opcional** de Grupo y Tipo (null si no existen, sin error)
+- **Estadísticas detalladas**: Nuevos vs Actualizados vs Fallidos
+- **Confirmación al usuario** si se detectan duplicados antes de importar
+- **Log mejorado**: Muestra columnas detectadas con longitud y alias
+
+#### Gestión de Estados Mejorada
+- **Reanudar parte pausado**: Ahora solicita confirmación de hora de cierre
+  - ✅ Cierra el parte pausado con hora confirmada
+  - ✅ Crea nuevo parte duplicado con hora inicio = hora de cierre
+  - ✅ Mantiene ticket, cliente, acción, grupo, tipo
+  - ✅ Abre editor para confirmar antes de guardar
+
+### 🔧 Mejoras Técnicas
+
+#### Importación
+- Normalización de texto (sin acentos, mayúsculas) para búsqueda robusta
+- Cache de partes existentes (últimos 60 días) para validación rápida
+- Búsqueda de clientes por nombre exacto o parcial
+- Trim automático de nombres de columnas para evitar errores por espacios
+
+#### Logging
+- Log detallado de valores leídos por fila (debug mode)
+- Registro de duplicados detectados con ID del parte existente
+- Estadísticas de importación con contadores separados
+
+### 📋 Documentación
+- **CHANGELOG.md**: Registro completo de cambios por versión
+- **Notas de versión**: Accesibles desde la app (Menú > Ayuda > Notas de Versión)
+- **Link a GitHub Releases**: Para ver cambios detallados online
+
+---
+
 ## [1.0.0] - 2026-01-12
 
 ### ✨ Funcionalidades Principales

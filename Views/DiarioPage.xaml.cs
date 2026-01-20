@@ -1891,12 +1891,67 @@ public sealed partial class DiarioPage : Page
         try
         {
             App.Log?.LogInformation("▶️ REANUDAR PARTE - ID: {id}", parteId);
-            await App.Api.PostAsync($"/api/v1/partes/{parteId}/resume");
-            App.Log?.LogInformation("✅ Parte {id} reanudado correctamente", parteId);
+            App.Log?.LogInformation("📋 Estrategia: Confirmar hora cierre → Cerrar parte pausado → Crear nuevo duplicado");
+            
+            // 1️⃣ NUEVO: Mostrar diálogo para confirmar hora de cierre
+            App.Log?.LogInformation("🕐 Solicitando confirmación de hora de cierre...");
+            var horaFin = await AskHoraCierreAsync(parte);
+            
+            if (string.IsNullOrEmpty(horaFin))
+            {
+                App.Log?.LogInformation("❌ Usuario canceló la reanudación del parte");
+                return;
+            }
+            
+            App.Log?.LogInformation("✅ Hora de cierre confirmada: {hora}", horaFin);
+            
+            // 2️⃣ Cerrar el parte pausado actual con la hora confirmada
+            var updatePayload = new Models.Dtos.ParteCreateRequest
+            {
+                FechaTrabajo = parte.Fecha.ToString("yyyy-MM-dd"),
+                HoraInicio = parte.HoraInicio,
+                HoraFin = horaFin,
+                DuracionMin = CalcularDuracionMinutos(parte.HoraInicio, horaFin),
+                IdCliente = parte.IdCliente,
+                Tienda = parte.Tienda,
+                IdGrupo = parte.IdGrupo,
+                IdTipo = parte.IdTipo,
+                Accion = parte.Accion,
+                Ticket = parte.Ticket,
+                Tecnico = parte.Tecnico,
+                Estado = 2  // 2 = Cerrado
+            };
+            
+            App.Log?.LogInformation("🔒 Cerrando parte pausado (ID={id}) con HoraFin={hora}...", parteId, horaFin);
+            await App.Api.PutAsync<Models.Dtos.ParteCreateRequest, object>($"/api/v1/partes/{parteId}", updatePayload);
+            App.Log?.LogInformation("✅ Parte {id} cerrado correctamente", parteId);
+            
+            // 3️⃣ Crear nuevo parte con los mismos datos
+            var nuevoParte = new ParteDto
+            {
+                Id = 0,
+                Fecha = DateTime.Today,
+                HoraInicio = horaFin,  // ✅ Usar la hora de cierre confirmada como hora inicio del nuevo
+                HoraFin = "",
+                Cliente = parte.Cliente,
+                Tienda = parte.Tienda,
+                Accion = parte.Accion,
+                Ticket = parte.Ticket,  // ✅ Mantener ticket
+                Grupo = parte.Grupo,
+                Tipo = parte.Tipo,
+                Tecnico = parte.Tecnico,
+                EstadoParte = ParteEstado.Abierto,
+                IdCliente = parte.IdCliente,
+                IdGrupo = parte.IdGrupo,
+                IdTipo = parte.IdTipo
+            };
+            
+            App.Log?.LogInformation("📝 Abriendo editor con nuevo parte (duplicado del {id})...", parteId);
+            App.Log?.LogInformation("   • Hora inicio del nuevo parte: {hora}", horaFin);
+            await OpenParteEditorAsync(nuevoParte, $"▶️ Reanudar Parte #{parte.Id}");
 
             App.Log?.LogInformation("🗑️ Invalidando caché de partes...");
             InvalidatePartesCache(parte.Fecha);
-
             await LoadPartesAsync();
         }
         catch (Exception ex)
@@ -2351,5 +2406,200 @@ public sealed partial class DiarioPage : Page
     private void OnSalir(object sender, RoutedEventArgs e)
     {
         OnLogout(sender, e);
+    }
+
+    // ===================== AYUDA Y NOTAS DE VERSIÓN =====================
+
+    private async void OnNotasVersionClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            App.Log?.LogInformation("📋 Mostrando notas de versión...");
+
+            var dialog = new ContentDialog
+            {
+                Title = "📋 Notas de Versión - GestionTime Desktop v1.2.0",
+                Content = CreateChangelogContent(),
+                PrimaryButtonText = "Ver en GitHub",
+                CloseButtonText = "Cerrar",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                // Usuario hizo clic en "Ver en GitHub"
+                App.Log?.LogInformation("🔗 Abriendo GitHub releases en navegador...");
+                
+                var uri = new Uri("https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases");
+                _ = Windows.System.Launcher.LaunchUriAsync(uri);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error mostrando notas de versión");
+            await ShowInfoAsync("Error mostrando notas de versión. Revisa app.log.");
+        }
+    }
+
+    private ScrollViewer CreateChangelogContent()
+    {
+        var scrollViewer = new ScrollViewer
+        {
+            MaxHeight = 500
+        };
+
+        var stackPanel = new StackPanel
+        {
+            Padding = new Thickness(20),
+            Spacing = 16
+        };
+
+        // Header
+        var headerText = new TextBlock
+        {
+            Text = "🎉 Novedades de la Versión 1.2.0",
+            FontSize = 20,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+        stackPanel.Children.Add(headerText);
+
+        var subtitleText = new TextBlock
+        {
+            Text = "En desarrollo • Próximo lanzamiento",
+            FontSize = 12,
+            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            Margin = new Thickness(0, 4, 0, 0)
+        };
+        stackPanel.Children.Add(subtitleText);
+
+        // Importación Excel Mejorada
+        var importBorder = new Border
+        {
+            Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 26, 26, 26)),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(16),
+            BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 51, 51, 51)),
+            BorderThickness = new Thickness(1)
+        };
+
+        var importStack = new StackPanel { Spacing = 12 };
+        
+        var importTitle = new TextBlock
+        {
+            Text = "✨ Importación Excel Mejorada",
+            FontSize = 16,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+        importStack.Children.Add(importTitle);
+
+        importStack.Children.Add(CreateFeatureText("• Detección automática de duplicados", "Valida por fecha + hora + cliente + acción"));
+        importStack.Children.Add(CreateFeatureText("• Actualización inteligente", "Los duplicados se actualizan en lugar de duplicarse"));
+        importStack.Children.Add(CreateFeatureText("• Soporte para columna INCIDENCIA", "Ahora acepta INCIDENCIA como alias de Ticket"));
+        importStack.Children.Add(CreateFeatureText("• Grupo y Tipo opcionales", "No genera error si no se encuentran en el catálogo"));
+        importStack.Children.Add(CreateFeatureText("• Estadísticas detalladas", "Muestra: X nuevos, Y actualizados, Z errores"));
+
+        importBorder.Child = importStack;
+        stackPanel.Children.Add(importBorder);
+
+        // Reanudar Parte Mejorado
+        var resumeBorder = new Border
+        {
+            Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 26, 26, 26)),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(16),
+            BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 51, 51, 51)),
+            BorderThickness = new Thickness(1)
+        };
+
+        var resumeStack = new StackPanel { Spacing = 12 };
+        
+        var resumeTitle = new TextBlock
+        {
+            Text = "▶️ Reanudar Parte Mejorado",
+            FontSize = 16,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+        resumeStack.Children.Add(resumeTitle);
+
+        resumeStack.Children.Add(CreateFeatureText("• Confirmación de hora de cierre", "Solicita la hora antes de cerrar el parte pausado"));
+        resumeStack.Children.Add(CreateFeatureText("• Crea nuevo parte duplicado", "Mantiene todos los datos (ticket, cliente, acción, etc.)"));
+        resumeStack.Children.Add(CreateFeatureText("• Hora inicio = Hora cierre anterior", "Continuidad perfecta entre sesiones de trabajo"));
+
+        resumeBorder.Child = resumeStack;
+        stackPanel.Children.Add(resumeBorder);
+
+        // Link a GitHub
+        var githubBorder = new Border
+        {
+            Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 37, 37, 37)),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(12),
+            BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 59, 130, 246)),
+            BorderThickness = new Thickness(2)
+        };
+
+        var githubStack = new StackPanel { Spacing = 8 };
+        
+        var githubTitle = new TextBlock
+        {
+            Text = "🔗 Más Información",
+            FontSize = 14,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        };
+        githubStack.Children.Add(githubTitle);
+
+        var githubDesc = new TextBlock
+        {
+            Text = "Consulta el historial completo de cambios en GitHub",
+            FontSize = 12,
+            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray)
+        };
+        githubStack.Children.Add(githubDesc);
+
+        githubBorder.Child = githubStack;
+        stackPanel.Children.Add(githubBorder);
+
+        // Versión actual
+        var versionText = new TextBlock
+        {
+            Text = "Versión actual: 1.2.0-dev",
+            FontSize = 12,
+            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 16, 0, 0)
+        };
+        stackPanel.Children.Add(versionText);
+
+        scrollViewer.Content = stackPanel;
+        return scrollViewer;
+    }
+
+    private StackPanel CreateFeatureText(string title, string description)
+    {
+        var stack = new StackPanel();
+        
+        var titleText = new TextBlock
+        {
+            Text = title,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            TextWrapping = TextWrapping.Wrap
+        };
+        
+        var descText = new TextBlock
+        {
+            Text = $"  {description}",
+            FontSize = 12,
+            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 2, 0, 0)
+        };
+        
+        stack.Children.Add(titleText);
+        stack.Children.Add(descText);
+        
+        return stack;
     }
 }
