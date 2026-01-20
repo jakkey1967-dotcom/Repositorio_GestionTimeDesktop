@@ -77,7 +77,7 @@ public sealed class ParteDto
             
             var hours = DuracionMin / 60;
             var minutes = DuracionMin % 60;
-            return $"{hours:D2}{minutes:D2}";
+            return $"{hours:D2}:{minutes:D2}";
         }
     }
 
