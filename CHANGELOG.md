@@ -15,7 +15,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-## [1.2.0] - 2026-01-XX (En desarrollo)
+## [1.4.0-beta] - 2026-01-XX (En desarrollo)
 
 ### ✨ Nuevas Funcionalidades
 
@@ -35,6 +35,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - ✅ Mantiene ticket, cliente, acción, grupo, tipo
   - ✅ Abre editor para confirmar antes de guardar
 
+#### Sistema de Notas de Versión
+- **Botón "Ayuda"** en toolbar principal de DiarioPage
+- **Diálogo de notas de versión** con scroll y diseño profesional
+- **Link directo a GitHub Releases** para ver historial completo
+- **CHANGELOG.md** actualizado con formato estándar
+
 ### 🔧 Mejoras Técnicas
 
 #### Importación
@@ -52,6 +58,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **CHANGELOG.md**: Registro completo de cambios por versión
 - **Notas de versión**: Accesibles desde la app (Menú > Ayuda > Notas de Versión)
 - **Link a GitHub Releases**: Para ver cambios detallados online
+- **SISTEMA_NOTAS_VERSION.md**: Guía completa del sistema de notas
 
 ---
 
