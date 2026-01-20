@@ -69,7 +69,17 @@ public sealed class ParteDto
     public int DuracionMin { get; set; }
 
     [JsonIgnore]
-    public string DuracionText => DuracionMin <= 0 ? string.Empty : $"{DuracionMin} min";
+    public string DuracionText
+    {
+        get
+        {
+            if (DuracionMin <= 0) return string.Empty;
+            
+            var hours = DuracionMin / 60;
+            var minutes = DuracionMin % 60;
+            return $"{hours:D2}{minutes:D2}";
+        }
+    }
 
     [JsonPropertyName("ticket")]
     public string Ticket { get; set; } = "";
