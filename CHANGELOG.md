@@ -15,7 +15,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-## [1.4.0-beta] - 2026-01-XX (En desarrollo)
+## [1.4.1-beta] - 2026-01-XX (En desarrollo)
 
 ### ✨ Nuevas Funcionalidades
 
