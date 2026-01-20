@@ -16,8 +16,8 @@
   <PropertyGroup>
     <!-- 🎯 VERSIÓN DE LA APLICACIÓN - Modificar SOLO AQUÍ -->
     <AppVersionMajor>1</AppVersionMajor>
-    <AppVersionMinor>4</AppVersionMinor>
-    <AppVersionPatch>1</AppVersionPatch>
+    <AppVersionMinor>5</AppVersionMinor>
+    <AppVersionPatch>0</AppVersionPatch>
     <AppVersionSuffix>-beta</AppVersionSuffix>
     
     <!-- Versión completa calculada automáticamente -->

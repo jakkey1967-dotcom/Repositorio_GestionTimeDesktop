@@ -15,7 +15,30 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-## [1.4.1-beta] - 2026-01-XX (En desarrollo)
+## [1.5.0-beta] - 2026-01-XX (En desarrollo)
+
+### ✨ Nuevas Funcionalidades
+
+#### Sistema de Versión Centralizada
+- **Fuente única de verdad** en `Directory.Build.props`
+- **Clase `VersionInfo`** para acceso desde código
+- **Propagación automática** a todos los ensamblados
+- **Menos errores** al cambiar de versión
+
+### 🔧 Mejoras
+
+#### Formato de Duración
+- **Formato HH:mm**: Ahora se muestra `01:45` en lugar de `105 min`
+- **Más legible**: Formato estándar de horas y minutos
+
+### 📋 Documentación
+- **SISTEMA_VERSION_CENTRALIZADA.md**: Guía completa del nuevo sistema
+- Proceso de release simplificado
+- Checklist para cambiar versión
+
+---
+
+## [1.4.1-beta] - 2026-01-XX
 
 ### ✨ Nuevas Funcionalidades
 

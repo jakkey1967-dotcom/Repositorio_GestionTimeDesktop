@@ -4,7 +4,7 @@
 
 param(
     [string]$Configuration = "Release",
-    [string]$Version = "1.4.1-beta"
+    [string]$Version = "1.5.0-beta"
 )
 
 Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
