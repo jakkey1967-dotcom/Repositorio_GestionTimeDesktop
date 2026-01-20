@@ -37,13 +37,13 @@ public sealed partial class ImportExcelDialog : ContentDialog
             var service = new ExcelPartesImportService();
             _importResult = await service.ReadExcelAsync(filePath, App.Log);
 
-            App.Log?.LogInformation("✅ Archivo leído: {total} filas, {valid} válidos, {errors} errores", 
-                _importResult.TotalRows, _importResult.ValidItems.Count, _importResult.Errors.Count);
+            App.Log?.LogInformation("✅ Archivo leído: {total} filas, {nuevos} nuevos, {duplicados} duplicados, {errors} errores", 
+                _importResult.TotalRows, _importResult.ValidItems.Count, _importResult.ItemsToUpdate.Count, _importResult.Errors.Count);
 
             // Actualizar UI
             TxtFileName.Text = _importResult.FileName;
             TxtTotalRows.Text = _importResult.TotalRows.ToString();
-            TxtValidRows.Text = _importResult.ValidItems.Count.ToString();
+            TxtValidRows.Text = $"{_importResult.ValidItems.Count} nuevos, {_importResult.ItemsToUpdate.Count} actualizaciones";
             TxtErrorRows.Text = _importResult.Errors.Count.ToString();
 
             SummaryPanel.Visibility = Visibility.Visible;
@@ -55,11 +55,11 @@ public sealed partial class ImportExcelDialog : ContentDialog
                 ErrorList.ItemsSource = _importResult.Errors.Take(20); // Máximo 20 errores
             }
 
-            // Habilitar botón solo si hay válidos
-            IsPrimaryButtonEnabled = _importResult.ValidItems.Any();
+            // Habilitar botón si hay válidos O items para actualizar
+            IsPrimaryButtonEnabled = _importResult.ValidItems.Any() || _importResult.ItemsToUpdate.Any();
             IsSecondaryButtonEnabled = true;
 
-            if (!_importResult.ValidItems.Any())
+            if (!_importResult.ValidItems.Any() && !_importResult.ItemsToUpdate.Any())
             {
                 var dialog = new ContentDialog
                 {
@@ -70,6 +70,27 @@ public sealed partial class ImportExcelDialog : ContentDialog
                     RequestedTheme = ElementTheme.Dark
                 };
                 await dialog.ShowAsync();
+            }
+            else if (_importResult.ItemsToUpdate.Any())
+            {
+                // Mostrar advertencia si hay duplicados que se actualizarán
+                var dialog = new ContentDialog
+                {
+                    Title = "🔄 Duplicados Detectados",
+                    Content = $"Se encontraron {_importResult.ItemsToUpdate.Count} registros duplicados que serán ACTUALIZADOS.\n\n" +
+                              $"• Nuevos: {_importResult.ValidItems.Count}\n" +
+                              $"• Actualizaciones: {_importResult.ItemsToUpdate.Count}\n\n" +
+                              $"¿Desea continuar?",
+                    PrimaryButtonText = "Sí, Continuar",
+                    CloseButtonText = "Cancelar",
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = ElementTheme.Dark
+                };
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    IsPrimaryButtonEnabled = false;
+                }
             }
         }
         catch (Exception ex)
@@ -93,7 +114,7 @@ public sealed partial class ImportExcelDialog : ContentDialog
     /// <summary>Ejecuta la importación al backend.</summary>
     private async void OnImportClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        if (_importResult == null || !_importResult.ValidItems.Any() || _isImporting)
+        if (_importResult == null || (_importResult.ValidItems.Count == 0 && _importResult.ItemsToUpdate.Count == 0) || _isImporting)
         {
             args.Cancel = true;
             return;
@@ -114,52 +135,45 @@ public sealed partial class ImportExcelDialog : ContentDialog
             _cts = new CancellationTokenSource();
             var ct = _cts.Token;
 
-            var total = _importResult.ValidItems.Count;
+            var totalNuevos = _importResult.ValidItems.Count;
+            var totalActualizaciones = _importResult.ItemsToUpdate.Count;
+            var total = totalNuevos + totalActualizaciones;
             var success = 0;
+            var updated = 0;
             var failed = 0;
 
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             App.Log?.LogInformation("🚀 IMPORTACIÓN MASIVA - Iniciando");
-            App.Log?.LogInformation("   Total a importar: {total}", total);
+            App.Log?.LogInformation("   Total a importar: {total} ({nuevos} nuevos + {actualizaciones} actualizaciones)", 
+                total, totalNuevos, totalActualizaciones);
 
             ImportProgress.Maximum = total;
+            
+            int currentIndex = 0;
 
-            for (int i = 0; i < total; i++)
+            // ========== PASO 1: CREAR NUEVOS PARTES ==========
+            for (int i = 0; i < totalNuevos; i++)
             {
                 if (ct.IsCancellationRequested)
                 {
-                    App.Log?.LogWarning("Importación cancelada por el usuario en fila {i}/{total}", i, total);
+                    App.Log?.LogWarning("Importación cancelada por el usuario en item {i}/{total}", currentIndex + 1, total);
                     break;
                 }
 
                 var item = _importResult.ValidItems[i];
-                int? createdParteId = null; // 🆕 NUEVO: Guardar ID del parte creado
 
                 try
                 {
-                    // 🆕 NUEVO: Log detallado del item ANTES de enviar
-                    App.Log?.LogDebug("═══ Importando item {i}/{total} ═══", i + 1, total);
-                    App.Log?.LogDebug("  FechaTrabajo: {fecha}", item.FechaTrabajo);
-                    App.Log?.LogDebug("  IdCliente: {id}", item.IdCliente);
-                    App.Log?.LogDebug("  Tienda: '{tienda}'", item.Tienda ?? "(null)");
-                    App.Log?.LogDebug("  HoraInicio: {inicio}", item.HoraInicio);
-                    App.Log?.LogDebug("  HoraFin: {fin}", item.HoraFin ?? "(null)");
-                    App.Log?.LogDebug("  DuracionMin: {duracion}", item.DuracionMin?.ToString() ?? "(null)");
-                    App.Log?.LogDebug("  Accion: '{accion}'", (item.Accion?.Length ?? 0) > 50 ? item.Accion!.Substring(0, 50) + "..." : (item.Accion ?? "(null)"));
-                    App.Log?.LogDebug("  Ticket: '{ticket}'", item.Tienda ?? "(null)");
-                    App.Log?.LogDebug("  IdGrupo: {id}", item.IdGrupo?.ToString() ?? "(null)");
-                    App.Log?.LogDebug("  IdTipo: {id}", item.IdTipo?.ToString() ?? "(null)");
-                    App.Log?.LogDebug("  Estado: {estado} (será actualizado a 2 después de crear)", item.Estado);
+                    App.Log?.LogDebug("✨ [{index}/{total}] CREANDO parte nuevo...", currentIndex + 1, total);
+                    App.Log?.LogDebug("   Fecha: {fecha}, Cliente: {cliente}, Acción: {accion}", 
+                        item.FechaTrabajo, item.IdCliente, (item.Accion?.Length ?? 0) > 50 ? item.Accion!.Substring(0, 50) + "..." : item.Accion);
 
-                    // 1️⃣ POST a /api/v1/partes (crear parte con estado por defecto del backend)
+                    // 1️⃣ POST a /api/v1/partes
                     var response = await App.Api.PostAsync<Models.Dtos.ParteCreateRequest, Models.Dtos.ParteDto>("/api/v1/partes", item, ct);
                     
                     if (response != null && response.Id > 0)
                     {
-                        createdParteId = response.Id;
-                        App.Log?.LogDebug("✅ Parte creado con ID: {id}, Estado actual: {estado}", response.Id, response.EstadoInt);
-                        
-                        // 2️⃣ PUT a /api/v1/partes/{id} para actualizar estado a Cerrado (2)
+                        // 2️⃣ PUT para actualizar estado a Cerrado (2)
                         try
                         {
                             var updatePayload = new Models.Dtos.ParteCreateRequest
@@ -172,26 +186,19 @@ public sealed partial class ImportExcelDialog : ContentDialog
                                 Tienda = item.Tienda,
                                 IdGrupo = item.IdGrupo,
                                 IdTipo = item.IdTipo,
-                                Accion = item.Accion ?? string.Empty,  // ✅ CORREGIDO: manejar null
+                                Accion = item.Accion ?? string.Empty,
                                 Ticket = item.Ticket,
                                 Tecnico = item.Tecnico,
-                                Estado = 2  // 🔒 FORZAR: Estado = 2 (Cerrado)
+                                Estado = 2
                             };
                             
-                            App.Log?.LogDebug("🔄 Actualizando estado del parte {id} a Cerrado (2)...", createdParteId);
-                            await App.Api.PutAsync<Models.Dtos.ParteCreateRequest, object>($"/api/v1/partes/{createdParteId}", updatePayload, ct);
-                            
-                            App.Log?.LogInformation("✅ Parte {i}/{total} importado y actualizado a Cerrado (ID: {id})", i + 1, total, createdParteId);
+                            await App.Api.PutAsync<Models.Dtos.ParteCreateRequest, object>($"/api/v1/partes/{response.Id}", updatePayload, ct);
+                            App.Log?.LogInformation("✅ [{index}/{total}] Parte CREADO (ID: {id})", currentIndex + 1, total, response.Id);
                         }
                         catch (Exception updateEx)
                         {
-                            App.Log?.LogWarning("⚠️ Parte {id} creado pero fallo al actualizar estado: {error}", createdParteId, updateEx.Message);
-                            // No marcar como failed porque el parte SÍ se creó
+                            App.Log?.LogWarning("⚠️ Parte {id} creado pero fallo al actualizar estado: {error}", response.Id, updateEx.Message);
                         }
-                    }
-                    else
-                    {
-                        App.Log?.LogWarning("⚠️ Backend no devolvió ID del parte creado");
                     }
                     
                     success++;
@@ -199,38 +206,85 @@ public sealed partial class ImportExcelDialog : ContentDialog
                 catch (Services.ApiException apiEx)
                 {
                     failed++;
-                    App.Log?.LogWarning("❌ Error importando parte {i}/{total}:", i + 1, total);
-                    App.Log?.LogWarning("   • StatusCode: {code}", apiEx.StatusCode);
-                    App.Log?.LogWarning("   • Message: {msg}", apiEx.Message);
-                    App.Log?.LogWarning("   • ServerMessage: {serverMsg}", apiEx.ServerMessage ?? "(null)");
-                    App.Log?.LogWarning("   • ServerError: {serverError}", apiEx.ServerError ?? "(null)");
-                    
-                    // 🆕 NUEVO: Log del payload que causó el error
-                    App.Log?.LogWarning("   📦 Payload que falló:");
-                    App.Log?.LogWarning("      - FechaTrabajo: {fecha}", item.FechaTrabajo);
-                    App.Log?.LogWarning("      - IdCliente: {id}", item.IdCliente);
-                    App.Log?.LogWarning("      - Accion: {accion}", (item.Accion?.Length ?? 0) > 100 ? item.Accion!.Substring(0, 100) + "..." : (item.Accion ?? "(null)"));
+                    App.Log?.LogWarning("❌ [{index}/{total}] Error CREANDO parte:", currentIndex + 1, total);
+                    App.Log?.LogWarning("   StatusCode: {code}, Message: {msg}", apiEx.StatusCode, apiEx.Message);
                 }
                 catch (Exception ex)
                 {
                     failed++;
-                    App.Log?.LogWarning("❌ Error inesperado importando parte {i}/{total}:", i + 1, total);
-                    App.Log?.LogWarning("   • Exception: {type}", ex.GetType().Name);
-                    App.Log?.LogWarning("   • Message: {error}", ex.Message);
-                    App.Log?.LogWarning("   • StackTrace: {stack}", ex.StackTrace?.Split('\n').FirstOrDefault() ?? "(no stack)");
+                    App.Log?.LogWarning("❌ [{index}/{total}] Error inesperado CREANDO: {error}", currentIndex + 1, total, ex.Message);
                 }
 
-                // Actualizar progreso
-                ImportProgress.Value = i + 1;
-                TxtProgressDetail.Text = $"{i + 1} / {total}";
-                TxtProgress.Text = $"Importando... ({success} exitosos, {failed} fallidos)";
+                currentIndex++;
+                ImportProgress.Value = currentIndex;
+                TxtProgressDetail.Text = $"{currentIndex} / {total}";
+                TxtProgress.Text = $"Importando... ({success} creados, {updated} actualizados, {failed} fallidos)";
+                await Task.Delay(100, ct);
+            }
+            
+            // ========== PASO 2: ACTUALIZAR DUPLICADOS ==========
+            for (int i = 0; i < totalActualizaciones; i++)
+            {
+                if (ct.IsCancellationRequested)
+                {
+                    App.Log?.LogWarning("Importación cancelada por el usuario en item {i}/{total}", currentIndex + 1, total);
+                    break;
+                }
 
-                // Pequeño delay para no saturar servidor
+                var updateItem = _importResult.ItemsToUpdate[i];
+                var item = updateItem.Data;
+                var parteId = updateItem.ParteId;
+
+                try
+                {
+                    App.Log?.LogDebug("🔄 [{index}/{total}] ACTUALIZANDO parte existente ID={id}...", currentIndex + 1, total, parteId);
+                    App.Log?.LogDebug("   Fecha: {fecha}, Cliente: {cliente}, Acción: {accion}", 
+                        item.FechaTrabajo, item.IdCliente, (item.Accion?.Length ?? 0) > 50 ? item.Accion!.Substring(0, 50) + "..." : item.Accion);
+
+                    // PUT a /api/v1/partes/{id}
+                    var updatePayload = new Models.Dtos.ParteCreateRequest
+                    {
+                        FechaTrabajo = item.FechaTrabajo,
+                        HoraInicio = item.HoraInicio,
+                        HoraFin = item.HoraFin,
+                        DuracionMin = item.DuracionMin,
+                        IdCliente = item.IdCliente,
+                        Tienda = item.Tienda,
+                        IdGrupo = item.IdGrupo,
+                        IdTipo = item.IdTipo,
+                        Accion = item.Accion ?? string.Empty,
+                        Ticket = item.Ticket,
+                        Tecnico = item.Tecnico,
+                        Estado = 2
+                    };
+                    
+                    await App.Api.PutAsync<Models.Dtos.ParteCreateRequest, object>($"/api/v1/partes/{parteId}", updatePayload, ct);
+                    
+                    App.Log?.LogInformation("✅ [{index}/{total}] Parte ACTUALIZADO (ID: {id})", currentIndex + 1, total, parteId);
+                    updated++;
+                }
+                catch (Services.ApiException apiEx)
+                {
+                    failed++;
+                    App.Log?.LogWarning("❌ [{index}/{total}] Error ACTUALIZANDO parte ID={id}:", currentIndex + 1, total, parteId);
+                    App.Log?.LogWarning("   StatusCode: {code}, Message: {msg}", apiEx.StatusCode, apiEx.Message);
+                }
+                catch (Exception ex)
+                {
+                    failed++;
+                    App.Log?.LogWarning("❌ [{index}/{total}] Error inesperado ACTUALIZANDO ID={id}: {error}", currentIndex + 1, total, parteId, ex.Message);
+                }
+
+                currentIndex++;
+                ImportProgress.Value = currentIndex;
+                TxtProgressDetail.Text = $"{currentIndex} / {total}";
+                TxtProgress.Text = $"Importando... ({success} creados, {updated} actualizados, {failed} fallidos)";
                 await Task.Delay(100, ct);
             }
 
             App.Log?.LogInformation("✅ Importación completada:");
-            App.Log?.LogInformation("   • Exitosos: {success}", success);
+            App.Log?.LogInformation("   • Creados: {creados}", success);
+            App.Log?.LogInformation("   • Actualizados: {actualizados}", updated);
             App.Log?.LogInformation("   • Fallidos: {failed}", failed);
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
 
@@ -240,10 +294,10 @@ public sealed partial class ImportExcelDialog : ContentDialog
             TxtResult.Text = ct.IsCancellationRequested 
                 ? "⚠️ Importación Cancelada" 
                 : "✅ Importación Completada";
-            TxtResultDetail.Text = $"Exitosos: {success}\nFallidos: {failed}\n\n" +
+            TxtResultDetail.Text = $"Creados: {success}\nActualizados: {updated}\nFallidos: {failed}\n\n" +
                                   (ct.IsCancellationRequested ? "Proceso interrumpido por el usuario." : "");
 
-            ImportCompleted = success > 0;
+            ImportCompleted = success > 0 || updated > 0;
             
             IsSecondaryButtonEnabled = false;
             CloseButtonText = "Cerrar";

@@ -49,6 +49,11 @@ public sealed class ExcelPartesImportService
             // Cargar clientes desde API
             await LoadClientesAsync(logger);
             logger?.LogInformation("✅ Catálogos cargados correctamente");
+            
+            // 🔍 NUEVO: Cargar partes existentes para detección de duplicados
+            logger?.LogInformation("🔍 Cargando partes existentes para validación de duplicados...");
+            await CargarPartesExistentesAsync(logger);
+            logger?.LogInformation("✅ {count} partes existentes cargados", _partesExistentesCache?.Count ?? 0);
 
             await Task.Run(() =>
             {
@@ -70,9 +75,14 @@ public sealed class ExcelPartesImportService
 
                 var table = dataSet.Tables[0]!;
                 result.TotalRows = table.Rows.Count;
-
+                
+                var columnNames = GetColumnNames(table);
                 logger?.LogInformation("   Total filas: {total}", result.TotalRows);
-                logger?.LogInformation("   Columnas detectadas: {cols}", string.Join(", ", GetColumnNames(table)));
+                logger?.LogInformation("   Columnas detectadas: {count} columnas", columnNames.Length);
+                foreach (var colName in columnNames)
+                {
+                    logger?.LogInformation("      - '{col}' (longitud: {len})", colName, colName.Length);
+                }
 
                 for (int i = 0; i < table.Rows.Count; i++)
                 {
@@ -82,7 +92,26 @@ public sealed class ExcelPartesImportService
                     try
                     {
                         var parte = MapRowToParte(row, table, rowIndex, logger);
-                        result.ValidItems.Add(parte);
+                        
+                        // 🔍 NUEVO: Verificar si ya existe un parte con los mismos datos
+                        var parteExistente = BuscarParteExistente(parte, logger);
+                        
+                        if (parteExistente != null)
+                        {
+                            // Ya existe → Agregar a lista de actualización
+                            result.ItemsToUpdate.Add(new ParteUpdateItem
+                            {
+                                ParteId = parteExistente.Id,
+                                Data = parte
+                            });
+                            logger?.LogDebug("🔄 Fila {row}: Parte existente detectado (ID: {id}) - Se actualizará", rowIndex, parteExistente.Id);
+                        }
+                        else
+                        {
+                            // No existe → Agregar a lista de creación
+                            result.ValidItems.Add(parte);
+                            logger?.LogDebug("✨ Fila {row}: Parte nuevo - Se creará", rowIndex);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -98,7 +127,8 @@ public sealed class ExcelPartesImportService
             });
 
             logger?.LogInformation("✅ Lectura completada:");
-            logger?.LogInformation("   • Válidos: {valid}", result.ValidItems.Count);
+            logger?.LogInformation("   • Nuevos (crear): {nuevos}", result.ValidItems.Count);
+            logger?.LogInformation("   • Duplicados (actualizar): {duplicados}", result.ItemsToUpdate.Count);
             logger?.LogInformation("   • Errores: {errors}", result.Errors.Count);
             logger?.LogInformation("═══════════════════════════════════════════════════════════════");
         }
@@ -113,6 +143,75 @@ public sealed class ExcelPartesImportService
 
     // 🆕 NUEVO: Lista de clientes cargada desde API
     private List<ClienteResponse>? _clientesCache = null;
+    
+    // 🆕 NUEVO: Cache de partes existentes para detección de duplicados
+    private List<Models.Dtos.ParteDto>? _partesExistentesCache = null;
+
+    /// <summary>Carga partes existentes de los últimos 60 días para detección de duplicados.</summary>
+    private async Task CargarPartesExistentesAsync(ILogger? logger)
+    {
+        try
+        {
+            // Cargar partes de los últimos 60 días (suficiente para detectar duplicados comunes)
+            var fechaFin = DateTime.Today.ToString("yyyy-MM-dd");
+            var fechaInicio = DateTime.Today.AddDays(-60).ToString("yyyy-MM-dd");
+            
+            var path = $"/api/v1/partes?fechaInicio={fechaInicio}&fechaFin={fechaFin}&limit=5000";
+            logger?.LogDebug("🔄 Cargando partes existentes desde {path}", path);
+            
+            var response = await App.Api.GetAsync<Models.Dtos.ParteDto[]>(path, CancellationToken.None);
+            
+            if (response != null)
+            {
+                _partesExistentesCache = response.ToList();
+                logger?.LogInformation("✅ {count} partes existentes cargados para validación", _partesExistentesCache.Count);
+            }
+            else
+            {
+                logger?.LogWarning("⚠️ API devolvió null para partes existentes");
+                _partesExistentesCache = new List<Models.Dtos.ParteDto>();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "❌ Error cargando partes existentes");
+            _partesExistentesCache = new List<Models.Dtos.ParteDto>();
+        }
+    }
+    
+    /// <summary>Busca si ya existe un parte con los mismos datos (fecha, hora inicio, cliente, acción).</summary>
+    private Models.Dtos.ParteDto? BuscarParteExistente(ParteCreateRequest parte, ILogger? logger)
+    {
+        if (_partesExistentesCache == null || !_partesExistentesCache.Any())
+            return null;
+        
+        // Normalizar acción para comparación
+        var accionNormalizada = NormalizarTexto(parte.Accion);
+        
+        // Parsear fecha del parte (viene en formato yyyy-MM-dd)
+        if (!DateTime.TryParse(parte.FechaTrabajo, out var fechaParte))
+            return null;
+        
+        // Buscar parte con:
+        // - Misma fecha
+        // - Misma hora inicio
+        // - Mismo cliente
+        // - Misma acción (normalizada)
+        var duplicado = _partesExistentesCache.FirstOrDefault(p =>
+            p.Fecha.Date == fechaParte.Date &&
+            p.HoraInicio == parte.HoraInicio &&
+            p.IdCliente == parte.IdCliente &&
+            string.Equals(NormalizarTexto(p.Accion ?? ""), accionNormalizada, StringComparison.Ordinal)
+        );
+        
+        if (duplicado != null)
+        {
+            logger?.LogDebug("🔍 Duplicado encontrado: ID={id}, Fecha={fecha}, HoraInicio={hora}, Cliente={cliente}", 
+                duplicado.Id, duplicado.Fecha.ToString("yyyy-MM-dd"), duplicado.HoraInicio, duplicado.IdCliente);
+        }
+        
+        return duplicado;
+    }
 
     /// <summary>Carga catálogo de clientes desde API.</summary>
     private async Task LoadClientesAsync(ILogger? logger)
@@ -153,7 +252,7 @@ public sealed class ExcelPartesImportService
         var horaInicio = GetCellValue(row, table, "HoraInicio", "Hora Inicio", "Inicio", "HORA INICIO", "HORA_INICIO");
         var horaFin = GetCellValue(row, table, "HoraFin", "Hora Fin", "Fin", "HORA FIN", "HORA_FIN");
         var duracionMin = GetCellValue(row, table, "Duracion_min", "Duracion", "Duración", "DURACION");
-        var ticket = GetCellValue(row, table, "Ticket", "ticket");
+        var ticket = GetCellValue(row, table, "Ticket", "ticket", "INCIDENCIA", "Incidencia");  // ✅ NUEVO: Alias "INCIDENCIA"
         var grupo = GetCellValue(row, table, "Grupo", "GRUPO", "grupo");
         var tipo = GetCellValue(row, table, "Tipo", "TIPO", "tipo");
         var tecnico = GetCellValue(row, table, "Tecnico", "Técnico", "tecnico");
@@ -167,7 +266,7 @@ public sealed class ExcelPartesImportService
         logger?.LogDebug("  Accion/Tarea: '{value}'", accion ?? "(null)");
         logger?.LogDebug("  HoraInicio: '{value}'", horaInicio ?? "(null)");
         logger?.LogDebug("  HoraFin: '{value}'", horaFin ?? "(null)");
-        logger?.LogDebug("  Ticket: '{value}'", ticket ?? "(null)");
+        logger?.LogDebug("  Ticket/Incidencia: '{value}'", ticket ?? "(null)");
         logger?.LogDebug("  Grupo: '{value}'", grupo ?? "(null)");
         logger?.LogDebug("  Tipo: '{value}'", tipo ?? "(null)");
         logger?.LogDebug("  Estado: FORZADO → Cerrado (2)");
@@ -260,7 +359,7 @@ public sealed class ExcelPartesImportService
         foreach (var name in possibleNames)
         {
             var col = table.Columns.Cast<DataColumn>()
-                .FirstOrDefault(c => c.ColumnName.Equals(name, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(c => c.ColumnName.Trim().Equals(name, StringComparison.OrdinalIgnoreCase));
 
             if (col != null && !row.IsNull(col))
             {
@@ -462,7 +561,7 @@ public sealed class ExcelPartesImportService
         else
         {
             // 🆕 NUEVO: Log más detallado cuando no se encuentra
-            logger?.LogWarning("⚠️ Grupo '{nombre}' NO encontrado en catálogo", grupo);
+            logger?.LogInformation("ℹ️ Grupo '{nombre}' no encontrado en catálogo - Se guardará como NULL", grupo);
             
             var todosGrupos = _catalogManager.GetAllGrupos();
             logger?.LogDebug("📋 Grupos disponibles en catálogo ({count}):", todosGrupos.Count);
@@ -489,7 +588,7 @@ public sealed class ExcelPartesImportService
         }
         else
         {
-            logger?.LogDebug("⚠️ Tipo '{nombre}' no encontrado", tipo);
+            logger?.LogInformation("ℹ️ Tipo '{nombre}' no encontrado en catálogo - Se guardará como NULL", tipo);
         }
 
         return tipoId;
