@@ -48,6 +48,32 @@ namespace GestionTime.Desktop.Views
             
             // Iniciar fade in cuando se carga la página
             this.Loaded += OnPageLoaded;
+            
+            // 🔧 FIX: Suscribirse a Unloaded para limpiar recursos
+            this.Unloaded += OnPageUnloaded;
+        }
+        
+        /// <summary>
+        /// 🔧 FIX ACCESS VIOLATION: Limpieza de recursos al salir de LoginPage
+        /// </summary>
+        private void OnPageUnloaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                App.Log?.LogInformation("🧹 Limpiando recursos de LoginPage...");
+                
+                // Desuscribir eventos de tema
+                ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
+                
+                // Desuscribir evento Loaded
+                this.Loaded -= OnPageLoaded;
+                
+                App.Log?.LogInformation("✅ LoginPage recursos limpiados");
+            }
+            catch (Exception ex)
+            {
+                App.Log?.LogError(ex, "Error limpiando recursos de LoginPage");
+            }
         }
         
         /// <summary>Establece la versión de la aplicación en el TextBlock.</summary>
@@ -531,6 +557,17 @@ namespace GestionTime.Desktop.Views
                 {
                     App.MainWindowInstance.Navigator.Navigate(typeof(DiarioPage));
                     App.Log?.LogInformation("Navegación a DiarioPage completada ✅");
+                    
+                    // 🆕 NUEVO: Iniciar heartbeat para mantener usuario online
+                    App.PresenceHeartbeat.Start(DispatcherQueue);
+                    App.Log?.LogInformation("💓 Heartbeat de presencia iniciado");
+                    
+                    
+                    // 🔧 CORREGIDO: NO abrir ventana flotante automáticamente
+                    // El panel de usuarios está integrado en DiarioPage (botón "Usuarios")
+                    App.Log?.LogInformation("✅ Panel de usuarios disponible en DiarioPage");
+                    
+                    // 💡 NOTA: El panel integrado se abre con el botón "Usuarios" en DiarioPage
                 }
                 else
                 {

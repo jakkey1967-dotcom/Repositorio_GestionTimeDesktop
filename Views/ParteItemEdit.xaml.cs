@@ -61,6 +61,13 @@ public sealed partial class ParteItemEdit : Page
     // Items de Tipo (usados por ComboBoxEventManager)
     private readonly ObservableCollection<string> _tipoItems = new();
     
+    // 🆕 TAGS: Sistema de gestión de tags
+    private readonly ObservableCollection<string> _currentTags = new();
+    private readonly ObservableCollection<string> _tagSuggestions = new(); // 🔧 FIX: Cambiar a ObservableCollection para binding
+    private DispatcherTimer? _tagSearchTimer;
+    private CancellationTokenSource? _tagSearchCts;
+    private const int MAX_TAGS = 5;
+    
     // Sistema de tracking de foco
     private string _lastFocusedControl = "";
     private int _focusChangeCounter;
@@ -105,6 +112,22 @@ public sealed partial class ParteItemEdit : Page
         };
         
         App.Log?.LogDebug("✅ AutoSuggestBox Cliente configurado con búsqueda dinámica");
+        
+        // 🆕 TAGS: Configurar timer de búsqueda de tags (debounce 300ms)
+        _tagSearchTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(300)
+        };
+        _tagSearchTimer.Tick += async (s, e) =>
+        {
+            _tagSearchTimer.Stop();
+            await SearchTagSuggestionsAsync();
+        };
+        
+        // 🆕 TAGS: Configurar ItemsControl y AutoSuggestBox
+        TagsItemsControl.ItemsSource = _currentTags;
+        TxtTagInput.ItemsSource = _tagSuggestions; // 🔧 FIX: Configurar binding de sugerencias
+        App.Log?.LogDebug("✅ Tags ItemsControl y AutoSuggestBox configurados");
         
         // Configurar ComboBox de Grupo (solo lectura)
         CmbGrupo.ItemsSource = _grupoItems;
@@ -782,8 +805,36 @@ public sealed partial class ParteItemEdit : Page
         await Task.Delay(50);
         TxtCliente.Focus(FocusState.Programmatic);
         
+        // 🆕 TAGS: Cargar tags del parte
+        LoadParteTags(parte);
+        
         App.Log?.LogInformation("✅ LoadParte completado - Cliente: {cliente}, Grupo: {grupo} ({grupoIdx}), Tipo: {tipo} ({tipoIdx}), Estado: {estado}", 
             parte.Cliente, parte.Grupo, CmbGrupo.SelectedIndex, parte.Tipo, CmbTipo.SelectedIndex, parte.EstadoTexto);
+    }
+    
+    /// <summary>Carga los tags del parte en la colección de UI.</summary>
+    private void LoadParteTags(ParteDto parte)
+    {
+        try
+        {
+            _currentTags.Clear();
+            
+            if (parte.Tags != null && parte.Tags.Any())
+            {
+                foreach (var tag in parte.Tags.Take(MAX_TAGS))
+                {
+                    _currentTags.Add(tag);
+                }
+                
+                App.Log?.LogInformation("✅ {count} tags cargados del parte", _currentTags.Count);
+            }
+            
+            UpdateTagCounter();
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error cargando tags del parte");
+        }
     }
 
     private async Task ShowErrorAsync(string message)
@@ -809,6 +860,21 @@ public sealed partial class ParteItemEdit : Page
     private string? NormalizeHora(string? value)
     {
         return ParteItemEditValidation.NormalizeHora(value);
+    }
+
+    /// <summary>
+    /// Response DTO para /api/v1/freshdesk/tags/suggest
+    /// </summary>
+    private sealed class TagSuggestResponse
+    {
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+
+        [JsonPropertyName("count")]
+        public int Count { get; set; }
+
+        [JsonPropertyName("tags")]
+        public List<string> Tags { get; set; } = new();
     }
 
     /// <summary>
@@ -852,6 +918,10 @@ public sealed partial class ParteItemEdit : Page
         /// <remarks>Solo se envía en PUT (actualización), no en POST (creación).</remarks>
         [JsonPropertyName("estado")]
         public int? Estado { get; set; }
+        
+        /// <summary>Tags/etiquetas del parte (máximo 5).</summary>
+        [JsonPropertyName("tags")]
+        public List<string>? Tags { get; set; }
     }
 
     private async void OnGuardarClick(object? sender, RoutedEventArgs e)
@@ -1023,7 +1093,9 @@ public sealed partial class ParteItemEdit : Page
                 Accion = Parte.Accion,
                 Ticket = Parte.Ticket,
                 // 🆕 NUEVO: Enviar estado calculado (solo para UPDATE, null para CREATE)
-                Estado = Parte.Id > 0 ? nuevoEstado : (int?)null
+                Estado = Parte.Id > 0 ? nuevoEstado : (int?)null,
+                // 🆕 TAGS: Incluir tags actuales (max 5)
+                Tags = _currentTags.Any() ? _currentTags.ToList() : null
             };
 
             App.Log?.LogInformation("---------------------------------------------------------------");
@@ -1098,7 +1170,9 @@ public sealed partial class ParteItemEdit : Page
                         EstadoNombre = nuevoEstadoNombre,
                         IdCliente = clienteId,
                         IdGrupo = grupoId,
-                        IdTipo = tipoId
+                        IdTipo = tipoId,
+                        // ✅ FIX: Incluir Tags en el objeto que se guarda en caché
+                        Tags = _currentTags.Any() ? _currentTags.ToList() : new List<string>()
                     };
                     
                     App.Log?.LogInformation("✅ Objeto ParteDto construido manualmente con datos actualizados");
@@ -1130,6 +1204,7 @@ public sealed partial class ParteItemEdit : Page
                     App.Log?.LogInformation("      • Accion: {accion}", Trim(response.Accion, 80) ?? "(vacío)");
                     App.Log?.LogInformation("      • Estado: {estado} (int={estadoInt})", response.EstadoTexto, response.EstadoInt);
                     App.Log?.LogInformation("      • Tecnico: {tecnico}", response.Tecnico ?? "(vacío)");
+                    App.Log?.LogInformation("      • 🏷️ Tags: {tags}", response.Tags != null && response.Tags.Any() ? string.Join(", ", response.Tags) : "(sin tags)");
                 }
                 else
                 {
@@ -1236,7 +1311,9 @@ public sealed partial class ParteItemEdit : Page
                     EstadoNombre = nuevoEstadoNombre,
                     IdCliente = clienteId,
                     IdGrupo = grupoId,
-                    IdTipo = tipoId
+                    IdTipo = tipoId,
+                    // ✅ FIX: Incluir Tags en el objeto que se guarda en caché
+                    Tags = _currentTags.Any() ? _currentTags.ToList() : new List<string>()
                 };
                 
                 Parte.Id = nuevoId;
@@ -1257,6 +1334,8 @@ public sealed partial class ParteItemEdit : Page
                 App.Log?.LogInformation("      • Accion: {accion}", Trim(response.Accion, 80) ?? "(vacío)");
                 App.Log?.LogInformation("      • 🆕 Estado: {estado} (int={estadoInt})", response.EstadoTexto, response.EstadoInt);
                 App.Log?.LogInformation("      • Tecnico: {tecnico}", response.Tecnico ?? "(vacío)");
+                App.Log?.LogInformation("      • 🏷️ Tags: {tags}", response.Tags != null && response.Tags.Any() ? string.Join(", ", response.Tags) : "(sin tags)");
+                
                 
                 // ⚠️ CRÍTICO: ACTUALIZAR CACHE de la LISTA
                 var parteEndpoint = $"/api/v1/partes/{response.Id}";
@@ -1912,4 +1991,249 @@ public sealed partial class ParteItemEdit : Page
         
         return nextControl.control;
     }
+    
+    // ===================== TAGS MANAGEMENT =====================
+    
+    /// <summary>Actualiza el contador de tags (n/5).</summary>
+    private void UpdateTagCounter()
+    {
+        TxtTagCounter.Text = $"({_currentTags.Count}/{MAX_TAGS})";
+    }
+    
+    /// <summary>Agrega un tag a la lista si es válido y no duplicado.</summary>
+    private void AddTag(string tagText)
+    {
+        try
+        {
+            // Normalizar
+            var tag = tagText.Trim();
+            
+            // Validar vacío
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                App.Log?.LogDebug("⚠️ Tag vacío, ignorando");
+                return;
+            }
+            
+            // Validar máximo
+            if (_currentTags.Count >= MAX_TAGS)
+            {
+                App.Log?.LogWarning("⚠️ Máximo de {max} tags alcanzado", MAX_TAGS);
+                ShowMaxTagsWarning();
+                return;
+            }
+            
+            // Validar duplicados (case-insensitive)
+            if (_currentTags.Any(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+            {
+                App.Log?.LogDebug("⚠️ Tag duplicado: {tag}", tag);
+                return;
+            }
+            
+            // Agregar
+            _currentTags.Add(tag);
+            UpdateTagCounter();
+            
+            App.Log?.LogInformation("✅ Tag agregado: {tag} ({count}/{max})", tag, _currentTags.Count, MAX_TAGS);
+            
+            // Limpiar input
+            TxtTagInput.Text = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error agregando tag");
+        }
+    }
+    
+    /// <summary>Elimina un tag de la lista.</summary>
+    private void RemoveTag(string tag)
+    {
+        try
+        {
+            if (_currentTags.Remove(tag))
+            {
+                UpdateTagCounter();
+                App.Log?.LogInformation("🗑️ Tag eliminado: {tag} ({count}/{max})", tag, _currentTags.Count, MAX_TAGS);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error eliminando tag");
+        }
+    }
+    
+    /// <summary>Muestra advertencia cuando se intenta agregar más de 5 tags.</summary>
+    private async void ShowMaxTagsWarning()
+    {
+        try
+        {
+            var teachingTip = new TeachingTip
+            {
+                Title = "Máximo de tags alcanzado",
+                Subtitle = $"Solo puedes agregar hasta {MAX_TAGS} tags por parte.",
+                PreferredPlacement = TeachingTipPlacementMode.Bottom,
+                IsLightDismissEnabled = true,
+                Target = TxtTagInput
+            };
+            
+            // Agregar al Grid principal temporalmente
+            var grid = (Grid)this.Content;
+            grid.Children.Add(teachingTip);
+            
+            teachingTip.IsOpen = true;
+            
+            // Auto-cerrar después de 3 segundos
+            await Task.Delay(3000);
+            teachingTip.IsOpen = false;
+            
+            await Task.Delay(500);
+            grid.Children.Remove(teachingTip);
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error mostrando teaching tip");
+        }
+    }
+    
+    /// <summary>Busca sugerencias de tags en el backend.</summary>
+    private async Task SearchTagSuggestionsAsync()
+    {
+        try
+        {
+            var query = TxtTagInput.Text?.Trim() ?? string.Empty;
+            
+            // 🔧 MODIFICADO: Buscar desde 1 carácter (antes requería 2)
+            if (query.Length < 1)
+            {
+                _tagSuggestions.Clear();
+                App.Log?.LogDebug("⚠️ Query vacía para tags");
+                return;
+            }
+            
+            // Cancelar búsqueda anterior
+            _tagSearchCts?.Cancel();
+            _tagSearchCts?.Dispose();
+            _tagSearchCts = new CancellationTokenSource();
+            var ct = _tagSearchCts.Token;
+            
+            App.Log?.LogDebug("🔍 Buscando tags: '{query}'...", query);
+            
+            // Llamar endpoint de sugerencias
+            var endpoint = $"/api/v1/freshdesk/tags/suggest?term={Uri.EscapeDataString(query)}&limit=10";
+            
+            // 🔧 FIX: El endpoint devuelve { success, count, tags: [] }
+            // NO es un List<string> directo, es un objeto con propiedad "tags"
+            var response = await App.Api.GetAsync<TagSuggestResponse>(endpoint, ct);
+            
+            if (response?.Tags != null && response.Tags.Any())
+            {
+                _tagSuggestions.Clear();
+                
+                // 🔧 FIX: Agregar uno por uno para actualizar ObservableCollection
+                foreach (var tag in response.Tags)
+                {
+                    _tagSuggestions.Add(tag);
+                }
+                
+                App.Log?.LogDebug("✅ {count} sugerencias de tags encontradas y agregadas", response.Tags.Count);
+            }
+            else
+            {
+                _tagSuggestions.Clear();
+                App.Log?.LogDebug("⚠️ No se encontraron sugerencias para '{query}'", query);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            App.Log?.LogDebug("🚫 Búsqueda de tags cancelada");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error buscando sugerencias de tags");
+            _tagSuggestions.Clear();
+        }
+    }
+    
+    // ===================== EVENT HANDLERS: TAGS =====================
+    
+    /// <summary>Evento cuando el texto del AutoSuggestBox de tags cambia.</summary>
+    private void OnTagTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        try
+        {
+            // Solo procesar si es cambio por usuario
+            if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
+                return;
+            
+            _tagSearchTimer?.Stop();
+            _tagSearchTimer?.Start();
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error en OnTagTextChanged");
+        }
+    }
+    
+    /// <summary>Evento cuando se selecciona una sugerencia de tag.</summary>
+    private void OnTagSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        try
+        {
+            var selectedTag = args.SelectedItem as string;
+            if (!string.IsNullOrWhiteSpace(selectedTag))
+            {
+                AddTag(selectedTag);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error en OnTagSuggestionChosen");
+        }
+    }
+    
+    /// <summary>Evento cuando se presiona Enter o se selecciona una sugerencia.</summary>
+    private void OnTagQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        try
+        {
+            string tagText;
+            
+            if (args.ChosenSuggestion != null)
+            {
+                // Se seleccionó una sugerencia
+                tagText = args.ChosenSuggestion.ToString() ?? string.Empty;
+            }
+            else
+            {
+                // Se presionó Enter sin seleccionar (free-text)
+                tagText = args.QueryText;
+            }
+            
+            if (!string.IsNullOrWhiteSpace(tagText))
+            {
+                AddTag(tagText);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error en OnTagQuerySubmitted");
+        }
+    }
+    
+    /// <summary>Evento cuando se hace click en el botón X de un chip de tag.</summary>
+    private void OnRemoveTagClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (sender is Button button && button.Tag is string tag)
+            {
+                RemoveTag(tag);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error en OnRemoveTagClick");
+        }
+    }
 }
+

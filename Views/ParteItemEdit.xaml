@@ -341,6 +341,7 @@
                     <RowDefinition Height="*"/>      <!-- Card 3: Descripción/Acción (estirable) -->
                 </Grid.RowDefinitions>
                 
+                
                 <!-- ========== CARD 1: DATOS GENERALES ========== -->
                 <Border Grid.Row="0"
                         Background="{StaticResource CardBackgroundBrush}"
@@ -556,12 +557,115 @@
             </Grid>
         </ScrollViewer>
 
-        <!-- ===================== FOOTER - BOTONERA FIJA ===================== -->
+        <!-- ===================== FOOTER - TAGS + BOTONERA EN LA MISMA FILA ===================== -->
         <Border Grid.Row="2" 
                 Background="{StaticResource FooterBackgroundBrush}"
                 Padding="12,10">
-            <StackPanel x:Name="FooterButtons"
-                        Orientation="Horizontal" 
+            
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>      <!-- Tags (EXPANDIDO - rellena espacio) -->
+                    <ColumnDefinition Width="Auto"/>   <!-- Botones (tamaño fijo) -->
+                </Grid.ColumnDefinitions>
+                
+                <!-- ========== COLUMNA IZQUIERDA: TAGS (EXPANDIDO) ========== -->
+                <Border Grid.Column="0"
+                        Background="{StaticResource CardBackgroundBrush}"
+                        BorderBrush="{StaticResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="10,8"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Stretch">
+                    <Grid RowSpacing="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>   <!-- Título + Contador -->
+                            <RowDefinition Height="Auto"/>   <!-- AutoSuggestBox -->
+                            <RowDefinition Height="Auto"/>   <!-- Chips -->
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Título con contador -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Column="0"
+                                       Text="TAGS / ETIQUETAS" 
+                                       FontSize="9"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       VerticalAlignment="Center"/>
+                            
+                            <TextBlock x:Name="TxtTagCounter"
+                                       Grid.Column="1"
+                                       Text="(0/5)"
+                                       FontSize="9"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                        
+                        <!-- AutoSuggestBox para agregar tags (EXPANDIDO) -->
+                        <AutoSuggestBox x:Name="TxtTagInput"
+                                        Grid.Row="1"
+                                        Style="{StaticResource ModernAutoSuggestBox}"
+                                        PlaceholderText="Buscar o crear tag..."
+                                        QuerySubmitted="OnTagQuerySubmitted"
+                                        TextChanged="OnTagTextChanged"
+                                        SuggestionChosen="OnTagSuggestionChosen"
+                                        Height="32"
+                                        FontSize="12"
+                                        HorizontalAlignment="Stretch"
+                                        TabIndex="8"/>
+                        
+                        <!-- Chips de tags (WRAP horizontal) -->
+                        <ItemsControl x:Name="TagsItemsControl" 
+                                      Grid.Row="2"
+                                      HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" 
+                                                Spacing="4"
+                                                HorizontalAlignment="Left"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#1A8B5CF6"
+                                            BorderBrush="#8B5CF6"
+                                            BorderThickness="1"
+                                            CornerRadius="10"
+                                            Padding="8,3">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{Binding}"
+                                                       FontSize="10"
+                                                       Foreground="#E9D5FF"
+                                                       VerticalAlignment="Center"/>
+                                            <Button Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Padding="0"
+                                                    Width="14"
+                                                    Height="14"
+                                                    Click="OnRemoveTagClick"
+                                                    Tag="{Binding}">
+                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                          Glyph="&#xE711;"
+                                                          FontSize="9"
+                                                          Foreground="#E9D5FF"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Border>
+                
+                <!-- ========== COLUMNA DERECHA: BOTONERA ========== -->
+                <StackPanel Grid.Column="1"
+                            x:Name="FooterButtons"
+                            Orientation="Horizontal" 
                         Spacing="12"
                         HorizontalAlignment="Right">
                 
@@ -642,6 +746,7 @@
                 </Button>
                 
             </StackPanel>
+            </Grid>
         </Border>
 
         <!-- CAMPOS OCULTOS (compatibilidad) -->
@@ -657,3 +762,4 @@
         </StackPanel>
     </Grid>
 </Page>
+

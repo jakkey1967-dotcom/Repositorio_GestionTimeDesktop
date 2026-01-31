@@ -2,6 +2,7 @@ using GestionTime.Desktop.Models.Dtos;
 using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.ViewModels;
 using GestionTime.Desktop.Services;
+using GestionTime.Desktop.Services.Catalog;  // 🆕 NUEVO: Usar PartesService
 using GestionTime.Desktop.Diagnostics;
 using GestionTime.Desktop.Dialogs;  // 🆕 NUEVO: Agregar para usar CerrarParteDialog
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,17 @@ public sealed partial class DiarioPage : Page
     private CancellationTokenSource? _loadCts;
     private bool _isLoading = false; // 🆕 NUEVO: Flag para evitar llamadas concurrentes
     private bool _isInitialLoad = true; // 🆕 NUEVO: Flag para evitar carga automática en constructor
+    private OnlineUsersPanelViewModel? _usersPanelViewModel; // 🆕 NUEVO: ViewModel del panel de usuarios
+    
+    // 🆕 NUEVO: Servicio de partes (lazy loading)
+    private PartesService? _partesService;
+    private PartesService PartesService => _partesService ??= new PartesService(App.Api, App.Log!);
+    
+    // 🆕 PAGINACIÓN: Variables para paginar ListView
+    private const int ITEMS_PER_PAGE = 30;
+    private int _currentPage = 1;
+    private int _totalPages = 1;
+    private List<ParteDto> _allFilteredPartes = new();
 
     public DiarioViewModel ViewModel { get; } = new();
 
@@ -114,16 +126,70 @@ public sealed partial class DiarioPage : Page
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
-        // Detener el monitoreo del servicio
-        ViewModel.StopServiceMonitoring();
+        try
+        {
+            App.Log?.LogInformation("🧹 Iniciando limpieza de DiarioPage...");
+            
+            // Detener el monitoreo del servicio
+            ViewModel.StopServiceMonitoring();
 
-        // Limpiar timer de debounce
-        _debounce?.Stop();
+            // 🔧 FIX: Limpiar y destruir timer de debounce completamente
+            if (_debounce != null)
+            {
+                _debounce.Stop();
+                // No desuscribir Tick manualmente (se limpia con null)
+                _debounce = null;
+            }
 
-        // 🆕 NUEVO: Desuscribir eventos de tema para evitar memory leaks
-        ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
+            // 🔧 FIX: Cancelar cualquier carga en progreso
+            _loadCts?.Cancel();
+            _loadCts?.Dispose();
+            _loadCts = null;
 
-        App.Log?.LogInformation("DiarioPage Unloaded - Recursos limpiados");
+            // 🆕 NUEVO: Limpiar panel de usuarios online
+            try
+            {
+                if (_usersPanelViewModel != null)
+                {
+                    UsersPanel.Cleanup();
+                    _usersPanelViewModel.Dispose();
+                    _usersPanelViewModel = null;
+                    App.Log?.LogInformation("✅ Panel de usuarios online limpiado");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Log?.LogError(ex, "Error limpiando panel de usuarios");
+            }
+
+            // 🔧 FIX: Desuscribir eventos de tema para evitar memory leaks
+            ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
+            
+            // 🔧 FIX: Desuscribir evento de fecha
+            DpFiltroFecha.DateChanged -= OnFiltroFechaChanged;
+            
+            // 🔧 FIX: Limpiar ListView para liberar virtualización
+            if (LvPartes != null)
+            {
+                LvPartes.ContainerContentChanging -= OnContainerContentChanging;
+                LvPartes.SelectionChanged -= OnPartesSelectionChanged;
+                LvPartes.ItemsSource = null;
+            }
+            
+            // 🔧 FIX: Limpiar colecciones
+            Partes.Clear();
+            _cache30dias.Clear();
+            _allFilteredPartes.Clear();
+            
+            // 🔧 FIX: Limpiar servicio de partes
+            _partesService = null;
+
+            App.Log?.LogInformation("✅ DiarioPage Unloaded - Recursos limpiados completamente");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error durante limpieza de DiarioPage");
+        }
     }
 
     private void InitializeIcons()
@@ -806,6 +872,11 @@ public sealed partial class DiarioPage : Page
         var q = (TxtFiltroQ.Text ?? string.Empty).Trim();
 
         IEnumerable<ParteDto> query = _cache30dias;
+        
+        // 🐛 DEBUG TEMPORAL
+        System.Diagnostics.Debug.WriteLine($"═══ ApplyFilterToListView ═══");
+        System.Diagnostics.Debug.WriteLine($"_cache30dias Count: {_cache30dias.Count}");
+        System.Diagnostics.Debug.WriteLine($"Filtro 'q': '{q}'");
 
         if (!string.IsNullOrWhiteSpace(q))
         {
@@ -825,11 +896,34 @@ public sealed partial class DiarioPage : Page
             .OrderByDescending(p => p.Fecha)
             .ThenByDescending(p => DiarioPageHelpers.ParseTime(p.HoraInicio));
 
-        Partes.Clear();
-        foreach (var p in query)
-            Partes.Add(p);
+        // 🆕 PAGINACIÓN: Guardar todos los resultados filtrados
+        _allFilteredPartes = query.ToList();
+        
+        // 🆕 PAGINACIÓN: Calcular total de páginas
+        _totalPages = (_allFilteredPartes.Count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+        if (_totalPages < 1) _totalPages = 1;
+        
+        // 🆕 PAGINACIÓN: Ajustar página actual si está fuera de rango
+        if (_currentPage > _totalPages) _currentPage = _totalPages;
+        if (_currentPage < 1) _currentPage = 1;
+        
+        // 🆕 PAGINACIÓN: Obtener solo los items de la página actual
+        var pagedItems = _allFilteredPartes
+            .Skip((_currentPage - 1) * ITEMS_PER_PAGE)
+            .Take(ITEMS_PER_PAGE);
 
-        App.Log?.LogInformation("Filtro aplicado q='{q}'. Mostrando {count} registros.", q, Partes.Count);
+        Partes.Clear();
+        foreach (var p in pagedItems)
+            Partes.Add(p);
+        
+        // 🐛 DEBUG TEMPORAL
+        System.Diagnostics.Debug.WriteLine($"Total filtrados: {_allFilteredPartes.Count}");
+        System.Diagnostics.Debug.WriteLine($"Página actual: {_currentPage}/{_totalPages}");
+        System.Diagnostics.Debug.WriteLine($"Mostrando: {Partes.Count} items");
+        System.Diagnostics.Debug.WriteLine($"═══════════════════════════");
+
+        App.Log?.LogInformation("Filtro aplicado q='{q}'. Total: {total}, Página: {page}/{totalPages}, Mostrando: {count}",
+            q, _allFilteredPartes.Count, _currentPage, _totalPages, Partes.Count);
 
         // Log de estados en la lista final
         var estadosEnLista = Partes.GroupBy(p => p.EstadoTexto).Select(g => $"{g.Key}:{g.Count()}");
@@ -837,6 +931,54 @@ public sealed partial class DiarioPage : Page
 
         // 🆕 NUEVO: Actualizar tooltip de cobertura de tiempo
         UpdateTimeCoverageTooltip();
+        
+        // 🆕 PAGINACIÓN: Actualizar UI de paginación (si existe)
+        UpdatePaginationUI();
+    }
+    
+    /// <summary>
+    /// 🆕 PAGINACIÓN: Actualiza la UI de paginación (botones, labels, etc.)
+    /// </summary>
+    private void UpdatePaginationUI()
+    {
+        // TODO: Implementar botones Previous/Next/Page numbers en el XAML
+        // Por ahora solo logueamos
+        App.Log?.LogDebug("📄 Paginación: {current}/{total} páginas", _currentPage, _totalPages);
+    }
+    
+    /// <summary>
+    /// 🆕 PAGINACIÓN: Navegar a una página específica
+    /// </summary>
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > _totalPages) return;
+        
+        _currentPage = pageNumber;
+        ApplyFilterToListView();
+    }
+    
+    /// <summary>
+    /// 🆕 PAGINACIÓN: Ir a la página siguiente
+    /// </summary>
+    private void NextPage()
+    {
+        if (_currentPage < _totalPages)
+        {
+            _currentPage++;
+            ApplyFilterToListView();
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 PAGINACIÓN: Ir a la página anterior
+    /// </summary>
+    private void PreviousPage()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            ApplyFilterToListView();
+        }
     }
 
     // ===================== Filtros =====================
@@ -1562,94 +1704,21 @@ public sealed partial class DiarioPage : Page
     {
         try
         {
-            App.Log?.LogInformation("Usuario solicitó logout");
+            App.Log?.LogInformation("Usuario solicitó logout desde botón Salir");
 
-            var confirmDialog = new ContentDialog
+            // 🆕 NUEVO: Usar método centralizado de MainWindow
+            if (App.MainWindowInstance != null)
             {
-                Title = "Cerrar sesión",
-                Content = "¿Estás seguro de que deseas cerrar la sesión?",
-                PrimaryButtonText = "Cerrar sesión",
-                CloseButtonText = "Cancelar",
-                DefaultButton = ContentDialogButton.Close,
-                XamlRoot = XamlRoot
-            };
-
-            var result = await confirmDialog.ShowAsync();
-            
-            if (result == ContentDialogResult.Primary)
-            {
-                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-                App.Log?.LogInformation("🚪 LOGOUT - Limpiando sesión y datos");
-                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-
-                try
-                {
-                    UserInfoFileStorage.ClearUserInfo(App.Log);
-                    App.Log?.LogInformation("✅ Información de usuario limpiada del archivo");
-                }
-                catch (Exception fileEx)
-                {
-                    App.Log?.LogError(fileEx, "Error limpiando archivo de usuario");
-                }
-
-                App.Api.ClearToken();
-                App.Log?.LogInformation("✅ Token de autenticación eliminado");
-
-                App.Api.ClearGetCache();
-                App.Log?.LogInformation("✅ Caché de peticiones limpiado");
-
-                _cache30dias.Clear();
-                Partes.Clear();
-                App.Log?.LogInformation("✅ Caché local de partes limpiado");
-
-                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-                App.Log?.LogInformation("✅ LOGOUT COMPLETADO - Navegando al login");
-                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-
-                try
-                {
-                    var fadeOut = new DoubleAnimation
-                    {
-                        From = 1,
-                        To = 0,
-                        Duration = new Duration(TimeSpan.FromMilliseconds(300)),
-                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
-                    };
-                    
-                    Storyboard.SetTarget(fadeOut, RootGrid);
-                    Storyboard.SetTargetProperty(fadeOut, "Opacity");
-                    
-                    var storyboard = new Storyboard();
-                    storyboard.Children.Add(fadeOut);
-                    storyboard.Completed += (s, args) => App.MainWindowInstance?.Navigator?.Navigate(typeof(LoginPage));
-                    
-                    storyboard.Begin();
-                }
-                catch (Exception animEx)
-                {
-                    App.Log?.LogWarning(animEx, "Error en animación de fade out, continuando con navegación");
-                    App.MainWindowInstance?.Navigator?.Navigate(typeof(LoginPage));
-                }
+                await App.MainWindowInstance.RequestLogoutAsync();
             }
             else
             {
-                App.Log?.LogInformation("Usuario canceló el logout");
+                App.Log?.LogError("❌ MainWindowInstance es null - No se puede ejecutar logout");
             }
         }
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "❌ Error crítico en logout");
-            
-            try
-            {
-                App.Log?.LogWarning("Intentando navegación de emergencia al LoginPage...");
-                App.MainWindowInstance?.Navigator?.Navigate(typeof(LoginPage));
-                App.Log?.LogInformation("✅ Navegación de emergencia exitosa");
-            }
-            catch (Exception fallbackEx)
-            {
-                App.Log?.LogError(fallbackEx, "❌ Navegación de emergencia también falló");
-            }
         }
     }
 
@@ -2322,23 +2391,33 @@ public sealed partial class DiarioPage : Page
         {
             App.Log?.LogInformation("📋 DUPLICAR PARTE - ID: {id}", parteId);
 
+            // 🆕 MODIFICADO: Copiar TODOS los campos incluyendo Ticket y Tags
             var nuevoParte = new ParteDto
             {
-                Id = 0,
-                Fecha = DateTime.Today,
+                Id = 0, // Nuevo registro
+                Fecha = DateTime.Today, // ⚠️ SIEMPRE HOY (no copiar fecha original)
                 HoraInicio = DateTime.Now.ToString("HH:mm"),
                 HoraFin = "",
                 Cliente = parte.Cliente,
                 Tienda = parte.Tienda,
                 Accion = parte.Accion,
-                Ticket = "",
+                Ticket = parte.Ticket, // ✅ COPIAR TICKET
                 Grupo = parte.Grupo,
                 Tipo = parte.Tipo,
-                EstadoParte = ParteEstado.Abierto,
+                EstadoParte = ParteEstado.Abierto, // Estado inicial: Abierto
                 IdCliente = parte.IdCliente,
                 IdGrupo = parte.IdGrupo,
-                IdTipo = parte.IdTipo
+                IdTipo = parte.IdTipo,
+                // ✅ COPIAR TAGS con deep copy (nueva lista)
+                Tags = parte.Tags != null ? new List<string>(parte.Tags) : new List<string>()
             };
+
+            App.Log?.LogInformation("📋 Parte duplicado creado:");
+            App.Log?.LogInformation("   • Cliente: {cliente}", nuevoParte.Cliente);
+            App.Log?.LogInformation("   • Tienda: {tienda}", nuevoParte.Tienda);
+            App.Log?.LogInformation("   • Ticket: {ticket}", nuevoParte.Ticket ?? "(vacío)");
+            App.Log?.LogInformation("   • Tags: {tags}", nuevoParte.Tags != null ? string.Join(", ", nuevoParte.Tags) : "(sin tags)");
+            App.Log?.LogInformation("   • Fecha: {fecha} (HOY)", nuevoParte.Fecha.ToString("yyyy-MM-dd"));
 
             App.Log?.LogInformation("📝 Abriendo editor con parte duplicado (ID=0 indica NUEVO)...");
             await OpenParteEditorAsync(nuevoParte, $"📋 Duplicar Parte #{parte.Id}");
@@ -2441,6 +2520,41 @@ public sealed partial class DiarioPage : Page
         {
             App.Log?.LogError(ex, "Error mostrando notas de versión");
             await ShowInfoAsync("Error mostrando notas de versión. Revisa app.log.");
+        }
+    }
+
+    /// <summary>Abre o cierra el panel lateral de usuarios online.</summary>
+    private void OnToggleUsersPanel(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var isOpen = MainSplitView.IsPaneOpen;
+
+            if (!isOpen)
+            {
+                // Abrir panel
+                App.Log?.LogInformation("📂 Abriendo panel de usuarios online integrado");
+
+                // Inicializar ViewModel si es primera vez
+                if (_usersPanelViewModel == null)
+                {
+                    _usersPanelViewModel = new OnlineUsersPanelViewModel(DispatcherQueue);
+                    UsersPanel.Initialize(_usersPanelViewModel);
+                    App.Log?.LogInformation("✅ Panel de usuarios inicializado");
+                }
+
+                MainSplitView.IsPaneOpen = true;
+            }
+            else
+            {
+                // Cerrar panel
+                App.Log?.LogInformation("🔒 Cerrando panel de usuarios online integrado");
+                MainSplitView.IsPaneOpen = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error toggling panel de usuarios");
         }
     }
 

@@ -178,13 +178,14 @@ public sealed class StringToVisibilityConverter : IValueConverter
     }
 }
 
-/// <summary>Convierte un count (int) a Visibility (0 = Collapsed, >0 = Visible).</summary>
+/// <summary>Convierte Count a Visibility (Count > 0 = Visible, Count = 0 = Collapsed).</summary>
 public sealed class CountToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is int count)
             return count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        
         return Visibility.Collapsed;
     }
 
@@ -193,3 +194,4 @@ public sealed class CountToVisibilityConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
