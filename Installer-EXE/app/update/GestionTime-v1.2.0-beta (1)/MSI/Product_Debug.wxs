@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <!-- Definición del paquete DEBUG -->
+  <Package Name="GestionTime Desktop (Debug)"
+           Language="1034"
+           Version="1.1.0.0"
+           Manufacturer="GestionTime Solutions"
+           UpgradeCode="12345678-1234-1234-1234-123456789013"
+           Scope="perMachine"
+           InstallerVersion="500"
+           Compressed="yes">
+
+    <!-- Información del producto DEBUG -->
+    <Property Id="ARPPRODUCTICON" Value="app_logo.ico" />
+    <Property Id="ARPHELPLINK" Value="https://gestiontime.com/support" />
+    <Property Id="ARPURLINFOABOUT" Value="https://gestiontime.com" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <Property Id="ARPNOREPAIR" Value="1" />
+    <Property Id="ARPCOMMENTS" Value="Aplicación de gestión de tiempo (DEBUG)" />
+
+    <!-- Configuración de actualización -->
+    <MajorUpgrade DowngradeErrorMessage="Una versión más nueva de [ProductName] ya está instalada."
+                  AllowSameVersionUpgrades="yes"
+                  Schedule="afterInstallInitialize" />
+
+    <!-- Configuración de medios -->
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Iconos -->
+    <Icon Id="app_logo.ico" SourceFile="..\..\Assets\app_logo.ico" />
+
+    <!-- Estructura de directorios -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="CompanyFolder" Name="GestionTime Solutions">
+        <Directory Id="INSTALLFOLDER" Name="GestionTime Desktop Debug" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="GestionTime Desktop Debug" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- Referencia a características -->
+    <FeatureRef Id="MainApplication" />
+    <FeatureRef Id="DesktopShortcut" />
+
+  </Package>
+</Wix>

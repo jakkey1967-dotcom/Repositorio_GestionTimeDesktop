@@ -132,10 +132,28 @@ namespace GestionTime.Desktop.Services
 
         public void SetBearerToken(string accessToken, string? refreshToken = null)
         {
+            // ✅ VALIDACIÓN: Verificar que accessToken no sea null
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                _log.LogError("❌ SetBearerToken llamado con token null o vacío");
+                throw new ArgumentNullException(nameof(accessToken), "El token no puede ser null o vacío");
+            }
+            
+            _log.LogInformation("🔧 SetBearerToken INICIADO");
+            _log.LogInformation("   • Token length: {len}", accessToken.Length);
+            _log.LogInformation("   • RefreshToken: {hasRefresh}", refreshToken != null);
+            
             AccessToken = accessToken;
             RefreshToken = refreshToken;
             
+            _log.LogInformation("   • Configurando header Authorization en HttpClient...");
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            
+            // Verificar que se configuró correctamente
+            var authHeader = _http.DefaultRequestHeaders.Authorization;
+            _log.LogInformation("   • Header configurado: Scheme={scheme}, Parameter={param}",
+                authHeader?.Scheme ?? "(null)",
+                authHeader?.Parameter?.Substring(0, Math.Min(20, authHeader.Parameter?.Length ?? 0)) + "..." ?? "(null)");
             
             // 🆕 NUEVO: Calcular cuándo expira el token (decodificando JWT)
             try
@@ -593,7 +611,22 @@ namespace GestionTime.Desktop.Services
             var sw = Stopwatch.StartNew();
             using var performanceScope = PerformanceLogger.BeginScope(SpecializedLoggers.Api, $"GET {path}");
             
-            SpecializedLoggers.Api.LogInformation("HTTP GET {url}", path);
+            // 🐛 DEBUG: Log del estado del token y header
+            var hasToken = !string.IsNullOrEmpty(AccessToken);
+            var hasAuthHeader = _http.DefaultRequestHeaders.Authorization != null;
+            SpecializedLoggers.Api.LogInformation("HTTP GET {url} | Token: {hasToken} | Header: {hasHeader}", 
+                path, hasToken, hasAuthHeader);
+            
+            if (hasAuthHeader)
+            {
+                SpecializedLoggers.Api.LogDebug("   Authorization: {scheme} {token}", 
+                    _http.DefaultRequestHeaders.Authorization?.Scheme,
+                    _http.DefaultRequestHeaders.Authorization?.Parameter?.Substring(0, Math.Min(20, _http.DefaultRequestHeaders.Authorization?.Parameter?.Length ?? 0)) + "...");
+            }
+            else
+            {
+                SpecializedLoggers.Api.LogWarning("⚠️ Authorization header NO está configurado para GET {url}", path);
+            }
 
             try
             {
@@ -843,6 +876,87 @@ namespace GestionTime.Desktop.Services
             {
                 sw.Stop();
                 _log.LogError(ex, "HTTP PUT {url} EXCEPCIÓN tras {ms}ms", path, sw.ElapsedMilliseconds);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// PATCH request - actualización parcial
+        /// </summary>
+        public async Task<TRes?> PatchAsync<TReq, TRes>(string path, TReq payload, CancellationToken ct = default)
+        {
+            await EnsureTokenValidAsync(ct);
+            
+            path = NormalizePath(path);
+
+            var json = JsonSerializer.Serialize(payload, _jsonWrite);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var request = new HttpRequestMessage(new HttpMethod("PATCH"), path) { Content = content };
+
+            var sw = Stopwatch.StartNew();
+            _log.LogInformation("HTTP PATCH {url} Payload: {payload}", path, SafePayloadForLog(json));
+
+            try
+            {
+                using var resp = await _http.SendAsync(request, ct);
+                var body = await resp.Content.ReadAsStringAsync(ct);
+
+                sw.Stop();
+                _log.LogInformation("HTTP PATCH {url} -> {code} en {ms}ms", path, (int)resp.StatusCode, sw.ElapsedMilliseconds);
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _log.LogWarning("HTTP PATCH {url} ERROR {code}. Body: {body}", path, (int)resp.StatusCode, Trim(body, 1200));
+                    
+                    var (message, error) = ExtractErrorFromBody(body);
+                    throw new ApiException(resp.StatusCode, path, message, error);
+                }
+
+                InvalidateRelatedCache(path, "PATCH");
+
+                if (string.IsNullOrWhiteSpace(body))
+                {
+                    _log.LogWarning("HTTP PATCH {url} devolvió body vacío - retornando default", path);
+                    return default;
+                }
+
+                try
+                {
+                    var result = JsonSerializer.Deserialize<TRes>(body, _jsonRead);
+                    
+                    if (result == null && !string.IsNullOrWhiteSpace(body))
+                    {
+                        _log.LogWarning("HTTP PATCH {url} deserialización resultó en null. Body: {body}", path, Trim(body, 500));
+                    }
+                    
+                    return result;
+                }
+                catch (JsonException jsonEx)
+                {
+                    _log.LogError(jsonEx, "HTTP PATCH {url} error deserializando JSON: {body}", path, Trim(body, 1200));
+                    throw new Exception($"Error deserializando respuesta del servidor: {jsonEx.Message}", jsonEx);
+                }
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (HttpRequestException httpEx)
+            {
+                sw.Stop();
+                _log.LogError(httpEx, "HTTP PATCH {url} error de conexión tras {ms}ms", path, sw.ElapsedMilliseconds);
+                throw new Exception($"Error de conexión al servidor: {httpEx.Message}. Verifica que la API esté accesible en {BaseUrl}", httpEx);
+            }
+            catch (TaskCanceledException timeoutEx)
+            {
+                sw.Stop();
+                _log.LogError(timeoutEx, "HTTP PATCH {url} timeout tras {ms}ms", path, sw.ElapsedMilliseconds);
+                throw new Exception($"Tiempo de espera agotado conectando al servidor. La API puede estar lenta o inaccesible.", timeoutEx);
+            }
+            catch (Exception ex)
+            {
+                sw.Stop();
+                _log.LogError(ex, "HTTP PATCH {url} EXCEPCIÓN tras {ms}ms", path, sw.ElapsedMilliseconds);
                 throw;
             }
         }

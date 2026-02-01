@@ -1,0 +1,1629 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  
+  <Fragment>
+    <Feature Id="MainApplication" 
+             Title="GestionTime Desktop" 
+             Description="Aplicacion principal de gestion de tiempo"
+             Level="1"
+             ConfigurableDirectory="INSTALLFOLDER"
+             AllowAdvertise="no"
+             Display="expand">
+      
+      <ComponentGroupRef Id="ApplicationFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+      
+    </Feature>
+
+    <Feature Id="DesktopShortcut"
+             Title="Acceso directo en Escritorio"
+             Description="Crear acceso directo en el Escritorio"
+             Level="1"
+             AllowAdvertise="no">
+      
+      <ComponentRef Id="DesktopShortcutComponent" />
+      
+    </Feature>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Component Id="Comp_1" Guid="*">
+        <File Id="File_1" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/appsettings.json" />
+      </Component>
+      <Component Id="Comp_2" Guid="*">
+        <File Id="File_2" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/clretwrc.dll" />
+      </Component>
+      <Component Id="Comp_3" Guid="*">
+        <File Id="File_3" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/clrgc.dll" />
+      </Component>
+      <Component Id="Comp_4" Guid="*">
+        <File Id="File_4" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/clrjit.dll" />
+      </Component>
+      <Component Id="Comp_5" Guid="*">
+        <File Id="File_5" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/CommunityToolkit.Mvvm.dll" />
+      </Component>
+      <Component Id="Comp_6" Guid="*">
+        <File Id="File_6" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/coreclr.dll" />
+      </Component>
+      <Component Id="Comp_7" Guid="*">
+        <File Id="File_7" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/CoreMessagingXP.dll" />
+      </Component>
+      <Component Id="Comp_8" Guid="*">
+        <File Id="File_8" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/createdump.exe" />
+      </Component>
+      <Component Id="Comp_9" Guid="*">
+        <File Id="File_9" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/dcompi.dll" />
+      </Component>
+      <Component Id="Comp_10" Guid="*">
+        <File Id="File_10" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/DirectML.dll" />
+      </Component>
+      <Component Id="Comp_11" Guid="*">
+        <File Id="File_11" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/dwmcorei.dll" />
+      </Component>
+      <Component Id="Comp_12" Guid="*">
+        <File Id="File_12" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/DwmSceneI.dll" />
+      </Component>
+      <Component Id="Comp_13" Guid="*">
+        <File Id="File_13" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/DWriteCore.dll" />
+      </Component>
+      <Component Id="Comp_14" Guid="*">
+        <File Id="File_14" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/FluentAssertions.dll" />
+      </Component>
+      <Component Id="Comp_15" Guid="*">
+        <File Id="File_15" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/GestionTime.Desktop.deps.json" />
+      </Component>
+      <Component Id="Comp_16" Guid="*">
+        <File Id="File_16" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/GestionTime.Desktop.dll" />
+      </Component>
+      <Component Id="Comp_17" Guid="*">
+        <File Id="File_17" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/GestionTime.Desktop.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Comp_18" Guid="*">
+        <File Id="File_18" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/GestionTime.Desktop.pdb" />
+      </Component>
+      <Component Id="Comp_19" Guid="*">
+        <File Id="File_19" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/GestionTime.Desktop.runtimeconfig.json" />
+      </Component>
+      <Component Id="Comp_20" Guid="*">
+        <File Id="File_20" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hostfxr.dll" />
+      </Component>
+      <Component Id="Comp_21" Guid="*">
+        <File Id="File_21" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hostpolicy.dll" />
+      </Component>
+      <Component Id="Comp_22" Guid="*">
+        <File Id="File_22" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/marshal.dll" />
+      </Component>
+      <Component Id="Comp_23" Guid="*">
+        <File Id="File_23" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.CSharp.dll" />
+      </Component>
+      <Component Id="Comp_24" Guid="*">
+        <File Id="File_24" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.DiaSymReader.Native.amd64.dll" />
+      </Component>
+      <Component Id="Comp_25" Guid="*">
+        <File Id="File_25" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.DirectManipulation.dll" />
+      </Component>
+      <Component Id="Comp_26" Guid="*">
+        <File Id="File_26" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Configuration.Abstractions.dll" />
+      </Component>
+      <Component Id="Comp_27" Guid="*">
+        <File Id="File_27" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Configuration.Binder.dll" />
+      </Component>
+      <Component Id="Comp_28" Guid="*">
+        <File Id="File_28" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Configuration.dll" />
+      </Component>
+      <Component Id="Comp_29" Guid="*">
+        <File Id="File_29" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Configuration.FileExtensions.dll" />
+      </Component>
+      <Component Id="Comp_30" Guid="*">
+        <File Id="File_30" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Configuration.Json.dll" />
+      </Component>
+      <Component Id="Comp_31" Guid="*">
+        <File Id="File_31" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+      <Component Id="Comp_32" Guid="*">
+        <File Id="File_32" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+      <Component Id="Comp_33" Guid="*">
+        <File Id="File_33" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.FileProviders.Abstractions.dll" />
+      </Component>
+      <Component Id="Comp_34" Guid="*">
+        <File Id="File_34" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.FileProviders.Physical.dll" />
+      </Component>
+      <Component Id="Comp_35" Guid="*">
+        <File Id="File_35" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.FileSystemGlobbing.dll" />
+      </Component>
+      <Component Id="Comp_36" Guid="*">
+        <File Id="File_36" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Logging.Abstractions.dll" />
+      </Component>
+      <Component Id="Comp_37" Guid="*">
+        <File Id="File_37" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Logging.dll" />
+      </Component>
+      <Component Id="Comp_38" Guid="*">
+        <File Id="File_38" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Options.dll" />
+      </Component>
+      <Component Id="Comp_39" Guid="*">
+        <File Id="File_39" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Extensions.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_40" Guid="*">
+        <File Id="File_40" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Foundation.winmd" />
+      </Component>
+      <Component Id="Comp_41" Guid="*">
+        <File Id="File_41" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.Display.dll" />
+      </Component>
+      <Component Id="Comp_42" Guid="*">
+        <File Id="File_42" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.Imaging.dll" />
+      </Component>
+      <Component Id="Comp_43" Guid="*">
+        <File Id="File_43" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.Imaging.Projection.dll" />
+      </Component>
+      <Component Id="Comp_44" Guid="*">
+        <File Id="File_44" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.Imaging.winmd" />
+      </Component>
+      <Component Id="Comp_45" Guid="*">
+        <File Id="File_45" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.ImagingInternal.ImageObjectRemover.winmd" />
+      </Component>
+      <Component Id="Comp_46" Guid="*">
+        <File Id="File_46" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.ImagingInternal.winmd" />
+      </Component>
+      <Component Id="Comp_47" Guid="*">
+        <File Id="File_47" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.Internal.Imaging.winmd" />
+      </Component>
+      <Component Id="Comp_48" Guid="*">
+        <File Id="File_48" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Graphics.winmd" />
+      </Component>
+      <Component Id="Comp_49" Guid="*">
+        <File Id="File_49" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.InputStateManager.dll" />
+      </Component>
+      <Component Id="Comp_50" Guid="*">
+        <File Id="File_50" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.InteractiveExperiences.Projection.dll" />
+      </Component>
+      <Component Id="Comp_51" Guid="*">
+        <File Id="File_51" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Internal.FrameworkUdk.dll" />
+      </Component>
+      <Component Id="Comp_52" Guid="*">
+        <File Id="File_52" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.ML.OnnxRuntime.dll" />
+      </Component>
+      <Component Id="Comp_53" Guid="*">
+        <File Id="File_53" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Security.Authentication.OAuth.Projection.dll" />
+      </Component>
+      <Component Id="Comp_54" Guid="*">
+        <File Id="File_54" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Security.Authentication.OAuth.winmd" />
+      </Component>
+      <Component Id="Comp_55" Guid="*">
+        <File Id="File_55" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Composition.OSSupport.dll" />
+      </Component>
+      <Component Id="Comp_56" Guid="*">
+        <File Id="File_56" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Designer.dll" />
+      </Component>
+      <Component Id="Comp_57" Guid="*">
+        <File Id="File_57" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.dll" />
+      </Component>
+      <Component Id="Comp_58" Guid="*">
+        <File Id="File_58" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Input.dll" />
+      </Component>
+      <Component Id="Comp_59" Guid="*">
+        <File Id="File_59" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.pri" />
+      </Component>
+      <Component Id="Comp_60" Guid="*">
+        <File Id="File_60" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Text.winmd" />
+      </Component>
+      <Component Id="Comp_61" Guid="*">
+        <File Id="File_61" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Windowing.Core.dll" />
+      </Component>
+      <Component Id="Comp_62" Guid="*">
+        <File Id="File_62" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Windowing.dll" />
+      </Component>
+      <Component Id="Comp_63" Guid="*">
+        <File Id="File_63" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.winmd" />
+      </Component>
+      <Component Id="Comp_64" Guid="*">
+        <File Id="File_64" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml.Controls.dll" />
+      </Component>
+      <Component Id="Comp_65" Guid="*">
+        <File Id="File_65" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml.Controls.pri" />
+      </Component>
+      <Component Id="Comp_66" Guid="*">
+        <File Id="File_66" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.ui.xaml.dll" />
+      </Component>
+      <Component Id="Comp_67" Guid="*">
+        <File Id="File_67" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml.Internal.dll" />
+      </Component>
+      <Component Id="Comp_68" Guid="*">
+        <File Id="File_68" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml.Phone.dll" />
+      </Component>
+      <Component Id="Comp_69" Guid="*">
+        <File Id="File_69" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.ui.xaml.resources.19h1.dll" />
+      </Component>
+      <Component Id="Comp_70" Guid="*">
+        <File Id="File_70" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.ui.xaml.resources.common.dll" />
+      </Component>
+      <Component Id="Comp_71" Guid="*">
+        <File Id="File_71" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml.winmd" />
+      </Component>
+      <Component Id="Comp_72" Guid="*">
+        <File Id="File_72" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.VisualBasic.Core.dll" />
+      </Component>
+      <Component Id="Comp_73" Guid="*">
+        <File Id="File_73" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.VisualBasic.dll" />
+      </Component>
+      <Component Id="Comp_74" Guid="*">
+        <File Id="File_74" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Web.WebView2.Core.dll" />
+      </Component>
+      <Component Id="Comp_75" Guid="*">
+        <File Id="File_75" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Web.WebView2.Core.Projection.dll" />
+      </Component>
+      <Component Id="Comp_76" Guid="*">
+        <File Id="File_76" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Win32.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_77" Guid="*">
+        <File Id="File_77" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Win32.Registry.dll" />
+      </Component>
+      <Component Id="Comp_78" Guid="*">
+        <File Id="File_78" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.ContentModerationInternal.winmd" />
+      </Component>
+      <Component Id="Comp_79" Guid="*">
+        <File Id="File_79" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.ContentSafety.dll" />
+      </Component>
+      <Component Id="Comp_80" Guid="*">
+        <File Id="File_80" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.ContentSafety.Projection.dll" />
+      </Component>
+      <Component Id="Comp_81" Guid="*">
+        <File Id="File_81" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.ContentSafety.winmd" />
+      </Component>
+      <Component Id="Comp_82" Guid="*">
+        <File Id="File_82" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Foundation.Projection.dll" />
+      </Component>
+      <Component Id="Comp_83" Guid="*">
+        <File Id="File_83" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Foundation.winmd" />
+      </Component>
+      <Component Id="Comp_84" Guid="*">
+        <File Id="File_84" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.FoundationInternal.winmd" />
+      </Component>
+      <Component Id="Comp_85" Guid="*">
+        <File Id="File_85" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.GenerativeInternal.winmd" />
+      </Component>
+      <Component Id="Comp_86" Guid="*">
+        <File Id="File_86" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Imaging.dll" />
+      </Component>
+      <Component Id="Comp_87" Guid="*">
+        <File Id="File_87" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Imaging.Projection.dll" />
+      </Component>
+      <Component Id="Comp_88" Guid="*">
+        <File Id="File_88" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Imaging.winmd" />
+      </Component>
+      <Component Id="Comp_89" Guid="*">
+        <File Id="File_89" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.MachineLearning.dll" />
+      </Component>
+      <Component Id="Comp_90" Guid="*">
+        <File Id="File_90" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.MachineLearning.Projection.dll" />
+      </Component>
+      <Component Id="Comp_91" Guid="*">
+        <File Id="File_91" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.MachineLearning.winmd" />
+      </Component>
+      <Component Id="Comp_92" Guid="*">
+        <File Id="File_92" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Projection.dll" />
+      </Component>
+      <Component Id="Comp_93" Guid="*">
+        <File Id="File_93" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Text.dll" />
+      </Component>
+      <Component Id="Comp_94" Guid="*">
+        <File Id="File_94" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Text.Projection.dll" />
+      </Component>
+      <Component Id="Comp_95" Guid="*">
+        <File Id="File_95" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.Text.winmd" />
+      </Component>
+      <Component Id="Comp_96" Guid="*">
+        <File Id="File_96" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AI.winmd" />
+      </Component>
+      <Component Id="Comp_97" Guid="*">
+        <File Id="File_97" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Background.Projection.dll" />
+      </Component>
+      <Component Id="Comp_98" Guid="*">
+        <File Id="File_98" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll" />
+      </Component>
+      <Component Id="Comp_99" Guid="*">
+        <File Id="File_99" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.winmd" />
+      </Component>
+      <Component Id="Comp_100" Guid="*">
+        <File Id="File_100" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Background.winmd" />
+      </Component>
+      <Component Id="Comp_101" Guid="*">
+        <File Id="File_101" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll" />
+      </Component>
+      <Component Id="Comp_102" Guid="*">
+        <File Id="File_102" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.DynamicDependency.winmd" />
+      </Component>
+      <Component Id="Comp_103" Guid="*">
+        <File Id="File_103" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Resources.dll" />
+      </Component>
+      <Component Id="Comp_104" Guid="*">
+        <File Id="File_104" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Resources.Projection.dll" />
+      </Component>
+      <Component Id="Comp_105" Guid="*">
+        <File Id="File_105" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.Resources.winmd" />
+      </Component>
+      <Component Id="Comp_106" Guid="*">
+        <File Id="File_106" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll" />
+      </Component>
+      <Component Id="Comp_107" Guid="*">
+        <File Id="File_107" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.ApplicationModel.WindowsAppRuntime.winmd" />
+      </Component>
+      <Component Id="Comp_108" Guid="*">
+        <File Id="File_108" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AppLifecycle.Projection.dll" />
+      </Component>
+      <Component Id="Comp_109" Guid="*">
+        <File Id="File_109" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AppLifecycle.winmd" />
+      </Component>
+      <Component Id="Comp_110" Guid="*">
+        <File Id="File_110" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AppNotifications.Builder.Projection.dll" />
+      </Component>
+      <Component Id="Comp_111" Guid="*">
+        <File Id="File_111" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AppNotifications.Builder.winmd" />
+      </Component>
+      <Component Id="Comp_112" Guid="*">
+        <File Id="File_112" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AppNotifications.Projection.dll" />
+      </Component>
+      <Component Id="Comp_113" Guid="*">
+        <File Id="File_113" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.AppNotifications.winmd" />
+      </Component>
+      <Component Id="Comp_114" Guid="*">
+        <File Id="File_114" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.BadgeNotifications.Projection.dll" />
+      </Component>
+      <Component Id="Comp_115" Guid="*">
+        <File Id="File_115" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.BadgeNotifications.winmd" />
+      </Component>
+      <Component Id="Comp_116" Guid="*">
+        <File Id="File_116" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Foundation.Projection.dll" />
+      </Component>
+      <Component Id="Comp_117" Guid="*">
+        <File Id="File_117" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Foundation.winmd" />
+      </Component>
+      <Component Id="Comp_118" Guid="*">
+        <File Id="File_118" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Globalization.winmd" />
+      </Component>
+      <Component Id="Comp_119" Guid="*">
+        <File Id="File_119" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Internal.Vision.winmd" />
+      </Component>
+      <Component Id="Comp_120" Guid="*">
+        <File Id="File_120" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Management.Deployment.Projection.dll" />
+      </Component>
+      <Component Id="Comp_121" Guid="*">
+        <File Id="File_121" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Management.Deployment.winmd" />
+      </Component>
+      <Component Id="Comp_122" Guid="*">
+        <File Id="File_122" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Media.Capture.Projection.dll" />
+      </Component>
+      <Component Id="Comp_123" Guid="*">
+        <File Id="File_123" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Media.Capture.winmd" />
+      </Component>
+      <Component Id="Comp_124" Guid="*">
+        <File Id="File_124" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Private.Workloads.SessionManager.winmd" />
+      </Component>
+      <Component Id="Comp_125" Guid="*">
+        <File Id="File_125" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.PrivateCommon.winmd" />
+      </Component>
+      <Component Id="Comp_126" Guid="*">
+        <File Id="File_126" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.PushNotifications.Projection.dll" />
+      </Component>
+      <Component Id="Comp_127" Guid="*">
+        <File Id="File_127" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.PushNotifications.winmd" />
+      </Component>
+      <Component Id="Comp_128" Guid="*">
+        <File Id="File_128" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.SDK.NET.dll" />
+      </Component>
+      <Component Id="Comp_129" Guid="*">
+        <File Id="File_129" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Security.AccessControl.Projection.dll" />
+      </Component>
+      <Component Id="Comp_130" Guid="*">
+        <File Id="File_130" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Security.AccessControl.winmd" />
+      </Component>
+      <Component Id="Comp_131" Guid="*">
+        <File Id="File_131" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.SemanticSearch.winmd" />
+      </Component>
+      <Component Id="Comp_132" Guid="*">
+        <File Id="File_132" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Storage.Pickers.Projection.dll" />
+      </Component>
+      <Component Id="Comp_133" Guid="*">
+        <File Id="File_133" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Storage.Pickers.winmd" />
+      </Component>
+      <Component Id="Comp_134" Guid="*">
+        <File Id="File_134" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Storage.Projection.dll" />
+      </Component>
+      <Component Id="Comp_135" Guid="*">
+        <File Id="File_135" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Storage.winmd" />
+      </Component>
+      <Component Id="Comp_136" Guid="*">
+        <File Id="File_136" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.System.Power.Projection.dll" />
+      </Component>
+      <Component Id="Comp_137" Guid="*">
+        <File Id="File_137" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.System.Power.winmd" />
+      </Component>
+      <Component Id="Comp_138" Guid="*">
+        <File Id="File_138" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.System.Projection.dll" />
+      </Component>
+      <Component Id="Comp_139" Guid="*">
+        <File Id="File_139" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.System.winmd" />
+      </Component>
+      <Component Id="Comp_140" Guid="*">
+        <File Id="File_140" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Vision.winmd" />
+      </Component>
+      <Component Id="Comp_141" Guid="*">
+        <File Id="File_141" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.VisionInternal.winmd" />
+      </Component>
+      <Component Id="Comp_142" Guid="*">
+        <File Id="File_142" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Widgets.dll" />
+      </Component>
+      <Component Id="Comp_143" Guid="*">
+        <File Id="File_143" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Widgets.Projection.dll" />
+      </Component>
+      <Component Id="Comp_144" Guid="*">
+        <File Id="File_144" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Widgets.winmd" />
+      </Component>
+      <Component Id="Comp_145" Guid="*">
+        <File Id="File_145" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Workloads.dll" />
+      </Component>
+      <Component Id="Comp_146" Guid="*">
+        <File Id="File_146" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Workloads.Resources.dll" />
+      </Component>
+      <Component Id="Comp_147" Guid="*">
+        <File Id="File_147" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Workloads.Resources_ec.dll" />
+      </Component>
+      <Component Id="Comp_148" Guid="*">
+        <File Id="File_148" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.Windows.Workloads.winmd" />
+      </Component>
+      <Component Id="Comp_149" Guid="*">
+        <File Id="File_149" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.WindowsAppRuntime.Bootstrap.dll" />
+      </Component>
+      <Component Id="Comp_150" Guid="*">
+        <File Id="File_150" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.WindowsAppRuntime.Bootstrap.Net.dll" />
+      </Component>
+      <Component Id="Comp_151" Guid="*">
+        <File Id="File_151" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.WindowsAppRuntime.dll" />
+      </Component>
+      <Component Id="Comp_152" Guid="*">
+        <File Id="File_152" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.WindowsAppRuntime.Insights.Resource.dll" />
+      </Component>
+      <Component Id="Comp_153" Guid="*">
+        <File Id="File_153" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.WindowsAppRuntime.pri" />
+      </Component>
+      <Component Id="Comp_154" Guid="*">
+        <File Id="File_154" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.WinUI.dll" />
+      </Component>
+      <Component Id="Comp_155" Guid="*">
+        <File Id="File_155" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/MRM.dll" />
+      </Component>
+      <Component Id="Comp_156" Guid="*">
+        <File Id="File_156" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mscordaccore.dll" />
+      </Component>
+      <Component Id="Comp_157" Guid="*">
+        <File Id="File_157" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mscordaccore_amd64_amd64_8.0.2225.52707.dll" />
+      </Component>
+      <Component Id="Comp_158" Guid="*">
+        <File Id="File_158" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mscordbi.dll" />
+      </Component>
+      <Component Id="Comp_159" Guid="*">
+        <File Id="File_159" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mscorlib.dll" />
+      </Component>
+      <Component Id="Comp_160" Guid="*">
+        <File Id="File_160" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mscorrc.dll" />
+      </Component>
+      <Component Id="Comp_161" Guid="*">
+        <File Id="File_161" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/msquic.dll" />
+      </Component>
+      <Component Id="Comp_162" Guid="*">
+        <File Id="File_162" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/netstandard.dll" />
+      </Component>
+      <Component Id="Comp_163" Guid="*">
+        <File Id="File_163" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/onnxruntime.dll" />
+      </Component>
+      <Component Id="Comp_164" Guid="*">
+        <File Id="File_164" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/onnxruntime_providers_shared.dll" />
+      </Component>
+      <Component Id="Comp_165" Guid="*">
+        <File Id="File_165" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/PushNotificationsLongRunningTask.ProxyStub.dll" />
+      </Component>
+      <Component Id="Comp_166" Guid="*">
+        <File Id="File_166" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/RestartAgent.exe" />
+      </Component>
+      <Component Id="Comp_167" Guid="*">
+        <File Id="File_167" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/SessionHandleIPCProxyStub.dll" />
+      </Component>
+      <Component Id="Comp_168" Guid="*">
+        <File Id="File_168" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.AppContext.dll" />
+      </Component>
+      <Component Id="Comp_169" Guid="*">
+        <File Id="File_169" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Buffers.dll" />
+      </Component>
+      <Component Id="Comp_170" Guid="*">
+        <File Id="File_170" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Collections.Concurrent.dll" />
+      </Component>
+      <Component Id="Comp_171" Guid="*">
+        <File Id="File_171" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Collections.dll" />
+      </Component>
+      <Component Id="Comp_172" Guid="*">
+        <File Id="File_172" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Collections.Immutable.dll" />
+      </Component>
+      <Component Id="Comp_173" Guid="*">
+        <File Id="File_173" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Collections.NonGeneric.dll" />
+      </Component>
+      <Component Id="Comp_174" Guid="*">
+        <File Id="File_174" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Collections.Specialized.dll" />
+      </Component>
+      <Component Id="Comp_175" Guid="*">
+        <File Id="File_175" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ComponentModel.Annotations.dll" />
+      </Component>
+      <Component Id="Comp_176" Guid="*">
+        <File Id="File_176" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ComponentModel.DataAnnotations.dll" />
+      </Component>
+      <Component Id="Comp_177" Guid="*">
+        <File Id="File_177" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ComponentModel.dll" />
+      </Component>
+      <Component Id="Comp_178" Guid="*">
+        <File Id="File_178" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ComponentModel.EventBasedAsync.dll" />
+      </Component>
+      <Component Id="Comp_179" Guid="*">
+        <File Id="File_179" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ComponentModel.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_180" Guid="*">
+        <File Id="File_180" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ComponentModel.TypeConverter.dll" />
+      </Component>
+      <Component Id="Comp_181" Guid="*">
+        <File Id="File_181" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Configuration.dll" />
+      </Component>
+      <Component Id="Comp_182" Guid="*">
+        <File Id="File_182" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Console.dll" />
+      </Component>
+      <Component Id="Comp_183" Guid="*">
+        <File Id="File_183" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Core.dll" />
+      </Component>
+      <Component Id="Comp_184" Guid="*">
+        <File Id="File_184" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Data.Common.dll" />
+      </Component>
+      <Component Id="Comp_185" Guid="*">
+        <File Id="File_185" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Data.DataSetExtensions.dll" />
+      </Component>
+      <Component Id="Comp_186" Guid="*">
+        <File Id="File_186" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Data.dll" />
+      </Component>
+      <Component Id="Comp_187" Guid="*">
+        <File Id="File_187" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.Contracts.dll" />
+      </Component>
+      <Component Id="Comp_188" Guid="*">
+        <File Id="File_188" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.Debug.dll" />
+      </Component>
+      <Component Id="Comp_189" Guid="*">
+        <File Id="File_189" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.DiagnosticSource.dll" />
+      </Component>
+      <Component Id="Comp_190" Guid="*">
+        <File Id="File_190" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.EventLog.dll" />
+      </Component>
+      <Component Id="Comp_191" Guid="*">
+        <File Id="File_191" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.FileVersionInfo.dll" />
+      </Component>
+      <Component Id="Comp_192" Guid="*">
+        <File Id="File_192" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.Process.dll" />
+      </Component>
+      <Component Id="Comp_193" Guid="*">
+        <File Id="File_193" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.StackTrace.dll" />
+      </Component>
+      <Component Id="Comp_194" Guid="*">
+        <File Id="File_194" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.TextWriterTraceListener.dll" />
+      </Component>
+      <Component Id="Comp_195" Guid="*">
+        <File Id="File_195" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.Tools.dll" />
+      </Component>
+      <Component Id="Comp_196" Guid="*">
+        <File Id="File_196" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.TraceSource.dll" />
+      </Component>
+      <Component Id="Comp_197" Guid="*">
+        <File Id="File_197" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Diagnostics.Tracing.dll" />
+      </Component>
+      <Component Id="Comp_198" Guid="*">
+        <File Id="File_198" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.dll" />
+      </Component>
+      <Component Id="Comp_199" Guid="*">
+        <File Id="File_199" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Drawing.dll" />
+      </Component>
+      <Component Id="Comp_200" Guid="*">
+        <File Id="File_200" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Drawing.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_201" Guid="*">
+        <File Id="File_201" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Dynamic.Runtime.dll" />
+      </Component>
+      <Component Id="Comp_202" Guid="*">
+        <File Id="File_202" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Formats.Asn1.dll" />
+      </Component>
+      <Component Id="Comp_203" Guid="*">
+        <File Id="File_203" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Formats.Tar.dll" />
+      </Component>
+      <Component Id="Comp_204" Guid="*">
+        <File Id="File_204" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Globalization.Calendars.dll" />
+      </Component>
+      <Component Id="Comp_205" Guid="*">
+        <File Id="File_205" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Globalization.dll" />
+      </Component>
+      <Component Id="Comp_206" Guid="*">
+        <File Id="File_206" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Globalization.Extensions.dll" />
+      </Component>
+      <Component Id="Comp_207" Guid="*">
+        <File Id="File_207" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Compression.Brotli.dll" />
+      </Component>
+      <Component Id="Comp_208" Guid="*">
+        <File Id="File_208" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Compression.dll" />
+      </Component>
+      <Component Id="Comp_209" Guid="*">
+        <File Id="File_209" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Compression.FileSystem.dll" />
+      </Component>
+      <Component Id="Comp_210" Guid="*">
+        <File Id="File_210" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Compression.Native.dll" />
+      </Component>
+      <Component Id="Comp_211" Guid="*">
+        <File Id="File_211" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Compression.ZipFile.dll" />
+      </Component>
+      <Component Id="Comp_212" Guid="*">
+        <File Id="File_212" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.dll" />
+      </Component>
+      <Component Id="Comp_213" Guid="*">
+        <File Id="File_213" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.FileSystem.AccessControl.dll" />
+      </Component>
+      <Component Id="Comp_214" Guid="*">
+        <File Id="File_214" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.FileSystem.dll" />
+      </Component>
+      <Component Id="Comp_215" Guid="*">
+        <File Id="File_215" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.FileSystem.DriveInfo.dll" />
+      </Component>
+      <Component Id="Comp_216" Guid="*">
+        <File Id="File_216" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.FileSystem.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_217" Guid="*">
+        <File Id="File_217" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.FileSystem.Watcher.dll" />
+      </Component>
+      <Component Id="Comp_218" Guid="*">
+        <File Id="File_218" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.IsolatedStorage.dll" />
+      </Component>
+      <Component Id="Comp_219" Guid="*">
+        <File Id="File_219" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.MemoryMappedFiles.dll" />
+      </Component>
+      <Component Id="Comp_220" Guid="*">
+        <File Id="File_220" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Pipelines.dll" />
+      </Component>
+      <Component Id="Comp_221" Guid="*">
+        <File Id="File_221" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Pipes.AccessControl.dll" />
+      </Component>
+      <Component Id="Comp_222" Guid="*">
+        <File Id="File_222" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.Pipes.dll" />
+      </Component>
+      <Component Id="Comp_223" Guid="*">
+        <File Id="File_223" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.IO.UnmanagedMemoryStream.dll" />
+      </Component>
+      <Component Id="Comp_224" Guid="*">
+        <File Id="File_224" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Linq.dll" />
+      </Component>
+      <Component Id="Comp_225" Guid="*">
+        <File Id="File_225" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Linq.Expressions.dll" />
+      </Component>
+      <Component Id="Comp_226" Guid="*">
+        <File Id="File_226" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Linq.Parallel.dll" />
+      </Component>
+      <Component Id="Comp_227" Guid="*">
+        <File Id="File_227" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Linq.Queryable.dll" />
+      </Component>
+      <Component Id="Comp_228" Guid="*">
+        <File Id="File_228" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Memory.dll" />
+      </Component>
+      <Component Id="Comp_229" Guid="*">
+        <File Id="File_229" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.dll" />
+      </Component>
+      <Component Id="Comp_230" Guid="*">
+        <File Id="File_230" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Http.dll" />
+      </Component>
+      <Component Id="Comp_231" Guid="*">
+        <File Id="File_231" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Http.Json.dll" />
+      </Component>
+      <Component Id="Comp_232" Guid="*">
+        <File Id="File_232" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.HttpListener.dll" />
+      </Component>
+      <Component Id="Comp_233" Guid="*">
+        <File Id="File_233" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Mail.dll" />
+      </Component>
+      <Component Id="Comp_234" Guid="*">
+        <File Id="File_234" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.NameResolution.dll" />
+      </Component>
+      <Component Id="Comp_235" Guid="*">
+        <File Id="File_235" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.NetworkInformation.dll" />
+      </Component>
+      <Component Id="Comp_236" Guid="*">
+        <File Id="File_236" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Ping.dll" />
+      </Component>
+      <Component Id="Comp_237" Guid="*">
+        <File Id="File_237" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_238" Guid="*">
+        <File Id="File_238" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Quic.dll" />
+      </Component>
+      <Component Id="Comp_239" Guid="*">
+        <File Id="File_239" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Requests.dll" />
+      </Component>
+      <Component Id="Comp_240" Guid="*">
+        <File Id="File_240" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Security.dll" />
+      </Component>
+      <Component Id="Comp_241" Guid="*">
+        <File Id="File_241" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.ServicePoint.dll" />
+      </Component>
+      <Component Id="Comp_242" Guid="*">
+        <File Id="File_242" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.Sockets.dll" />
+      </Component>
+      <Component Id="Comp_243" Guid="*">
+        <File Id="File_243" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.WebClient.dll" />
+      </Component>
+      <Component Id="Comp_244" Guid="*">
+        <File Id="File_244" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.WebHeaderCollection.dll" />
+      </Component>
+      <Component Id="Comp_245" Guid="*">
+        <File Id="File_245" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.WebProxy.dll" />
+      </Component>
+      <Component Id="Comp_246" Guid="*">
+        <File Id="File_246" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.WebSockets.Client.dll" />
+      </Component>
+      <Component Id="Comp_247" Guid="*">
+        <File Id="File_247" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Net.WebSockets.dll" />
+      </Component>
+      <Component Id="Comp_248" Guid="*">
+        <File Id="File_248" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Numerics.dll" />
+      </Component>
+      <Component Id="Comp_249" Guid="*">
+        <File Id="File_249" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Numerics.Tensors.dll" />
+      </Component>
+      <Component Id="Comp_250" Guid="*">
+        <File Id="File_250" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Numerics.Vectors.dll" />
+      </Component>
+      <Component Id="Comp_251" Guid="*">
+        <File Id="File_251" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ObjectModel.dll" />
+      </Component>
+      <Component Id="Comp_252" Guid="*">
+        <File Id="File_252" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Private.CoreLib.dll" />
+      </Component>
+      <Component Id="Comp_253" Guid="*">
+        <File Id="File_253" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Private.DataContractSerialization.dll" />
+      </Component>
+      <Component Id="Comp_254" Guid="*">
+        <File Id="File_254" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Private.Uri.dll" />
+      </Component>
+      <Component Id="Comp_255" Guid="*">
+        <File Id="File_255" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Private.Xml.dll" />
+      </Component>
+      <Component Id="Comp_256" Guid="*">
+        <File Id="File_256" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Private.Xml.Linq.dll" />
+      </Component>
+      <Component Id="Comp_257" Guid="*">
+        <File Id="File_257" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.DispatchProxy.dll" />
+      </Component>
+      <Component Id="Comp_258" Guid="*">
+        <File Id="File_258" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.dll" />
+      </Component>
+      <Component Id="Comp_259" Guid="*">
+        <File Id="File_259" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.Emit.dll" />
+      </Component>
+      <Component Id="Comp_260" Guid="*">
+        <File Id="File_260" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.Emit.ILGeneration.dll" />
+      </Component>
+      <Component Id="Comp_261" Guid="*">
+        <File Id="File_261" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.Emit.Lightweight.dll" />
+      </Component>
+      <Component Id="Comp_262" Guid="*">
+        <File Id="File_262" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.Extensions.dll" />
+      </Component>
+      <Component Id="Comp_263" Guid="*">
+        <File Id="File_263" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.Metadata.dll" />
+      </Component>
+      <Component Id="Comp_264" Guid="*">
+        <File Id="File_264" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_265" Guid="*">
+        <File Id="File_265" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Reflection.TypeExtensions.dll" />
+      </Component>
+      <Component Id="Comp_266" Guid="*">
+        <File Id="File_266" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Resources.Reader.dll" />
+      </Component>
+      <Component Id="Comp_267" Guid="*">
+        <File Id="File_267" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Resources.ResourceManager.dll" />
+      </Component>
+      <Component Id="Comp_268" Guid="*">
+        <File Id="File_268" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Resources.Writer.dll" />
+      </Component>
+      <Component Id="Comp_269" Guid="*">
+        <File Id="File_269" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+      <Component Id="Comp_270" Guid="*">
+        <File Id="File_270" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.CompilerServices.VisualC.dll" />
+      </Component>
+      <Component Id="Comp_271" Guid="*">
+        <File Id="File_271" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.dll" />
+      </Component>
+      <Component Id="Comp_272" Guid="*">
+        <File Id="File_272" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Extensions.dll" />
+      </Component>
+      <Component Id="Comp_273" Guid="*">
+        <File Id="File_273" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Handles.dll" />
+      </Component>
+      <Component Id="Comp_274" Guid="*">
+        <File Id="File_274" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.InteropServices.dll" />
+      </Component>
+      <Component Id="Comp_275" Guid="*">
+        <File Id="File_275" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.InteropServices.JavaScript.dll" />
+      </Component>
+      <Component Id="Comp_276" Guid="*">
+        <File Id="File_276" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.InteropServices.RuntimeInformation.dll" />
+      </Component>
+      <Component Id="Comp_277" Guid="*">
+        <File Id="File_277" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Intrinsics.dll" />
+      </Component>
+      <Component Id="Comp_278" Guid="*">
+        <File Id="File_278" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Loader.dll" />
+      </Component>
+      <Component Id="Comp_279" Guid="*">
+        <File Id="File_279" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Numerics.dll" />
+      </Component>
+      <Component Id="Comp_280" Guid="*">
+        <File Id="File_280" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Serialization.dll" />
+      </Component>
+      <Component Id="Comp_281" Guid="*">
+        <File Id="File_281" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Serialization.Formatters.dll" />
+      </Component>
+      <Component Id="Comp_282" Guid="*">
+        <File Id="File_282" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Serialization.Json.dll" />
+      </Component>
+      <Component Id="Comp_283" Guid="*">
+        <File Id="File_283" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Serialization.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_284" Guid="*">
+        <File Id="File_284" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Runtime.Serialization.Xml.dll" />
+      </Component>
+      <Component Id="Comp_285" Guid="*">
+        <File Id="File_285" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.AccessControl.dll" />
+      </Component>
+      <Component Id="Comp_286" Guid="*">
+        <File Id="File_286" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Claims.dll" />
+      </Component>
+      <Component Id="Comp_287" Guid="*">
+        <File Id="File_287" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.Algorithms.dll" />
+      </Component>
+      <Component Id="Comp_288" Guid="*">
+        <File Id="File_288" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.Cng.dll" />
+      </Component>
+      <Component Id="Comp_289" Guid="*">
+        <File Id="File_289" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.Csp.dll" />
+      </Component>
+      <Component Id="Comp_290" Guid="*">
+        <File Id="File_290" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.dll" />
+      </Component>
+      <Component Id="Comp_291" Guid="*">
+        <File Id="File_291" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.Encoding.dll" />
+      </Component>
+      <Component Id="Comp_292" Guid="*">
+        <File Id="File_292" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.OpenSsl.dll" />
+      </Component>
+      <Component Id="Comp_293" Guid="*">
+        <File Id="File_293" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.Primitives.dll" />
+      </Component>
+      <Component Id="Comp_294" Guid="*">
+        <File Id="File_294" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Cryptography.X509Certificates.dll" />
+      </Component>
+      <Component Id="Comp_295" Guid="*">
+        <File Id="File_295" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.dll" />
+      </Component>
+      <Component Id="Comp_296" Guid="*">
+        <File Id="File_296" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Principal.dll" />
+      </Component>
+      <Component Id="Comp_297" Guid="*">
+        <File Id="File_297" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.Principal.Windows.dll" />
+      </Component>
+      <Component Id="Comp_298" Guid="*">
+        <File Id="File_298" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Security.SecureString.dll" />
+      </Component>
+      <Component Id="Comp_299" Guid="*">
+        <File Id="File_299" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ServiceModel.Web.dll" />
+      </Component>
+      <Component Id="Comp_300" Guid="*">
+        <File Id="File_300" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ServiceProcess.dll" />
+      </Component>
+      <Component Id="Comp_301" Guid="*">
+        <File Id="File_301" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Text.Encoding.CodePages.dll" />
+      </Component>
+      <Component Id="Comp_302" Guid="*">
+        <File Id="File_302" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Text.Encoding.dll" />
+      </Component>
+      <Component Id="Comp_303" Guid="*">
+        <File Id="File_303" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Text.Encoding.Extensions.dll" />
+      </Component>
+      <Component Id="Comp_304" Guid="*">
+        <File Id="File_304" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Text.Encodings.Web.dll" />
+      </Component>
+      <Component Id="Comp_305" Guid="*">
+        <File Id="File_305" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Text.Json.dll" />
+      </Component>
+      <Component Id="Comp_306" Guid="*">
+        <File Id="File_306" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Text.RegularExpressions.dll" />
+      </Component>
+      <Component Id="Comp_307" Guid="*">
+        <File Id="File_307" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Channels.dll" />
+      </Component>
+      <Component Id="Comp_308" Guid="*">
+        <File Id="File_308" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.dll" />
+      </Component>
+      <Component Id="Comp_309" Guid="*">
+        <File Id="File_309" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Overlapped.dll" />
+      </Component>
+      <Component Id="Comp_310" Guid="*">
+        <File Id="File_310" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Tasks.Dataflow.dll" />
+      </Component>
+      <Component Id="Comp_311" Guid="*">
+        <File Id="File_311" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Tasks.dll" />
+      </Component>
+      <Component Id="Comp_312" Guid="*">
+        <File Id="File_312" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Tasks.Extensions.dll" />
+      </Component>
+      <Component Id="Comp_313" Guid="*">
+        <File Id="File_313" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Tasks.Parallel.dll" />
+      </Component>
+      <Component Id="Comp_314" Guid="*">
+        <File Id="File_314" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Thread.dll" />
+      </Component>
+      <Component Id="Comp_315" Guid="*">
+        <File Id="File_315" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.ThreadPool.dll" />
+      </Component>
+      <Component Id="Comp_316" Guid="*">
+        <File Id="File_316" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Threading.Timer.dll" />
+      </Component>
+      <Component Id="Comp_317" Guid="*">
+        <File Id="File_317" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Transactions.dll" />
+      </Component>
+      <Component Id="Comp_318" Guid="*">
+        <File Id="File_318" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Transactions.Local.dll" />
+      </Component>
+      <Component Id="Comp_319" Guid="*">
+        <File Id="File_319" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.ValueTuple.dll" />
+      </Component>
+      <Component Id="Comp_320" Guid="*">
+        <File Id="File_320" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Web.dll" />
+      </Component>
+      <Component Id="Comp_321" Guid="*">
+        <File Id="File_321" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Web.HttpUtility.dll" />
+      </Component>
+      <Component Id="Comp_322" Guid="*">
+        <File Id="File_322" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Windows.dll" />
+      </Component>
+      <Component Id="Comp_323" Guid="*">
+        <File Id="File_323" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.dll" />
+      </Component>
+      <Component Id="Comp_324" Guid="*">
+        <File Id="File_324" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.Linq.dll" />
+      </Component>
+      <Component Id="Comp_325" Guid="*">
+        <File Id="File_325" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.ReaderWriter.dll" />
+      </Component>
+      <Component Id="Comp_326" Guid="*">
+        <File Id="File_326" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.Serialization.dll" />
+      </Component>
+      <Component Id="Comp_327" Guid="*">
+        <File Id="File_327" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.XDocument.dll" />
+      </Component>
+      <Component Id="Comp_328" Guid="*">
+        <File Id="File_328" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.XmlDocument.dll" />
+      </Component>
+      <Component Id="Comp_329" Guid="*">
+        <File Id="File_329" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.XmlSerializer.dll" />
+      </Component>
+      <Component Id="Comp_330" Guid="*">
+        <File Id="File_330" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.XPath.dll" />
+      </Component>
+      <Component Id="Comp_331" Guid="*">
+        <File Id="File_331" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/System.Xml.XPath.XDocument.dll" />
+      </Component>
+      <Component Id="Comp_332" Guid="*">
+        <File Id="File_332" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WebView2Loader.dll" />
+      </Component>
+      <Component Id="Comp_333" Guid="*">
+        <File Id="File_333" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WindowsAppRuntime.DeploymentExtensions.OneCore.dll" />
+      </Component>
+      <Component Id="Comp_334" Guid="*">
+        <File Id="File_334" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WindowsAppRuntime.png" />
+      </Component>
+      <Component Id="Comp_335" Guid="*">
+        <File Id="File_335" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll" />
+      </Component>
+      <Component Id="Comp_336" Guid="*">
+        <File Id="File_336" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll" />
+      </Component>
+      <Component Id="Comp_337" Guid="*">
+        <File Id="File_337" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WindowsBase.dll" />
+      </Component>
+      <Component Id="Comp_338" Guid="*">
+        <File Id="File_338" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WinRT.Runtime.dll" />
+      </Component>
+      <Component Id="Comp_339" Guid="*">
+        <File Id="File_339" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/WinUIEdit.dll" />
+      </Component>
+      <Component Id="Comp_340" Guid="*">
+        <File Id="File_340" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/workloads.365.json" />
+      </Component>
+      <Component Id="Comp_341" Guid="*">
+        <File Id="File_341" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/workloads.json" />
+      </Component>
+      <Component Id="Comp_342" Guid="*">
+        <File Id="File_342" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/workloads.lnl.json" />
+      </Component>
+      <Component Id="Comp_343" Guid="*">
+        <File Id="File_343" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/workloads.qnn.json" />
+      </Component>
+      <Component Id="Comp_344" Guid="*">
+        <File Id="File_344" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/workloads.stx.json" />
+      </Component>
+      <Component Id="Comp_345" Guid="*">
+        <File Id="File_345" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/wuceffectsi.dll" />
+      </Component>
+      <Component Id="Comp_346" Guid="*">
+        <File Id="File_346" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/af-ZA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_347" Guid="*">
+        <File Id="File_347" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/af-ZA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_348" Guid="*">
+        <File Id="File_348" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/am-ET/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_349" Guid="*">
+        <File Id="File_349" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/am-ET/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_350" Guid="*">
+        <File Id="File_350" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ar-SA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_351" Guid="*">
+        <File Id="File_351" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ar-SA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_352" Guid="*">
+        <File Id="File_352" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/as-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_353" Guid="*">
+        <File Id="File_353" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/as-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_354" Guid="*">
+        <File Id="File_354" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/az-Latn-AZ/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_355" Guid="*">
+        <File Id="File_355" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/az-Latn-AZ/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_356" Guid="*">
+        <File Id="File_356" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/bg-BG/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_357" Guid="*">
+        <File Id="File_357" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/bg-BG/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_358" Guid="*">
+        <File Id="File_358" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/bn-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_359" Guid="*">
+        <File Id="File_359" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/bn-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_360" Guid="*">
+        <File Id="File_360" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/bs-Latn-BA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_361" Guid="*">
+        <File Id="File_361" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/bs-Latn-BA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_362" Guid="*">
+        <File Id="File_362" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ca-ES/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_363" Guid="*">
+        <File Id="File_363" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ca-ES/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_364" Guid="*">
+        <File Id="File_364" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ca-Es-VALENCIA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_365" Guid="*">
+        <File Id="File_365" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ca-Es-VALENCIA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_366" Guid="*">
+        <File Id="File_366" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/cs-CZ/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_367" Guid="*">
+        <File Id="File_367" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/cs-CZ/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_368" Guid="*">
+        <File Id="File_368" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/cy-GB/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_369" Guid="*">
+        <File Id="File_369" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/cy-GB/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_370" Guid="*">
+        <File Id="File_370" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/da-DK/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_371" Guid="*">
+        <File Id="File_371" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/da-DK/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_372" Guid="*">
+        <File Id="File_372" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/de-DE/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_373" Guid="*">
+        <File Id="File_373" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/de-DE/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_374" Guid="*">
+        <File Id="File_374" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/el-GR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_375" Guid="*">
+        <File Id="File_375" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/el-GR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_376" Guid="*">
+        <File Id="File_376" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/en-GB/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_377" Guid="*">
+        <File Id="File_377" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/en-GB/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_378" Guid="*">
+        <File Id="File_378" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/en-us/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_379" Guid="*">
+        <File Id="File_379" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/en-us/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_380" Guid="*">
+        <File Id="File_380" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/es-ES/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_381" Guid="*">
+        <File Id="File_381" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/es-ES/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_382" Guid="*">
+        <File Id="File_382" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/es-MX/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_383" Guid="*">
+        <File Id="File_383" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/es-MX/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_384" Guid="*">
+        <File Id="File_384" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/et-EE/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_385" Guid="*">
+        <File Id="File_385" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/et-EE/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_386" Guid="*">
+        <File Id="File_386" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/eu-ES/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_387" Guid="*">
+        <File Id="File_387" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/eu-ES/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_388" Guid="*">
+        <File Id="File_388" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fa-IR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_389" Guid="*">
+        <File Id="File_389" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fa-IR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_390" Guid="*">
+        <File Id="File_390" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fi-FI/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_391" Guid="*">
+        <File Id="File_391" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fi-FI/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_392" Guid="*">
+        <File Id="File_392" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fil-PH/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_393" Guid="*">
+        <File Id="File_393" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fil-PH/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_394" Guid="*">
+        <File Id="File_394" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fr-CA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_395" Guid="*">
+        <File Id="File_395" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fr-CA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_396" Guid="*">
+        <File Id="File_396" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fr-FR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_397" Guid="*">
+        <File Id="File_397" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/fr-FR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_398" Guid="*">
+        <File Id="File_398" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ga-IE/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_399" Guid="*">
+        <File Id="File_399" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ga-IE/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_400" Guid="*">
+        <File Id="File_400" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/gd-gb/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_401" Guid="*">
+        <File Id="File_401" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/gd-gb/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_402" Guid="*">
+        <File Id="File_402" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/gl-ES/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_403" Guid="*">
+        <File Id="File_403" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/gl-ES/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_404" Guid="*">
+        <File Id="File_404" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/gu-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_405" Guid="*">
+        <File Id="File_405" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/gu-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_406" Guid="*">
+        <File Id="File_406" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/he-IL/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_407" Guid="*">
+        <File Id="File_407" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/he-IL/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_408" Guid="*">
+        <File Id="File_408" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hi-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_409" Guid="*">
+        <File Id="File_409" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hi-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_410" Guid="*">
+        <File Id="File_410" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hr-HR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_411" Guid="*">
+        <File Id="File_411" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hr-HR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_412" Guid="*">
+        <File Id="File_412" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hu-HU/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_413" Guid="*">
+        <File Id="File_413" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hu-HU/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_414" Guid="*">
+        <File Id="File_414" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hy-AM/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_415" Guid="*">
+        <File Id="File_415" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/hy-AM/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_416" Guid="*">
+        <File Id="File_416" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/id-ID/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_417" Guid="*">
+        <File Id="File_417" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/id-ID/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_418" Guid="*">
+        <File Id="File_418" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/is-IS/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_419" Guid="*">
+        <File Id="File_419" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/is-IS/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_420" Guid="*">
+        <File Id="File_420" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/it-IT/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_421" Guid="*">
+        <File Id="File_421" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/it-IT/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_422" Guid="*">
+        <File Id="File_422" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ja-JP/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_423" Guid="*">
+        <File Id="File_423" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ja-JP/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_424" Guid="*">
+        <File Id="File_424" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ka-GE/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_425" Guid="*">
+        <File Id="File_425" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ka-GE/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_426" Guid="*">
+        <File Id="File_426" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/kk-KZ/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_427" Guid="*">
+        <File Id="File_427" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/kk-KZ/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_428" Guid="*">
+        <File Id="File_428" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/km-KH/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_429" Guid="*">
+        <File Id="File_429" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/km-KH/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_430" Guid="*">
+        <File Id="File_430" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/kn-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_431" Guid="*">
+        <File Id="File_431" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/kn-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_432" Guid="*">
+        <File Id="File_432" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ko-KR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_433" Guid="*">
+        <File Id="File_433" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ko-KR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_434" Guid="*">
+        <File Id="File_434" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/kok-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_435" Guid="*">
+        <File Id="File_435" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/kok-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_436" Guid="*">
+        <File Id="File_436" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lb-LU/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_437" Guid="*">
+        <File Id="File_437" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lb-LU/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_438" Guid="*">
+        <File Id="File_438" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lo-LA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_439" Guid="*">
+        <File Id="File_439" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lo-LA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_440" Guid="*">
+        <File Id="File_440" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lt-LT/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_441" Guid="*">
+        <File Id="File_441" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lt-LT/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_442" Guid="*">
+        <File Id="File_442" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lv-LV/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_443" Guid="*">
+        <File Id="File_443" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/lv-LV/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_444" Guid="*">
+        <File Id="File_444" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mi-NZ/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_445" Guid="*">
+        <File Id="File_445" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mi-NZ/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_446" Guid="*">
+        <File Id="File_446" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml/Assets/map.html" />
+      </Component>
+      <Component Id="Comp_447" Guid="*">
+        <File Id="File_447" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/Microsoft.UI.Xaml/Assets/NoiseAsset_256x256_PNG.png" />
+      </Component>
+      <Component Id="Comp_448" Guid="*">
+        <File Id="File_448" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mk-MK/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_449" Guid="*">
+        <File Id="File_449" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mk-MK/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_450" Guid="*">
+        <File Id="File_450" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ml-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_451" Guid="*">
+        <File Id="File_451" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ml-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_452" Guid="*">
+        <File Id="File_452" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mr-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_453" Guid="*">
+        <File Id="File_453" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mr-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_454" Guid="*">
+        <File Id="File_454" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ms-MY/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_455" Guid="*">
+        <File Id="File_455" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ms-MY/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_456" Guid="*">
+        <File Id="File_456" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mt-MT/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_457" Guid="*">
+        <File Id="File_457" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/mt-MT/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_458" Guid="*">
+        <File Id="File_458" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/nb-NO/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_459" Guid="*">
+        <File Id="File_459" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/nb-NO/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_460" Guid="*">
+        <File Id="File_460" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ne-NP/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_461" Guid="*">
+        <File Id="File_461" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ne-NP/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_462" Guid="*">
+        <File Id="File_462" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/nl-NL/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_463" Guid="*">
+        <File Id="File_463" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/nl-NL/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_464" Guid="*">
+        <File Id="File_464" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/nn-NO/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_465" Guid="*">
+        <File Id="File_465" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/nn-NO/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_466" Guid="*">
+        <File Id="File_466" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/NpuDetect/NPUDetect.dll" />
+      </Component>
+      <Component Id="Comp_467" Guid="*">
+        <File Id="File_467" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/or-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_468" Guid="*">
+        <File Id="File_468" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/or-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_469" Guid="*">
+        <File Id="File_469" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pa-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_470" Guid="*">
+        <File Id="File_470" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pa-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_471" Guid="*">
+        <File Id="File_471" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pl-PL/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_472" Guid="*">
+        <File Id="File_472" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pl-PL/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_473" Guid="*">
+        <File Id="File_473" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pt-BR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_474" Guid="*">
+        <File Id="File_474" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pt-BR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_475" Guid="*">
+        <File Id="File_475" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pt-PT/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_476" Guid="*">
+        <File Id="File_476" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/pt-PT/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_477" Guid="*">
+        <File Id="File_477" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/quz-PE/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_478" Guid="*">
+        <File Id="File_478" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/quz-PE/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_479" Guid="*">
+        <File Id="File_479" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ro-RO/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_480" Guid="*">
+        <File Id="File_480" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ro-RO/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_481" Guid="*">
+        <File Id="File_481" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ru-RU/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_482" Guid="*">
+        <File Id="File_482" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ru-RU/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_483" Guid="*">
+        <File Id="File_483" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sk-SK/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_484" Guid="*">
+        <File Id="File_484" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sk-SK/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_485" Guid="*">
+        <File Id="File_485" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sl-SI/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_486" Guid="*">
+        <File Id="File_486" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sl-SI/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_487" Guid="*">
+        <File Id="File_487" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sq-AL/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_488" Guid="*">
+        <File Id="File_488" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sq-AL/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_489" Guid="*">
+        <File Id="File_489" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sr-Cyrl-BA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_490" Guid="*">
+        <File Id="File_490" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sr-Cyrl-BA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_491" Guid="*">
+        <File Id="File_491" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sr-Cyrl-RS/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_492" Guid="*">
+        <File Id="File_492" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sr-Cyrl-RS/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_493" Guid="*">
+        <File Id="File_493" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sr-Latn-RS/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_494" Guid="*">
+        <File Id="File_494" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sr-Latn-RS/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_495" Guid="*">
+        <File Id="File_495" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sv-SE/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_496" Guid="*">
+        <File Id="File_496" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/sv-SE/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_497" Guid="*">
+        <File Id="File_497" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ta-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_498" Guid="*">
+        <File Id="File_498" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ta-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_499" Guid="*">
+        <File Id="File_499" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/te-IN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_500" Guid="*">
+        <File Id="File_500" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/te-IN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_501" Guid="*">
+        <File Id="File_501" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/th-TH/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_502" Guid="*">
+        <File Id="File_502" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/th-TH/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_503" Guid="*">
+        <File Id="File_503" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/tr-TR/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_504" Guid="*">
+        <File Id="File_504" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/tr-TR/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_505" Guid="*">
+        <File Id="File_505" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/tt-RU/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_506" Guid="*">
+        <File Id="File_506" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/tt-RU/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_507" Guid="*">
+        <File Id="File_507" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ug-CN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_508" Guid="*">
+        <File Id="File_508" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ug-CN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_509" Guid="*">
+        <File Id="File_509" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/uk-UA/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_510" Guid="*">
+        <File Id="File_510" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/uk-UA/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_511" Guid="*">
+        <File Id="File_511" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ur-PK/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_512" Guid="*">
+        <File Id="File_512" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/ur-PK/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_513" Guid="*">
+        <File Id="File_513" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/uz-Latn-UZ/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_514" Guid="*">
+        <File Id="File_514" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/uz-Latn-UZ/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_515" Guid="*">
+        <File Id="File_515" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/vi-VN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_516" Guid="*">
+        <File Id="File_516" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/vi-VN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_517" Guid="*">
+        <File Id="File_517" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/zh-CN/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_518" Guid="*">
+        <File Id="File_518" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/zh-CN/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+      <Component Id="Comp_519" Guid="*">
+        <File Id="File_519" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/zh-TW/Microsoft.ui.xaml.dll.mui" />
+      </Component>
+      <Component Id="Comp_520" Guid="*">
+        <File Id="File_520" Source="$(var.AppPath)/Desktop/bin/Release/Installer/App/zh-TW/Microsoft.UI.Xaml.Phone.dll.mui" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Guid="*">
+      <Shortcut Id="StartMenuShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicacion de gestion de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="*">
+      <Shortcut Id="DesktopShortcut"
+                Name="GestionTime Desktop"
+                Description="Aplicacion de gestion de tiempo y partes de trabajo"
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="app_logo.ico" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                     Name="desktopShortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+</Wix>

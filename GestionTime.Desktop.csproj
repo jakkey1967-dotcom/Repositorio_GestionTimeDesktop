@@ -74,6 +74,12 @@
     <None Update="Doc\EJEMPLO_RESPONSIVE_COMPLETO.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <None Update="Views\UsersOnlineWindow_FIXED.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="Views\UsersOnlineWindow_temp.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -151,6 +157,12 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserProfilePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\OnlineUsersPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UsersOnlineWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

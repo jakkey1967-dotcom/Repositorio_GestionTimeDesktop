@@ -40,6 +40,20 @@ public partial class App : Application
     
     // 🆕 NUEVO: Email del login (guardado cuando el usuario hace login)
     public static string? CurrentLoginEmail { get; set; }
+    
+    // 🆕 NUEVO: Ventana de usuarios online (única instancia)
+    public static Views.UsersOnlineWindow? UsersWindowInstance { get; set; }
+    
+    // 🆕 NUEVO: Servicio de docking de ventanas
+    public static Services.Windowing.WindowDockService? WindowDockService { get; set; }
+    
+    // 🆕 NUEVO: Servicio de heartbeat para mantener usuario online
+    public static Services.Presence.PresenceHeartbeatService PresenceHeartbeat => Services.Presence.PresenceHeartbeatService.Instance;
+    
+    // 🆕 NUEVO: Servicios de catálogo CRUD (Clientes, Tipos, Grupos)
+    public static Services.Catalog.ClientesService ClientesService { get; private set; } = null!;
+    public static Services.Catalog.TiposService TiposService { get; private set; } = null!;
+    public static Services.Catalog.GruposService GruposService { get; private set; } = null!;
 
     public static void ApplyThemeFromSettings()
     {
@@ -149,20 +163,27 @@ public partial class App : Application
                 Log.LogInformation("🏭 MODO RELEASE: Logging optimizado para producción");
             #endif
 
-            Log.LogInformation("📊 Sistema de logging inicializado - TEMPORAL DEBUG VERSION");
+            Log.LogInformation("📊 Sistema de logging inicializado");
             Log.LogInformation("APP START - " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             Log.LogInformation("OS: {OS}, .NET: {Version}", Environment.OSVersion, Environment.Version);
             Log.LogInformation("BaseDirectory: {BaseDir}", AppContext.BaseDirectory);
 
-            // TEMPORAL: Hardcode la URL para asegurar que no use localhost
-            var baseUrl = "https://gestiontimeapi.onrender.com";
-            var loginPath = "/api/v1/auth/login-desktop";  // CAMBIADO: endpoint específico de desktop
-            PartesPath = "/api/v1/partes";
+            // ===== CONFIGURACIÓN DINÁMICA DESDE APPSETTINGS.JSON =====
+            var baseUrl = settings.BaseUrl ?? "https://gestiontimeapi.onrender.com";
+            var loginPath = settings.LoginPath ?? "/api/v1/auth/login-desktop";
+            PartesPath = settings.PartesPath ?? "/api/v1/partes";
             
-            // DEBUG: Log de URLs forzadas
-            System.Diagnostics.Debug.WriteLine($"=== URLs HARDCODED ===");
-            System.Diagnostics.Debug.WriteLine($"baseUrl HARDCODED: '{baseUrl}'");
-            System.Diagnostics.Debug.WriteLine($"loginPath HARDCODED: '{loginPath}'");
+            Log.LogInformation("═══════════════════════════════════════════════════════════════");
+            Log.LogInformation("🌐 CONFIGURACIÓN DE API:");
+            Log.LogInformation("   BaseUrl: {baseUrl}", baseUrl);
+            Log.LogInformation("   LoginPath: {loginPath}", loginPath);
+            Log.LogInformation("   PartesPath: {partesPath}", PartesPath);
+            Log.LogInformation("═══════════════════════════════════════════════════════════════");
+            
+            System.Diagnostics.Debug.WriteLine($"=== CONFIGURACIÓN CARGADA ===");
+            System.Diagnostics.Debug.WriteLine($"BaseUrl: '{baseUrl}'");
+            System.Diagnostics.Debug.WriteLine($"LoginPath: '{loginPath}'");
+            System.Diagnostics.Debug.WriteLine($"PartesPath: '{PartesPath}'");
 
             Api = new ApiClient(baseUrl, loginPath, Log);
             
@@ -175,6 +196,12 @@ public partial class App : Application
             // 🆕 NUEVO: Inicializar NotificationService como singleton
             Notifications = new NotificationService(LogFactory.CreateLogger<NotificationService>());
             Log.LogInformation("NotificationService inicializado. Enabled={enabled}", Notifications.IsEnabled);
+            
+            // 🆕 NUEVO: Inicializar servicios de catálogo CRUD
+            ClientesService = new Services.Catalog.ClientesService(Api, LogFactory.CreateLogger<Services.Catalog.ClientesService>());
+            TiposService = new Services.Catalog.TiposService(Api, LogFactory.CreateLogger<Services.Catalog.TiposService>());
+            GruposService = new Services.Catalog.GruposService(Api, LogFactory.CreateLogger<Services.Catalog.GruposService>());
+            Log.LogInformation("✅ Servicios de catálogo CRUD inicializados (Clientes, Tipos, Grupos)");
             
             // 🆕 NUEVO: Inicializar UpdateService REAL
             UpdateService = new UpdateService(LogFactory.CreateLogger<UpdateService>());
@@ -197,13 +224,13 @@ public partial class App : Application
             LogFactory = LoggerFactory.Create(builder => builder.SetMinimumLevel(MsLogLevel.Debug));
             Log = LogFactory.CreateLogger("GestionTime");
             
-            // TEMPORAL: URLs hardcoded en fallback también
-            var baseUrl = "https://gestiontimeapi.onrender.com";
-            var loginPath = "/api/v1/auth/login-desktop";  // CAMBIADO: endpoint específico de desktop
+            // URLs desde settings o defaults
+            var baseUrl = settings.BaseUrl ?? "https://gestiontimeapi.onrender.com";
+            var loginPath = settings.LoginPath ?? "/api/v1/auth/login-desktop";
             
-            System.Diagnostics.Debug.WriteLine($"=== FALLBACK HARDCODED URLS ===");
-            System.Diagnostics.Debug.WriteLine($"baseUrl FALLBACK HARDCODED: '{baseUrl}'");
-            System.Diagnostics.Debug.WriteLine($"loginPath FALLBACK HARDCODED: '{loginPath}'");
+            System.Diagnostics.Debug.WriteLine($"=== CONFIGURACIÓN FALLBACK ===");
+            System.Diagnostics.Debug.WriteLine($"BaseUrl: '{baseUrl}'");
+            System.Diagnostics.Debug.WriteLine($"LoginPath: '{loginPath}'");
             
             Api = new ApiClient(baseUrl, loginPath, Log);
             
@@ -212,6 +239,70 @@ public partial class App : Application
             
             // 🆕 NUEVO: Inicializar NotificationService incluso en fallback
             Notifications = new NotificationService(LogFactory.CreateLogger<NotificationService>());
+        }
+    }
+
+    /// <summary>
+    /// 🔧 FIX: Limpieza global de recursos al cerrar la aplicación
+    /// </summary>
+    public static void CleanupResources()
+    {
+        try
+        {
+            Log?.LogInformation("🧹 Iniciando limpieza global de recursos...");
+            
+            // 1. Limpiar servicios globales
+            if (PresenceHeartbeat != null)
+            {
+                PresenceHeartbeat.Stop();
+                PresenceHeartbeat.Dispose();
+                // PresenceHeartbeat = null; // No se puede asignar (readonly)
+                Log?.LogInformation("✅ PresenceHeartbeat detenido");
+            }
+            
+            // 2. Limpiar docking de ventanas
+            if (WindowDockService != null)
+            {
+                // WindowDockService.DetachWindows(); // Método no existe
+                WindowDockService = null;
+                Log?.LogInformation("✅ WindowDockService limpiado");
+            }
+            
+            // 3. Cerrar ventana de usuarios online
+            if (UsersWindowInstance != null)
+            {
+                try
+                {
+                    UsersWindowInstance.Close();
+                }
+                catch { }
+                UsersWindowInstance = null;
+                Log?.LogInformation("✅ UsersWindowInstance cerrada");
+            }
+            
+            // 4. Limpiar token del ApiClient
+            Api?.ClearToken();
+            Log?.LogInformation("✅ Token limpiado");
+            
+            // 5. Limpiar perfil de usuario
+            CurrentUserProfile = null;
+            CurrentLoginEmail = null;
+            
+            // 6. Limpiar notificaciones
+            if (Notifications != null)
+            {
+                try
+                {
+                    // Notifications.Clear(); // Método no existe en INotificationService
+                }
+                catch { }
+            }
+            
+            Log?.LogInformation("✅ Limpieza global completada");
+        }
+        catch (Exception ex)
+        {
+            Log?.LogError(ex, "❌ Error durante limpieza global de recursos");
         }
     }
 
@@ -835,6 +926,62 @@ public partial class App : Application
             {
                 // Si todo falla, al menos quedó en Debug output
             }
+        }
+    }
+    
+    /// <summary>Abre la ventana de usuarios online (o la trae al frente si ya está abierta).</summary>
+    public static void ShowUsersWindow()
+    {
+        try
+        {
+            if (UsersWindowInstance != null)
+            {
+                Log?.LogDebug("📂 Ventana de usuarios ya existe, trayendo al frente");
+                UsersWindowInstance.Activate();
+                return;
+            }
+
+            Log?.LogInformation("📂 Abriendo ventana de usuarios online");
+
+            UsersWindowInstance = new Views.UsersOnlineWindow();
+
+            if (MainWindowInstance != null)
+            {
+                try
+                {
+                    var mainHandle = WinRT.Interop.WindowNative.GetWindowHandle(MainWindowInstance);
+                    var usersHandle = WinRT.Interop.WindowNative.GetWindowHandle(UsersWindowInstance);
+                    
+                    // ✅ Variable rect removida - no se usaba
+                    if (Microsoft.UI.Windowing.AppWindow.GetFromWindowId(Microsoft.UI.Win32Interop.GetWindowIdFromWindow(mainHandle)) is var mainAppWindow && mainAppWindow != null)
+                    {
+                        var mainPos = mainAppWindow.Position;
+                        var mainSize = mainAppWindow.Size;
+                        
+                        var usersLeft = mainPos.X + mainSize.Width + 10;
+                        var usersTop = mainPos.Y;
+                        var usersWidth = 400;
+                        var usersHeight = mainSize.Height;
+                        
+                        var usersAppWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(Microsoft.UI.Win32Interop.GetWindowIdFromWindow(usersHandle));
+                        if (usersAppWindow != null)
+                        {
+                            usersAppWindow.MoveAndResize(new Windows.Graphics.RectInt32(usersLeft, usersTop, usersWidth, usersHeight));
+                            Log?.LogDebug("📍 Ventana de usuarios posicionada a la derecha de la ventana principal");
+                        }
+                    }
+                }
+                catch (Exception posEx)
+                {
+                    Log?.LogWarning(posEx, "No se pudo posicionar la ventana de usuarios automáticamente");
+                }
+            }
+
+            UsersWindowInstance.Activate();
+        }
+        catch (Exception ex)
+        {
+            Log?.LogError(ex, "❌ Error abriendo ventana de usuarios");
         }
     }
 

@@ -89,7 +89,8 @@ public async Task LoadClientesAsync() { }
     ├── window-config.ini
     ├── Assets/ (14 archivos)
     └── [355+ archivos DLL]
-- **INSTALACIÓN:** C:\app\gestiontime-desktop\
+- **INSTALACIÓN:** C:\App\GestionTime-Desktop\
 - **TAMAÑO:** ~108 MB (ZIP), ~280 MB (instalado)
 
 - El instalador verifica automáticamente: .exe, .pri, Assets/, window-config.ini, appsettings.json
+- **RUTA DE INSTALACIÓN:** El instalador MSI de GestionTime Desktop SIEMPRE debe instalar en C:\App\GestionTime-Desktop (con guión). NUNCA en Program Files, NUNCA en otra unidad. Usar SetDirectory en WiX para forzar la ruta absoluta.

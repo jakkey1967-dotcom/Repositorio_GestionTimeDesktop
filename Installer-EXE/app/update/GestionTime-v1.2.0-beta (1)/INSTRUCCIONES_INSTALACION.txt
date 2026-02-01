@@ -1,0 +1,130 @@
+═══════════════════════════════════════════════════════════════
+INSTALACIÓN PORTABLE COMPLETADA
+═══════════════════════════════════════════════════════════════
+
+📦 UBICACIÓN DE LOS ARCHIVOS LISTOS PARA DISTRIBUIR
+
+C:\GestionTime\GestionTimeDesktop\Installer\
+
+Contiene:
+✅ InstallPortable.ps1 - Script instalador principal
+✅ INSTALAR.bat - Lanzador fácil (doble clic)
+✅ window-config.ini - Configuración de ventanas
+✅ app_logo.ico - Icono de la aplicación
+✅ README.txt - Instrucciones completas
+
+═══════════════════════════════════════════════════════════════
+
+🚀 PARA PROBAR LA INSTALACIÓN
+
+OPCIÓN 1: Usar el archivo BAT (MÁS FÁCIL)
+-----------------------------------------
+1. Haz doble clic en: Installer\INSTALAR.bat
+2. Acepta el UAC (permisos de administrador)
+3. Sigue las instrucciones
+
+OPCIÓN 2: Usar PowerShell directamente
+---------------------------------------
+1. Abre PowerShell como Administrador
+2. Navega a la carpeta:
+   cd "C:\GestionTime\GestionTimeDesktop\Installer"
+3. Ejecuta:
+   .\InstallPortable.ps1
+
+═══════════════════════════════════════════════════════════════
+
+📂 UBICACIÓN DE INSTALACIÓN FINAL
+
+Por defecto: C:\app\gestiontime-desktop\
+
+Contiene:
+- GestionTime.Desktop.exe (Ejecutable)
+- window-config.ini (Configuración)
+- appsettings.json (Configuración API)
+- app_logo.ico (Icono)
+- Todas las DLL necesarias
+- LEEME.txt (Información)
+
+═══════════════════════════════════════════════════════════════
+
+🎯 ACCESOS DIRECTOS CREADOS
+
+✅ Escritorio:
+   GestionTime Desktop.lnk
+
+✅ Menú Inicio:
+   Inicio > GestionTime Solutions > GestionTime Desktop
+
+═══════════════════════════════════════════════════════════════
+
+📦 ARCHIVOS PARA DISTRIBUIR
+
+Para crear un paquete distribuible:
+
+1. Comprime la carpeta "Installer" completa
+2. O crea un ZIP con:
+   - Installer\InstallPortable.ps1
+   - Installer\INSTALAR.bat
+   - Installer\window-config.ini
+   - Installer\app_logo.ico
+   - Installer\README.txt
+
+3. Asegúrate de que "publish\portable" esté en el mismo nivel
+
+Estructura requerida:
+  GestionTimeDesktop\
+    ├── Installer\
+    │   ├── INSTALAR.bat
+    │   ├── InstallPortable.ps1
+    │   ├── window-config.ini
+    │   ├── app_logo.ico
+    │   └── README.txt
+    └── publish\
+        └── portable\
+            ├── GestionTime.Desktop.exe
+            ├── [todas las DLL]
+            └── [recursos]
+
+═══════════════════════════════════════════════════════════════
+
+🔧 VERIFICACIÓN DE LA INSTALACIÓN
+
+Ejecuta este comando para verificar:
+
+Test-Path "C:\app\gestiontime-desktop\GestionTime.Desktop.exe"
+
+Si devuelve "True", la instalación fue exitosa.
+
+═══════════════════════════════════════════════════════════════
+
+🗑️ DESINSTALACIÓN
+
+1. Ejecuta: C:\app\gestiontime-desktop\Uninstall.ps1
+   (Se crea automáticamente durante la instalación)
+
+2. O borra manualmente:
+   - C:\app\gestiontime-desktop\
+   - Acceso directo del escritorio
+   - Carpeta del menú Inicio
+
+═══════════════════════════════════════════════════════════════
+
+📝 NOTAS IMPORTANTES
+
+1. El instalador REQUIERE permisos de administrador
+2. La aplicación incluye el runtime de .NET 8 (self-contained)
+3. No modifica el registro de Windows
+4. Es completamente portable (puedes cambiar la ubicación)
+5. Tamaño aproximado: 280 MB
+
+═══════════════════════════════════════════════════════════════
+
+✅ INSTALACIÓN PORTABLE LISTA PARA USAR
+
+Todos los archivos están en:
+C:\GestionTime\GestionTimeDesktop\Installer\
+
+Para distribuir, comprime esa carpeta junto con:
+C:\GestionTime\GestionTimeDesktop\publish\portable\
+
+═══════════════════════════════════════════════════════════════

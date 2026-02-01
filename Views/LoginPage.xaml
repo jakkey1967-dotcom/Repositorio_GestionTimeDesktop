@@ -205,6 +205,15 @@
                                  FontSize="10" HorizontalAlignment="Center" Padding="0,1" Margin="0,2,0,0"/>
             </Grid>
         </Border>
+        
+        <!-- Versión de la aplicación (esquina inferior derecha) -->
+        <TextBlock x:Name="TxtVersion" 
+                   HorizontalAlignment="Right" 
+                   VerticalAlignment="Bottom" 
+                   Margin="0,0,20,12" 
+                   FontSize="10" 
+                   Opacity="0.6"
+                   Foreground="{ThemeResource LabelForeground}"/>
     </Grid>
 </Page>
 

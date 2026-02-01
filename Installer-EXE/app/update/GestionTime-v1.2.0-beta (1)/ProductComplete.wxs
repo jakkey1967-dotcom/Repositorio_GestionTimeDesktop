@@ -1,0 +1,1498 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="GestionTime Desktop" 
+           Language="1034" 
+           Version="1.1.0.0" 
+           Manufacturer="GestionTime Solutions" 
+           UpgradeCode="12345678-1234-1234-1234-123456789012">
+
+    <!-- Permitir actualizaciones -->
+    <MajorUpgrade DowngradeErrorMessage="Una versión más nueva ya está instalada." />
+
+    <!-- Estructura de directorios -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="GestionTime Desktop" />
+    </StandardDirectory>
+
+    <!-- Componente para ejecutable principal -->
+    <Component Id="MainExe" Directory="INSTALLFOLDER" Guid="11111111-1111-1111-1111-111111111111">
+      <File Source="bin\Release\Installer\App\GestionTime.Desktop.exe" KeyPath="yes" />
+      
+      <!-- Acceso directo en menú inicio -->
+      <Shortcut Id="StartMenuShortcut" 
+                Directory="ProgramMenuFolder" 
+                Name="GestionTime Desktop" 
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe" />
+      
+      <!-- Acceso directo en escritorio -->
+      <Shortcut Id="DesktopShortcut" 
+                Directory="DesktopFolder" 
+                Name="GestionTime Desktop" 
+                Target="[INSTALLFOLDER]GestionTime.Desktop.exe" />
+    </Component>
+    <!-- Componente para clretwrc.dll -->
+    <Component Id="Dll2" Directory="INSTALLFOLDER" Guid="A7A479BC-373A-440E-BBAC-789EE4634F29">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\clretwrc.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para clrgc.dll -->
+    <Component Id="Dll3" Directory="INSTALLFOLDER" Guid="5BC536BF-EBBD-4D58-8A7F-E5B759D01838">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\clrgc.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para clrjit.dll -->
+    <Component Id="Dll4" Directory="INSTALLFOLDER" Guid="4427527B-96F4-4DAE-AE75-346F36B60C70">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\clrjit.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para CommunityToolkit.Mvvm.dll -->
+    <Component Id="Dll5" Directory="INSTALLFOLDER" Guid="463B21D7-725C-42A0-88EE-986EEA58874D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\CommunityToolkit.Mvvm.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para coreclr.dll -->
+    <Component Id="Dll6" Directory="INSTALLFOLDER" Guid="F6E01CC4-7111-4BE8-9C24-302DE0820BB9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\coreclr.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para CoreMessagingXP.dll -->
+    <Component Id="Dll7" Directory="INSTALLFOLDER" Guid="97E221B1-608A-4BD0-B7FA-FF358E70C943">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\CoreMessagingXP.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para dcompi.dll -->
+    <Component Id="Dll8" Directory="INSTALLFOLDER" Guid="75534571-A3FC-4E1D-BEDB-B589259C3F26">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\dcompi.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para DirectML.dll -->
+    <Component Id="Dll9" Directory="INSTALLFOLDER" Guid="4C6210A9-0CA2-4D5C-9F53-80EA79E600F1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\DirectML.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para dwmcorei.dll -->
+    <Component Id="Dll10" Directory="INSTALLFOLDER" Guid="3E7CF7DA-9CEA-4AC0-A463-E007BD7926C3">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\dwmcorei.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para DwmSceneI.dll -->
+    <Component Id="Dll11" Directory="INSTALLFOLDER" Guid="9CAF759B-8307-4160-99B0-C9E0DD1C880B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\DwmSceneI.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para DWriteCore.dll -->
+    <Component Id="Dll12" Directory="INSTALLFOLDER" Guid="7A505478-E354-4FEC-81B6-3C523C55C7A4">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\DWriteCore.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para FluentAssertions.dll -->
+    <Component Id="Dll13" Directory="INSTALLFOLDER" Guid="2FE84D10-5B83-4B2D-AD28-064C9233298F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\FluentAssertions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para GestionTime.Desktop.dll -->
+    <Component Id="Dll14" Directory="INSTALLFOLDER" Guid="402FED76-A37D-48FF-9C74-523DC95C6B56">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\GestionTime.Desktop.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para hostfxr.dll -->
+    <Component Id="Dll15" Directory="INSTALLFOLDER" Guid="4615E584-52FF-409D-AB68-BCB0BD4EAEAF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\hostfxr.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para hostpolicy.dll -->
+    <Component Id="Dll16" Directory="INSTALLFOLDER" Guid="4F039BF2-0345-4015-AAC6-FD17AAF3E950">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\hostpolicy.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para marshal.dll -->
+    <Component Id="Dll17" Directory="INSTALLFOLDER" Guid="1CAD2491-96EE-40BB-B08F-525B9B2484CE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\marshal.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.CSharp.dll -->
+    <Component Id="Dll18" Directory="INSTALLFOLDER" Guid="CFB84838-566F-43A9-8F98-07E68D2E93F6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.CSharp.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.DiaSymReader.Native.amd64.dll -->
+    <Component Id="Dll19" Directory="INSTALLFOLDER" Guid="5882698B-25B7-42C6-897C-6EA4E6321212">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.DiaSymReader.Native.amd64.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.DirectManipulation.dll -->
+    <Component Id="Dll20" Directory="INSTALLFOLDER" Guid="160D02A3-B5B8-463A-B971-812968141C9D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.DirectManipulation.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Configuration.Abstractions.dll -->
+    <Component Id="Dll21" Directory="INSTALLFOLDER" Guid="503AA28C-84E3-4796-8839-0D324B87D9E2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Abstractions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Configuration.Binder.dll -->
+    <Component Id="Dll22" Directory="INSTALLFOLDER" Guid="C48F2B95-E772-477A-9FC5-145A692B2157">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Binder.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Configuration.dll -->
+    <Component Id="Dll23" Directory="INSTALLFOLDER" Guid="7580AD06-47C9-42F2-81E6-B884E8CEEEAA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Configuration.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Configuration.FileExtensions.dll -->
+    <Component Id="Dll24" Directory="INSTALLFOLDER" Guid="766350A7-D42F-442D-A6C8-92CBBF8F5468">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Configuration.FileExtensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Configuration.Json.dll -->
+    <Component Id="Dll25" Directory="INSTALLFOLDER" Guid="4AF43350-6375-4544-B6EC-1842A63B6DE7">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Configuration.Json.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.DependencyInjection.Abstractions.dll -->
+    <Component Id="Dll26" Directory="INSTALLFOLDER" Guid="269E83C5-8199-4CF4-990C-3EB3BFCDB12D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.DependencyInjection.Abstractions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.DependencyInjection.dll -->
+    <Component Id="Dll27" Directory="INSTALLFOLDER" Guid="23C66E57-B5C9-4141-B9FF-C9FAE431B9D1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.DependencyInjection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.FileProviders.Abstractions.dll -->
+    <Component Id="Dll28" Directory="INSTALLFOLDER" Guid="C0C2DF7C-41FF-4F66-8071-3155910757C1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.FileProviders.Abstractions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.FileProviders.Physical.dll -->
+    <Component Id="Dll29" Directory="INSTALLFOLDER" Guid="39A10C77-F2BA-404E-B939-AA8FD4CBD7EF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.FileProviders.Physical.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.FileSystemGlobbing.dll -->
+    <Component Id="Dll30" Directory="INSTALLFOLDER" Guid="652EFEDE-0830-4443-803E-D5069CA1AE11">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.FileSystemGlobbing.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Logging.Abstractions.dll -->
+    <Component Id="Dll31" Directory="INSTALLFOLDER" Guid="45956A71-C75E-4017-841A-B63417830C5C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Logging.Abstractions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Logging.dll -->
+    <Component Id="Dll32" Directory="INSTALLFOLDER" Guid="6346A6EC-C1B5-4710-895B-57BA771BFBA3">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Logging.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Options.dll -->
+    <Component Id="Dll33" Directory="INSTALLFOLDER" Guid="3A606952-DF9A-488F-8C0A-22DC265E7D0E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Options.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Extensions.Primitives.dll -->
+    <Component Id="Dll34" Directory="INSTALLFOLDER" Guid="11A81BED-D650-4ABD-A134-A9B1A6F735CB">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Extensions.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Graphics.Display.dll -->
+    <Component Id="Dll35" Directory="INSTALLFOLDER" Guid="5D2BA28C-E32E-4176-B1F4-0DEF074BE26C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Graphics.Display.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Graphics.Imaging.dll -->
+    <Component Id="Dll36" Directory="INSTALLFOLDER" Guid="81351D9B-945F-42D4-95C8-3634361E63B1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Graphics.Imaging.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Graphics.Imaging.Projection.dll -->
+    <Component Id="Dll37" Directory="INSTALLFOLDER" Guid="D468BE81-ACE7-4734-9091-7D7B853B5F21">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Graphics.Imaging.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.InputStateManager.dll -->
+    <Component Id="Dll38" Directory="INSTALLFOLDER" Guid="B8B888FD-151A-4F3B-AC96-A022DD231C06">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.InputStateManager.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.InteractiveExperiences.Projection.dll -->
+    <Component Id="Dll39" Directory="INSTALLFOLDER" Guid="123494C9-09DA-47B7-9AA9-B9EF7132E42B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.InteractiveExperiences.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Internal.FrameworkUdk.dll -->
+    <Component Id="Dll40" Directory="INSTALLFOLDER" Guid="78E6FBEB-CC68-4899-AD2E-A7BD4686CAA1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Internal.FrameworkUdk.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.ML.OnnxRuntime.dll -->
+    <Component Id="Dll41" Directory="INSTALLFOLDER" Guid="FE4642C1-9C1D-4184-9F7C-5A25E821AF10">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.ML.OnnxRuntime.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Security.Authentication.OAuth.Projection.dll -->
+    <Component Id="Dll42" Directory="INSTALLFOLDER" Guid="A83E4438-2141-4370-B4C4-EFF753A90669">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Security.Authentication.OAuth.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Composition.OSSupport.dll -->
+    <Component Id="Dll43" Directory="INSTALLFOLDER" Guid="0DCA665C-2165-44DF-8E74-CF9B41CB45BA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Composition.OSSupport.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Designer.dll -->
+    <Component Id="Dll44" Directory="INSTALLFOLDER" Guid="57C9B3F8-9962-4B63-A05C-32189356A0D0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Designer.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.dll -->
+    <Component Id="Dll45" Directory="INSTALLFOLDER" Guid="C7E48565-15C0-4EBE-BE5D-E59E2DBED2BA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Input.dll -->
+    <Component Id="Dll46" Directory="INSTALLFOLDER" Guid="B6E455FE-834F-4836-A898-7AE6A6A175EB">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Input.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Windowing.Core.dll -->
+    <Component Id="Dll47" Directory="INSTALLFOLDER" Guid="EDBF7E3E-2859-4722-84CB-4E5EABEDABFD">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Windowing.Core.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Windowing.dll -->
+    <Component Id="Dll48" Directory="INSTALLFOLDER" Guid="B8C83AC8-EBD1-4D2F-8CD4-C5A9C3398E1B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Windowing.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Xaml.Controls.dll -->
+    <Component Id="Dll49" Directory="INSTALLFOLDER" Guid="1EB8EC1E-2B63-4DEB-9295-6B8286F84B8A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Xaml.Controls.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.ui.xaml.dll -->
+    <Component Id="Dll50" Directory="INSTALLFOLDER" Guid="5ADACCA4-690B-4399-BA65-1BA8BF117EB1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.ui.xaml.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Xaml.Internal.dll -->
+    <Component Id="Dll51" Directory="INSTALLFOLDER" Guid="87DE7C7B-C073-4AF0-8090-904AAE7195D6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Xaml.Internal.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.UI.Xaml.Phone.dll -->
+    <Component Id="Dll52" Directory="INSTALLFOLDER" Guid="C1D17F4A-7FE9-4CAF-965B-114997563169">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.UI.Xaml.Phone.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.ui.xaml.resources.19h1.dll -->
+    <Component Id="Dll53" Directory="INSTALLFOLDER" Guid="CC114E53-EB3F-4840-80BC-78D4439B5860">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.ui.xaml.resources.19h1.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.ui.xaml.resources.common.dll -->
+    <Component Id="Dll54" Directory="INSTALLFOLDER" Guid="3E4FFEFC-9F99-457C-91A5-1777D09253E8">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.ui.xaml.resources.common.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.VisualBasic.Core.dll -->
+    <Component Id="Dll55" Directory="INSTALLFOLDER" Guid="F98BAB6B-31DA-4921-9ABA-D85273E5BADB">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.VisualBasic.Core.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.VisualBasic.dll -->
+    <Component Id="Dll56" Directory="INSTALLFOLDER" Guid="0BD4F4C4-0036-4B99-88C9-0BFEB0B44937">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.VisualBasic.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Web.WebView2.Core.dll -->
+    <Component Id="Dll57" Directory="INSTALLFOLDER" Guid="ED697A8A-00DA-437E-8A7E-C9CBF7585F8B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Web.WebView2.Core.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Web.WebView2.Core.Projection.dll -->
+    <Component Id="Dll58" Directory="INSTALLFOLDER" Guid="0BAC043F-C52F-4976-9F04-6E0FB4F72FFD">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Web.WebView2.Core.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Win32.Primitives.dll -->
+    <Component Id="Dll59" Directory="INSTALLFOLDER" Guid="90E7186B-C805-4A4D-81B9-0C10D65DAF66">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Win32.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Win32.Registry.dll -->
+    <Component Id="Dll60" Directory="INSTALLFOLDER" Guid="151B129F-F044-4125-9E74-93CF51A46E17">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Win32.Registry.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.ContentSafety.dll -->
+    <Component Id="Dll61" Directory="INSTALLFOLDER" Guid="7E3B4479-676C-4512-8398-53A4BD3AA552">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.ContentSafety.Projection.dll -->
+    <Component Id="Dll62" Directory="INSTALLFOLDER" Guid="3BCA2831-0C86-4D97-ABC7-B6BA2EF46E59">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.ContentSafety.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.Foundation.Projection.dll -->
+    <Component Id="Dll63" Directory="INSTALLFOLDER" Guid="F2442D2A-C481-43F5-8F91-DCF76E45924C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.Foundation.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.Imaging.dll -->
+    <Component Id="Dll64" Directory="INSTALLFOLDER" Guid="1C5F3A09-9CC0-4FC1-AC9E-5F30822F2BFE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.Imaging.Projection.dll -->
+    <Component Id="Dll65" Directory="INSTALLFOLDER" Guid="21AB9703-DD02-417E-B21D-37F98F8DCB68">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.Imaging.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.MachineLearning.dll -->
+    <Component Id="Dll66" Directory="INSTALLFOLDER" Guid="8F496BB9-78E0-4102-983F-EB1B2CA507D1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.MachineLearning.Projection.dll -->
+    <Component Id="Dll67" Directory="INSTALLFOLDER" Guid="1C6D756C-F904-4DF0-B9F8-E3EE986AA065">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.MachineLearning.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.Projection.dll -->
+    <Component Id="Dll68" Directory="INSTALLFOLDER" Guid="6FEE2A1E-DB66-43E0-952D-B62B5F1332C0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.Text.dll -->
+    <Component Id="Dll69" Directory="INSTALLFOLDER" Guid="5AB2C9FB-D00F-4415-9C84-9E052C4C6722">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.Text.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AI.Text.Projection.dll -->
+    <Component Id="Dll70" Directory="INSTALLFOLDER" Guid="FF2BD639-98CE-46F5-B8FF-99632C2DE789">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AI.Text.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.ApplicationModel.Background.Projection.dll -->
+    <Component Id="Dll71" Directory="INSTALLFOLDER" Guid="C9EBC37A-11A4-4985-9506-509E7FC54201">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll -->
+    <Component Id="Dll72" Directory="INSTALLFOLDER" Guid="9F6DFFFA-CF05-48DB-A51C-D3BB92766B63">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll -->
+    <Component Id="Dll73" Directory="INSTALLFOLDER" Guid="77B73B4E-E6BC-410D-9AE1-3AF4ABC14B92">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.ApplicationModel.Resources.dll -->
+    <Component Id="Dll74" Directory="INSTALLFOLDER" Guid="2FF32969-7435-4B0D-8CDF-14CF1A0141B1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.ApplicationModel.Resources.Projection.dll -->
+    <Component Id="Dll75" Directory="INSTALLFOLDER" Guid="52FE4573-8D65-40D1-887A-A9F64FF5B8BC">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.Resources.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll -->
+    <Component Id="Dll76" Directory="INSTALLFOLDER" Guid="BACBF12B-09AA-4A0D-94EF-5F4EFF5B0C8F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AppLifecycle.Projection.dll -->
+    <Component Id="Dll77" Directory="INSTALLFOLDER" Guid="4B41AA0D-4B44-4516-887B-AFE575685F24">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AppLifecycle.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AppNotifications.Builder.Projection.dll -->
+    <Component Id="Dll78" Directory="INSTALLFOLDER" Guid="61CB2C92-B60A-4118-95B3-8A61C34B8AD9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Builder.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.AppNotifications.Projection.dll -->
+    <Component Id="Dll79" Directory="INSTALLFOLDER" Guid="7A030AE4-C84D-4CB1-8572-4AD2AE57921B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.AppNotifications.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.BadgeNotifications.Projection.dll -->
+    <Component Id="Dll80" Directory="INSTALLFOLDER" Guid="60706AD0-DF2E-4C34-AC11-32F74AD725B5">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.BadgeNotifications.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Foundation.Projection.dll -->
+    <Component Id="Dll81" Directory="INSTALLFOLDER" Guid="FA043643-9F7B-453D-B3A1-D1F3AB74F14C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Foundation.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Management.Deployment.Projection.dll -->
+    <Component Id="Dll82" Directory="INSTALLFOLDER" Guid="0DF34510-DC38-4D5F-B454-BFBE89B5B445">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Management.Deployment.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Media.Capture.Projection.dll -->
+    <Component Id="Dll83" Directory="INSTALLFOLDER" Guid="D647476A-8D77-4728-B2F6-112D4444118E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Media.Capture.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.PushNotifications.Projection.dll -->
+    <Component Id="Dll84" Directory="INSTALLFOLDER" Guid="A17BF0FD-A2BE-461B-9430-7CD61A01CB1D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.PushNotifications.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.SDK.NET.dll -->
+    <Component Id="Dll85" Directory="INSTALLFOLDER" Guid="00B59BA8-EF95-448B-A4CD-9EF65B8B6483">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.SDK.NET.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Security.AccessControl.Projection.dll -->
+    <Component Id="Dll86" Directory="INSTALLFOLDER" Guid="5A5C9B43-2801-4E2E-8C87-6BF8BD62BE32">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Security.AccessControl.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Storage.Pickers.Projection.dll -->
+    <Component Id="Dll87" Directory="INSTALLFOLDER" Guid="C56606D8-21FF-4226-AB37-D530FCBBAEA2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Storage.Pickers.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Storage.Projection.dll -->
+    <Component Id="Dll88" Directory="INSTALLFOLDER" Guid="D76AA49F-5D7E-40E4-BC84-46A9816B7B8E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Storage.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.System.Power.Projection.dll -->
+    <Component Id="Dll89" Directory="INSTALLFOLDER" Guid="826C5B29-0FAC-4C29-8932-E2C1C53100EA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.System.Power.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.System.Projection.dll -->
+    <Component Id="Dll90" Directory="INSTALLFOLDER" Guid="8849EDA9-33F6-4182-B533-C0BA30D42D6E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.System.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Widgets.dll -->
+    <Component Id="Dll91" Directory="INSTALLFOLDER" Guid="BFFB290C-EF21-4088-8E99-4137A6D7BE24">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Widgets.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Widgets.Projection.dll -->
+    <Component Id="Dll92" Directory="INSTALLFOLDER" Guid="C241DF0E-1F5C-467D-846F-2A6596DC4891">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Widgets.Projection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Workloads.dll -->
+    <Component Id="Dll93" Directory="INSTALLFOLDER" Guid="47120F4E-F9E5-48B1-B7F5-E46CCC0E5A2D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Workloads.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Workloads.Resources.dll -->
+    <Component Id="Dll94" Directory="INSTALLFOLDER" Guid="3E5CD5BF-25F4-4096-8EA8-7D9280CAF85E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Workloads.Resources.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.Windows.Workloads.Resources_ec.dll -->
+    <Component Id="Dll95" Directory="INSTALLFOLDER" Guid="237396F2-09C0-49B3-93C3-3F05E15D07D2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.Windows.Workloads.Resources_ec.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.WindowsAppRuntime.Bootstrap.dll -->
+    <Component Id="Dll96" Directory="INSTALLFOLDER" Guid="B8D6E643-D09A-405D-B6A1-358F65F48AA2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Bootstrap.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.WindowsAppRuntime.Bootstrap.Net.dll -->
+    <Component Id="Dll97" Directory="INSTALLFOLDER" Guid="93A5C437-13C6-43BE-A6E9-73D3A0776298">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Bootstrap.Net.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.WindowsAppRuntime.dll -->
+    <Component Id="Dll98" Directory="INSTALLFOLDER" Guid="3C316595-F1D6-4C3B-B855-073CE50E6E49">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.WindowsAppRuntime.Insights.Resource.dll -->
+    <Component Id="Dll99" Directory="INSTALLFOLDER" Guid="34A51AB3-4E0F-4183-9A66-D4F191E62134">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.WindowsAppRuntime.Insights.Resource.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para Microsoft.WinUI.dll -->
+    <Component Id="Dll100" Directory="INSTALLFOLDER" Guid="CB43BCC1-1298-4DB1-A3CB-3050DA78988C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\Microsoft.WinUI.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para MRM.dll -->
+    <Component Id="Dll101" Directory="INSTALLFOLDER" Guid="887FE4B3-79C9-47C1-8961-08EC3D3207C6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\MRM.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para mscordaccore.dll -->
+    <Component Id="Dll102" Directory="INSTALLFOLDER" Guid="57D1C1CD-ACED-4C6E-9F8B-490073513E82">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\mscordaccore.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para mscordaccore_amd64_amd64_8.0.2225.52707.dll -->
+    <Component Id="Dll103" Directory="INSTALLFOLDER" Guid="FE8A42A2-8603-4DAD-B6F4-F40D9D48AC72">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\mscordaccore_amd64_amd64_8.0.2225.52707.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para mscordbi.dll -->
+    <Component Id="Dll104" Directory="INSTALLFOLDER" Guid="AC817A0E-699F-4473-8EF5-C4C17FA35165">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\mscordbi.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para mscorlib.dll -->
+    <Component Id="Dll105" Directory="INSTALLFOLDER" Guid="323F15E2-F053-4D56-A7C9-057DB67335AC">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\mscorlib.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para mscorrc.dll -->
+    <Component Id="Dll106" Directory="INSTALLFOLDER" Guid="06D617D0-9ABE-47F4-8D83-C1496F870FC8">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\mscorrc.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para msquic.dll -->
+    <Component Id="Dll107" Directory="INSTALLFOLDER" Guid="4C6C9ACA-F821-4E57-BB9A-9C5F7C33F22C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\msquic.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para netstandard.dll -->
+    <Component Id="Dll108" Directory="INSTALLFOLDER" Guid="CB133DA7-155B-4897-8649-51E340D50B67">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\netstandard.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para onnxruntime.dll -->
+    <Component Id="Dll109" Directory="INSTALLFOLDER" Guid="6E5105D2-E0D8-463F-A769-8ED0BE87C510">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\onnxruntime.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para onnxruntime_providers_shared.dll -->
+    <Component Id="Dll110" Directory="INSTALLFOLDER" Guid="D1DC335E-0532-400E-95B0-F6695E0692AE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\onnxruntime_providers_shared.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para PushNotificationsLongRunningTask.ProxyStub.dll -->
+    <Component Id="Dll111" Directory="INSTALLFOLDER" Guid="23770195-2C15-45D4-90E4-6D16F19EB0BA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\PushNotificationsLongRunningTask.ProxyStub.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para SessionHandleIPCProxyStub.dll -->
+    <Component Id="Dll112" Directory="INSTALLFOLDER" Guid="B959C1FB-FDB7-4F82-953D-2A9A43E6107A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\SessionHandleIPCProxyStub.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.AppContext.dll -->
+    <Component Id="Dll113" Directory="INSTALLFOLDER" Guid="A49E9768-E3ED-42E7-9218-CDE920AFC66A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.AppContext.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Buffers.dll -->
+    <Component Id="Dll114" Directory="INSTALLFOLDER" Guid="B6F81201-84A6-4A1C-BC90-1DE607B9B3DE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Buffers.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Collections.Concurrent.dll -->
+    <Component Id="Dll115" Directory="INSTALLFOLDER" Guid="B0990C82-199E-43AB-B352-D95276CF6BE6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Collections.Concurrent.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Collections.dll -->
+    <Component Id="Dll116" Directory="INSTALLFOLDER" Guid="E6EA1A92-BA1B-4E72-B8C0-F61F54330FA6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Collections.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Collections.Immutable.dll -->
+    <Component Id="Dll117" Directory="INSTALLFOLDER" Guid="63B4131A-9507-4215-800E-2C655C85C868">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Collections.Immutable.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Collections.NonGeneric.dll -->
+    <Component Id="Dll118" Directory="INSTALLFOLDER" Guid="96EDB338-BEC1-42DD-A383-9032D118703B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Collections.NonGeneric.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Collections.Specialized.dll -->
+    <Component Id="Dll119" Directory="INSTALLFOLDER" Guid="CF08C4A7-4168-4FD1-A868-958B992D52E9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Collections.Specialized.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ComponentModel.Annotations.dll -->
+    <Component Id="Dll120" Directory="INSTALLFOLDER" Guid="D33E74AA-3DD1-451E-B3CC-4192E0DB967D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ComponentModel.Annotations.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ComponentModel.DataAnnotations.dll -->
+    <Component Id="Dll121" Directory="INSTALLFOLDER" Guid="F3EC2324-DE61-422F-9084-546BB5656D02">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ComponentModel.DataAnnotations.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ComponentModel.dll -->
+    <Component Id="Dll122" Directory="INSTALLFOLDER" Guid="FB464BE1-DDAF-4041-A93C-BE46BB4D9FFA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ComponentModel.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ComponentModel.EventBasedAsync.dll -->
+    <Component Id="Dll123" Directory="INSTALLFOLDER" Guid="556F8874-49EA-4C42-8AF7-E7B33E4B9FE9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ComponentModel.EventBasedAsync.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ComponentModel.Primitives.dll -->
+    <Component Id="Dll124" Directory="INSTALLFOLDER" Guid="94C0D31B-C856-448E-990E-0DF417B0607D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ComponentModel.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ComponentModel.TypeConverter.dll -->
+    <Component Id="Dll125" Directory="INSTALLFOLDER" Guid="0DFE5CA4-0927-4B54-82E2-F3DEA732A31A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ComponentModel.TypeConverter.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Configuration.dll -->
+    <Component Id="Dll126" Directory="INSTALLFOLDER" Guid="2C837D04-D6BF-4FD6-84DC-6EC28159515E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Configuration.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Console.dll -->
+    <Component Id="Dll127" Directory="INSTALLFOLDER" Guid="4BFB8D72-CA03-4136-B3DE-0A9483E8DF8B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Console.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Core.dll -->
+    <Component Id="Dll128" Directory="INSTALLFOLDER" Guid="6FA4E964-4D69-40C4-84FB-D8C99829EF8E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Core.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Data.Common.dll -->
+    <Component Id="Dll129" Directory="INSTALLFOLDER" Guid="DA0162B1-986F-4473-91BE-A4ABA131940C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Data.Common.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Data.DataSetExtensions.dll -->
+    <Component Id="Dll130" Directory="INSTALLFOLDER" Guid="B3D47325-9DBF-4091-83A5-7792350EDAED">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Data.DataSetExtensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Data.dll -->
+    <Component Id="Dll131" Directory="INSTALLFOLDER" Guid="4E79BF3E-82A1-4690-8B99-81E53165646A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Data.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.Contracts.dll -->
+    <Component Id="Dll132" Directory="INSTALLFOLDER" Guid="56E8C09E-2D61-4844-93FA-65C8ADE1B28D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.Contracts.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.Debug.dll -->
+    <Component Id="Dll133" Directory="INSTALLFOLDER" Guid="8773CBF0-2108-4E3F-945F-523C41272FED">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.Debug.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.DiagnosticSource.dll -->
+    <Component Id="Dll134" Directory="INSTALLFOLDER" Guid="CA2117A1-B560-4135-BB95-49A8E00EFB4B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.DiagnosticSource.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.EventLog.dll -->
+    <Component Id="Dll135" Directory="INSTALLFOLDER" Guid="D5B422E7-802C-4C50-9C05-B792B4FF0506">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.EventLog.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.FileVersionInfo.dll -->
+    <Component Id="Dll136" Directory="INSTALLFOLDER" Guid="F5A3F072-BFB6-4D94-8B59-411D5F4C9683">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.FileVersionInfo.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.Process.dll -->
+    <Component Id="Dll137" Directory="INSTALLFOLDER" Guid="9D186261-67E8-4225-8D45-AC27B146856F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.Process.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.StackTrace.dll -->
+    <Component Id="Dll138" Directory="INSTALLFOLDER" Guid="D8A12C4B-08B0-497E-B497-68F3BCC08679">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.StackTrace.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.TextWriterTraceListener.dll -->
+    <Component Id="Dll139" Directory="INSTALLFOLDER" Guid="86BB9C4E-FA17-4B8B-80A7-45AE13A0D7E0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.TextWriterTraceListener.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.Tools.dll -->
+    <Component Id="Dll140" Directory="INSTALLFOLDER" Guid="B62D9BF5-FB14-4887-8720-159AB8A7070E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.Tools.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.TraceSource.dll -->
+    <Component Id="Dll141" Directory="INSTALLFOLDER" Guid="92475F01-F8BE-4F47-A169-28DF222E25A1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.TraceSource.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Diagnostics.Tracing.dll -->
+    <Component Id="Dll142" Directory="INSTALLFOLDER" Guid="5842F825-E8CF-432A-9911-9098880A26CB">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Diagnostics.Tracing.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.dll -->
+    <Component Id="Dll143" Directory="INSTALLFOLDER" Guid="7566053D-1722-45F5-A184-2FD8134856B5">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Drawing.dll -->
+    <Component Id="Dll144" Directory="INSTALLFOLDER" Guid="F0D4FBB3-2B35-483C-B1CB-63848ABE25DE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Drawing.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Drawing.Primitives.dll -->
+    <Component Id="Dll145" Directory="INSTALLFOLDER" Guid="40B8D72D-7CAE-4F6E-817D-839013625DDE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Drawing.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Dynamic.Runtime.dll -->
+    <Component Id="Dll146" Directory="INSTALLFOLDER" Guid="A5092F05-8D2E-4299-BEB1-8F94D10D9312">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Dynamic.Runtime.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Formats.Asn1.dll -->
+    <Component Id="Dll147" Directory="INSTALLFOLDER" Guid="EB547909-D01E-4962-8277-D19B5CA1BA48">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Formats.Asn1.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Formats.Tar.dll -->
+    <Component Id="Dll148" Directory="INSTALLFOLDER" Guid="C3DA7BE6-A599-4292-8B9F-47D3ABE8F27D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Formats.Tar.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Globalization.Calendars.dll -->
+    <Component Id="Dll149" Directory="INSTALLFOLDER" Guid="C2974115-6D86-4CE8-86C9-A1418FDF2DF1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Globalization.Calendars.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Globalization.dll -->
+    <Component Id="Dll150" Directory="INSTALLFOLDER" Guid="C9C05C20-5D65-45B0-AC58-6E342F681ED6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Globalization.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Globalization.Extensions.dll -->
+    <Component Id="Dll151" Directory="INSTALLFOLDER" Guid="344F46BF-D4F3-48A2-A146-51CA48588B2E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Globalization.Extensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Compression.Brotli.dll -->
+    <Component Id="Dll152" Directory="INSTALLFOLDER" Guid="8AE2CFD3-AAB9-4F7B-94AA-1B14EA9A3180">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Compression.Brotli.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Compression.dll -->
+    <Component Id="Dll153" Directory="INSTALLFOLDER" Guid="0BF4EBF6-6166-4CCA-A9FD-182EA2BDC970">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Compression.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Compression.FileSystem.dll -->
+    <Component Id="Dll154" Directory="INSTALLFOLDER" Guid="D1F7C768-02E6-43B5-9100-D7FD9E19512F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Compression.FileSystem.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Compression.Native.dll -->
+    <Component Id="Dll155" Directory="INSTALLFOLDER" Guid="2C4D1919-E555-4AA5-9B4F-984FEDB5ACF9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Compression.Native.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Compression.ZipFile.dll -->
+    <Component Id="Dll156" Directory="INSTALLFOLDER" Guid="70942E72-27F0-4D5A-BF40-4AA96066574A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Compression.ZipFile.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.dll -->
+    <Component Id="Dll157" Directory="INSTALLFOLDER" Guid="C7355F0E-FB03-431E-BB72-35354A95B315">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.FileSystem.AccessControl.dll -->
+    <Component Id="Dll158" Directory="INSTALLFOLDER" Guid="4D16FAE5-A466-4414-B1B4-317E91D20569">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.FileSystem.AccessControl.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.FileSystem.dll -->
+    <Component Id="Dll159" Directory="INSTALLFOLDER" Guid="18BF4093-D3DA-48E8-AADF-51CC274ECE09">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.FileSystem.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.FileSystem.DriveInfo.dll -->
+    <Component Id="Dll160" Directory="INSTALLFOLDER" Guid="D75D4B52-D95C-4CFB-BEF8-DCAEEDB9BA45">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.FileSystem.DriveInfo.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.FileSystem.Primitives.dll -->
+    <Component Id="Dll161" Directory="INSTALLFOLDER" Guid="8E3C77F5-29C0-4522-86D0-A299EEDB6476">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.FileSystem.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.FileSystem.Watcher.dll -->
+    <Component Id="Dll162" Directory="INSTALLFOLDER" Guid="4CF8FD28-F0B4-4799-B530-A7F3C35B7FE7">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.FileSystem.Watcher.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.IsolatedStorage.dll -->
+    <Component Id="Dll163" Directory="INSTALLFOLDER" Guid="5C91129B-15E4-4D6F-A3F5-B591FCD512D8">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.IsolatedStorage.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.MemoryMappedFiles.dll -->
+    <Component Id="Dll164" Directory="INSTALLFOLDER" Guid="F1C3A7F5-488E-41FD-8F06-2366335A033F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.MemoryMappedFiles.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Pipelines.dll -->
+    <Component Id="Dll165" Directory="INSTALLFOLDER" Guid="7D1096EB-EFB2-4FAB-B3AC-3AAD5D7E5FB2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Pipelines.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Pipes.AccessControl.dll -->
+    <Component Id="Dll166" Directory="INSTALLFOLDER" Guid="9F2C4E52-2C21-4C3F-8A35-D98DF49ACBB4">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Pipes.AccessControl.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.Pipes.dll -->
+    <Component Id="Dll167" Directory="INSTALLFOLDER" Guid="E9C8B302-3902-4D3B-A52B-3EF545221F24">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.Pipes.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.IO.UnmanagedMemoryStream.dll -->
+    <Component Id="Dll168" Directory="INSTALLFOLDER" Guid="0D052ABF-8144-41AB-B6AA-62F72448CD98">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.IO.UnmanagedMemoryStream.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Linq.dll -->
+    <Component Id="Dll169" Directory="INSTALLFOLDER" Guid="430FEED7-4966-4765-9E08-B95BB4AE7580">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Linq.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Linq.Expressions.dll -->
+    <Component Id="Dll170" Directory="INSTALLFOLDER" Guid="C097576B-9F47-4365-89D2-6865BD57F924">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Linq.Expressions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Linq.Parallel.dll -->
+    <Component Id="Dll171" Directory="INSTALLFOLDER" Guid="DCFFA1F2-3FA9-4964-B42B-1C75FC661B58">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Linq.Parallel.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Linq.Queryable.dll -->
+    <Component Id="Dll172" Directory="INSTALLFOLDER" Guid="C038D74E-9C18-41B8-BC61-C50E2788F484">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Linq.Queryable.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Memory.dll -->
+    <Component Id="Dll173" Directory="INSTALLFOLDER" Guid="991738BB-E93A-42E5-AE33-E750C4FF0E14">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Memory.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.dll -->
+    <Component Id="Dll174" Directory="INSTALLFOLDER" Guid="90330E02-466D-4C13-A073-EEDE157C8C81">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Http.dll -->
+    <Component Id="Dll175" Directory="INSTALLFOLDER" Guid="40940C6B-F621-4EB6-BFAF-1C34E0187DB6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Http.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Http.Json.dll -->
+    <Component Id="Dll176" Directory="INSTALLFOLDER" Guid="310EBCF3-B0CB-4DCB-AA65-DA84090156C2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Http.Json.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.HttpListener.dll -->
+    <Component Id="Dll177" Directory="INSTALLFOLDER" Guid="E14A8D34-ACF4-4522-8494-BEF660C74E7B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.HttpListener.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Mail.dll -->
+    <Component Id="Dll178" Directory="INSTALLFOLDER" Guid="E82AA5BF-C6F9-4D27-B8F7-9239AFF4966C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Mail.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.NameResolution.dll -->
+    <Component Id="Dll179" Directory="INSTALLFOLDER" Guid="6467CD79-A815-42C6-9534-63D462909675">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.NameResolution.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.NetworkInformation.dll -->
+    <Component Id="Dll180" Directory="INSTALLFOLDER" Guid="28AC14DE-D840-4D5F-9C9B-58AE699253DD">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.NetworkInformation.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Ping.dll -->
+    <Component Id="Dll181" Directory="INSTALLFOLDER" Guid="CFE7592B-B312-4ABA-8C28-903CE6C39272">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Ping.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Primitives.dll -->
+    <Component Id="Dll182" Directory="INSTALLFOLDER" Guid="BDCDA961-BB1B-44C6-AE91-957123D8C01C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Quic.dll -->
+    <Component Id="Dll183" Directory="INSTALLFOLDER" Guid="AA4A8CD7-D99B-45F3-AEA5-A4AAA79193ED">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Quic.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Requests.dll -->
+    <Component Id="Dll184" Directory="INSTALLFOLDER" Guid="EE8F2DF1-B9B1-44A6-B30C-629EDCA403CE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Requests.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Security.dll -->
+    <Component Id="Dll185" Directory="INSTALLFOLDER" Guid="B1539F74-95B6-4AEA-8C58-B5A7153CF38E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Security.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.ServicePoint.dll -->
+    <Component Id="Dll186" Directory="INSTALLFOLDER" Guid="D098C867-9B46-404D-8264-0B9FD6A86784">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.ServicePoint.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.Sockets.dll -->
+    <Component Id="Dll187" Directory="INSTALLFOLDER" Guid="A4714860-3980-4AFE-BB1A-788E3B159BD0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.Sockets.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.WebClient.dll -->
+    <Component Id="Dll188" Directory="INSTALLFOLDER" Guid="C70462D1-4EC9-43CC-A179-ADEDD30EB259">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.WebClient.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.WebHeaderCollection.dll -->
+    <Component Id="Dll189" Directory="INSTALLFOLDER" Guid="3DCC0E28-A7B7-4D16-AAE8-889E59B9CC94">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.WebHeaderCollection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.WebProxy.dll -->
+    <Component Id="Dll190" Directory="INSTALLFOLDER" Guid="DDE58356-6F56-44E3-B251-EDB61EB45477">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.WebProxy.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.WebSockets.Client.dll -->
+    <Component Id="Dll191" Directory="INSTALLFOLDER" Guid="193EB2B8-12C2-4155-BD86-9A3B1D94CB2E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.WebSockets.Client.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Net.WebSockets.dll -->
+    <Component Id="Dll192" Directory="INSTALLFOLDER" Guid="764F0529-618B-4974-A321-26D71780DF00">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Net.WebSockets.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Numerics.dll -->
+    <Component Id="Dll193" Directory="INSTALLFOLDER" Guid="E1E76D53-980B-4E4C-A929-2C0D87E53BFE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Numerics.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Numerics.Tensors.dll -->
+    <Component Id="Dll194" Directory="INSTALLFOLDER" Guid="DA75EF8C-595B-4AB3-8841-D7096F3A2B18">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Numerics.Tensors.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Numerics.Vectors.dll -->
+    <Component Id="Dll195" Directory="INSTALLFOLDER" Guid="654784C0-D44A-4D56-A50B-45B14C62EED9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Numerics.Vectors.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ObjectModel.dll -->
+    <Component Id="Dll196" Directory="INSTALLFOLDER" Guid="B09156E0-AB91-442C-B310-938401E67156">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ObjectModel.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Private.CoreLib.dll -->
+    <Component Id="Dll197" Directory="INSTALLFOLDER" Guid="A50FBDD7-5958-4B10-AF07-71725F49FABA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Private.CoreLib.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Private.DataContractSerialization.dll -->
+    <Component Id="Dll198" Directory="INSTALLFOLDER" Guid="682047DC-37B1-49AA-B05A-1C07ABF7C49A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Private.DataContractSerialization.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Private.Uri.dll -->
+    <Component Id="Dll199" Directory="INSTALLFOLDER" Guid="332C4DBB-97FB-41FA-A358-4739C1ACE9ED">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Private.Uri.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Private.Xml.dll -->
+    <Component Id="Dll200" Directory="INSTALLFOLDER" Guid="D0A0D64C-294F-47E1-8E9F-B741B48C7A06">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Private.Xml.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Private.Xml.Linq.dll -->
+    <Component Id="Dll201" Directory="INSTALLFOLDER" Guid="EB9789C9-F90F-4233-B6CF-3371C6703AE5">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Private.Xml.Linq.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.DispatchProxy.dll -->
+    <Component Id="Dll202" Directory="INSTALLFOLDER" Guid="6BFF8B1B-61FA-4EAC-8A89-4978102E9AC8">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.DispatchProxy.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.dll -->
+    <Component Id="Dll203" Directory="INSTALLFOLDER" Guid="7CE15ADF-65CF-49B1-A4F2-1563619602F7">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.Emit.dll -->
+    <Component Id="Dll204" Directory="INSTALLFOLDER" Guid="A420FE0A-C53E-4D5C-B363-318C7C9261D2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.Emit.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.Emit.ILGeneration.dll -->
+    <Component Id="Dll205" Directory="INSTALLFOLDER" Guid="8CB63F83-0302-4891-ABDB-7D08D9E2CD68">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.Emit.ILGeneration.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.Emit.Lightweight.dll -->
+    <Component Id="Dll206" Directory="INSTALLFOLDER" Guid="3917217C-6DD8-4A23-90FB-E243D2FA6D43">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.Emit.Lightweight.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.Extensions.dll -->
+    <Component Id="Dll207" Directory="INSTALLFOLDER" Guid="7407F36F-CC71-46AD-9DB9-8D63288B34EF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.Extensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.Metadata.dll -->
+    <Component Id="Dll208" Directory="INSTALLFOLDER" Guid="27EE40DA-FE8E-4D39-8FFF-C55737FAAE1F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.Metadata.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.Primitives.dll -->
+    <Component Id="Dll209" Directory="INSTALLFOLDER" Guid="484ABDDE-EBB5-4663-A8CE-FF47BA8E7A13">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Reflection.TypeExtensions.dll -->
+    <Component Id="Dll210" Directory="INSTALLFOLDER" Guid="D0C5C70B-53D1-4A8B-8019-3E2379B89B79">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Reflection.TypeExtensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Resources.Reader.dll -->
+    <Component Id="Dll211" Directory="INSTALLFOLDER" Guid="CAF45147-3F77-4E3D-8E34-0043954275E4">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Resources.Reader.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Resources.ResourceManager.dll -->
+    <Component Id="Dll212" Directory="INSTALLFOLDER" Guid="9F4465D7-F5E0-4E23-BD35-9747FF1B4190">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Resources.ResourceManager.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Resources.Writer.dll -->
+    <Component Id="Dll213" Directory="INSTALLFOLDER" Guid="88589BDA-7B08-4BE3-BE87-0A179B13CF07">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Resources.Writer.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.CompilerServices.Unsafe.dll -->
+    <Component Id="Dll214" Directory="INSTALLFOLDER" Guid="2DA6CCBF-3C84-4BF5-92C1-B9F6E92F1421">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.CompilerServices.Unsafe.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.CompilerServices.VisualC.dll -->
+    <Component Id="Dll215" Directory="INSTALLFOLDER" Guid="3C6A2EDB-7B8B-4161-9A99-0FEFB627C35F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.CompilerServices.VisualC.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.dll -->
+    <Component Id="Dll216" Directory="INSTALLFOLDER" Guid="6A94AF26-AD47-43BE-97DC-308D4995D98B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Extensions.dll -->
+    <Component Id="Dll217" Directory="INSTALLFOLDER" Guid="F0594F81-7718-4003-8733-277BE6FE04CF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Extensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Handles.dll -->
+    <Component Id="Dll218" Directory="INSTALLFOLDER" Guid="49A2DBA3-17D9-4F7B-AA9A-34610A3B6C13">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Handles.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.InteropServices.dll -->
+    <Component Id="Dll219" Directory="INSTALLFOLDER" Guid="D118CBB9-7C6E-4AB8-9DD3-4F68BD36B7D4">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.InteropServices.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.InteropServices.JavaScript.dll -->
+    <Component Id="Dll220" Directory="INSTALLFOLDER" Guid="2A0CC1B9-014E-4853-B23E-EB21847934CF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.InteropServices.JavaScript.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.InteropServices.RuntimeInformation.dll -->
+    <Component Id="Dll221" Directory="INSTALLFOLDER" Guid="AFF714DA-299A-481B-ACD0-04C25EBDFE49">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.InteropServices.RuntimeInformation.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Intrinsics.dll -->
+    <Component Id="Dll222" Directory="INSTALLFOLDER" Guid="C756F5BC-E4C7-436E-B90E-293F241C1B05">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Intrinsics.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Loader.dll -->
+    <Component Id="Dll223" Directory="INSTALLFOLDER" Guid="1799A0FA-3555-456E-BE2D-992EE57A3B7C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Loader.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Numerics.dll -->
+    <Component Id="Dll224" Directory="INSTALLFOLDER" Guid="36F644E0-E30F-48DB-8884-B527139F8049">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Numerics.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Serialization.dll -->
+    <Component Id="Dll225" Directory="INSTALLFOLDER" Guid="B66DA7BE-7ED9-4B52-B507-C2BF3A5C9618">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Serialization.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Serialization.Formatters.dll -->
+    <Component Id="Dll226" Directory="INSTALLFOLDER" Guid="E12D9F51-4CA0-40E7-A64A-BE57DF38980E">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Serialization.Formatters.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Serialization.Json.dll -->
+    <Component Id="Dll227" Directory="INSTALLFOLDER" Guid="31F19A92-979E-4FB1-9661-5B0F55836800">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Serialization.Json.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Serialization.Primitives.dll -->
+    <Component Id="Dll228" Directory="INSTALLFOLDER" Guid="D576BBDA-EB49-48CE-AAE0-99791E8DF278">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Serialization.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Runtime.Serialization.Xml.dll -->
+    <Component Id="Dll229" Directory="INSTALLFOLDER" Guid="3264BC3D-9B44-485E-BD2D-5073D2995570">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Runtime.Serialization.Xml.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.AccessControl.dll -->
+    <Component Id="Dll230" Directory="INSTALLFOLDER" Guid="8E9FDE63-5CB7-4453-968B-8D034946B48C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.AccessControl.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Claims.dll -->
+    <Component Id="Dll231" Directory="INSTALLFOLDER" Guid="DF476736-F960-4DAA-A155-9590F8262BF1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Claims.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.Algorithms.dll -->
+    <Component Id="Dll232" Directory="INSTALLFOLDER" Guid="E2209690-CF30-4AAC-85B7-8B7D09AECED6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.Algorithms.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.Cng.dll -->
+    <Component Id="Dll233" Directory="INSTALLFOLDER" Guid="90278CFC-A520-4F64-9D16-97D80BB172B3">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.Cng.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.Csp.dll -->
+    <Component Id="Dll234" Directory="INSTALLFOLDER" Guid="1C85C07A-2FD3-4680-B82B-B06EFBF6CF48">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.Csp.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.dll -->
+    <Component Id="Dll235" Directory="INSTALLFOLDER" Guid="970539D9-B4CC-4A81-8A1F-3C1AFF6AC5A9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.Encoding.dll -->
+    <Component Id="Dll236" Directory="INSTALLFOLDER" Guid="1A96F61A-8EC1-4F92-9F60-2292DBF7E727">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.Encoding.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.OpenSsl.dll -->
+    <Component Id="Dll237" Directory="INSTALLFOLDER" Guid="2C8AF646-B733-421A-AEB3-8478E6115001">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.OpenSsl.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.Primitives.dll -->
+    <Component Id="Dll238" Directory="INSTALLFOLDER" Guid="0376F3CE-31E3-4B95-A973-128B95290C99">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.Primitives.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Cryptography.X509Certificates.dll -->
+    <Component Id="Dll239" Directory="INSTALLFOLDER" Guid="5321E4F0-3B13-41F8-B3F7-D173EDB3CF24">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Cryptography.X509Certificates.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.dll -->
+    <Component Id="Dll240" Directory="INSTALLFOLDER" Guid="99071499-CB13-4986-8B16-BA8CE44D377A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Principal.dll -->
+    <Component Id="Dll241" Directory="INSTALLFOLDER" Guid="F97243C3-47CF-4B9B-B952-67E0215424B9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Principal.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.Principal.Windows.dll -->
+    <Component Id="Dll242" Directory="INSTALLFOLDER" Guid="20EA8F9C-18FA-4761-B2D9-4260403DEC36">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.Principal.Windows.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Security.SecureString.dll -->
+    <Component Id="Dll243" Directory="INSTALLFOLDER" Guid="A81D552A-943F-4244-BCC0-DF7565E4C021">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Security.SecureString.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ServiceModel.Web.dll -->
+    <Component Id="Dll244" Directory="INSTALLFOLDER" Guid="A931D595-4F22-4122-8498-7190925E55B3">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ServiceModel.Web.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ServiceProcess.dll -->
+    <Component Id="Dll245" Directory="INSTALLFOLDER" Guid="08E2DD28-5613-4EF5-BF42-DD6818509D18">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ServiceProcess.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Text.Encoding.CodePages.dll -->
+    <Component Id="Dll246" Directory="INSTALLFOLDER" Guid="CB3D618B-80D3-4D0E-A5EF-8794D27B3BE6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Text.Encoding.CodePages.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Text.Encoding.dll -->
+    <Component Id="Dll247" Directory="INSTALLFOLDER" Guid="D3F58A00-1848-44F5-9A9D-57A5EC6712F4">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Text.Encoding.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Text.Encoding.Extensions.dll -->
+    <Component Id="Dll248" Directory="INSTALLFOLDER" Guid="527644D4-F186-4CF3-96BC-08032EA4D097">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Text.Encoding.Extensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Text.Encodings.Web.dll -->
+    <Component Id="Dll249" Directory="INSTALLFOLDER" Guid="1572A2A9-8C30-432D-9D43-5D8659C6C14D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Text.Encodings.Web.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Text.Json.dll -->
+    <Component Id="Dll250" Directory="INSTALLFOLDER" Guid="96D283E9-C7D2-4B68-AE40-0EACFCDD8C21">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Text.Json.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Text.RegularExpressions.dll -->
+    <Component Id="Dll251" Directory="INSTALLFOLDER" Guid="896EBD8B-A30C-439D-9811-DDC82BD126CF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Text.RegularExpressions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Channels.dll -->
+    <Component Id="Dll252" Directory="INSTALLFOLDER" Guid="032BCFA9-534F-4DC8-889A-2BD5157286E2">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Channels.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.dll -->
+    <Component Id="Dll253" Directory="INSTALLFOLDER" Guid="B7B7C212-D6CA-4C76-AFFF-598F074CE090">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Overlapped.dll -->
+    <Component Id="Dll254" Directory="INSTALLFOLDER" Guid="D596248E-2C03-4509-B8E0-0BC355B9C69B">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Overlapped.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Tasks.Dataflow.dll -->
+    <Component Id="Dll255" Directory="INSTALLFOLDER" Guid="6B111E7D-ABBD-4F05-8D41-8131E2539423">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Tasks.Dataflow.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Tasks.dll -->
+    <Component Id="Dll256" Directory="INSTALLFOLDER" Guid="FC9D7C9B-934C-4AFF-AD07-D75FE12E4D3A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Tasks.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Tasks.Extensions.dll -->
+    <Component Id="Dll257" Directory="INSTALLFOLDER" Guid="F81CF006-8468-4625-BE60-8CFE7967056C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Tasks.Extensions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Tasks.Parallel.dll -->
+    <Component Id="Dll258" Directory="INSTALLFOLDER" Guid="06423F8B-9B7C-4D92-B308-091AB406F999">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Tasks.Parallel.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Thread.dll -->
+    <Component Id="Dll259" Directory="INSTALLFOLDER" Guid="63AEE549-88BC-4EF5-BBEC-57140EA2CC2A">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Thread.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.ThreadPool.dll -->
+    <Component Id="Dll260" Directory="INSTALLFOLDER" Guid="9D720956-C84F-4500-8046-73D52205ABA0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.ThreadPool.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Threading.Timer.dll -->
+    <Component Id="Dll261" Directory="INSTALLFOLDER" Guid="A8DF47E2-4322-4240-B513-193E20F37A5D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Threading.Timer.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Transactions.dll -->
+    <Component Id="Dll262" Directory="INSTALLFOLDER" Guid="D99CBD25-AE2C-4921-83BA-A98C11320C0C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Transactions.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Transactions.Local.dll -->
+    <Component Id="Dll263" Directory="INSTALLFOLDER" Guid="DDA8ADE2-60F3-4D12-8841-484D5826DF05">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Transactions.Local.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.ValueTuple.dll -->
+    <Component Id="Dll264" Directory="INSTALLFOLDER" Guid="17838486-DFD0-441C-AD83-6CF4E8C8B2DC">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.ValueTuple.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Web.dll -->
+    <Component Id="Dll265" Directory="INSTALLFOLDER" Guid="131BE56C-DFF9-4638-A8FA-6EA227181D5C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Web.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Web.HttpUtility.dll -->
+    <Component Id="Dll266" Directory="INSTALLFOLDER" Guid="657BE5F2-9F95-4E47-A335-53E89A20950C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Web.HttpUtility.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Windows.dll -->
+    <Component Id="Dll267" Directory="INSTALLFOLDER" Guid="F2C7FEFE-81C2-4A3A-93F0-67A1E21E26A8">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Windows.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.dll -->
+    <Component Id="Dll268" Directory="INSTALLFOLDER" Guid="B12371EC-6EEE-415E-8ECD-43BFB7C32FF6">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.Linq.dll -->
+    <Component Id="Dll269" Directory="INSTALLFOLDER" Guid="99F729E6-1B15-4D85-A8FB-BE01606F6BB1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.Linq.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.ReaderWriter.dll -->
+    <Component Id="Dll270" Directory="INSTALLFOLDER" Guid="7BB931C5-71BE-4A69-9C43-C1B0CFAB2BC0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.ReaderWriter.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.Serialization.dll -->
+    <Component Id="Dll271" Directory="INSTALLFOLDER" Guid="76A194AA-6924-4387-9299-B8262C618D4F">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.Serialization.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.XDocument.dll -->
+    <Component Id="Dll272" Directory="INSTALLFOLDER" Guid="D34D8EDC-E29B-4FCB-9FC7-CC71F8D907A1">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.XDocument.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.XmlDocument.dll -->
+    <Component Id="Dll273" Directory="INSTALLFOLDER" Guid="0633DBDB-28B2-4BF8-857D-5E234C42E25C">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.XmlDocument.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.XmlSerializer.dll -->
+    <Component Id="Dll274" Directory="INSTALLFOLDER" Guid="011D80AE-48D2-45A6-8F5E-A2C3EA397280">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.XmlSerializer.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.XPath.dll -->
+    <Component Id="Dll275" Directory="INSTALLFOLDER" Guid="DE96A4BA-AE5B-48A6-97D9-80A582622394">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.XPath.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para System.Xml.XPath.XDocument.dll -->
+    <Component Id="Dll276" Directory="INSTALLFOLDER" Guid="973DCC61-6D1A-42AF-9DEC-C88B5FBD433D">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\System.Xml.XPath.XDocument.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WebView2Loader.dll -->
+    <Component Id="Dll277" Directory="INSTALLFOLDER" Guid="468DF51D-6F0F-4EDE-87BF-2BD4202652DF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WebView2Loader.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WindowsAppRuntime.DeploymentExtensions.OneCore.dll -->
+    <Component Id="Dll278" Directory="INSTALLFOLDER" Guid="3AAC7A57-63E9-4B36-8046-3FAE45C98ACF">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WindowsAppRuntime.DeploymentExtensions.OneCore.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll -->
+    <Component Id="Dll279" Directory="INSTALLFOLDER" Guid="17DF7BCE-60AD-4E8D-A5B8-4BBB8E3D10A9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll -->
+    <Component Id="Dll280" Directory="INSTALLFOLDER" Guid="5FE51BEB-8C83-4958-B3BC-2929C5CAF2D3">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WindowsBase.dll -->
+    <Component Id="Dll281" Directory="INSTALLFOLDER" Guid="0734C623-0942-401F-9E97-C3553F36A653">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WindowsBase.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WinRT.Runtime.dll -->
+    <Component Id="Dll282" Directory="INSTALLFOLDER" Guid="FF4E03D0-ECD7-48DC-88E7-E99ABBE82751">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WinRT.Runtime.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para WinUIEdit.dll -->
+    <Component Id="Dll283" Directory="INSTALLFOLDER" Guid="17516BA6-0E50-437E-A95A-FDCFE2774E06">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\WinUIEdit.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para wuceffectsi.dll -->
+    <Component Id="Dll284" Directory="INSTALLFOLDER" Guid="81072D31-E2A7-4DFE-9D4F-984CA8C289A0">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\wuceffectsi.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para NPUDetect.dll -->
+    <Component Id="Dll285" Directory="INSTALLFOLDER" Guid="217A3136-F42E-4BB4-805B-E5C5352804EE">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\NpuDetect\NPUDetect.dll" KeyPath="yes" />
+    </Component>
+    <!-- Componente para appsettings.json -->
+    <Component Id="Config286" Directory="INSTALLFOLDER" Guid="2E7CA7AE-230E-4199-90AA-1273E9F992B9">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\appsettings.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para GestionTime.Desktop.deps.json -->
+    <Component Id="Config287" Directory="INSTALLFOLDER" Guid="DBF9B0D3-EABC-4DD3-B7D3-AAAEB1C7C282">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\GestionTime.Desktop.deps.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para GestionTime.Desktop.runtimeconfig.json -->
+    <Component Id="Config288" Directory="INSTALLFOLDER" Guid="11ECFE82-4C2A-4C8E-B159-4F451515FA62">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\GestionTime.Desktop.runtimeconfig.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para workloads.365.json -->
+    <Component Id="Config289" Directory="INSTALLFOLDER" Guid="1EF13EDF-1DA8-4A50-8581-6A0D8830C303">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\workloads.365.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para workloads.json -->
+    <Component Id="Config290" Directory="INSTALLFOLDER" Guid="277D25B0-BF27-484C-AF0A-9C73AD91F119">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\workloads.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para workloads.lnl.json -->
+    <Component Id="Config291" Directory="INSTALLFOLDER" Guid="D7728C9A-FE34-4615-B37F-C1A582D499E8">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\workloads.lnl.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para workloads.qnn.json -->
+    <Component Id="Config292" Directory="INSTALLFOLDER" Guid="786D0837-C719-4089-97E9-071E280D1C41">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\workloads.qnn.json" KeyPath="yes" />
+    </Component>
+    <!-- Componente para workloads.stx.json -->
+    <Component Id="Config293" Directory="INSTALLFOLDER" Guid="8B0D04EC-E9E3-4B49-AA05-69915F694BCA">
+      <File Source="C:\GestionTime\GestionTimeDesktop\bin\Release\Installer\App\workloads.stx.json" KeyPath="yes" />
+    </Component>
+    <!-- Feature principal con todos los componentes -->
+    <Feature Id="MainFeature" Title="GestionTime Desktop" Level="1">
+      <ComponentRef Id="MainExe" />      <ComponentRef Id="Dll2" />
+      <ComponentRef Id="Dll3" />
+      <ComponentRef Id="Dll4" />
+      <ComponentRef Id="Dll5" />
+      <ComponentRef Id="Dll6" />
+      <ComponentRef Id="Dll7" />
+      <ComponentRef Id="Dll8" />
+      <ComponentRef Id="Dll9" />
+      <ComponentRef Id="Dll10" />
+      <ComponentRef Id="Dll11" />
+      <ComponentRef Id="Dll12" />
+      <ComponentRef Id="Dll13" />
+      <ComponentRef Id="Dll14" />
+      <ComponentRef Id="Dll15" />
+      <ComponentRef Id="Dll16" />
+      <ComponentRef Id="Dll17" />
+      <ComponentRef Id="Dll18" />
+      <ComponentRef Id="Dll19" />
+      <ComponentRef Id="Dll20" />
+      <ComponentRef Id="Dll21" />
+      <ComponentRef Id="Dll22" />
+      <ComponentRef Id="Dll23" />
+      <ComponentRef Id="Dll24" />
+      <ComponentRef Id="Dll25" />
+      <ComponentRef Id="Dll26" />
+      <ComponentRef Id="Dll27" />
+      <ComponentRef Id="Dll28" />
+      <ComponentRef Id="Dll29" />
+      <ComponentRef Id="Dll30" />
+      <ComponentRef Id="Dll31" />
+      <ComponentRef Id="Dll32" />
+      <ComponentRef Id="Dll33" />
+      <ComponentRef Id="Dll34" />
+      <ComponentRef Id="Dll35" />
+      <ComponentRef Id="Dll36" />
+      <ComponentRef Id="Dll37" />
+      <ComponentRef Id="Dll38" />
+      <ComponentRef Id="Dll39" />
+      <ComponentRef Id="Dll40" />
+      <ComponentRef Id="Dll41" />
+      <ComponentRef Id="Dll42" />
+      <ComponentRef Id="Dll43" />
+      <ComponentRef Id="Dll44" />
+      <ComponentRef Id="Dll45" />
+      <ComponentRef Id="Dll46" />
+      <ComponentRef Id="Dll47" />
+      <ComponentRef Id="Dll48" />
+      <ComponentRef Id="Dll49" />
+      <ComponentRef Id="Dll50" />
+      <ComponentRef Id="Dll51" />
+      <ComponentRef Id="Dll52" />
+      <ComponentRef Id="Dll53" />
+      <ComponentRef Id="Dll54" />
+      <ComponentRef Id="Dll55" />
+      <ComponentRef Id="Dll56" />
+      <ComponentRef Id="Dll57" />
+      <ComponentRef Id="Dll58" />
+      <ComponentRef Id="Dll59" />
+      <ComponentRef Id="Dll60" />
+      <ComponentRef Id="Dll61" />
+      <ComponentRef Id="Dll62" />
+      <ComponentRef Id="Dll63" />
+      <ComponentRef Id="Dll64" />
+      <ComponentRef Id="Dll65" />
+      <ComponentRef Id="Dll66" />
+      <ComponentRef Id="Dll67" />
+      <ComponentRef Id="Dll68" />
+      <ComponentRef Id="Dll69" />
+      <ComponentRef Id="Dll70" />
+      <ComponentRef Id="Dll71" />
+      <ComponentRef Id="Dll72" />
+      <ComponentRef Id="Dll73" />
+      <ComponentRef Id="Dll74" />
+      <ComponentRef Id="Dll75" />
+      <ComponentRef Id="Dll76" />
+      <ComponentRef Id="Dll77" />
+      <ComponentRef Id="Dll78" />
+      <ComponentRef Id="Dll79" />
+      <ComponentRef Id="Dll80" />
+      <ComponentRef Id="Dll81" />
+      <ComponentRef Id="Dll82" />
+      <ComponentRef Id="Dll83" />
+      <ComponentRef Id="Dll84" />
+      <ComponentRef Id="Dll85" />
+      <ComponentRef Id="Dll86" />
+      <ComponentRef Id="Dll87" />
+      <ComponentRef Id="Dll88" />
+      <ComponentRef Id="Dll89" />
+      <ComponentRef Id="Dll90" />
+      <ComponentRef Id="Dll91" />
+      <ComponentRef Id="Dll92" />
+      <ComponentRef Id="Dll93" />
+      <ComponentRef Id="Dll94" />
+      <ComponentRef Id="Dll95" />
+      <ComponentRef Id="Dll96" />
+      <ComponentRef Id="Dll97" />
+      <ComponentRef Id="Dll98" />
+      <ComponentRef Id="Dll99" />
+      <ComponentRef Id="Dll100" />
+      <ComponentRef Id="Dll101" />
+      <ComponentRef Id="Dll102" />
+      <ComponentRef Id="Dll103" />
+      <ComponentRef Id="Dll104" />
+      <ComponentRef Id="Dll105" />
+      <ComponentRef Id="Dll106" />
+      <ComponentRef Id="Dll107" />
+      <ComponentRef Id="Dll108" />
+      <ComponentRef Id="Dll109" />
+      <ComponentRef Id="Dll110" />
+      <ComponentRef Id="Dll111" />
+      <ComponentRef Id="Dll112" />
+      <ComponentRef Id="Dll113" />
+      <ComponentRef Id="Dll114" />
+      <ComponentRef Id="Dll115" />
+      <ComponentRef Id="Dll116" />
+      <ComponentRef Id="Dll117" />
+      <ComponentRef Id="Dll118" />
+      <ComponentRef Id="Dll119" />
+      <ComponentRef Id="Dll120" />
+      <ComponentRef Id="Dll121" />
+      <ComponentRef Id="Dll122" />
+      <ComponentRef Id="Dll123" />
+      <ComponentRef Id="Dll124" />
+      <ComponentRef Id="Dll125" />
+      <ComponentRef Id="Dll126" />
+      <ComponentRef Id="Dll127" />
+      <ComponentRef Id="Dll128" />
+      <ComponentRef Id="Dll129" />
+      <ComponentRef Id="Dll130" />
+      <ComponentRef Id="Dll131" />
+      <ComponentRef Id="Dll132" />
+      <ComponentRef Id="Dll133" />
+      <ComponentRef Id="Dll134" />
+      <ComponentRef Id="Dll135" />
+      <ComponentRef Id="Dll136" />
+      <ComponentRef Id="Dll137" />
+      <ComponentRef Id="Dll138" />
+      <ComponentRef Id="Dll139" />
+      <ComponentRef Id="Dll140" />
+      <ComponentRef Id="Dll141" />
+      <ComponentRef Id="Dll142" />
+      <ComponentRef Id="Dll143" />
+      <ComponentRef Id="Dll144" />
+      <ComponentRef Id="Dll145" />
+      <ComponentRef Id="Dll146" />
+      <ComponentRef Id="Dll147" />
+      <ComponentRef Id="Dll148" />
+      <ComponentRef Id="Dll149" />
+      <ComponentRef Id="Dll150" />
+      <ComponentRef Id="Dll151" />
+      <ComponentRef Id="Dll152" />
+      <ComponentRef Id="Dll153" />
+      <ComponentRef Id="Dll154" />
+      <ComponentRef Id="Dll155" />
+      <ComponentRef Id="Dll156" />
+      <ComponentRef Id="Dll157" />
+      <ComponentRef Id="Dll158" />
+      <ComponentRef Id="Dll159" />
+      <ComponentRef Id="Dll160" />
+      <ComponentRef Id="Dll161" />
+      <ComponentRef Id="Dll162" />
+      <ComponentRef Id="Dll163" />
+      <ComponentRef Id="Dll164" />
+      <ComponentRef Id="Dll165" />
+      <ComponentRef Id="Dll166" />
+      <ComponentRef Id="Dll167" />
+      <ComponentRef Id="Dll168" />
+      <ComponentRef Id="Dll169" />
+      <ComponentRef Id="Dll170" />
+      <ComponentRef Id="Dll171" />
+      <ComponentRef Id="Dll172" />
+      <ComponentRef Id="Dll173" />
+      <ComponentRef Id="Dll174" />
+      <ComponentRef Id="Dll175" />
+      <ComponentRef Id="Dll176" />
+      <ComponentRef Id="Dll177" />
+      <ComponentRef Id="Dll178" />
+      <ComponentRef Id="Dll179" />
+      <ComponentRef Id="Dll180" />
+      <ComponentRef Id="Dll181" />
+      <ComponentRef Id="Dll182" />
+      <ComponentRef Id="Dll183" />
+      <ComponentRef Id="Dll184" />
+      <ComponentRef Id="Dll185" />
+      <ComponentRef Id="Dll186" />
+      <ComponentRef Id="Dll187" />
+      <ComponentRef Id="Dll188" />
+      <ComponentRef Id="Dll189" />
+      <ComponentRef Id="Dll190" />
+      <ComponentRef Id="Dll191" />
+      <ComponentRef Id="Dll192" />
+      <ComponentRef Id="Dll193" />
+      <ComponentRef Id="Dll194" />
+      <ComponentRef Id="Dll195" />
+      <ComponentRef Id="Dll196" />
+      <ComponentRef Id="Dll197" />
+      <ComponentRef Id="Dll198" />
+      <ComponentRef Id="Dll199" />
+      <ComponentRef Id="Dll200" />
+      <ComponentRef Id="Dll201" />
+      <ComponentRef Id="Dll202" />
+      <ComponentRef Id="Dll203" />
+      <ComponentRef Id="Dll204" />
+      <ComponentRef Id="Dll205" />
+      <ComponentRef Id="Dll206" />
+      <ComponentRef Id="Dll207" />
+      <ComponentRef Id="Dll208" />
+      <ComponentRef Id="Dll209" />
+      <ComponentRef Id="Dll210" />
+      <ComponentRef Id="Dll211" />
+      <ComponentRef Id="Dll212" />
+      <ComponentRef Id="Dll213" />
+      <ComponentRef Id="Dll214" />
+      <ComponentRef Id="Dll215" />
+      <ComponentRef Id="Dll216" />
+      <ComponentRef Id="Dll217" />
+      <ComponentRef Id="Dll218" />
+      <ComponentRef Id="Dll219" />
+      <ComponentRef Id="Dll220" />
+      <ComponentRef Id="Dll221" />
+      <ComponentRef Id="Dll222" />
+      <ComponentRef Id="Dll223" />
+      <ComponentRef Id="Dll224" />
+      <ComponentRef Id="Dll225" />
+      <ComponentRef Id="Dll226" />
+      <ComponentRef Id="Dll227" />
+      <ComponentRef Id="Dll228" />
+      <ComponentRef Id="Dll229" />
+      <ComponentRef Id="Dll230" />
+      <ComponentRef Id="Dll231" />
+      <ComponentRef Id="Dll232" />
+      <ComponentRef Id="Dll233" />
+      <ComponentRef Id="Dll234" />
+      <ComponentRef Id="Dll235" />
+      <ComponentRef Id="Dll236" />
+      <ComponentRef Id="Dll237" />
+      <ComponentRef Id="Dll238" />
+      <ComponentRef Id="Dll239" />
+      <ComponentRef Id="Dll240" />
+      <ComponentRef Id="Dll241" />
+      <ComponentRef Id="Dll242" />
+      <ComponentRef Id="Dll243" />
+      <ComponentRef Id="Dll244" />
+      <ComponentRef Id="Dll245" />
+      <ComponentRef Id="Dll246" />
+      <ComponentRef Id="Dll247" />
+      <ComponentRef Id="Dll248" />
+      <ComponentRef Id="Dll249" />
+      <ComponentRef Id="Dll250" />
+      <ComponentRef Id="Dll251" />
+      <ComponentRef Id="Dll252" />
+      <ComponentRef Id="Dll253" />
+      <ComponentRef Id="Dll254" />
+      <ComponentRef Id="Dll255" />
+      <ComponentRef Id="Dll256" />
+      <ComponentRef Id="Dll257" />
+      <ComponentRef Id="Dll258" />
+      <ComponentRef Id="Dll259" />
+      <ComponentRef Id="Dll260" />
+      <ComponentRef Id="Dll261" />
+      <ComponentRef Id="Dll262" />
+      <ComponentRef Id="Dll263" />
+      <ComponentRef Id="Dll264" />
+      <ComponentRef Id="Dll265" />
+      <ComponentRef Id="Dll266" />
+      <ComponentRef Id="Dll267" />
+      <ComponentRef Id="Dll268" />
+      <ComponentRef Id="Dll269" />
+      <ComponentRef Id="Dll270" />
+      <ComponentRef Id="Dll271" />
+      <ComponentRef Id="Dll272" />
+      <ComponentRef Id="Dll273" />
+      <ComponentRef Id="Dll274" />
+      <ComponentRef Id="Dll275" />
+      <ComponentRef Id="Dll276" />
+      <ComponentRef Id="Dll277" />
+      <ComponentRef Id="Dll278" />
+      <ComponentRef Id="Dll279" />
+      <ComponentRef Id="Dll280" />
+      <ComponentRef Id="Dll281" />
+      <ComponentRef Id="Dll282" />
+      <ComponentRef Id="Dll283" />
+      <ComponentRef Id="Dll284" />
+      <ComponentRef Id="Dll285" />
+      <ComponentRef Id="Config286" />
+      <ComponentRef Id="Config287" />
+      <ComponentRef Id="Config288" />
+      <ComponentRef Id="Config289" />
+      <ComponentRef Id="Config290" />
+      <ComponentRef Id="Config291" />
+      <ComponentRef Id="Config292" />
+      <ComponentRef Id="Config293" />
+    </Feature>
+
+  </Package>
+</Wix>

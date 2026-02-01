@@ -1,88 +1,230 @@
-﻿# Changelog
+# Changelog
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
-## [1.0.0] - 2025-01-27
+## [Unreleased]
 
-### 🎉 Release Inicial
-
-#### Añadido
-- 🔐 Sistema de autenticación con JWT y refresh tokens
-- 📝 CRUD completo de partes de trabajo (crear, editar, pausar, cerrar, duplicar)
-- 📊 Visualización gráfica de cobertura horaria diaria
-- 🎨 Soporte para temas Light/Dark con cambio en tiempo real
-- ⚡ Sistema de caché inteligente de 30 días
-- 🔄 Sincronización automática con backend
-- 📱 Interfaz moderna y adaptativa con WinUI 3
-- 🔍 Filtros avanzados por fecha y texto
-- 📈 Cálculo de cobertura horaria con detección de solapamientos
-- 🎯 Control de roles (Admin, Responsable, Operario)
-- 📝 Sistema de logging completo
-- 🚀 Instalador MSI profesional con WiX Toolset v4
-- 📦 Versión portable (ZIP) para instalación sin permisos admin
-- ⌨️ Atajos de teclado para operaciones frecuentes (F2-F9)
-- 🎨 Iconos personalizados en ejecutable y accesos directos
-
-#### Técnico
-- .NET 8.0 con C# 12
-- WinUI 3 (Windows App SDK 1.8)
-- Arquitectura MVVM con CommunityToolkit
-- HttpClient con políticas de retry
-- Serialización JSON con System.Text.Json
-- Logging con Microsoft.Extensions.Logging
-- Gestión de errores centralizada
-
-### 🔧 Configuración
-- Archivo `appsettings.json` para configuración externa
-- URL del backend: https://gestiontimeapi.onrender.com
-- Logs configurables con ruta personalizable
-
-### 📚 Documentación
-- README completo con instalación y uso
-- Guías técnicas en carpeta Helpers/
-- Scripts PowerShell para build automatizado
-- Documentación de troubleshooting
+### Planeado
+- Exportación a PDF de partes
+- Filtros avanzados (múltiples criterios simultáneos)
+- Gráficos de estadísticas
+- Modo offline con sincronización
 
 ---
 
-## [Unreleased] - Próximas Versiones
+## [1.5.0-beta] - 2026-01-XX (En desarrollo)
 
-### 🔜 Planificado para v1.1.0
-- [ ] Exportación de reportes a PDF
-- [ ] Configuración de perfiles de usuario
-- [ ] Notificaciones push desde backend
-- [ ] Sincronización en segundo plano
+### ✨ Nuevas Funcionalidades
 
-### 🔜 Planificado para v1.2.0
-- [ ] Modo offline con sincronización diferida
-- [ ] Estadísticas avanzadas por período
-- [ ] Exportación a Excel/CSV
-- [ ] Importación masiva de partes
+#### Sistema de Versión Centralizada
+- **Fuente única de verdad** en `Directory.Build.props`
+- **Clase `VersionInfo`** para acceso desde código
+- **Propagación automática** a todos los ensamblados
+- **Menos errores** al cambiar de versión
 
-### 🔜 Planificado para v2.0.0
-- [ ] Multi-tenant support
-- [ ] Sistema de roles granular
-- [ ] Plantillas de partes
-- [ ] Integración con calendario
+### 🔧 Mejoras
 
----
+#### Formato de Duración
+- **Formato HH:mm**: Ahora se muestra `01:45` en lugar de `105 min`
+- **Más legible**: Formato estándar de horas y minutos
 
-## Tipos de Cambios
-
-- `Añadido` - Para nuevas características
-- `Cambiado` - Para cambios en funcionalidad existente
-- `Deprecado` - Para características que serán removidas
-- `Eliminado` - Para características removidas
-- `Corregido` - Para corrección de bugs
-- `Seguridad` - Para actualizaciones de seguridad
+### 📋 Documentación
+- **SISTEMA_VERSION_CENTRALIZADA.md**: Guía completa del nuevo sistema
+- Proceso de release simplificado
+- Checklist para cambiar versión
 
 ---
 
-## Enlaces
+## [1.4.1-beta] - 2026-01-XX
 
-- **Repositorio**: https://github.com/jakkey1967-dotcom/GestionTime.Desktop
-- **Backend API**: https://github.com/jakkey1967-dotcom/GestionTimeApi
-- **Documentación**: Ver carpeta `Helpers/`
+### ✨ Nuevas Funcionalidades
+
+#### Importación Excel Mejorada
+- **Detección automática de duplicados** por fecha + hora + cliente + acción
+- **Actualización inteligente** de registros duplicados (UPDATE en lugar de INSERT)
+- **Soporte para columna INCIDENCIA** como alias de Ticket
+- **Validación opcional** de Grupo y Tipo (null si no existen, sin error)
+- **Estadísticas detalladas**: Nuevos vs Actualizados vs Fallidos
+- **Confirmación al usuario** si se detectan duplicados antes de importar
+- **Log mejorado**: Muestra columnas detectadas con longitud y alias
+
+#### Gestión de Estados Mejorada
+- **Reanudar parte pausado**: Ahora solicita confirmación de hora de cierre
+  - ✅ Cierra el parte pausado con hora confirmada
+  - ✅ Crea nuevo parte duplicado con hora inicio = hora de cierre
+  - ✅ Mantiene ticket, cliente, acción, grupo, tipo
+  - ✅ Abre editor para confirmar antes de guardar
+
+#### Sistema de Notas de Versión
+- **Botón "Ayuda"** en toolbar principal de DiarioPage
+- **Diálogo de notas de versión** con scroll y diseño profesional
+- **Link directo a GitHub Releases** para ver historial completo
+- **CHANGELOG.md** actualizado con formato estándar
+
+### 🔧 Mejoras Técnicas
+
+#### Importación
+- Normalización de texto (sin acentos, mayúsculas) para búsqueda robusta
+- Cache de partes existentes (últimos 60 días) para validación rápida
+- Búsqueda de clientes por nombre exacto o parcial
+- Trim automático de nombres de columnas para evitar errores por espacios
+
+#### Logging
+- Log detallado de valores leídos por fila (debug mode)
+- Registro de duplicados detectados con ID del parte existente
+- Estadísticas de importación con contadores separados
+
+### 📋 Documentación
+- **CHANGELOG.md**: Registro completo de cambios por versión
+- **Notas de versión**: Accesibles desde la app (Menú > Ayuda > Notas de Versión)
+- **Link a GitHub Releases**: Para ver cambios detallados online
+- **SISTEMA_NOTAS_VERSION.md**: Guía completa del sistema de notas
+
+---
+
+## [1.0.0] - 2026-01-12
+
+### ✨ Funcionalidades Principales
+
+#### Gestión de Partes
+- **Crear, editar y eliminar** partes de trabajo
+- **Control de tiempo** con hora inicio/fin y duración automática
+- **Estados dinámicos**: Abierto (🟢), Pausado (🟡), Cerrado (🔵), Enviado, Anulado
+- **Asociación completa**: Cliente, tienda, grupo, tipo, ticket, acción
+
+#### Importación Excel
+- **Importar masivamente** desde archivos .xls/.xlsx
+- **Validación automática** de datos antes de importar
+- **Preview en tiempo real** con detección de errores
+- **Corrección inline** de errores en el diálogo
+
+#### Búsqueda y Filtros
+- **Filtrado por fecha** (día específico o últimos 25 partes)
+- **Búsqueda instantánea** en múltiples campos
+- **Debounce inteligente** (350ms) para evitar sobrecarga
+- **Ordenamiento** por fecha y hora descendente
+
+#### Perfil de Usuario
+- **Banner dinámico** con foto y datos del usuario
+- **Edición de perfil** personal
+- **Gestión de información** de contacto
+
+#### Interfaz y Experiencia
+- **Temas**: Claro, Oscuro y Automático
+- **Notificaciones in-app** con 4 tipos (Success, Error, Warning, Info)
+- **Animaciones fluidas** en botones y transiciones
+- **Zebra rows** en listas para mejor legibilidad
+- **Responsive design** con virtualización
+
+#### Rendimiento
+- **Sistema de caché** (30 minutos de validez)
+- **Retry automático** (3 intentos con backoff exponencial)
+- **Timeout configurable** (120 segundos)
+- **Peticiones concurrentes** limitadas (6 simultáneas)
+
+#### Seguridad
+- **Autenticación JWT** con refresh token
+- **Almacenamiento seguro** de credenciales
+- **Sesión recordada** entre reinicios
+- **Limpieza automática** al cerrar sesión
+
+### 🔧 Mejoras Técnicas
+
+#### Arquitectura
+- Patrón **MVVM** para separación de responsabilidades
+- **ApiClient robusto** con caché, retry y throttling
+- **Servicios especializados** (Profile, Catalog, Theme, Notifications)
+- **DTOs tipados** para comunicación con API
+
+#### Logging
+- Sistema de **logs estructurados** con Serilog
+- **3 niveles de log**: General, Data, API
+- **Rotación automática** diaria
+- **Logs detallados** de errores con stack traces
+
+#### Configuración
+- **Archivo appsettings.json** para configuración
+- **Window-config.ini** para guardar tamaños de ventanas
+- **Configuración de timeout**, caché y retry
+- **Gestión de temas** persistente
+
+### 🐛 Correcciones
+
+#### Cierre de Partes
+- Corregido problema al cerrar partes ya cerrados
+- Mensaje claro cuando se intenta cerrar un parte cerrado
+- Sugerencia de usar "Duplicar" para re-trabajar partes cerrados
+
+#### Notificaciones
+- Corregido bug de notificaciones no visibles
+- Implementado NotificationHost en todas las páginas
+- Throttling para evitar spam de notificaciones
+
+#### Importación Excel
+- Validación de clientes existentes antes de importar
+- Corrección de formato de duración (HH:mm)
+- Mejor manejo de errores con mensajes claros
+
+#### Performance
+- Optimización de carga inicial (solo 25 partes)
+- Invalidación correcta de caché al modificar datos
+- Reducción de peticiones HTTP con caché inteligente
+
+### 📝 Documentación
+
+- **README.md** completo con instrucciones de instalación y uso
+- **CONTRIBUTING.md** con guías de contribución
+- **MANUAL_USUARIO** detallado
+- **Docs/** con diagnósticos y soluciones
+- **Issue templates** para bugs y features
+- **Pull request template** con checklist
+
+### 🏗️ Infraestructura
+
+- **Instalador MSI** (WiX Toolset)
+- **Paquete MSIX** para Microsoft Store
+- **GitHub Actions** preparado para CI/CD (futuro)
+- **.gitignore** optimizado para .NET y Visual Studio
+
+### ⌨️ Atajos de Teclado
+
+- `Ctrl+N` - Nuevo parte
+- `Ctrl+T` - Nueva llamada telefónica
+- `Ctrl+E` - Editar parte
+- `Ctrl+I` - Importar Excel
+- `Delete` - Borrar parte
+- `F5` - Refrescar lista
+- `Ctrl+Q` - Cerrar sesión
+
+### 🎨 Assets
+
+- Logo claro y oscuro adaptativos
+- Backgrounds sutiles para tema claro/oscuro
+- Iconos consistentes en toda la aplicación
+
+---
+
+## Convenciones de Versionado
+
+Este proyecto usa [Semantic Versioning](https://semver.org/):
+
+- **MAJOR** (1.x.x): Cambios incompatibles con versiones anteriores
+- **MINOR** (x.1.x): Nuevas funcionalidades compatibles
+- **PATCH** (x.x.1): Correcciones de bugs
+
+### Tipos de Cambios
+
+- `✨ Added` - Nuevas funcionalidades
+- `🔧 Changed` - Cambios en funcionalidad existente
+- `🗑️ Deprecated` - Funcionalidad que será removida
+- `❌ Removed` - Funcionalidad removida
+- `🐛 Fixed` - Correcciones de bugs
+- `🔒 Security` - Parches de seguridad
+
+---
+
+[Unreleased]: https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases/tag/v1.0.0

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!-- Variables de configuración -->
+  <?define ProductName = "GestionTime Desktop" ?>
+  <?define ProductVersion = "1.2.0.0" ?>
+  <?define Manufacturer = "GestionTime Solutions" ?>
+  <?define UpgradeCode = "12345678-1234-1234-1234-123456789012" ?>
+  
+  <!-- Ruta de los archivos publicados -->
+  <?define SourceDir = "..\publish\portable" ?>
+
+  <Package Name="$(var.ProductName)"
+           Version="$(var.ProductVersion)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="$(var.UpgradeCode)"
+           Language="1033"
+           Compressed="yes">
+
+    <!-- Información del paquete -->
+    <SummaryInformation Description="Aplicación de gestión de tiempo para partes de trabajo"
+                        Comments="© 2025 GestionTime Solutions"
+                        Manufacturer="$(var.Manufacturer)"
+                        Keywords="GestionTime, Partes, Trabajo" />
+
+    <!-- Media (instalador de un solo archivo) -->
+    <Media Id="1" Cabinet="GestionTime.cab" EmbedCab="yes" />
+
+    <!-- Icono del instalador -->
+    <Icon Id="AppIcon" SourceFile="$(var.SourceDir)\Assets\app_logo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    
+    <!-- URL de soporte -->
+    <Property Id="ARPHELPLINK" Value="https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop" />
+
+    <!-- Actualización automática (desinstalar versiones anteriores) -->
+    <MajorUpgrade DowngradeErrorMessage="Ya existe una versión más reciente de $(var.ProductName) instalada."
+                  AllowSameVersionUpgrades="yes" />
+
+    <!-- Interfaz de usuario moderna -->
+    <ui:WixUI Id="WixUI_Minimal" />
+
+    <!-- Estructura de directorios -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="CompanyFolder" Name="GestionTime Solutions">
+        <Directory Id="INSTALLFOLDER" Name="GestionTime Desktop">
+          <Directory Id="AssetsFolder" Name="Assets" />
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <!-- Menú Inicio -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="GestionTime Desktop" />
+    </StandardDirectory>
+
+    <!-- Escritorio -->
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- Feature principal: Aplicación completa -->
+    <Feature Id="Complete" Title="$(var.ProductName)" Level="1">
+      <ComponentGroupRef Id="MainApplication" />
+      <ComponentGroupRef Id="AssetsFiles" />
+      <ComponentGroupRef Id="Shortcuts" />
+    </Feature>
+
+  </Package>
+
+  <!-- ============================================ -->
+  <!-- COMPONENTES: Aplicación principal -->
+  <!-- ============================================ -->
+  <Fragment>
+    <ComponentGroup Id="MainApplication" Directory="INSTALLFOLDER">
+      
+      <!-- Ejecutable principal -->
+      <Component Id="MainExe" Guid="A0000001-0001-0001-0001-000000000001">
+        <File Id="GestionTimeExe" 
+              Source="$(var.SourceDir)\GestionTime.Desktop.exe" 
+              KeyPath="yes" />
+      </Component>
+
+      <!-- Archivo PRI (CRÍTICO para WinUI 3) -->
+      <Component Id="PriFile" Guid="A0000002-0002-0002-0002-000000000002">
+        <File Id="GestionTimePri" 
+              Source="$(var.SourceDir)\GestionTime.Desktop.pri" 
+              KeyPath="yes" />
+      </Component>
+
+      <!-- DLL principal -->
+      <Component Id="MainDll" Guid="A0000003-0003-0003-0003-000000000003">
+        <File Id="GestionTimeDll" 
+              Source="$(var.SourceDir)\GestionTime.Desktop.dll" 
+              KeyPath="yes" />
+      </Component>
+
+      <!-- Configuración -->
+      <Component Id="ConfigFiles" Guid="A0000004-0004-0004-0004-000000000004">
+        <File Id="AppSettingsJson" 
+              Source="$(var.SourceDir)\appsettings.json" 
+              KeyPath="yes" />
+        <File Id="RuntimeConfigJson" 
+              Source="$(var.SourceDir)\GestionTime.Desktop.runtimeconfig.json" />
+        <File Id="DepsJson" 
+              Source="$(var.SourceDir)\GestionTime.Desktop.deps.json" />
+      </Component>
+
+      <!-- WindowsAppRuntime DLLs (CRÍTICAS) -->
+      <Component Id="WinAppRuntimeCore" Guid="A0000005-0005-0005-0005-000000000005">
+        <File Id="WinAppRuntimeBootstrap" 
+              Source="$(var.SourceDir)\Microsoft.WindowsAppRuntime.Bootstrap.dll" 
+              KeyPath="yes" />
+        <File Id="WinAppRuntimeBootstrapNet" 
+              Source="$(var.SourceDir)\Microsoft.WindowsAppRuntime.Bootstrap.Net.dll" />
+      </Component>
+
+      <Component Id="WinUICore" Guid="A0000006-0006-0006-0006-000000000006">
+        <File Id="WinUIDll" 
+              Source="$(var.SourceDir)\Microsoft.WinUI.dll" 
+              KeyPath="yes" />
+        <File Id="WinRTRuntime" 
+              Source="$(var.SourceDir)\WinRT.Runtime.dll" />
+        <File Id="WindowsSDKNet" 
+              Source="$(var.SourceDir)\Microsoft.Windows.SDK.NET.dll" />
+      </Component>
+
+      <!-- Todas las demás DLLs (se agregarán manualmente las más importantes) -->
+      <Component Id="SystemTextJson" Guid="A0000007-0007-0007-0007-000000000007">
+        <File Id="SystemTextJsonDll" 
+              Source="$(var.SourceDir)\System.Text.Json.dll" 
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="NewtonsoftJson" Guid="A0000008-0008-0008-0008-000000000008">
+        <File Id="NewtonsoftJsonDll" 
+              Source="$(var.SourceDir)\Newtonsoft.Json.dll" 
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="CommunityToolkit" Guid="A0000009-0009-0009-0009-000000000009">
+        <File Id="CommunityToolkitMvvm" 
+              Source="$(var.SourceDir)\CommunityToolkit.Mvvm.dll" 
+              KeyPath="yes" />
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- ============================================ -->
+  <!-- COMPONENTES: Carpeta Assets -->
+  <!-- ============================================ -->
+  <Fragment>
+    <ComponentGroup Id="AssetsFiles" Directory="AssetsFolder">
+      
+      <Component Id="AssetsImages" Guid="A0000010-0010-0010-0010-000000000010">
+        <File Id="AppLogoIco" Source="$(var.SourceDir)\Assets\app_logo.ico" KeyPath="yes" />
+        <File Id="DiarioBgClaro" Source="$(var.SourceDir)\Assets\diario_bg_Claro.png" />
+        <File Id="DiarioBgOscuro" Source="$(var.SourceDir)\Assets\diario_bg_Oscuro.png" />
+        <File Id="LoginFondoClaro" Source="$(var.SourceDir)\Assets\login_fondoClaro.png" />
+        <File Id="LoginFondoOscuro" Source="$(var.SourceDir)\Assets\login_fondoOscuro.png" />
+        <File Id="LogoClaro" Source="$(var.SourceDir)\Assets\LogoClaro.png" />
+        <File Id="LogoOscuro" Source="$(var.SourceDir)\Assets\LogoOscuro.png" />
+      </Component>
+      
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- ============================================ -->
+  <!-- COMPONENTES: Accesos directos -->
+  <!-- ============================================ -->
+  <Fragment>
+    <ComponentGroup Id="Shortcuts">
+      
+      <!-- Acceso directo en el Menú Inicio -->
+      <Component Id="StartMenuShortcut" Guid="A0000011-0011-0011-0011-000000000011" Directory="ApplicationProgramsFolder">
+        <Shortcut Id="StartMenuGestionTime"
+                  Name="GestionTime Desktop"
+                  Description="Aplicación de gestión de tiempo"
+                  Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        
+        <Shortcut Id="UninstallProduct"
+                  Name="Desinstalar GestionTime Desktop"
+                  Description="Desinstalar la aplicación"
+                  Target="[SystemFolder]msiexec.exe"
+                  Arguments="/x [ProductCode]" />
+        
+        <RemoveFolder Id="CleanUpStartMenu" On="uninstall" />
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                       Name="StartMenuShortcut" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+
+      <!-- Acceso directo en el Escritorio -->
+      <Component Id="DesktopShortcut" Guid="A0000012-0012-0012-0012-000000000012" Directory="DesktopFolder">
+        <Shortcut Id="DesktopGestionTime"
+                  Name="GestionTime Desktop"
+                  Description="Aplicación de gestión de tiempo"
+                  Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                       Name="DesktopShortcut" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+
+</Wix>
+
+

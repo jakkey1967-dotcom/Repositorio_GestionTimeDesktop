@@ -275,4 +275,8 @@ public sealed class ParteDto
 
     [JsonPropertyName("updated_at")]
     public DateTime UpdatedAt { get; set; }
+
+    /// <summary>Array de tags/etiquetas asociadas al parte</summary>
+    [JsonPropertyName("tags")]
+    public List<string> Tags { get; set; } = new();
 }
