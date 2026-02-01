@@ -24,6 +24,8 @@ public static class WindowSizeManager
     private static readonly (int Width, int Height) DefaultForgotPasswordSize = (1100, 650);
     // 🆕 NUEVO: Tamaño por defecto para UserProfilePage
     private static readonly (int Width, int Height) DefaultUserProfileSize = (1300, 850);
+    // 🆕 NUEVO: SettingsWindow usa el MISMO tamaño que DiarioPage para cubrir la ventana principal
+    private static readonly (int Width, int Height) DefaultSettingsSize = (1600, 950);
     
     // ===== PROPIEDADES PÚBLICAS (CON CONFIG INI) =====
     
@@ -68,6 +70,13 @@ public static class WindowSizeManager
     /// </summary>
     public static (int Width, int Height) UserProfileSize => 
         WindowConfigService.Instance.GetSizeForPage("UserProfilePage") ?? DefaultUserProfileSize;
+    
+    /// <summary>
+    /// 🆕 NUEVO: Tamaño para SettingsWindow (carga desde INI o usa default)
+    /// </summary>
+    public static (int Width, int Height) SettingsSize => 
+        WindowConfigService.Instance.GetSizeForPage("SettingsWindow") ?? DefaultSettingsSize;
+    
     
     // ===== MÉTODOS PÚBLICOS =====
     
@@ -221,7 +230,8 @@ public static class WindowSizeManager
             "GraficaDiaPage" => GraficaSize,
             "RegisterPage" => RegisterSize,
             "ForgotPasswordPage" => ForgotPasswordSize,
-            "UserProfilePage" => UserProfileSize, // 🆕 NUEVO
+            "UserProfilePage" => UserProfileSize,
+            "SettingsWindow" => SettingsSize, // 🆕 MISMO tamaño que DiarioPage
             _ => DiarioSize // Por defecto, tamaño de Diario
         };
     }

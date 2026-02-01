@@ -985,6 +985,22 @@ public partial class App : Application
         }
     }
 
+    /// <summary>Abre la ventana de Configuración (Settings).</summary>
+    public static void ShowSettingsWindow()
+    {
+        try
+        {
+            Log?.LogInformation("⚙️ Abriendo ventana de Configuración");
+            
+            var settingsWindow = new Views.SettingsWindow();
+            settingsWindow.Activate();
+        }
+        catch (Exception ex)
+        {
+            Log?.LogError(ex, "❌ Error abriendo ventana de Configuración");
+        }
+    }
+
     /// <summary>
     /// Muestra un diálogo crítico de error al usuario
     /// </summary>

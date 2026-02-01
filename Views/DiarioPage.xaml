@@ -218,24 +218,31 @@ Language="es-ES">
                 <StackPanel Grid.Column="2" 
                             VerticalAlignment="Center"
                             Spacing="12">
-                    <!-- Botón de Tema -->
-                    <Button x:Name="BtnTheme" 
+                    <!-- Botón de Configuración -->
+                    <Button x:Name="BtnSettings" 
                             Background="Transparent" 
                             BorderBrush="White" 
                             BorderThickness="1" 
                             CornerRadius="8" 
                             Padding="10,8" 
-                            ToolTipService.ToolTip="Tema"
+                            ToolTipService.ToolTip="Configuración"
                             HorizontalAlignment="Center">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" Foreground="White"/>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" Foreground="White"/>
                         <Button.Flyout>
                             <MenuFlyout>
-                                <ToggleMenuFlyoutItem x:Name="ThemeSystemItem" Text="Tema del sistema" Click="OnThemeSystem"/>
-                                <ToggleMenuFlyoutItem x:Name="ThemeLightItem" Text="Tema claro" Click="OnThemeLight"/>
-                                <ToggleMenuFlyoutItem x:Name="ThemeDarkItem" Text="Tema oscuro" Click="OnThemeDark"/>
+                                <!-- Configuración (solo para USER) -->
+                                <MenuFlyoutItem x:Name="ConfigUserItem" 
+                                                Text="Configuración" 
+                                                Click="OnOpenUserSettings"
+                                                Visibility="{x:Bind IsUserRole, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
+                    
                     
                     <!-- Estado del Servicio -->
                     <Grid HorizontalAlignment="Center"

@@ -44,6 +44,17 @@ public sealed partial class DiarioPage : Page
     private List<ParteDto> _allFilteredPartes = new();
 
     public DiarioViewModel ViewModel { get; } = new();
+    
+    /// <summary>Indica si el usuario actual tiene rol USER.</summary>
+    public bool IsUserRole
+    {
+        get
+        {
+            // TODO: Obtener rol real desde backend cuando esté disponible
+            // Por ahora, siempre devolver true para mostrar "Configuración"
+            return true;
+        }
+    }
 
     public DiarioPage()
     {
@@ -1049,11 +1060,6 @@ public sealed partial class DiarioPage : Page
         // 🆕 NUEVO: Usar ThemeService para cambiar el tema globalmente
         ThemeService.Instance.SetTheme(theme);
 
-        // Actualizar checks del menú
-        ThemeSystemItem.IsChecked = theme == ElementTheme.Default;
-        ThemeLightItem.IsChecked = theme == ElementTheme.Light;
-        ThemeDarkItem.IsChecked = theme == ElementTheme.Dark;
-
         // Actualizar logo y fondo según el tema
         UpdateThemeAssets(theme);
 
@@ -1066,9 +1072,7 @@ public sealed partial class DiarioPage : Page
     private void UpdateThemeCheckmarks()
     {
         var currentTheme = ThemeService.Instance.CurrentTheme;
-        ThemeSystemItem.IsChecked = currentTheme == ElementTheme.Default;
-        ThemeLightItem.IsChecked = currentTheme == ElementTheme.Light;
-        ThemeDarkItem.IsChecked = currentTheme == ElementTheme.Dark;
+        // Nota: Los items de tema fueron eliminados del menú
     }
 
     private void UpdateThemeAssets(ElementTheme theme)
@@ -2716,4 +2720,19 @@ public sealed partial class DiarioPage : Page
         
         return stack;
     }
+    
+    /// <summary>Abre la ventana de Settings y navega a Perfil y cuenta.</summary>
+    private void OnOpenUserSettings(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            App.Log?.LogInformation("⚙️ Usuario abriendo Configuración (Perfil y cuenta)");
+            App.ShowSettingsWindow();
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error abriendo Configuración");
+        }
+    }
 }
+
