@@ -715,11 +715,10 @@ public sealed partial class ParteItemEdit : Page
         if (BtnAccionGrabar != null)
             BtnAccionGrabar.IsEnabled = true;
         
-        // 🆕 NOTA CLIENTE: Deshabilitar botón de nota (no hay cliente seleccionado)
+        // 🆕 NOTA CLIENTE: Ocultar icono de nota (no hay cliente seleccionado)
         _clienteIdActual = 0;
         _clienteNotaActual = null;
-        BtnClienteNota.IsEnabled = false;
-        UpdateNotaTooltip();
+        BtnClienteNota.Visibility = Visibility.Collapsed;
         
         App.Log?.LogDebug("✅ Botón Guardar habilitado para nuevo parte");
 
@@ -1953,7 +1952,7 @@ public sealed partial class ParteItemEdit : Page
             {
                 _clienteIdActual = 0;
                 _clienteNotaActual = null;
-                BtnClienteNota.IsEnabled = false;
+                BtnClienteNota.Visibility = Visibility.Collapsed;
                 UpdateNotaTooltip();
                 return;
             }
@@ -1967,7 +1966,7 @@ public sealed partial class ParteItemEdit : Page
                 App.Log?.LogDebug("⚠️ Cliente '{nombre}' no encontrado en cache", clienteNombre);
                 _clienteIdActual = 0;
                 _clienteNotaActual = null;
-                BtnClienteNota.IsEnabled = false;
+                BtnClienteNota.Visibility = Visibility.Collapsed;
                 UpdateNotaTooltip();
                 return;
             }
@@ -1978,7 +1977,6 @@ public sealed partial class ParteItemEdit : Page
             if (clienteId == _clienteIdActual && _clienteNotaActual != null)
             {
                 App.Log?.LogDebug("💾 Usando nota en cache para cliente ID {id}", clienteId);
-                BtnClienteNota.IsEnabled = true;
                 UpdateNotaTooltip();
                 return;
             }
@@ -2002,7 +2000,6 @@ public sealed partial class ParteItemEdit : Page
             {
                 _clienteIdActual = clienteId;
                 _clienteNotaActual = clienteDto.Nota;
-                BtnClienteNota.IsEnabled = true;
                 
                 var notaLength = _clienteNotaActual?.Length ?? 0;
                 App.Log?.LogInformation("✅ LoadClienteNota end - ClienteId: {id}, NotaLength: {length}, Duration: {ms}ms",
@@ -2021,7 +2018,7 @@ public sealed partial class ParteItemEdit : Page
                 ex is ApiException apiEx ? apiEx.StatusCode.ToString() : "N/A");
             
             _clienteNotaActual = null;
-            BtnClienteNota.IsEnabled = false;
+            BtnClienteNota.Visibility = Visibility.Collapsed;
             UpdateNotaTooltip();
         }
     }
@@ -2031,16 +2028,19 @@ public sealed partial class ParteItemEdit : Page
     {
         if (string.IsNullOrWhiteSpace(_clienteNotaActual))
         {
-            ClienteNotaTooltip.Content = "Sin nota";
+            BtnClienteNota.Visibility = Visibility.Collapsed;
+            TxtNotaTooltip.Text = "Sin nota";
         }
         else
         {
-            // Mostrar primeras 100 caracteres con "..." si es más largo
-            var preview = _clienteNotaActual.Length <= 100 
-                ? _clienteNotaActual 
-                : _clienteNotaActual.Substring(0, 100) + "...";
+            BtnClienteNota.Visibility = Visibility.Visible;
             
-            ClienteNotaTooltip.Content = preview;
+            // Mostrar primeras 200 caracteres con "..." si es más largo
+            var preview = _clienteNotaActual.Length <= 200 
+                ? _clienteNotaActual 
+                : _clienteNotaActual.Substring(0, 200) + "...";
+            
+            TxtNotaTooltip.Text = preview;
         }
     }
     

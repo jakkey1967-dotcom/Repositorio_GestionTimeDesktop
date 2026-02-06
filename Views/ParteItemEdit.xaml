@@ -384,45 +384,49 @@
                             
                             <!-- CAMPO: Cliente (Columna 1, Row 0) -->
                             <StackPanel x:Name="ClienteStack" Grid.Column="1" Grid.Row="0" Spacing="4">
-                                <!-- Header con label + icono de nota -->
-                                <Grid>
+                                <TextBlock Text="Cliente" 
+                                           Style="{StaticResource FieldLabel}"/>
+                                
+                                <!-- Grid con AutoSuggestBox + Icono de nota -->
+                                <Grid ColumnSpacing="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     
-                                    <TextBlock Grid.Column="0" 
-                                               Text="Cliente" 
-                                               Style="{StaticResource FieldLabel}"/>
+                                    <AutoSuggestBox x:Name="TxtCliente"
+                                                  Grid.Column="0"
+                                                  Style="{StaticResource ModernAutoSuggestBox}"
+                                                  PlaceholderText="Buscar o crear cliente..."
+                                                  TextChanged="OnClienteTextChanged"
+                                                  SuggestionChosen="OnClienteSuggestionChosen"
+                                                  QuerySubmitted="OnClienteQuerySubmitted"
+                                                  TabIndex="1"/>
                                     
-                                    <!-- Icono de nota (📝) -->
+                                    <!-- Icono de nota (📝) solo visible si hay nota -->
                                     <Button x:Name="BtnClienteNota"
                                             Grid.Column="1"
                                             Background="Transparent"
                                             BorderThickness="0"
-                                            Padding="6,2"
-                                            Height="24"
+                                            Padding="6"
+                                            Width="32"
+                                            Height="32"
                                             VerticalAlignment="Center"
                                             Click="OnClienteNotaClick"
-                                            IsEnabled="False">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <FontIcon Glyph="&#xE70B;" 
-                                                      FontSize="14" 
-                                                      Foreground="{StaticResource AccentBrush}"/>
-                                        </StackPanel>
+                                            Visibility="Collapsed">
+                                        <TextBlock x:Name="TxtNotaIcono"
+                                                   Text="📝"
+                                                   FontSize="16"/>
                                         <ToolTipService.ToolTip>
-                                            <ToolTip x:Name="ClienteNotaTooltip" Content="Sin nota"/>
+                                            <ToolTip x:Name="ClienteNotaTooltip">
+                                                <TextBlock x:Name="TxtNotaTooltip" 
+                                                           Text="Sin nota"
+                                                           MaxWidth="300"
+                                                           TextWrapping="Wrap"/>
+                                            </ToolTip>
                                         </ToolTipService.ToolTip>
                                     </Button>
                                 </Grid>
-                                
-                                <AutoSuggestBox x:Name="TxtCliente"
-                                              Style="{StaticResource ModernAutoSuggestBox}"
-                                              PlaceholderText="Buscar o crear cliente..."
-                                              TextChanged="OnClienteTextChanged"
-                                              SuggestionChosen="OnClienteSuggestionChosen"
-                                              QuerySubmitted="OnClienteQuerySubmitted"
-                                              TabIndex="1"/>
                             </StackPanel>
                             
                             <!-- CAMPO: Tienda (Columna 2, Row 0) -->
