@@ -68,6 +68,10 @@ public sealed partial class ParteItemEdit : Page
     private CancellationTokenSource? _tagSearchCts;
     private const int MAX_TAGS = 5;
     
+    // 🆕 UX: Control manual de selección de tags (sin auto-commit)
+    private string _tagInputBeforeNavigation = string.Empty; // Texto original antes de navegar con flechas
+    private bool _isNavigatingTagSuggestions = false; // Flag para detectar navegación con flechas
+    
     // Sistema de tracking de foco
     private string _lastFocusedControl = "";
     private int _focusChangeCounter;
@@ -124,12 +128,12 @@ public sealed partial class ParteItemEdit : Page
             await SearchTagSuggestionsAsync();
         };
         
-        // 🆕 TAGS: Configurar ItemsControl y AutoSuggestBox
+        // 🆕 TAGS: Configurar ItemsControl
         TagsItemsControl.ItemsSource = _currentTags;
-        TxtTagInput.ItemsSource = _tagSuggestions; // 🔧 FIX: Configurar binding de sugerencias
-        App.Log?.LogDebug("✅ Tags ItemsControl y AutoSuggestBox configurados");
         
-        // Configurar ComboBox de Grupo (solo lectura)
+        // ⚠️ IMPORTANTE: NO asignar ItemsSource aquí (constructor)
+        // Se asignará en OnPageLoaded después de que el control esté en el árbol visual
+        App.Log?.LogDebug("✅ Tags ItemsControl configurado (AutoSuggestBox se configurará en Loaded)");
         CmbGrupo.ItemsSource = _grupoItems;
         App.Log?.LogDebug("✅ CmbGrupo.ItemsSource configurado con ObservableCollection vacía");
         
@@ -169,6 +173,22 @@ public sealed partial class ParteItemEdit : Page
         try
         {
             App.Log?.LogInformation("ParteItemEdit Loaded ✅");
+            
+            // ✅ FIX TAGS: Configurar ItemsSource DESPUÉS de que el control esté en el árbol visual
+            if (TxtTagInput != null && _tagSuggestions != null)
+            {
+                TxtTagInput.ItemsSource = _tagSuggestions;
+                
+                // 🆕 UX: Configurar handler de teclado para navegación manual
+                // Usar KeyDown en lugar de PreviewKeyDown (WinUI 3 AutoSuggestBox no soporta PreviewKeyDown correctamente)
+                TxtTagInput.KeyDown += OnTagInputKeyDown;
+                
+                App.Log?.LogInformation("✅ AutoSuggestBox de tags configurado con ItemsSource ({count} items) + KeyDown handler", _tagSuggestions.Count);
+            }
+            else
+            {
+                App.Log?.LogWarning("⚠️ TxtTagInput o _tagSuggestions es null en OnPageLoaded");
+            }
             
             // Actualizar logo según tema
             UpdateBannerLogo();
@@ -863,23 +883,9 @@ public sealed partial class ParteItemEdit : Page
     }
 
     /// <summary>
-    /// Response DTO para /api/v1/freshdesk/tags/suggest
-    /// </summary>
-    private sealed class TagSuggestResponse
-    {
-        [JsonPropertyName("success")]
-        public bool Success { get; set; }
-
-        [JsonPropertyName("count")]
-        public int Count { get; set; }
-
-        [JsonPropertyName("tags")]
-        public List<string> Tags { get; set; } = new();
-    }
-
-    /// <summary>
     /// Request DTO para crear o actualizar un parte en la API.
     /// </summary>
+
     /// <remarks>POST /api/v1/partes (creación) o PUT /api/v1/partes/{id} (actualización).</remarks>
     private sealed class ParteRequest
     {
@@ -2102,11 +2108,17 @@ public sealed partial class ParteItemEdit : Page
         {
             var query = TxtTagInput.Text?.Trim() ?? string.Empty;
             
+            App.Log?.LogDebug("═══════════════════════════════════════════════════════════════");
+            App.Log?.LogDebug("🔍 BÚSQUEDA DE TAGS - INICIO");
+            App.Log?.LogDebug("   • Query: '{query}'", query);
+            App.Log?.LogDebug("   • Longitud: {len} caracteres", query.Length);
+            
             // 🔧 MODIFICADO: Buscar desde 1 carácter (antes requería 2)
             if (query.Length < 1)
             {
                 _tagSuggestions.Clear();
-                App.Log?.LogDebug("⚠️ Query vacía para tags");
+                App.Log?.LogDebug("⚠️ Query vacía - Limpiando sugerencias");
+                App.Log?.LogDebug("═══════════════════════════════════════════════════════════════");
                 return;
             }
             
@@ -2116,32 +2128,63 @@ public sealed partial class ParteItemEdit : Page
             _tagSearchCts = new CancellationTokenSource();
             var ct = _tagSearchCts.Token;
             
-            App.Log?.LogDebug("🔍 Buscando tags: '{query}'...", query);
+            App.Log?.LogDebug("🔄 Preparando petición HTTP...");
             
-            // Llamar endpoint de sugerencias
-            var endpoint = $"/api/v1/freshdesk/tags/suggest?term={Uri.EscapeDataString(query)}&limit=10";
+            // ✅ FIX: Usar parámetro 'source' para filtrado en backend (no en cliente)
+            // Backend filtra en BD por eficiencia, límite de 20 es suficiente
+            var endpoint = $"/api/v1/tags?source={Uri.EscapeDataString(query)}&limit=20";
+            App.Log?.LogDebug("📡 Endpoint: {endpoint}", endpoint);
             
-            // 🔧 FIX: El endpoint devuelve { success, count, tags: [] }
-            // NO es un List<string> directo, es un objeto con propiedad "tags"
-            var response = await App.Api.GetAsync<TagSuggestResponse>(endpoint, ct);
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             
-            if (response?.Tags != null && response.Tags.Any())
+            // ✅ El endpoint /api/v1/tags devuelve List<string> directamente
+            var allTags = await App.Api.GetAsync<List<string>>(endpoint, ct);
+            
+            // ✅ Backend ya filtró, solo ordenar alfabéticamente (sin .Where)
+            var filteredTags = allTags?
+                .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
+                .Take(10)
+                .ToList();
+            
+            sw.Stop();
+
+            App.Log?.LogDebug("⏱️ Petición completada en {ms}ms", sw.ElapsedMilliseconds);
+            
+            if (filteredTags == null)
             {
                 _tagSuggestions.Clear();
+                App.Log?.LogWarning("⚠️ Response es NULL");
+                App.Log?.LogDebug("═══════════════════════════════════════════════════════════════");
+                return;
+            }
+            
+            App.Log?.LogDebug("📦 Response recibida:");
+            App.Log?.LogDebug("   • Tags.Count: {tagCount}", filteredTags.Count);
+            
+            if (filteredTags.Any())
+            {
+                App.Log?.LogDebug("🧹 Limpiando sugerencias anteriores...");
+                _tagSuggestions.Clear();
                 
-                // 🔧 FIX: Agregar uno por uno para actualizar ObservableCollection
-                foreach (var tag in response.Tags)
+                App.Log?.LogDebug("✅ Agregando {count} sugerencias a la colección:", filteredTags.Count);
+                
+                // Agregar uno por uno para actualizar ObservableCollection
+                foreach (var tag in filteredTags)
                 {
                     _tagSuggestions.Add(tag);
+                    App.Log?.LogDebug("   + '{tag}'", tag);
                 }
                 
-                App.Log?.LogDebug("✅ {count} sugerencias de tags encontradas y agregadas", response.Tags.Count);
+                App.Log?.LogDebug("✅ {count} sugerencias agregadas correctamente", _tagSuggestions.Count);
+                App.Log?.LogDebug("📊 ItemsSource actual del AutoSuggestBox: {count} items", TxtTagInput.ItemsSource is System.Collections.ICollection col ? col.Count : -1);
             }
             else
             {
                 _tagSuggestions.Clear();
                 App.Log?.LogDebug("⚠️ No se encontraron sugerencias para '{query}'", query);
             }
+            
+            App.Log?.LogDebug("═══════════════════════════════════════════════════════════════");
         }
         catch (OperationCanceledException)
         {
@@ -2156,17 +2199,46 @@ public sealed partial class ParteItemEdit : Page
     
     // ===================== EVENT HANDLERS: TAGS =====================
     
+    /// <summary>Handler de teclado para navegación en sugerencias (solo Escape para cancelar).</summary>
+    private void OnTagInputKeyDown(object? sender, KeyRoutedEventArgs e)
+    {
+        try
+        {
+            var key = e.Key;
+            
+            // ✅ ESCAPE: Cerrar popup sin cambios
+            if (key == Windows.System.VirtualKey.Escape)
+            {
+                if (TxtTagInput.IsSuggestionListOpen)
+                {
+                    TxtTagInput.IsSuggestionListOpen = false;
+                    TxtTagInput.Text = string.Empty;
+                    
+                    App.Log?.LogDebug("⌨️ ESCAPE - Popup cerrado, texto limpiado");
+                    e.Handled = true;
+                }
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error en OnTagInputKeyDown");
+        }
+    }
+    
     /// <summary>Evento cuando el texto del AutoSuggestBox de tags cambia.</summary>
     private void OnTagTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
         try
         {
-            // Solo procesar si es cambio por usuario
-            if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
-                return;
-            
-            _tagSearchTimer?.Stop();
-            _tagSearchTimer?.Start();
+            // Solo procesar cambios del usuario (escribiendo)
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                _tagSearchTimer?.Stop();
+                _tagSearchTimer?.Start();
+                
+                App.Log?.LogDebug("📝 Tag TextChanged - Iniciando búsqueda para: '{text}'", sender.Text ?? "(vacío)");
+            }
         }
         catch (Exception ex)
         {
@@ -2175,14 +2247,19 @@ public sealed partial class ParteItemEdit : Page
     }
     
     /// <summary>Evento cuando se selecciona una sugerencia de tag.</summary>
+    /// <remarks>Este evento se dispara ANTES de QuerySubmitted, usamos solo para actualizar el texto, NO para agregar.</remarks>
     private void OnTagSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
         try
         {
             var selectedTag = args.SelectedItem as string;
+            
+            // ✅ SOLUCIÓN DEFINITIVA: NO agregar aquí, solo actualizar el texto
+            // El tag se agregará en QuerySubmitted (que se dispara DESPUÉS)
             if (!string.IsNullOrWhiteSpace(selectedTag))
             {
-                AddTag(selectedTag);
+                sender.Text = selectedTag;
+                App.Log?.LogDebug("🖱️ SuggestionChosen - Texto actualizado a: '{tag}' (agregado en QuerySubmitted)", selectedTag);
             }
         }
         catch (Exception ex)
@@ -2191,27 +2268,55 @@ public sealed partial class ParteItemEdit : Page
         }
     }
     
-    /// <summary>Evento cuando se presiona Enter o se selecciona una sugerencia.</summary>
+    /// <summary>Evento cuando se presiona Enter o se confirma una sugerencia con click.</summary>
+    /// <remarks>Este es el ÚNICO lugar donde se agregan tags (confirmación explícita del usuario).</remarks>
     private void OnTagQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         try
         {
-            string tagText;
+            string tagToAdd = string.Empty;
             
+            // Caso 1: Usuario seleccionó de la lista (click o Enter en item resaltado)
             if (args.ChosenSuggestion != null)
             {
-                // Se seleccionó una sugerencia
-                tagText = args.ChosenSuggestion.ToString() ?? string.Empty;
+                tagToAdd = args.ChosenSuggestion.ToString() ?? string.Empty;
+                App.Log?.LogDebug("📥 QuerySubmitted - Tag de lista: '{tag}'", tagToAdd);
+            }
+            // Caso 2: Usuario escribió y presionó Enter (sin seleccionar de lista)
+            else if (!string.IsNullOrWhiteSpace(args.QueryText))
+            {
+                var query = args.QueryText.Trim();
+                
+                // Buscar coincidencia exacta en sugerencias
+                var matchingTag = _tagSuggestions.FirstOrDefault(t => 
+                    t.Equals(query, StringComparison.OrdinalIgnoreCase));
+                
+                if (matchingTag != null)
+                {
+                    tagToAdd = matchingTag;
+                    App.Log?.LogDebug("📥 QuerySubmitted - Tag encontrado por texto: '{tag}'", tagToAdd);
+                }
+                else
+                {
+                    // Permitir texto libre si no hay coincidencia
+                    tagToAdd = query;
+                    App.Log?.LogDebug("📥 QuerySubmitted - Tag texto libre: '{tag}'", tagToAdd);
+                }
+            }
+            
+            // Agregar el tag si no está vacío
+            if (!string.IsNullOrWhiteSpace(tagToAdd))
+            {
+                AddTag(tagToAdd);
+                sender.Text = string.Empty;
+                sender.IsSuggestionListOpen = false;
+                
+                App.Log?.LogInformation("✅ Tag agregado: '{tag}'", tagToAdd);
             }
             else
             {
-                // Se presionó Enter sin seleccionar (free-text)
-                tagText = args.QueryText;
-            }
-            
-            if (!string.IsNullOrWhiteSpace(tagText))
-            {
-                AddTag(tagText);
+                App.Log?.LogDebug("⚠️ QuerySubmitted sin tag válido - ignorado");
+                sender.Text = string.Empty;
             }
         }
         catch (Exception ex)
