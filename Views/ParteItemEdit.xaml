@@ -384,7 +384,38 @@
                             
                             <!-- CAMPO: Cliente (Columna 1, Row 0) -->
                             <StackPanel x:Name="ClienteStack" Grid.Column="1" Grid.Row="0" Spacing="4">
-                                <TextBlock Text="Cliente" Style="{StaticResource FieldLabel}"/>
+                                <!-- Header con label + icono de nota -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Cliente" 
+                                               Style="{StaticResource FieldLabel}"/>
+                                    
+                                    <!-- Icono de nota (📝) -->
+                                    <Button x:Name="BtnClienteNota"
+                                            Grid.Column="1"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="6,2"
+                                            Height="24"
+                                            VerticalAlignment="Center"
+                                            Click="OnClienteNotaClick"
+                                            IsEnabled="False">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <FontIcon Glyph="&#xE70B;" 
+                                                      FontSize="14" 
+                                                      Foreground="{StaticResource AccentBrush}"/>
+                                        </StackPanel>
+                                        <ToolTipService.ToolTip>
+                                            <ToolTip x:Name="ClienteNotaTooltip" Content="Sin nota"/>
+                                        </ToolTipService.ToolTip>
+                                    </Button>
+                                </Grid>
+                                
                                 <AutoSuggestBox x:Name="TxtCliente"
                                               Style="{StaticResource ModernAutoSuggestBox}"
                                               PlaceholderText="Buscar o crear cliente..."
@@ -760,6 +791,30 @@
             <TextBox x:Name="TxtEstado" IsTabStop="False"/>
             <Button x:Name="BtnAccionGrabar" IsTabStop="False"/>
         </StackPanel>
+        
+        <!-- ===================== CONTENTDIALOG: EDITAR NOTA CLIENTE ===================== -->
+        <ContentDialog x:Name="ClienteNotaDialog"
+                       Title="Nota del Cliente"
+                       PrimaryButtonText="Guardar"
+                       SecondaryButtonText="Cancelar"
+                       DefaultButton="Primary"
+                       PrimaryButtonClick="OnNotaDialogSave"
+                       SecondaryButtonClick="OnNotaDialogCancel">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Edita la nota del cliente seleccionado:"
+                           FontSize="14"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                
+                <TextBox x:Name="TxtNotaEditor"
+                         PlaceholderText="Escribe aquí la nota del cliente..."
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         Height="200"
+                         VerticalContentAlignment="Top"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         Style="{StaticResource ModernTextBox}"/>
+            </StackPanel>
+        </ContentDialog>
     </Grid>
 </Page>
 

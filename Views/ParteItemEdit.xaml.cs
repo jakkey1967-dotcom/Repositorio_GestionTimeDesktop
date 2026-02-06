@@ -12,7 +12,9 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
 using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.Models.Dtos;
+using GestionTime.Desktop.Models.Dtos.Catalog;
 using GestionTime.Desktop.Services;
+using GestionTime.Desktop.Services.Catalog;
 
 namespace GestionTime.Desktop.Views;
 
@@ -31,6 +33,11 @@ public sealed partial class ParteItemEdit : Page
     
     // 🆕 NUEVO: Gestor centralizado de catálogos
     private readonly CatalogManager _catalogManager = new();
+    
+    // 🆕 NOTA CLIENTE: Cache de nota del cliente actual
+    private string? _clienteNotaActual;
+    private int _clienteIdActual;
+    private CancellationTokenSource? _clienteNotaCts;
     
     // 🆕 NUEVO: Gestores de eventos para ComboBox
     private ComboBoxEventManager? _grupoEventManager;
@@ -708,6 +715,12 @@ public sealed partial class ParteItemEdit : Page
         if (BtnAccionGrabar != null)
             BtnAccionGrabar.IsEnabled = true;
         
+        // 🆕 NOTA CLIENTE: Deshabilitar botón de nota (no hay cliente seleccionado)
+        _clienteIdActual = 0;
+        _clienteNotaActual = null;
+        BtnClienteNota.IsEnabled = false;
+        UpdateNotaTooltip();
+        
         App.Log?.LogDebug("✅ Botón Guardar habilitado para nuevo parte");
 
         // Asegurar renderizado inicial y colocar foco
@@ -827,6 +840,9 @@ public sealed partial class ParteItemEdit : Page
         
         // 🆕 TAGS: Cargar tags del parte
         LoadParteTags(parte);
+        
+        // 🆕 NOTA CLIENTE: Cargar nota del cliente seleccionado
+        _ = LoadClienteNotaAsync();
         
         App.Log?.LogInformation("✅ LoadParte completado - Cliente: {cliente}, Grupo: {grupo} ({grupoIdx}), Tipo: {tipo} ({tipoIdx}), Estado: {estado}", 
             parte.Cliente, parte.Grupo, CmbGrupo.SelectedIndex, parte.Tipo, CmbTipo.SelectedIndex, parte.EstadoTexto);
@@ -1918,6 +1934,218 @@ public sealed partial class ParteItemEdit : Page
         
         // Mover foco al siguiente campo (Tienda)
         TxtTienda.Focus(FocusState.Keyboard);
+        
+        // 🆕 NOTA CLIENTE: Cargar nota del cliente seleccionado
+        _ = LoadClienteNotaAsync();
+    }
+    
+    // ===================== NOTA CLIENTE =====================
+    
+    /// <summary>Carga la nota del cliente actual desde la API.</summary>
+    private async Task LoadClienteNotaAsync()
+    {
+        try
+        {
+            // Obtener ID del cliente actual
+            var clienteNombre = TxtCliente.Text?.Trim() ?? string.Empty;
+            
+            if (string.IsNullOrWhiteSpace(clienteNombre))
+            {
+                _clienteIdActual = 0;
+                _clienteNotaActual = null;
+                BtnClienteNota.IsEnabled = false;
+                UpdateNotaTooltip();
+                return;
+            }
+            
+            // Buscar cliente en cache
+            var cliente = _clientesCache?.FirstOrDefault(
+                c => string.Equals(c.Nombre, clienteNombre, StringComparison.OrdinalIgnoreCase));
+            
+            if (cliente == null || cliente.Id == 0)
+            {
+                App.Log?.LogDebug("⚠️ Cliente '{nombre}' no encontrado en cache", clienteNombre);
+                _clienteIdActual = 0;
+                _clienteNotaActual = null;
+                BtnClienteNota.IsEnabled = false;
+                UpdateNotaTooltip();
+                return;
+            }
+            
+            var clienteId = cliente.Id;
+            
+            // Si ya tenemos la nota de este cliente, no recargar
+            if (clienteId == _clienteIdActual && _clienteNotaActual != null)
+            {
+                App.Log?.LogDebug("💾 Usando nota en cache para cliente ID {id}", clienteId);
+                BtnClienteNota.IsEnabled = true;
+                UpdateNotaTooltip();
+                return;
+            }
+            
+            // Cancelar carga anterior
+            _clienteNotaCts?.Cancel();
+            _clienteNotaCts?.Dispose();
+            _clienteNotaCts = new CancellationTokenSource();
+            var ct = _clienteNotaCts.Token;
+            
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            App.Log?.LogInformation("🔍 LoadClienteNota start - ClienteId: {id}", clienteId);
+            
+            // Cargar cliente completo desde API
+            var clienteDto = await App.Api.GetAsync<ClienteDto>(
+                $"/api/v1/clientes/{clienteId}", ct);
+            
+            sw.Stop();
+            
+            if (clienteDto != null && !ct.IsCancellationRequested)
+            {
+                _clienteIdActual = clienteId;
+                _clienteNotaActual = clienteDto.Nota;
+                BtnClienteNota.IsEnabled = true;
+                
+                var notaLength = _clienteNotaActual?.Length ?? 0;
+                App.Log?.LogInformation("✅ LoadClienteNota end - ClienteId: {id}, NotaLength: {length}, Duration: {ms}ms",
+                    clienteId, notaLength, sw.ElapsedMilliseconds);
+                
+                UpdateNotaTooltip();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            App.Log?.LogDebug("🚫 Carga de nota de cliente cancelada");
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error cargando nota del cliente - StatusCode: {status}",
+                ex is ApiException apiEx ? apiEx.StatusCode.ToString() : "N/A");
+            
+            _clienteNotaActual = null;
+            BtnClienteNota.IsEnabled = false;
+            UpdateNotaTooltip();
+        }
+    }
+    
+    /// <summary>Actualiza el tooltip del botón de nota según el contenido actual.</summary>
+    private void UpdateNotaTooltip()
+    {
+        if (string.IsNullOrWhiteSpace(_clienteNotaActual))
+        {
+            ClienteNotaTooltip.Content = "Sin nota";
+        }
+        else
+        {
+            // Mostrar primeras 100 caracteres con "..." si es más largo
+            var preview = _clienteNotaActual.Length <= 100 
+                ? _clienteNotaActual 
+                : _clienteNotaActual.Substring(0, 100) + "...";
+            
+            ClienteNotaTooltip.Content = preview;
+        }
+    }
+    
+    /// <summary>Handler cuando se hace click en el botón de nota del cliente.</summary>
+    private async void OnClienteNotaClick(object sender, RoutedEventArgs e)
+    {
+        if (_clienteIdActual == 0)
+        {
+            App.Log?.LogWarning("⚠️ Click en nota sin cliente válido");
+            return;
+        }
+        
+        try
+        {
+            // Cargar texto actual en el editor
+            TxtNotaEditor.Text = _clienteNotaActual ?? string.Empty;
+            
+            // Mostrar dialog
+            ClienteNotaDialog.XamlRoot = this.XamlRoot;
+            var result = await ClienteNotaDialog.ShowAsync();
+            
+            // El guardado se maneja en OnNotaDialogSave
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error abriendo dialog de nota");
+        }
+    }
+    
+    /// <summary>Handler cuando se presiona "Guardar" en el dialog de nota.</summary>
+    private async void OnNotaDialogSave(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        // Evitar que el dialog se cierre automáticamente mientras guardamos
+        args.Cancel = true;
+        
+        try
+        {
+            var nuevaNota = TxtNotaEditor.Text?.Trim();
+            
+            // Si no cambió, no hacer nada
+            if (nuevaNota == _clienteNotaActual)
+            {
+                App.Log?.LogDebug("📝 Nota sin cambios, cerrando dialog");
+                sender.Hide();
+                return;
+            }
+            
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var notaLength = nuevaNota?.Length ?? 0;
+            
+            App.Log?.LogInformation("💾 SaveClienteNota start - ClienteId: {id}, NotaLength: {length}",
+                _clienteIdActual, notaLength);
+            
+            // Crear servicio de clientes
+            var clientesService = new ClientesService(App.Api, App.Log!);
+            
+            // Guardar nota
+            var result = await clientesService.UpdateNotaAsync(_clienteIdActual, nuevaNota);
+            
+            sw.Stop();
+            
+            if (result != null)
+            {
+                _clienteNotaActual = result.Nota;
+                
+                App.Log?.LogInformation("✅ SaveClienteNota end - ClienteId: {id}, Duration: {ms}ms",
+                    _clienteIdActual, sw.ElapsedMilliseconds);
+                
+                UpdateNotaTooltip();
+                
+                // Cerrar dialog
+                sender.Hide();
+                
+                // Notificación de éxito
+                App.Notifications?.ShowSuccess(
+                    "Nota del cliente actualizada",
+                    title: "✅ Guardado");
+            }
+        }
+        catch (ApiException apiEx)
+        {
+            App.Log?.LogError("❌ Error guardando nota - StatusCode: {status}, Path: {path}, Message: {msg}",
+                apiEx.StatusCode, apiEx.Path, apiEx.Message);
+            
+            // Mostrar error al usuario
+            await ShowErrorAsync($"Error guardando nota:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}");
+            
+            // Permitir que el dialog se cierre
+            args.Cancel = false;
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error inesperado guardando nota");
+            
+            await ShowErrorAsync($"Error guardando nota: {ex.Message}");
+            
+            args.Cancel = false;
+        }
+    }
+    
+    /// <summary>Handler cuando se presiona "Cancelar" en el dialog de nota.</summary>
+    private void OnNotaDialogCancel(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        App.Log?.LogDebug("🚫 Dialog de nota cancelado");
+        // No hacer nada, el dialog se cierra automáticamente
     }
 
     /// <summary>Helper para truncar strings en logs con un máximo de caracteres.</summary>
