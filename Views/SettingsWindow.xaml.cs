@@ -2,8 +2,12 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using GestionTime.Desktop.ViewModels;
 using GestionTime.Desktop.Models;
+using GestionTime.Desktop.Models.Dtos;
 using GestionTime.Desktop.Services;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GestionTime.Desktop.Views;
 
@@ -170,7 +174,7 @@ public sealed partial class SettingsWindow : Window
         };
     }
 
-    /// <summary>1. Perfil y cuenta (USER) - Muestra datos de App.CurrentUserProfile.</summary>
+    /// <summary>1. Perfil y cuenta (USER) - Muestra datos de App.CurrentUserProfile con edición inline.</summary>
     private UIElement CreateProfileContent()
     {
         var stack = new StackPanel { Spacing = 20 };
@@ -213,8 +217,18 @@ public sealed partial class SettingsWindow : Window
             return stack;
         }
         
-        // Card contenedor
-        var card = new Border
+        // Grid de 2 columnas: Datos actuales (izquierda) + Formulario de edición (derecha)
+        var mainGrid = new Grid
+        {
+            ColumnSpacing = 20
+        };
+        mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        
+        // ═══════════════════════════════════════════════════════════════
+        // COLUMNA IZQUIERDA: Datos actuales (solo lectura)
+        // ═══════════════════════════════════════════════════════════════
+        var leftCard = new Border
         {
             Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 26, 35, 50)),
             BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 45, 62, 80)),
@@ -223,138 +237,282 @@ public sealed partial class SettingsWindow : Window
             Padding = new Thickness(20, 20, 20, 20)
         };
         
-        var cardContent = new StackPanel { Spacing = 16 };
+        var leftContent = new StackPanel { Spacing = 16 };
         
-        // Nombre completo
-        if (!string.IsNullOrEmpty(profile.FullNameFromBackend))
+        // Título columna izquierda
+        leftContent.Children.Add(new TextBlock
         {
-            cardContent.Children.Add(CreateProfileField("👤 Nombre completo", profile.FullNameFromBackend));
-        }
-        
-        // Email
-        if (!string.IsNullOrEmpty(App.CurrentLoginEmail))
-        {
-            cardContent.Children.Add(CreateProfileField("📧 Email", App.CurrentLoginEmail));
-        }
-        
-        // Teléfono
-        if (!string.IsNullOrEmpty(profile.Phone))
-        {
-            cardContent.Children.Add(CreateProfileField("📞 Teléfono", profile.Phone));
-        }
-        
-        // Móvil
-        if (!string.IsNullOrEmpty(profile.Mobile))
-        {
-            cardContent.Children.Add(CreateProfileField("📱 Móvil", profile.Mobile));
-        }
-        
-        // Dirección
-        if (!string.IsNullOrEmpty(profile.Address))
-        {
-            cardContent.Children.Add(CreateProfileField("🏠 Dirección", profile.Address));
-        }
-        
-        // Ciudad
-        if (!string.IsNullOrEmpty(profile.City))
-        {
-            cardContent.Children.Add(CreateProfileField("🏙️ Ciudad", profile.City));
-        }
-        
-        // Código postal
-        if (!string.IsNullOrEmpty(profile.PostalCode))
-        {
-            cardContent.Children.Add(CreateProfileField("📮 Código Postal", profile.PostalCode));
-        }
-        
-        // Departamento
-        if (!string.IsNullOrEmpty(profile.Department))
-        {
-            cardContent.Children.Add(CreateProfileField("🏢 Departamento", profile.Department));
-        }
-        
-        // Posición
-        if (!string.IsNullOrEmpty(profile.Position))
-        {
-            cardContent.Children.Add(CreateProfileField("💼 Posición", profile.Position));
-        }
-        
-        // Tipo de empleado
-        if (!string.IsNullOrEmpty(profile.EmployeeType))
-        {
-            cardContent.Children.Add(CreateProfileField("👔 Tipo de empleado", profile.EmployeeType));
-        }
-        
-        // Fecha de contratación
-        if (profile.HireDate.HasValue)
-        {
-            cardContent.Children.Add(CreateProfileField("📅 Fecha de contratación", profile.HireDate.Value.ToString("dd/MM/yyyy")));
-        }
-        
-        card.Child = cardContent;
-        stack.Children.Add(card);
-        
-        // Botón para abrir Mi Perfil completo (si existe UserProfilePage)
-        var btnOpenProfile = new Button
-        {
-            Content = "📝 Editar Perfil Completo",
-            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 22, 168, 184)),
-            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
-            Padding = new Thickness(20, 12, 20, 12),
-            CornerRadius = new CornerRadius(6),
+            Text = "📋 Datos Actuales",
+            FontSize = 16,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-            Margin = new Thickness(0, 12, 0, 0)
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 22, 168, 184)),
+            Margin = new Thickness(0, 0, 0, 12)
+        });
+        
+        // Mostrar todos los campos (solo lectura)
+        if (!string.IsNullOrEmpty(profile.FullNameFromBackend))
+            leftContent.Children.Add(CreateProfileField("👤 Nombre completo", profile.FullNameFromBackend));
+        
+        if (!string.IsNullOrEmpty(App.CurrentLoginEmail))
+            leftContent.Children.Add(CreateProfileField("📧 Email", App.CurrentLoginEmail));
+        
+        if (!string.IsNullOrEmpty(profile.Phone))
+            leftContent.Children.Add(CreateProfileField("📞 Teléfono", profile.Phone));
+        
+        if (!string.IsNullOrEmpty(profile.Mobile))
+            leftContent.Children.Add(CreateProfileField("📱 Móvil", profile.Mobile));
+        
+        if (!string.IsNullOrEmpty(profile.Address))
+            leftContent.Children.Add(CreateProfileField("🏠 Dirección", profile.Address));
+        
+        if (!string.IsNullOrEmpty(profile.City))
+            leftContent.Children.Add(CreateProfileField("🏙️ Ciudad", profile.City));
+        
+        if (!string.IsNullOrEmpty(profile.PostalCode))
+            leftContent.Children.Add(CreateProfileField("📮 Código Postal", profile.PostalCode));
+        
+        if (!string.IsNullOrEmpty(profile.Department))
+            leftContent.Children.Add(CreateProfileField("🏢 Departamento", profile.Department));
+        
+        if (!string.IsNullOrEmpty(profile.Position))
+            leftContent.Children.Add(CreateProfileField("💼 Posición", profile.Position));
+        
+        if (!string.IsNullOrEmpty(profile.EmployeeType))
+            leftContent.Children.Add(CreateProfileField("👔 Tipo de empleado", profile.EmployeeType));
+        
+        if (profile.HireDate.HasValue)
+            leftContent.Children.Add(CreateProfileField("📅 Fecha de contratación", profile.HireDate.Value.ToString("dd/MM/yyyy")));
+        
+        leftCard.Child = leftContent;
+        Grid.SetColumn(leftCard, 0);
+        mainGrid.Children.Add(leftCard);
+        
+        // ═══════════════════════════════════════════════════════════════
+        // COLUMNA DERECHA: Formulario de edición
+        // ═══════════════════════════════════════════════════════════════
+        var rightCard = new Border
+        {
+            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 26, 35, 50)),
+            BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 45, 62, 80)),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(20, 20, 20, 20)
         };
         
-        btnOpenProfile.Click += (s, e) =>
+        var rightContent = new StackPanel { Spacing = 16 };
+        
+        // Título columna derecha
+        rightContent.Children.Add(new TextBlock
         {
-            try
+            Text = "✏️ Editar Perfil",
+            FontSize = 16,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 22, 168, 184)),
+            Margin = new Thickness(0, 0, 0, 12)
+        });
+        
+        // Campos editables (TextBox)
+        var txtFirstName = CreateEditableField("Nombre", profile.FirstName ?? "");
+        rightContent.Children.Add(txtFirstName);
+        
+        var txtLastName = CreateEditableField("Apellidos", profile.LastName ?? "");
+        rightContent.Children.Add(txtLastName);
+        
+        // Email (NO EDITABLE)
+        var emailField = new StackPanel { Spacing = 4 };
+        emailField.Children.Add(new TextBlock
+        {
+            Text = "Email (no modificable)",
+            FontSize = 12,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 170, 180, 191))
+        });
+        emailField.Children.Add(new TextBox
+        {
+            Text = App.CurrentLoginEmail ?? "",
+            IsReadOnly = true,
+            IsEnabled = false,
+            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(50, 100, 100, 100)),
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 150, 150, 150))
+        });
+        rightContent.Children.Add(emailField);
+        
+        var txtPhone = CreateEditableField("Teléfono", profile.Phone ?? "");
+        rightContent.Children.Add(txtPhone);
+        
+        var txtMobile = CreateEditableField("Móvil", profile.Mobile ?? "");
+        rightContent.Children.Add(txtMobile);
+        
+        var txtAddress = CreateEditableField("Dirección", profile.Address ?? "");
+        rightContent.Children.Add(txtAddress);
+        
+        var txtCity = CreateEditableField("Ciudad", profile.City ?? "");
+        rightContent.Children.Add(txtCity);
+        
+        var txtPostalCode = CreateEditableField("Código Postal", profile.PostalCode ?? "");
+        rightContent.Children.Add(txtPostalCode);
+        
+        var txtDepartment = CreateEditableField("Departamento", profile.Department ?? "");
+        rightContent.Children.Add(txtDepartment);
+        
+        var txtPosition = CreateEditableField("Posición/Cargo", profile.Position ?? "");
+        rightContent.Children.Add(txtPosition);
+        
+        var txtEmployeeType = CreateEditableField("Tipo de Empleado", profile.EmployeeType ?? "");
+        rightContent.Children.Add(txtEmployeeType);
+        
+        // Botón Guardar
+        var btnSave = new Button
+        {
+            Content = "💾 Guardar Cambios",
+            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 34, 197, 94)),
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
+            Padding = new Thickness(24, 12, 24, 12),
+            CornerRadius = new CornerRadius(6),
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Margin = new Thickness(0, 20, 0, 0),
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        
+        btnSave.Click += async (s, e) =>
+        {
+            await SaveProfileChangesAsync(
+                txtFirstName, txtLastName, txtPhone, txtMobile, 
+                txtAddress, txtCity, txtPostalCode, 
+                txtDepartment, txtPosition, txtEmployeeType
+            );
+        };
+        
+        rightContent.Children.Add(btnSave);
+        
+        rightCard.Child = rightContent;
+        Grid.SetColumn(rightCard, 1);
+        mainGrid.Children.Add(rightCard);
+        
+        stack.Children.Add(mainGrid);
+        
+        return stack;
+    }
+    
+    /// <summary>Helper: Crea un campo editable (TextBox con label).</summary>
+    private StackPanel CreateEditableField(string label, string initialValue)
+    {
+        var fieldStack = new StackPanel { Spacing = 4 };
+        
+        // Label
+        fieldStack.Children.Add(new TextBlock
+        {
+            Text = label,
+            FontSize = 12,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 170, 180, 191))
+        });
+        
+        // TextBox editable
+        var textBox = new TextBox
+        {
+            Text = initialValue,
+            PlaceholderText = $"Ingrese {label.ToLower()}",
+            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 15, 23, 42)),
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 230, 237, 243)),
+            BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 51, 65, 85)),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(10, 8, 10, 8)
+        };
+        
+        fieldStack.Children.Add(textBox);
+        fieldStack.Tag = textBox; // Guardar referencia al TextBox en Tag para acceso fácil
+        
+        return fieldStack;
+    }
+    
+    /// <summary>Guarda los cambios del perfil usando ProfileService.UpdateUserProfileAsync().</summary>
+    private async Task SaveProfileChangesAsync(
+        StackPanel txtFirstName, StackPanel txtLastName, StackPanel txtPhone, StackPanel txtMobile,
+        StackPanel txtAddress, StackPanel txtCity, StackPanel txtPostalCode,
+        StackPanel txtDepartment, StackPanel txtPosition, StackPanel txtEmployeeType)
+    {
+        try
+        {
+            _log?.LogInformation("💾 Guardando cambios del perfil...");
+            
+            // Construir request con datos de los TextBox
+            var request = new GestionTime.Desktop.Models.Dtos.UpdateProfileRequest
             {
-                _log?.LogInformation("📝 Abriendo UserProfilePage para editar perfil completo...");
+                FirstName = GetTextBoxValue(txtFirstName),
+                LastName = GetTextBoxValue(txtLastName),
+                Phone = GetTextBoxValue(txtPhone),
+                Mobile = GetTextBoxValue(txtMobile),
+                Address = GetTextBoxValue(txtAddress),
+                City = GetTextBoxValue(txtCity),
+                PostalCode = GetTextBoxValue(txtPostalCode),
+                Department = GetTextBoxValue(txtDepartment),
+                Position = GetTextBoxValue(txtPosition),
+                EmployeeType = GetTextBoxValue(txtEmployeeType)
+            };
+            
+            // Llamar a ProfileService
+            var updatedProfile = await App.ProfileService.UpdateUserProfileAsync(request, CancellationToken.None);
+            
+            if (updatedProfile != null)
+            {
+                _log?.LogInformation("✅ Perfil actualizado correctamente");
                 
-                // Navegar a UserProfilePage en MainWindow
-                if (App.MainWindowInstance?.Navigator != null)
+                // Actualizar App.CurrentUserProfile con los nuevos datos
+                App.CurrentUserProfile = updatedProfile;
+                
+                // Mostrar mensaje de éxito
+                var successDialog = new ContentDialog
                 {
-                    App.MainWindowInstance.Navigator.Navigate(typeof(UserProfilePage));
-                    _log?.LogInformation("✅ Navegación a UserProfilePage iniciada");
-                    
-                    // Cerrar Settings después de navegar
-                    this.Close();
-                }
-                else
-                {
-                    _log?.LogError("❌ No se pudo navegar: MainWindowInstance o Navigator es null");
-                    
-                    // Mostrar mensaje de error al usuario
-                    var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-                    {
-                        Title = "Error",
-                        Content = "No se pudo abrir la página de edición de perfil.\nIntenta cerrar y volver a abrir Settings.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = errorDialog.ShowAsync();
-                }
+                    Title = "✅ Perfil Actualizado",
+                    Content = "Tus datos de perfil se han guardado correctamente.\n\nCierra y vuelve a abrir Settings para ver los cambios reflejados.",
+                    CloseButtonText = "OK",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await successDialog.ShowAsync();
+                
+                // Cerrar la ventana de Settings para forzar recarga
+                this.Close();
             }
-            catch (Exception ex)
+            else
             {
-                _log?.LogError(ex, "Error abriendo edición de perfil");
+                _log?.LogWarning("⚠️ ProfileService devolvió null después de actualizar");
                 
-                // Mostrar mensaje de error al usuario
-                var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                var warningDialog = new ContentDialog
                 {
-                    Title = "Error",
-                    Content = $"Error al abrir la página de edición:\n{ex.Message}",
+                    Title = "⚠️ Advertencia",
+                    Content = "El perfil se actualizó pero no se pudieron cargar los nuevos datos.\n\nPor favor, cierra y vuelve a abrir Settings.",
                     CloseButtonText = "OK",
                     XamlRoot = this.Content.XamlRoot
                 };
-                _ = errorDialog.ShowAsync();
+                await warningDialog.ShowAsync();
             }
-        };
-        
-        stack.Children.Add(btnOpenProfile);
-        
-        return stack;
+        }
+        catch (Exception ex)
+        {
+            _log?.LogError(ex, "❌ Error guardando cambios del perfil");
+            
+            var errorDialog = new ContentDialog
+            {
+                Title = "❌ Error al Guardar",
+                Content = $"No se pudieron guardar los cambios:\n\n{ex.Message}\n\nPor favor, verifica tu conexión e intenta nuevamente.",
+                CloseButtonText = "OK",
+                XamlRoot = this.Content.XamlRoot
+            };
+            await errorDialog.ShowAsync();
+        }
+    }
+    
+    /// <summary>Helper: Obtiene el valor del TextBox dentro del StackPanel (Tag).</summary>
+    private string? GetTextBoxValue(StackPanel fieldStack)
+    {
+        if (fieldStack?.Tag is TextBox textBox)
+        {
+            var value = textBox.Text?.Trim();
+            return string.IsNullOrEmpty(value) ? null : value;
+        }
+        return null;
     }
     
     /// <summary>Helper: Crea un campo de perfil con label y valor.</summary>

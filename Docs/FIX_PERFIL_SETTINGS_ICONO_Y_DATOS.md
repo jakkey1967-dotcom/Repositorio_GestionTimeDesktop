@@ -336,34 +336,54 @@ Información del perfil  ← Sin icono
 
 ---
 
-## 🚀 PRÓXIMOS PASOS
+## 🚀 IMPLEMENTACIONES COMPLETADAS
 
-### ~~1. Implementar Edición de Perfil~~ ✅ COMPLETADO
-- [x] Habilitar botón "📝 Editar Perfil Completo"
-- [x] Navegar a `UserProfilePage` existente
-- [x] Cerrar SettingsWindow después de navegar
-- [x] Manejo de errores si la navegación falla
+### ~~1. Implementar Edición de Perfil~~ ✅ COMPLETADO (Inline en Settings)
+- [x] Layout de 2 columnas en Settings > Perfil
+- [x] Columna izquierda: Datos actuales (solo lectura)
+- [x] Columna derecha: Formulario de edición con TextBox
+- [x] Email NO editable (campo deshabilitado)
+- [x] Botón "💾 Guardar Cambios" funcional
+- [x] Integración con `ProfileService.UpdateUserProfileAsync()`
+- [x] Manejo de errores con ContentDialog
+- [x] Cierra Settings automáticamente después de guardar para forzar recarga
 
 **Implementación**:
 ```csharp
-// SettingsWindow.xaml.cs - Botón ahora funcional
-btnOpenProfile.Click += (s, e) =>
+// SettingsWindow.xaml.cs - CreateProfileContent() con edición inline
+private UIElement CreateProfileContent()
 {
-    _log?.LogInformation("📝 Abriendo UserProfilePage para editar perfil completo...");
+    // Grid de 2 columnas
+    var mainGrid = new Grid { ColumnSpacing = 20 };
+    mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+    mainGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
     
-    if (App.MainWindowInstance?.Navigator != null)
-    {
-        App.MainWindowInstance.Navigator.Navigate(typeof(UserProfilePage));
-        _log?.LogInformation("✅ Navegación a UserProfilePage iniciada");
-        this.Close(); // Cerrar Settings
-    }
-    else
-    {
-        // Mostrar error al usuario
-        _log?.LogError("❌ No se pudo navegar: MainWindowInstance o Navigator es null");
-    }
-};
+    // Columna IZQUIERDA: Datos actuales (solo lectura con iconos)
+    // Columna DERECHA: Formulario de edición (TextBox + Botón Guardar)
+    
+    // Email field es IsReadOnly=true y IsEnabled=false (no modificable)
+    
+    // Botón Guardar llama a SaveProfileChangesAsync()
+    // Construye UpdateProfileRequest y llama a ProfileService
+    // Actualiza App.CurrentUserProfile con los nuevos datos
+    // Cierra Settings después de guardar (this.Close())
+}
 ```
+
+**Campos Editables**:
+- ✅ Nombre (FirstName)
+- ✅ Apellidos (LastName)
+- ❌ Email (NO editable, campo deshabilitado)
+- ✅ Teléfono (Phone)
+- ✅ Móvil (Mobile)
+- ✅ Dirección (Address)
+- ✅ Ciudad (City)
+- ✅ Código Postal (PostalCode)
+- ✅ Departamento (Department)
+- ✅ Posición/Cargo (Position)
+- ✅ Tipo de Empleado (EmployeeType)
+
+**Endpoint Utilizado**: `PUT /api/v1/profiles/me` (ProfileService.UpdateUserProfileAsync)
 
 ### 2. Sincronización de Datos
 - [ ] Actualizar perfil cuando se recarga desde Settings
