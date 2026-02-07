@@ -205,18 +205,83 @@ public sealed partial class SettingsWindow : Window
         
         stack.Children.Add(titlePanel);
         
-        var profile = App.CurrentUserProfile;
+        // 🆕 CRÍTICO: Invalidar cache y recargar perfil desde servidor
+        _log?.LogInformation("🔄 Recargando perfil desde servidor (invalidando cache)...");
         
-        if (profile == null)
+        // Invalidar cache del ProfileService para forzar recarga
+        var cacheKey = "/api/v1/profiles/me";
+        App.Api.InvalidateCacheEntry(cacheKey);
+        _log?.LogInformation("🗑️ Cache invalidado para {key}", cacheKey);
+        
+        // Recargar perfil desde servidor de forma asíncrona
+        var loadingText = new TextBlock
         {
+            Text = "⏳ Cargando perfil...",
+            FontSize = 14,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 170, 180, 191)),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 40, 0, 0)
+        };
+        stack.Children.Add(loadingText);
+        
+        // Cargar perfil de forma asíncrona y actualizar UI
+        _ = LoadProfileAndUpdateUIAsync(stack, loadingText);
+        
+        return stack;
+    }
+    
+    /// <summary>Carga el perfil desde servidor y actualiza la UI.</summary>
+    private async Task LoadProfileAndUpdateUIAsync(StackPanel stack, TextBlock loadingText)
+    {
+        try
+        {
+            _log?.LogInformation("📥 Cargando perfil desde /api/v1/profiles/me...");
+            
+            // Recargar perfil desde servidor (sin cache)
+            var profile = await App.ProfileService.GetCurrentUserProfileAsync(CancellationToken.None);
+            
+            if (profile == null)
+            {
+                _log?.LogWarning("⚠️ No se pudo cargar el perfil desde el servidor");
+                
+                // Remover loading y mostrar mensaje de error
+                stack.Children.Remove(loadingText);
+                stack.Children.Add(new TextBlock
+                {
+                    Text = "⚠️ No hay información de perfil disponible.",
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 245, 158, 11))
+                });
+                return;
+            }
+            
+            _log?.LogInformation("✅ Perfil cargado correctamente: {name}", profile.FullName);
+            
+            // Actualizar App.CurrentUserProfile con datos frescos
+            App.CurrentUserProfile = profile;
+            
+            // Remover loading text
+            stack.Children.Remove(loadingText);
+            
+            // Crear UI con datos del perfil
+            CreateProfileUI(stack, profile);
+        }
+        catch (Exception ex)
+        {
+            _log?.LogError(ex, "❌ Error cargando perfil");
+            
+            stack.Children.Remove(loadingText);
             stack.Children.Add(new TextBlock
             {
-                Text = "⚠️ No hay información de perfil disponible.",
-                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 245, 158, 11))
+                Text = $"❌ Error cargando perfil: {ex.Message}",
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 239, 68, 68)),
+                TextWrapping = TextWrapping.Wrap
             });
-            return stack;
         }
-        
+    }
+    
+    /// <summary>Crea la UI del perfil con 2 columnas.</summary>
+    private void CreateProfileUI(StackPanel stack, GestionTime.Desktop.Models.Dtos.UserProfileResponse profile)
+    {
         // Grid de 2 columnas: Datos actuales (izquierda) + Formulario de edición (derecha)
         var mainGrid = new Grid
         {
@@ -390,8 +455,6 @@ public sealed partial class SettingsWindow : Window
         mainGrid.Children.Add(rightCard);
         
         stack.Children.Add(mainGrid);
-        
-        return stack;
     }
     
     /// <summary>Helper: Crea un campo editable (TextBox con label).</summary>
