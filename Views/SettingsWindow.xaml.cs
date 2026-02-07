@@ -175,15 +175,31 @@ public sealed partial class SettingsWindow : Window
     {
         var stack = new StackPanel { Spacing = 20 };
         
-        // Título
-        stack.Children.Add(new TextBlock
+        // Título con icono de perfil (igual que en DiarioPage)
+        var titlePanel = new StackPanel 
+        { 
+            Orientation = Orientation.Horizontal, 
+            Spacing = 8,
+            Margin = new Thickness(0, 0, 0, 12)
+        };
+        
+        titlePanel.Children.Add(new FontIcon
+        {
+            Glyph = "\uE77B", // Icono de usuario (igual que DiarioPage)
+            FontSize = 18,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 230, 237, 243))
+        });
+        
+        titlePanel.Children.Add(new TextBlock
         {
             Text = "Información del perfil",
             FontSize = 18,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
             Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 230, 237, 243)),
-            Margin = new Thickness(0, 0, 0, 12)
+            VerticalAlignment = VerticalAlignment.Center
         });
+        
+        stack.Children.Add(titlePanel);
         
         var profile = App.CurrentUserProfile;
         

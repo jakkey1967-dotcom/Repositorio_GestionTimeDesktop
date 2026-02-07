@@ -565,6 +565,39 @@ namespace GestionTime.Desktop.Views
                 App.CurrentLoginEmail = email;
                 App.Log?.LogInformation("📧 Email del login NUEVO guardado: {email}", App.CurrentLoginEmail);
 
+                // 🆕 CRÍTICO: Cargar perfil completo desde /api/v1/profiles/me
+                try
+                {
+                    App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                    App.Log?.LogInformation("📥 CARGANDO PERFIL COMPLETO DEL USUARIO");
+                    App.Log?.LogInformation("   Endpoint: GET /api/v1/profiles/me");
+                    
+                    App.CurrentUserProfile = await App.ProfileService.GetCurrentUserProfileAsync(CancellationToken.None);
+                    
+                    if (App.CurrentUserProfile != null)
+                    {
+                        App.Log?.LogInformation("✅ Perfil cargado correctamente:");
+                        App.Log?.LogInformation("   • Nombre: {name}", App.CurrentUserProfile.FullName);
+                        App.Log?.LogInformation("   • Email: {email}", App.CurrentLoginEmail);
+                        App.Log?.LogInformation("   • Teléfono: {phone}", App.CurrentUserProfile.Phone ?? "(no disponible)");
+                        App.Log?.LogInformation("   • Cargo: {position}", App.CurrentUserProfile.Position ?? "(no disponible)");
+                    }
+                    else
+                    {
+                        App.Log?.LogWarning("⚠️ No se pudo cargar el perfil completo del usuario");
+                        App.Log?.LogWarning("   • La sección de Perfil en Settings mostrará un mensaje de advertencia");
+                    }
+                    
+                    App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                }
+                catch (Exception profileEx)
+                {
+                    App.Log?.LogError(profileEx, "❌ Error cargando perfil completo del usuario");
+                    App.Log?.LogError("   • La sesión sigue siendo válida, pero el perfil no está disponible");
+                    App.Log?.LogError("   • Settings > Perfil mostrará un mensaje de advertencia");
+                    // No bloquear el login si falla la carga del perfil
+                }
+
                 // Navega a Diario
                 if (App.MainWindowInstance?.Navigator != null)
                 {
