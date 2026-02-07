@@ -174,6 +174,7 @@ $lightArgs = @(
     "-ext", "WixUIExtension"
     "-ext", "WixUtilExtension"
     "-out", "GestionTime-v1.9.0-Setup.msi"
+    "-sice:ICE03"
     "-sice:ICE61"
     "-sice:ICE69"
 )
