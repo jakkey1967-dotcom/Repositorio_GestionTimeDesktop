@@ -59,16 +59,22 @@ if (Test-Path $publishFolder) {
 
 # Publicar con .NET 8
 Write-Host "  📦 Ejecutando dotnet publish..." -ForegroundColor Gray
-& dotnet publish GestionTime.Desktop.csproj `
-    -c Release `
-    -r win-x64 `
-    --self-contained true `
-    -p:PublishSingleFile=false `
-    -p:PublishReadyToRun=true `
-    -o $publishFolder
+
+$publishArgs = @(
+    "publish"
+    "GestionTime.Desktop.csproj"
+    "-c", "Release"
+    "-r", "win-x64"
+    "--self-contained", "true"
+    "-p:PublishSingleFile=false"
+    "-p:PublishReadyToRun=true"
+    "-o", $publishFolder
+)
+
+& dotnet $publishArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: dotnet publish falló" -ForegroundColor Red
+    Write-Host "❌ ERROR: dotnet publish falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
     exit 1
 }
 
@@ -137,17 +143,21 @@ if (-not (Test-Path $heatPath)) {
     exit 1
 }
 
-& $heatPath dir $publishFolder `
-    -cg HarvestedFiles `
-    -gg `
-    -sfrag `
-    -srd `
-    -dr INSTALLFOLDER `
-    -var "var.SourceDir" `
-    -out "$wixDir\HarvestedFiles.wxs"
+$heatArgs = @(
+    "dir", $publishFolder
+    "-cg", "HarvestedFiles"
+    "-gg"
+    "-sfrag"
+    "-srd"
+    "-dr", "INSTALLFOLDER"
+    "-var", "var.SourceDir"
+    "-out", "$wixDir\HarvestedFiles.wxs"
+)
+
+& $heatPath $heatArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: heat.exe falló" -ForegroundColor Red
+    Write-Host "❌ ERROR: heat.exe falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
     exit 1
 }
 
@@ -163,28 +173,38 @@ Set-Location -Path $wixDir
 
 # Compilar con candle.exe
 Write-Host "  🔨 Ejecutando candle.exe..." -ForegroundColor Gray
-& $candlePath Product.wxs HarvestedFiles.wxs `
-    -ext WixUIExtension `
-    -ext WixUtilExtension `
-    -arch x64
+
+$candleArgs = @(
+    "Product.wxs", "HarvestedFiles.wxs"
+    "-ext", "WixUIExtension"
+    "-ext", "WixUtilExtension"
+    "-arch", "x64"
+)
+
+& $candlePath $candleArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: candle.exe falló" -ForegroundColor Red
+    Write-Host "❌ ERROR: candle.exe falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
     Set-Location -Path ..
     exit 1
 }
 
 # Enlazar con light.exe
 Write-Host "  🔗 Ejecutando light.exe..." -ForegroundColor Gray
-& $lightPath Product.wixobj HarvestedFiles.wixobj `
-    -ext WixUIExtension `
-    -ext WixUtilExtension `
-    -out "GestionTime-v1.9.0-Setup.msi" `
-    -sice:ICE61 `
-    -sice:ICE69
+
+$lightArgs = @(
+    "Product.wixobj", "HarvestedFiles.wixobj"
+    "-ext", "WixUIExtension"
+    "-ext", "WixUtilExtension"
+    "-out", "GestionTime-v1.9.0-Setup.msi"
+    "-sice:ICE61"
+    "-sice:ICE69"
+)
+
+& $lightPath $lightArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: light.exe falló" -ForegroundColor Red
+    Write-Host "❌ ERROR: light.exe falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
     Set-Location -Path ..
     exit 1
 }
