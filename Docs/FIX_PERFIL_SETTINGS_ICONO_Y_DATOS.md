@@ -338,10 +338,32 @@ Información del perfil  ← Sin icono
 
 ## 🚀 PRÓXIMOS PASOS
 
-### 1. Implementar Edición de Perfil
-- [ ] Habilitar botón "📝 Editar Perfil Completo"
-- [ ] Crear modal o navegar a `UserProfilePage`
-- [ ] Usar endpoint `PUT /api/v1/profiles/me` para actualizar
+### ~~1. Implementar Edición de Perfil~~ ✅ COMPLETADO
+- [x] Habilitar botón "📝 Editar Perfil Completo"
+- [x] Navegar a `UserProfilePage` existente
+- [x] Cerrar SettingsWindow después de navegar
+- [x] Manejo de errores si la navegación falla
+
+**Implementación**:
+```csharp
+// SettingsWindow.xaml.cs - Botón ahora funcional
+btnOpenProfile.Click += (s, e) =>
+{
+    _log?.LogInformation("📝 Abriendo UserProfilePage para editar perfil completo...");
+    
+    if (App.MainWindowInstance?.Navigator != null)
+    {
+        App.MainWindowInstance.Navigator.Navigate(typeof(UserProfilePage));
+        _log?.LogInformation("✅ Navegación a UserProfilePage iniciada");
+        this.Close(); // Cerrar Settings
+    }
+    else
+    {
+        // Mostrar error al usuario
+        _log?.LogError("❌ No se pudo navegar: MainWindowInstance o Navigator es null");
+    }
+};
+```
 
 ### 2. Sincronización de Datos
 - [ ] Actualizar perfil cuando se recarga desde Settings

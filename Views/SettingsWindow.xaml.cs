@@ -310,12 +310,45 @@ public sealed partial class SettingsWindow : Window
         {
             try
             {
-                _log?.LogInformation("📝 Abriendo edición de perfil (pendiente: navegar a UserProfilePage o abrir modal)");
-                // TODO: Implementar navegación a UserProfilePage en MainWindow
+                _log?.LogInformation("📝 Abriendo UserProfilePage para editar perfil completo...");
+                
+                // Navegar a UserProfilePage en MainWindow
+                if (App.MainWindowInstance?.Navigator != null)
+                {
+                    App.MainWindowInstance.Navigator.Navigate(typeof(UserProfilePage));
+                    _log?.LogInformation("✅ Navegación a UserProfilePage iniciada");
+                    
+                    // Cerrar Settings después de navegar
+                    this.Close();
+                }
+                else
+                {
+                    _log?.LogError("❌ No se pudo navegar: MainWindowInstance o Navigator es null");
+                    
+                    // Mostrar mensaje de error al usuario
+                    var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "Error",
+                        Content = "No se pudo abrir la página de edición de perfil.\nIntenta cerrar y volver a abrir Settings.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    _ = errorDialog.ShowAsync();
+                }
             }
             catch (Exception ex)
             {
                 _log?.LogError(ex, "Error abriendo edición de perfil");
+                
+                // Mostrar mensaje de error al usuario
+                var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Error al abrir la página de edición:\n{ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                _ = errorDialog.ShowAsync();
             }
         };
         
