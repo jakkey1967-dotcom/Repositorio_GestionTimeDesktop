@@ -19,7 +19,7 @@ $wixToolset = Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windo
     Where-Object { $_.DisplayName -like "*WiX Toolset*" }
 
 if (-not $wixToolset) {
-    Write-Host "❌ ERROR: WiX Toolset v3.14 no está instalado" -ForegroundColor Red
+    Write-Host "ERROR: WiX Toolset v3.14 no esta instalado" -ForegroundColor Red
     Write-Host ""
     Write-Host "Descarga e instala desde: https://github.com/wixtoolset/wix3/releases/tag/wix3141rtm" -ForegroundColor Yellow
     exit 1
@@ -32,12 +32,12 @@ $candlePath = "C:\Program Files (x86)\WiX Toolset v3.14\bin\candle.exe"
 $lightPath = "C:\Program Files (x86)\WiX Toolset v3.14\bin\light.exe"
 
 if (-not (Test-Path $candlePath)) {
-    Write-Host "❌ ERROR: No se encuentra candle.exe en $candlePath" -ForegroundColor Red
+    Write-Host "ERROR: No se encuentra candle.exe en $candlePath" -ForegroundColor Red
     exit 1
 }
 
 if (-not (Test-Path $lightPath)) {
-    Write-Host "❌ ERROR: No se encuentra light.exe en $lightPath" -ForegroundColor Red
+    Write-Host "ERROR: No se encuentra light.exe en $lightPath" -ForegroundColor Red
     exit 1
 }
 
@@ -74,7 +74,7 @@ $publishArgs = @(
 & dotnet $publishArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: dotnet publish falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Write-Host "ERROR: dotnet publish failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     exit 1
 }
 
@@ -100,7 +100,7 @@ if (Test-Path $priSource) {
 # Verificar carpeta Assets
 $assetsFolder = "$publishFolder\Assets"
 if (-not (Test-Path $assetsFolder)) {
-    Write-Host "  ❌ ERROR: Carpeta Assets no existe en publish" -ForegroundColor Red
+    Write-Host "  ERROR: Carpeta Assets no existe en publish" -ForegroundColor Red
     exit 1
 }
 
@@ -139,7 +139,7 @@ $heatPath = "C:\Program Files (x86)\WiX Toolset v3.14\bin\heat.exe"
 $wixDir = ".\WiX-v3-MSI"
 
 if (-not (Test-Path $heatPath)) {
-    Write-Host "❌ ERROR: No se encuentra heat.exe" -ForegroundColor Red
+    Write-Host "ERROR: No se encuentra heat.exe" -ForegroundColor Red
     exit 1
 }
 
@@ -157,7 +157,7 @@ $heatArgs = @(
 & $heatPath $heatArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: heat.exe falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Write-Host "ERROR: heat.exe failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     exit 1
 }
 
@@ -184,7 +184,7 @@ $candleArgs = @(
 & $candlePath $candleArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: candle.exe falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Write-Host "ERROR: candle.exe failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     Set-Location -Path ..
     exit 1
 }
@@ -204,7 +204,7 @@ $lightArgs = @(
 & $lightPath $lightArgs
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: light.exe falló (Exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Write-Host "ERROR: light.exe failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     Set-Location -Path ..
     exit 1
 }
@@ -222,7 +222,7 @@ Write-Host "[6/6] Verificando MSI generado..." -ForegroundColor Yellow
 $msiPath = "$wixDir\GestionTime-v1.9.0-Setup.msi"
 
 if (-not (Test-Path $msiPath)) {
-    Write-Host "❌ ERROR: MSI no fue generado" -ForegroundColor Red
+    Write-Host "ERROR: MSI no fue generado" -ForegroundColor Red
     exit 1
 }
 
