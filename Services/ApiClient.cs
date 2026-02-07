@@ -334,25 +334,45 @@ namespace GestionTime.Desktop.Services
             }
         }
     
-        /// <summary>
-        /// 🆕 NUEVO: Invalida una entrada específica del caché
-        /// </summary>
-        public void InvalidateCacheEntry(string path)
+    /// <summary>
+    /// 🆕 NUEVO: Invalida todas las entradas de caché que empiezan con el path especificado (prefijo)
+    /// </summary>
+    public void InvalidateCacheEntry(string path)
+    {
+        path = NormalizePath(path);
+        _cacheLock.Wait();
+        try
         {
-            path = NormalizePath(path);
-            _cacheLock.Wait();
-            try
+            // Extraer el path base sin query string
+            var basePath = path.Split('?')[0];
+            
+            // Encontrar todas las entradas de caché que empiezan con el mismo path base
+            var allKeys = new List<string>(_getCache.Keys);
+            var keysToRemove = allKeys
+                .Where(key => key.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            
+            foreach (var key in keysToRemove)
             {
-                if (_getCache.Remove(path))
-                {
-                    _log.LogDebug("🗑️ Entrada de caché invalidada: {path}", path);
-                }
+                _getCache.Remove(key);
+                SpecializedLoggers.Api.LogDebug("🗑️ Entrada de caché invalidada: {path}", key);
             }
-            finally
+            
+            if (keysToRemove.Count > 0)
             {
-                _cacheLock.Release();
+                SpecializedLoggers.Api.LogInformation("✅ {count} entrada(s) de caché invalidadas para: {basePath}", 
+                    keysToRemove.Count, basePath);
+            }
+            else
+            {
+                SpecializedLoggers.Api.LogDebug("⚠️ No se encontraron entradas de caché para invalidar: {basePath}", basePath);
             }
         }
+        finally
+        {
+            _cacheLock.Release();
+        }
+    }
         
         /// <summary>
         /// 🆕 NUEVO: Actualiza una entrada específica del caché con un objeto actualizado
@@ -1170,36 +1190,50 @@ namespace GestionTime.Desktop.Services
 
         public sealed class LoginResponse
         {
-            // AJUSTA nombres según tu API real si cambia
-            public string? AccessToken { get; set; }
-            public string? RefreshToken { get; set; }
+            [System.Text.Json.Serialization.JsonPropertyName("message")]
             public string? Message { get; set; }
-            public string? UserName { get; set; }
-            public string? UserEmail { get; set; }
-            public string? UserRole { get; set; }
             
-            // Campos para cambio obligatorio de contraseña
+            [System.Text.Json.Serialization.JsonPropertyName("accessToken")]
+            public string? AccessToken { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("refreshToken")]
+            public string? RefreshToken { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("user")]
+            public LoginUserInfo? User { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("mustChangePassword")]
             public bool MustChangePassword { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("passwordExpired")]
             public bool PasswordExpired { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("daysUntilExpiration")]
             public int DaysUntilExpiration { get; set; }
             
-            /// <summary>
-            /// Devuelve UserName o valor por defecto si es null/vacío
-            /// </summary>
             [System.Text.Json.Serialization.JsonIgnore]
-            public string UserNameSafe => string.IsNullOrWhiteSpace(UserName) ? "Usuario" : UserName;
+            public string UserNameSafe => User?.FullName ?? "Usuario";
             
-            /// <summary>
-            /// Devuelve UserEmail o valor por defecto si es null/vacío
-            /// </summary>
             [System.Text.Json.Serialization.JsonIgnore]
-            public string UserEmailSafe => string.IsNullOrWhiteSpace(UserEmail) ? "usuario@empresa.com" : UserEmail;
+            public string UserEmailSafe => User?.Email ?? "usuario@empresa.com";
             
-            /// <summary>
-            /// Devuelve UserRole o valor por defecto si es null/vacío
-            /// </summary>
             [System.Text.Json.Serialization.JsonIgnore]
-            public string UserRoleSafe => string.IsNullOrWhiteSpace(UserRole) ? "Usuario" : UserRole;
+            public string UserRoleSafe => User?.Role ?? "USER";
+        }
+        
+        public sealed class LoginUserInfo
+        {
+            [System.Text.Json.Serialization.JsonPropertyName("id")]
+            public string? Id { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("email")]
+            public string? Email { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("role")]
+            public string? Role { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+            public string? FullName { get; set; }
         }
 
         public sealed class ChangePasswordRequest

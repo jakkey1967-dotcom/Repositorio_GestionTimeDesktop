@@ -87,6 +87,14 @@ public sealed partial class OnlineUsersPanel : UserControl
                 else if (_viewModel?.GroupedUsers.Any() == true)
                     ShowUsersList();
             }
+            else if (e.PropertyName == nameof(OnlineUsersPanelViewModel.IsRefreshing))
+            {
+                // Actualizar subtitle cuando termina el refresh
+                if (_viewModel?.IsRefreshing == false && _viewModel.GroupedUsers.Any())
+                {
+                    UpdateSubtitle();
+                }
+            }
             else if (e.PropertyName == nameof(OnlineUsersPanelViewModel.ErrorMessage))
             {
                 if (!string.IsNullOrEmpty(_viewModel?.ErrorMessage))

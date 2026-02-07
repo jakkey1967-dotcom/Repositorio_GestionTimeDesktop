@@ -236,11 +236,27 @@ public sealed class UserCardItem
     public string Email { get; }
     public string Role { get; }
     public bool IsOnline { get; }
+    public DateTime? LastSeenAt { get; }
     public string StatusText => IsOnline ? "Online" : "Offline";
     public string StatusBadgeBackground => IsOnline ? "#E0F7F9" : "#F5F5F5";
     public string StatusBadgeDotColor => IsOnline ? "#0FA7B6" : "#999999";
     public string StatusBadgeTextColor => IsOnline ? "#0FA7B6" : "#999999";
     public string RoleBadge { get; }
+
+    /// <summary>Texto de timestamp: "Actualizado: ..." si online, "Última actividad: ..." si offline.</summary>
+    public string DisplayStampText
+    {
+        get
+        {
+            if (LastSeenAt == null)
+                return "—";
+
+            var formatted = LastSeenAt.Value.ToString("dd/MM/yyyy HH:mm:ss");
+            return IsOnline
+                ? $"Actualizado: {formatted}"
+                : $"Última actividad: {formatted}";
+        }
+    }
 
     public UserCardItem(PresenceUserDto dto)
     {
@@ -249,6 +265,7 @@ public sealed class UserCardItem
         Email = dto.Email;
         Role = dto.Role;
         IsOnline = dto.IsOnline;
+        LastSeenAt = dto.LastSeenAt;
 
         RoleBadge = dto.Role?.ToUpperInvariant() switch
         {

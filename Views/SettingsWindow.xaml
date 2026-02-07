@@ -61,7 +61,7 @@ Title="Configuración - GestionTime">
                               VerticalScrollBarVisibility="Auto"
                               Margin="0,8,0,0">
                     <ItemsControl x:Name="SectionsList"
-                                  ItemsSource="{Binding FilteredSections}">
+                                  ItemsSource="{Binding FilteredSections, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Click="OnSectionClick"
@@ -73,28 +73,39 @@ Title="Configuración - GestionTime">
                                         Padding="12,10"
                                         Margin="0,0,0,4"
                                         CornerRadius="6">
-                                    <Grid ColumnSpacing="12">
+                                    <Grid ColumnSpacing="8">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>   <!-- Icono -->
+                                            <ColumnDefinition Width="*"/>      <!-- Texto -->
+                                            <ColumnDefinition Width="Auto"/>   <!-- Candado -->
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Icono -->
+                                        <!-- Icono de sección -->
                                         <FontIcon Grid.Column="0"
                                                   FontFamily="Segoe MDL2 Assets"
-                                                  Glyph="{Binding Icon}"
+                                                  Glyph="{Binding Icon, Mode=OneTime}"
                                                   FontSize="18"
                                                   Foreground="{StaticResource AccentBrush}"
                                                   VerticalAlignment="Center"/>
 
-                                        <!-- Texto -->
+                                        <!-- Título de sección -->
                                         <TextBlock Grid.Column="1"
-                                                   Text="{Binding Title}"
-                                                   FontSize="14"
+                                                   Text="{Binding Title, Mode=OneTime}"
+                                                   FontSize="16"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"
                                                    TextWrapping="NoWrap"
-                                                   TextTrimming="CharacterEllipsis"/>
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="0,0,8,0"/>
+
+                                        <!-- Candado (abierto/cerrado) -->
+                                        <FontIcon Grid.Column="2"
+                                                  FontFamily="Segoe MDL2 Assets"
+                                                  Glyph="{Binding LockIcon, Mode=OneTime}"
+                                                  FontSize="16"
+                                                  Foreground="{Binding LockBrush, Mode=OneTime}"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Right"/>
                                     </Grid>
                                 </Button>
                             </DataTemplate>
@@ -121,6 +132,15 @@ Title="Configuración - GestionTime">
                                FontSize="14"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                 </StackPanel>
+
+                <!-- InfoBar de acceso denegado -->
+                <InfoBar x:Name="AccessDeniedInfoBar"
+                         IsOpen="False"
+                         Severity="Warning"
+                         Title="Acceso denegado"
+                         Message="No tienes permisos para acceder a esta sección."
+                         IsClosable="True"
+                         Closed="OnAccessDeniedInfoBarClosed"/>
 
                 <!-- Contenido dinámico -->
                 <Border x:Name="SectionContentContainer"

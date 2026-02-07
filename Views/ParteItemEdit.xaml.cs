@@ -77,7 +77,6 @@ public sealed partial class ParteItemEdit : Page
     
     // 🆕 UX: Control manual de selección de tags (sin auto-commit)
     private string _tagInputBeforeNavigation = string.Empty; // Texto original antes de navegar con flechas
-    private bool _isNavigatingTagSuggestions = false; // Flag para detectar navegación con flechas
     
     // Sistema de tracking de foco
     private string _lastFocusedControl = "";
@@ -666,9 +665,12 @@ public sealed partial class ParteItemEdit : Page
         // NO redimensionar aquí - se hace desde DiarioPage después de Activate()
     }
 
-    public async void NewParte()
+    /// <summary>Inicializa un nuevo parte con la hora de inicio especificada o la actual.</summary>
+    /// <param name="horaInicio">Hora de inicio en formato HH:mm. Si es null, usa la hora actual.</param>
+    public async void NewParte(string? horaInicio = null)
     {
-        var horaInicioNow = DateTime.Now.ToString("HH:mm");
+        // Usar la hora proporcionada o la actual como fallback
+        var horaInicioEffective = horaInicio ?? DateTime.Now.ToString("HH:mm");
         
         // Actualizar título del banner
         TxtTituloParte.Text = "Nuevo Parte";
@@ -685,7 +687,7 @@ public sealed partial class ParteItemEdit : Page
             Cliente = string.Empty,
             Tienda = string.Empty,
             Accion = string.Empty,
-            HoraInicio = horaInicioNow,
+            HoraInicio = horaInicioEffective,
             HoraFin = string.Empty,
             Ticket = string.Empty,
             Grupo = string.Empty,
@@ -695,13 +697,21 @@ public sealed partial class ParteItemEdit : Page
             EstadoInt = 0
         };
 
-        App.Log?.LogInformation("PARTE_CREATE_ABIERTO: Nuevo parte con hora_inicio={horaInicio}, estado=0 (Abierto)", horaInicioNow);
+        App.Log?.LogInformation("PARTE_CREATE_ABIERTO: Nuevo parte con hora_inicio={horaInicio}, estado=0 (Abierto)", horaInicioEffective);
+        if (horaInicio != null)
+        {
+            App.Log?.LogInformation("   📌 Hora heredada del último parte del día: {hora}", horaInicio);
+        }
+        else
+        {
+            App.Log?.LogInformation("   🕐 Usando hora actual (sin partes previos en el día)");
+        }
 
         DpFecha.Date = DateTime.Today;
         TxtCliente.Text = "";  // AutoSuggestBox vacío
         TxtTienda.Text = "";
         TxtAccion.Text = "";
-        TxtHoraInicio.Text = horaInicioNow;
+        TxtHoraInicio.Text = horaInicioEffective;
         TxtHoraFin.Text = "";
         TxtDuracion.Text = "0";
         TxtTicket.Text = "";
@@ -715,10 +725,10 @@ public sealed partial class ParteItemEdit : Page
         if (BtnAccionGrabar != null)
             BtnAccionGrabar.IsEnabled = true;
         
-        // 🆕 NOTA CLIENTE: Ocultar icono de nota (no hay cliente seleccionado)
+        // 🆕 NOTA CLIENTE: Limpiar datos de nota (no hay cliente seleccionado)
         _clienteIdActual = 0;
         _clienteNotaActual = null;
-        BtnClienteNota.Visibility = Visibility.Collapsed;
+        UpdateNotaTooltip();
         
         App.Log?.LogDebug("✅ Botón Guardar habilitado para nuevo parte");
 
@@ -1788,7 +1798,7 @@ public sealed partial class ParteItemEdit : Page
  App.Log?.LogDebug("Badge de estado actualizado: {estado} (color: {color})", textoEstado, colorBadge);
     }
     
-    /// <summary>Busca clientes en la API según el texto ingresado (case-insensitive).</summary>
+    /// <summary>Busca clientes en la API según el texto ingresado (case-insensitive + sin acentos).</summary>
     private async Task SearchClientesAsync()
     {
         var query = TxtCliente.Text?.Trim() ?? string.Empty;
@@ -1819,6 +1829,9 @@ public sealed partial class ParteItemEdit : Page
             
             App.Log?.LogInformation("🔍 Buscando clientes: '{query}'", query);
             
+            // Normalizar query (minúsculas + sin acentos) para búsqueda más sensible
+            var queryNormalized = query.RemoveAccents();
+            
             // Llamar a la API con el parámetro de búsqueda
             var path = $"/api/v1/catalog/clientes?q={Uri.EscapeDataString(query)}&limit=20&offset=0";
             var response = await App.Api.GetAsync<ClienteResponse[]>(path, ct);
@@ -1827,11 +1840,17 @@ public sealed partial class ParteItemEdit : Page
             {
                 _clienteSuggestions.Clear();
                 
+                // Filtrar resultados localmente con normalización (case-insensitive + sin acentos)
                 foreach (var cliente in response)
                 {
                     if (!string.IsNullOrWhiteSpace(cliente.Nombre))
                     {
-                        _clienteSuggestions.Add(cliente.Nombre);
+                        var nombreNormalized = cliente.Nombre.RemoveAccents();
+                        // Búsqueda de izquierda a derecha (StartsWith)
+                        if (nombreNormalized.StartsWith(queryNormalized, StringComparison.Ordinal))
+                        {
+                            _clienteSuggestions.Add(cliente.Nombre);
+                        }
                     }
                 }
                 
@@ -1843,9 +1862,10 @@ public sealed partial class ParteItemEdit : Page
                     var onlySuggestion = _clienteSuggestions[0];
                     App.Log?.LogDebug("💡 Una sola sugerencia encontrada: '{suggestion}'", onlySuggestion);
                     
+                    var onlySuggestionNormalized = onlySuggestion.RemoveAccents();
                     // Si el usuario escribió texto que coincide parcialmente, completar
-                    if (onlySuggestion.StartsWith(query, StringComparison.OrdinalIgnoreCase) &&
-                        !string.Equals(query, onlySuggestion, StringComparison.OrdinalIgnoreCase))
+                    if (onlySuggestionNormalized.StartsWith(queryNormalized, StringComparison.Ordinal) &&
+                        !string.Equals(queryNormalized, onlySuggestionNormalized, StringComparison.Ordinal))
                     {
                         // Actualizar el texto con la sugerencia completa
                         TxtCliente.Text = onlySuggestion;
@@ -1952,9 +1972,15 @@ public sealed partial class ParteItemEdit : Page
             {
                 _clienteIdActual = 0;
                 _clienteNotaActual = null;
-                BtnClienteNota.Visibility = Visibility.Collapsed;
                 UpdateNotaTooltip();
                 return;
+            }
+            
+            // 🆕 FIX: Asegurar que el cache de clientes esté cargado
+            if (_clientesCache == null || !IsCacheValid())
+            {
+                App.Log?.LogDebug("🔄 Cache de clientes no disponible, cargando...");
+                await LoadClientesAsync();
             }
             
             // Buscar cliente en cache
@@ -1963,10 +1989,10 @@ public sealed partial class ParteItemEdit : Page
             
             if (cliente == null || cliente.Id == 0)
             {
-                App.Log?.LogDebug("⚠️ Cliente '{nombre}' no encontrado en cache", clienteNombre);
+                App.Log?.LogWarning("⚠️ Cliente '{nombre}' no encontrado en cache después de cargar ({count} clientes en cache)", 
+                    clienteNombre, _clientesCache?.Count ?? 0);
                 _clienteIdActual = 0;
                 _clienteNotaActual = null;
-                BtnClienteNota.Visibility = Visibility.Collapsed;
                 UpdateNotaTooltip();
                 return;
             }
@@ -2018,7 +2044,6 @@ public sealed partial class ParteItemEdit : Page
                 ex is ApiException apiEx ? apiEx.StatusCode.ToString() : "N/A");
             
             _clienteNotaActual = null;
-            BtnClienteNota.Visibility = Visibility.Collapsed;
             UpdateNotaTooltip();
         }
     }
@@ -2028,13 +2053,10 @@ public sealed partial class ParteItemEdit : Page
     {
         if (string.IsNullOrWhiteSpace(_clienteNotaActual))
         {
-            BtnClienteNota.Visibility = Visibility.Collapsed;
             TxtNotaTooltip.Text = "Sin nota";
         }
         else
         {
-            BtnClienteNota.Visibility = Visibility.Visible;
-            
             // Mostrar primeras 200 caracteres con "..." si es más largo
             var preview = _clienteNotaActual.Length <= 200 
                 ? _clienteNotaActual 

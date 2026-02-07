@@ -73,47 +73,185 @@ public sealed class ExcelExportService : IExcelExportService
 
                 // ✅ DATOS (fila por fila)
                 int row = 2;
+                int firstDataRow = 2;
+                int rowsWithErrors = 0;
+                int rowsWithMissingTime = 0;
+                int rowsWithFallbackDuration = 0;
+                
                 foreach (var parte in listaPartes)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    
+                    bool hasError = false;
+                    var errorDetails = new List<string>();
 
                     // PROYECTO = Cliente
                     worksheet.Cell(row, 1).Value = parte.Cliente ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(parte.Cliente))
+                    {
+                        errorDetails.Add("Cliente vacío");
+                    }
 
-                    // FECHA (formato dd/MM/yyyy)
-                    worksheet.Cell(row, 2).Value = parte.Fecha != default
-                        ? parte.Fecha.ToString("dd/MM/yyyy")
-                        : string.Empty;
+                    // FECHA (como valor de fecha, no texto)
+                    if (parte.Fecha != default)
+                    {
+                        worksheet.Cell(row, 2).Value = parte.Fecha;
+                        worksheet.Cell(row, 2).Style.DateFormat.Format = "dd/MM/yyyy";
+                    }
+                    else
+                    {
+                        errorDetails.Add("Fecha inválida");
+                        hasError = true;
+                    }
 
-                    // HORA INICIO (formato HH:mm)
-                    worksheet.Cell(row, 3).Value = FormatHora(parte.HoraInicio);
+                    // HORA INICIO (como valor de tiempo, no texto)
+                    var horaInicio = ParseTimeToExcelValue(parte.HoraInicio);
+                    if (horaInicio.HasValue)
+                    {
+                        worksheet.Cell(row, 3).Value = horaInicio.Value;
+                        worksheet.Cell(row, 3).Style.NumberFormat.Format = "HH:mm";
+                    }
+                    else
+                    {
+                        errorDetails.Add($"Hora Inicio inválida o vacía: '{parte.HoraInicio}'");
+                        rowsWithMissingTime++;
+                    }
 
-                    // HORA FIN (formato HH:mm)
-                    worksheet.Cell(row, 4).Value = FormatHora(parte.HoraFin);
+                    // HORA FIN (como valor de tiempo, no texto)
+                    var horaFin = ParseTimeToExcelValue(parte.HoraFin);
+                    if (horaFin.HasValue)
+                    {
+                        worksheet.Cell(row, 4).Value = horaFin.Value;
+                        worksheet.Cell(row, 4).Style.NumberFormat.Format = "HH:mm";
+                    }
+                    else
+                    {
+                        errorDetails.Add($"Hora Fin inválida o vacía: '{parte.HoraFin}'");
+                        rowsWithMissingTime++;
+                    }
 
-                    // DURACION (convertir minutos a HH:mm)
-                    worksheet.Cell(row, 5).Value = FormatDuracion(parte.DuracionMin);
+                    // DURACION (fórmula Excel: HoraFin - HoraInicio, con manejo de medianoche)
+                    if (horaInicio.HasValue && horaFin.HasValue)
+                    {
+                        // ✅ Validar que la duración calculada sea razonable (<24h normalmente)
+                        var duracionCalculada = horaFin.Value - horaInicio.Value;
+                        if (duracionCalculada < 0)
+                        {
+                            // Cruce de medianoche
+                            duracionCalculada += 1.0; // Sumar 1 día
+                        }
+                        
+                        // Advertir si duración >16 horas (jornada muy larga, posible error)
+                        if (duracionCalculada > 0.666667) // 16/24 = 0.666667
+                        {
+                            errorDetails.Add($"Duración sospechosa: {duracionCalculada * 24:F2}h");
+                            hasError = true;
+                        }
+                        
+                        // Fórmula: Si HoraFin < HoraInicio, suma 1 día (cruce de medianoche)
+                        worksheet.Cell(row, 5).FormulaA1 = $"=IF(D{row}<C{row},D{row}+1-C{row},D{row}-C{row})";
+                        worksheet.Cell(row, 5).Style.NumberFormat.Format = "[h]:mm:ss";
+                    }
+                    else
+                    {
+                        // Fallback: Si no hay horas, usar duración en minutos
+                        if (parte.DuracionMin > 0)
+                        {
+                            // Advertir si duración >16 horas
+                            if (parte.DuracionMin > 960) // 16 * 60
+                            {
+                                errorDetails.Add($"DuracionMin sospechosa: {parte.DuracionMin} min ({parte.DuracionMin/60.0:F2}h)");
+                                hasError = true;
+                            }
+                            
+                            // Convertir minutos a fracción de día (1 día = 1440 minutos)
+                            worksheet.Cell(row, 5).Value = parte.DuracionMin / 1440.0;
+                            worksheet.Cell(row, 5).Style.NumberFormat.Format = "[h]:mm:ss";
+                            rowsWithFallbackDuration++;
+                        }
+                        else
+                        {
+                            // Sin duración disponible - dejar celda vacía
+                            errorDetails.Add("Sin duración disponible (horas y minutos faltantes)");
+                            hasError = true;
+                        }
+                    }
 
                     // TAREA = Acción
                     worksheet.Cell(row, 6).Value = parte.Accion ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(parte.Accion))
+                    {
+                        errorDetails.Add("Tarea vacía");
+                    }
 
                     // GRUPO
                     worksheet.Cell(row, 7).Value = parte.Grupo ?? string.Empty;
 
                     // TIPO
                     worksheet.Cell(row, 8).Value = parte.Tipo ?? string.Empty;
+                    
+                    // ✅ LOG: Registrar advertencias para esta fila
+                    if (hasError || errorDetails.Any())
+                    {
+                        rowsWithErrors++;
+                        App.Log?.LogWarning("⚠️ Fila {row} - Parte ID {id}: {errors}", 
+                            row, parte.Id, string.Join("; ", errorDetails));
+                    }
 
                     row++;
                 }
 
+                int lastDataRow = row - 1;
+                
                 App.Log?.LogDebug("✅ Datos escritos ({count} filas)", listaPartes.Count);
+                
+                // ✅ LOG: Resumen de validación
+                if (rowsWithErrors > 0)
+                {
+                    App.Log?.LogWarning("⚠️ VALIDACIÓN: {errors} filas con advertencias/errores", rowsWithErrors);
+                }
+                if (rowsWithMissingTime > 0)
+                {
+                    App.Log?.LogWarning("⚠️ VALIDACIÓN: {count} valores de hora faltantes o inválidos", rowsWithMissingTime);
+                }
+                if (rowsWithFallbackDuration > 0)
+                {
+                    App.Log?.LogInformation("ℹ️ VALIDACIÓN: {count} filas usan DuracionMin (fallback)", rowsWithFallbackDuration);
+                }
+                if (rowsWithErrors == 0 && rowsWithMissingTime == 0)
+                {
+                    App.Log?.LogInformation("✅ VALIDACIÓN: Todos los datos son correctos");
+                }
 
                 cancellationToken.ThrowIfCancellationRequested();
 
+                // ✅ FILA DE TOTAL
+                if (listaPartes.Any())
+                {
+                    int totalRow = row;
+                    
+                    // Etiqueta "TOTAL"
+                    worksheet.Cell(totalRow, 1).Value = "TOTAL";
+                    worksheet.Cell(totalRow, 1).Style.Font.Bold = true;
+                    worksheet.Cell(totalRow, 1).Style.Font.FontSize = 12;
+                    
+                    // Fórmula SUM en columna DURACION
+                    worksheet.Cell(totalRow, 5).FormulaA1 = $"=SUM(E{firstDataRow}:E{lastDataRow})";
+                    worksheet.Cell(totalRow, 5).Style.NumberFormat.Format = "[h]:mm:ss";
+                    worksheet.Cell(totalRow, 5).Style.Font.Bold = true;
+                    worksheet.Cell(totalRow, 5).Style.Font.FontSize = 12;
+                    worksheet.Cell(totalRow, 5).Style.Fill.BackgroundColor = XLColor.FromHtml("#E0F2F1"); // Teal 50
+                    
+                    App.Log?.LogDebug("✅ Fila TOTAL añadida (fila {row})", totalRow);
+                    
+                    row++; // Incrementar para incluir fila total en rangos
+                }
+
                 // ✅ FORMATO PROFESIONAL
                 
-                // Autofiltro en encabezados
-                worksheet.RangeUsed()?.SetAutoFilter();
+                // Autofiltro en encabezados (solo hasta la última fila de datos, sin incluir TOTAL)
+                var autoFilterRange = worksheet.Range(1, 1, lastDataRow, headers.Length);
+                autoFilterRange.SetAutoFilter();
                 App.Log?.LogDebug("✅ Autofiltro aplicado");
 
                 // Ajustar ancho de columnas automáticamente
@@ -124,11 +262,16 @@ public sealed class ExcelExportService : IExcelExportService
                 worksheet.SheetView.FreezeRows(1);
                 App.Log?.LogDebug("✅ Primera fila congelada");
 
-                // Bordes en toda la tabla
+                // Bordes en toda la tabla (incluyendo fila TOTAL)
                 var dataRange = worksheet.Range(1, 1, row - 1, headers.Length);
                 dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                 App.Log?.LogDebug("✅ Bordes aplicados");
+                
+                // ✅ CONFIGURAR WORKBOOK PARA AUTO-CÁLCULO
+                workbook.CalculateMode = XLCalculateMode.Auto;
+                workbook.RecalculateAllFormulas();
+                App.Log?.LogDebug("✅ Workbook configurado para auto-cálculo");
 
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -154,27 +297,44 @@ public sealed class ExcelExportService : IExcelExportService
         }
     }
 
-    /// <summary>Formatea una hora en formato HH:mm.</summary>
-    private static string FormatHora(string? hora)
+    /// <summary>Convierte un string de hora (HH:mm o HH:mm:ss) a un valor numérico de Excel (fracción de día).</summary>
+    private static double? ParseTimeToExcelValue(string? horaStr)
     {
-        if (string.IsNullOrWhiteSpace(hora))
-            return string.Empty;
+        if (string.IsNullOrWhiteSpace(horaStr))
+            return null;
 
-        // Si ya tiene formato HH:mm, retornar tal cual
-        if (TimeSpan.TryParse(hora, out var time))
-            return time.ToString(@"hh\:mm");
+        try
+        {
+            // Intentar parsear como TimeSpan
+            if (TimeSpan.TryParse(horaStr, out var timeSpan))
+            {
+                // Validar que esté en rango válido (0-24 horas)
+                if (timeSpan.TotalHours < 0 || timeSpan.TotalHours >= 24)
+                {
+                    App.Log?.LogWarning("⚠️ Hora fuera de rango (0-24h): '{hora}' = {hours}h", 
+                        horaStr, timeSpan.TotalHours);
+                    
+                    // Normalizar al rango 0-24h
+                    var normalizedHours = ((timeSpan.TotalHours % 24) + 24) % 24;
+                    return normalizedHours / 24.0;
+                }
+                
+                // Convertir TimeSpan a fracción de día (1 día = 24 horas)
+                // Excel representa tiempos como fracciones: 0.5 = 12:00:00
+                return timeSpan.TotalDays;
+            }
+            else
+            {
+                App.Log?.LogWarning("⚠️ Formato de hora inválido: '{hora}'", horaStr);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error parseando hora: '{hora}'", horaStr);
+        }
 
-        return hora.Trim();
-    }
-
-    /// <summary>Convierte minutos a formato HH:mm.</summary>
-    private static string FormatDuracion(int minutos)
-    {
-        if (minutos <= 0)
-            return string.Empty;
-
-        var horas = minutos / 60;
-        var mins = minutos % 60;
-        return $"{horas:D2}:{mins:D2}";
+        return null;
     }
 }
+
+

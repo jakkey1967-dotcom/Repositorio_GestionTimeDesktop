@@ -1,12 +1,12 @@
 # ═══════════════════════════════════════════════════════════════
-# COMPILAR INSTALADOR MSI - GESTIONTIME DESKTOP v1.5.0-beta
+# COMPILAR INSTALADOR MSI - GESTIONTIME DESKTOP v1.9.0-beta
 # WiX Toolset v3.14
 # ═══════════════════════════════════════════════════════════════
 
 param(
     [string]$SourceDir = "..\publish\portable",
     [string]$OutputDir = "..\installers",
-    [string]$Version = "1.5.0-beta"
+    [string]$Version = "1.9.0-beta"
 )
 
 $ErrorActionPreference = "Stop"

@@ -37,6 +37,20 @@ public sealed class OnlineUsersPanelViewModel : INotifyPropertyChanged, IDisposa
         }
     }
 
+    private bool _isRefreshing;
+    public bool IsRefreshing
+    {
+        get => _isRefreshing;
+        set
+        {
+            if (_isRefreshing != value)
+            {
+                _isRefreshing = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     private string _errorMessage = string.Empty;
     public string ErrorMessage
     {
@@ -58,18 +72,18 @@ public sealed class OnlineUsersPanelViewModel : INotifyPropertyChanged, IDisposa
         _cts = new CancellationTokenSource();
     }
 
-    /// <summary>Inicia el polling automático de usuarios (cada 15 segundos).</summary>
+    /// <summary>Inicia el polling automático de usuarios (cada 30 segundos).</summary>
     public void StartRefreshTimer()
     {
         if (_refreshTimer != null)
             return;
 
         _refreshTimer = _dispatcher.CreateTimer();
-        _refreshTimer.Interval = TimeSpan.FromSeconds(15);
+        _refreshTimer.Interval = TimeSpan.FromSeconds(30);
         _refreshTimer.Tick += async (s, e) => await RefreshAsync();
         _refreshTimer.Start();
 
-        _log?.LogInformation("⏰ Timer de refresh iniciado (15s) - Panel integrado");
+        _log?.LogInformation("⏰ Timer de refresh iniciado (30s) - Panel integrado");
     }
 
     /// <summary>Detiene el polling automático.</summary>
@@ -141,6 +155,15 @@ public sealed class OnlineUsersPanelViewModel : INotifyPropertyChanged, IDisposa
         if (_cts?.Token.IsCancellationRequested == true)
             return;
 
+        // Evitar solapamientos
+        if (IsRefreshing)
+        {
+            _log?.LogDebug("⏭️ Refresh ya en curso, saltando...");
+            return;
+        }
+
+        IsRefreshing = true;
+
         try
         {
             _log?.LogDebug("🔄 Refrescando usuarios en panel integrado...");
@@ -173,6 +196,10 @@ public sealed class OnlineUsersPanelViewModel : INotifyPropertyChanged, IDisposa
         catch (Exception ex)
         {
             _log?.LogWarning(ex, "⚠️ Error refrescando usuarios");
+        }
+        finally
+        {
+            IsRefreshing = false;
         }
     }
 

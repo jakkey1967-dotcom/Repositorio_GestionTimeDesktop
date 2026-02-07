@@ -1,4 +1,5 @@
 using GestionTime.Desktop.Models.Enums;
+using Microsoft.UI.Xaml.Media;
 
 namespace GestionTime.Desktop.Models;
 
@@ -22,4 +23,13 @@ public sealed class SettingsSectionItem
     
     /// <summary>Indica si la sección está visible en el menú (según permisos).</summary>
     public bool IsVisible { get; set; } = true;
+    
+    /// <summary>Indica si el usuario actual tiene permiso para acceder a esta sección.</summary>
+    public bool IsAllowed { get; set; } = true;
+    
+    /// <summary>Icono de candado: 🔓 (permitido) o 🔒 (bloqueado).</summary>
+    public string LockIcon { get; set; } = "\uE785"; // LockOpen
+    
+    /// <summary>Color del candado: verde/teal (permitido) o amarillo (bloqueado).</summary>
+    public Brush LockBrush { get; set; } = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
 }

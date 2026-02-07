@@ -448,7 +448,7 @@ namespace GestionTime.Desktop.Views
                     App.Log?.LogInformation("✅ Información básica guardada correctamente");
                     
                     // ✅ PASO 2: Intentar cargar perfil completo (OPCIONAL - sin sobrescribir email)
-                    if (string.IsNullOrEmpty(res.UserName) || string.IsNullOrEmpty(res.UserRole))
+                    if (res.User == null || string.IsNullOrEmpty(res.User.FullName) || string.IsNullOrEmpty(res.User.Role))
                     {
                         App.Log?.LogInformation("🔄 LoginResponse incompleto, intentando cargar perfil desde /api/v1/profiles/me...");
                         
@@ -548,9 +548,22 @@ namespace GestionTime.Desktop.Views
                     App.Log?.LogWarning(animEx, "Error en animación de fade out");
                 }
 
-                // 🆕 NUEVO: Guardar email del login en sesión global
+                // 🔥 CRÍTICO: LIMPIAR TODO EL ESTADO DE SESIÓN ANTERIOR
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                App.Log?.LogInformation("🗑️ LIMPIANDO SESIÓN ANTERIOR COMPLETA");
+                App.Log?.LogInformation("   • Perfil anterior: {old}", App.CurrentUserProfile?.FullName ?? "NULL");
+                App.Log?.LogInformation("   • Email anterior: {old}", App.CurrentLoginEmail ?? "NULL");
+                
+                // Limpiar TODAS las variables globales de sesión
+                App.CurrentUserProfile = null;
+                App.CurrentLoginEmail = null;
+                
+                App.Log?.LogInformation("✅ Sesión anterior limpiada completamente");
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                
+                // 🆕 AHORA guardar el email del login NUEVO
                 App.CurrentLoginEmail = email;
-                App.Log?.LogInformation("📧 Email del login guardado en sesión global: {email}", App.CurrentLoginEmail);
+                App.Log?.LogInformation("📧 Email del login NUEVO guardado: {email}", App.CurrentLoginEmail);
 
                 // Navega a Diario
                 if (App.MainWindowInstance?.Navigator != null)

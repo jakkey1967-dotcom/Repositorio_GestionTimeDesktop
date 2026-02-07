@@ -61,6 +61,63 @@ public sealed class ClientesService
         }
     }
 
+    /// <summary>Listar clientes con filtros avanzados</summary>
+    public async Task<PagedResponse<ClienteDto>?> ListWithFiltersAsync(
+        int page = 1,
+        int size = 50,
+        string? q = null,
+        int? idPuntoop = null,
+        int? localNum = null,
+        string? provincia = null,
+        bool? hasNota = null,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var queryParams = new List<string>
+            {
+                $"page={page}",
+                $"size={size}"
+            };
+
+            if (!string.IsNullOrWhiteSpace(q))
+                queryParams.Add($"q={Uri.EscapeDataString(q)}");
+
+            if (idPuntoop.HasValue)
+                queryParams.Add($"id_puntoop={idPuntoop.Value}");
+
+            if (localNum.HasValue)
+                queryParams.Add($"local_num={localNum.Value}");
+
+            if (!string.IsNullOrWhiteSpace(provincia))
+                queryParams.Add($"provincia={Uri.EscapeDataString(provincia)}");
+
+            if (hasNota.HasValue)
+                queryParams.Add($"hasNota={hasNota.Value.ToString().ToLowerInvariant()}");
+
+            var path = $"/api/v1/clientes?{string.Join("&", queryParams)}";
+            
+            _log.LogDebug("📋 Listando clientes con filtros - URL: {path}", path);
+            _log.LogInformation("📋 Filtros: q='{q}', idPuntoop={idPuntoop}, localNum={localNum}, provincia='{provincia}', hasNota={hasNota}, page={page}, size={size}",
+                q ?? "(vacío)", idPuntoop, localNum, provincia ?? "(vacío)", hasNota, page, size);
+
+            var result = await _api.GetAsync<PagedResponse<ClienteDto>>(path, ct);
+
+            if (result != null)
+            {
+                _log.LogInformation("✅ {count} clientes cargados (Total: {total}, Páginas: {totalPages})",
+                    result.Items.Count, result.TotalCount, result.TotalPages);
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "❌ Error listando clientes con filtros");
+            throw;
+        }
+    }
+
     /// <summary>Obtener un cliente por ID</summary>
     public async Task<ClienteDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {

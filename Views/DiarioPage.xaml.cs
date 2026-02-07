@@ -346,82 +346,39 @@ public sealed partial class DiarioPage : Page
             // Inicializar tema y assets
             UpdateThemeAssets(this.RequestedTheme);
 
-            // 🆕 NUEVO: Cargar perfil dinámicamente desde API (solo si no está cacheado)
+            // 🔥 FIX DEFINITIVO: Usar mismo dato que la notificación (UserInfo del login)
             try
             {
-                // Intentar cargar perfil desde cache global primero
-                if (App.CurrentUserProfile == null)
-                {
-                    App.Log?.LogInformation("📥 Cargando perfil del usuario desde API...");
-                    
-                    try
-                    {
-                        App.CurrentUserProfile = await App.ProfileService.GetCurrentUserProfileAsync();
-                        
-                        if (App.CurrentUserProfile != null)
-                        {
-                            App.Log?.LogInformation("✅ Perfil cargado: {firstName} {lastName} | {phone}", 
-                                App.CurrentUserProfile.FirstName, 
-                                App.CurrentUserProfile.LastName,
-                                App.CurrentUserProfile.Phone);
-                        }
-                        else
-                        {
-                            App.Log?.LogWarning("⚠️ Perfil no encontrado en backend, usando datos del login");
-                        }
-                    }
-                    catch (Exception profileEx)
-                    {
-                        App.Log?.LogWarning(profileEx, "⚠️ Error cargando perfil, usando fallback");
-                    }
-                }
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
+                App.Log?.LogInformation("🔄 BANNER: Cargando desde UserInfoFileStorage (login response)");
                 
-                // Construir información para mostrar en el banner
-                string displayName;
-                string displayEmail;
-                string displayPhone;
+                // ✅ Cargar datos guardados en el login (MISMOS que usa la notificación)
+                var userInfo = UserInfoFileStorage.LoadUserInfo(App.Log);
                 
-                if (App.CurrentUserProfile != null)
+                if (userInfo != null)
                 {
-                    // 📊 Usar datos del perfil completo
-                    displayName = $"{App.CurrentUserProfile.FirstName} {App.CurrentUserProfile.LastName}".Trim();
-                    displayEmail = App.CurrentLoginEmail ?? App.CurrentUserProfile.FullName ?? "usuario@empresa.com";
-                    displayPhone = App.CurrentUserProfile.Phone ?? "";
+                    ViewModel.DisplayName = userInfo.UserName ?? "";
+                    ViewModel.DisplayEmail = userInfo.UserEmail ?? App.CurrentLoginEmail ?? "usuario@empresa.com";
+                    ViewModel.DisplayPhone = ""; // Sin teléfono (no viene en login response)
                     
-                    if (string.IsNullOrWhiteSpace(displayName))
-                    {
-                        displayName = displayEmail.Split('@')[0]; // Fallback: parte local del email
-                    }
+                    App.Log?.LogInformation("✅ Banner configurado desde login response:");
+                    App.Log?.LogInformation("   • DisplayName: {name}", ViewModel.DisplayName);
+                    App.Log?.LogInformation("   • DisplayEmail: {email}", ViewModel.DisplayEmail);
                 }
                 else
                 {
-                    // 📧 Fallback: Usar email del login
-                    var settings = Windows.Storage.ApplicationData.Current.LocalSettings.Values;
-                    
-                    var userName = settings.TryGetValue("UserName", out var nameObj) && nameObj is string name 
-                        ? name 
-                        : "Usuario";
-                        
-                    displayName = userName;
-                    displayEmail = App.CurrentLoginEmail ?? "usuario@empresa.com";
-                    displayPhone = ""; // Sin perfil, no hay teléfono
+                    App.Log?.LogWarning("⚠️ UserInfo no disponible - Usando fallback");
+                    ViewModel.DisplayName = "";
+                    ViewModel.DisplayEmail = App.CurrentLoginEmail ?? "usuario@empresa.com";
+                    ViewModel.DisplayPhone = "";
                 }
                 
-                // Actualizar ViewModel con los datos dinámicos
-                ViewModel.DisplayName = displayName;
-                ViewModel.DisplayEmail = displayEmail;
-                ViewModel.DisplayPhone = displayPhone;
-                
-                App.Log?.LogInformation("🎨 Banner actualizado: {name} | {email} | {phone}", 
-                    displayName, displayEmail, 
-                    string.IsNullOrEmpty(displayPhone) ? "(sin teléfono)" : displayPhone);
+                App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             }
             catch (Exception ex)
             {
-                App.Log?.LogWarning(ex, "Error cargando perfil del usuario");
-                
-                // Fallback seguro
-                ViewModel.DisplayName = "Usuario";
+                App.Log?.LogWarning(ex, "Error configurando banner");
+                ViewModel.DisplayName = "";
                 ViewModel.DisplayEmail = App.CurrentLoginEmail ?? "usuario@empresa.com";
                 ViewModel.DisplayPhone = "";
             }
@@ -1116,6 +1073,57 @@ public sealed partial class DiarioPage : Page
     }
 
     // ===================== Botones principales =====================
+    
+    /// <summary>Calcula la hora de inicio para un nuevo parte basándose en el último parte del día actual.</summary>
+    /// <returns>Hora de inicio en formato HH:mm. Si hay partes del día actual, retorna la hora de FIN del más reciente (o su hora de inicio si no está cerrado). Si no, retorna la hora actual.</returns>
+    private string CalcularHoraInicioParaNuevoParte()
+    {
+        try
+        {
+            var hoy = DateTime.Today;
+            
+            // Buscar partes del día actual en el cache (ordenados por hora inicio DESC)
+            var partesHoy = _cache30dias
+                .Where(p => p.Fecha.Date == hoy)
+                .OrderByDescending(p => DiarioPageHelpers.ParseTime(p.HoraInicio ?? "00:00"))
+                .ToList();
+            
+            if (partesHoy.Any())
+            {
+                var ultimoParte = partesHoy.First();
+                
+                // ✅ CORREGIDO: Usar HoraFin si existe (continuidad), sino HoraInicio como fallback
+                string horaCalculada;
+                if (!string.IsNullOrWhiteSpace(ultimoParte.HoraFin))
+                {
+                    horaCalculada = ultimoParte.HoraFin;
+                    App.Log?.LogInformation("📌 Nuevo parte - Usando hora FIN del último parte: {hora} (Parte ID: {id}, Cliente: {cliente})",
+                        horaCalculada, ultimoParte.Id, ultimoParte.Cliente ?? "(sin cliente)");
+                }
+                else
+                {
+                    horaCalculada = ultimoParte.HoraInicio ?? DateTime.Now.ToString("HH:mm");
+                    App.Log?.LogInformation("📌 Nuevo parte - Último parte SIN hora fin, usando hora INICIO: {hora} (Parte ID: {id}, Cliente: {cliente})",
+                        horaCalculada, ultimoParte.Id, ultimoParte.Cliente ?? "(sin cliente)");
+                }
+                
+                return horaCalculada;
+            }
+            else
+            {
+                var horaActual = DateTime.Now.ToString("HH:mm");
+                
+                App.Log?.LogInformation("📌 Nuevo parte - No hay partes previos hoy, usando hora actual: {hora}", horaActual);
+                
+                return horaActual;
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error calculando hora de inicio para nuevo parte, usando hora actual como fallback");
+            return DateTime.Now.ToString("HH:mm");
+        }
+    }
 
     private async Task OpenParteEditorAsync(ParteDto? parte, string title)
     {
@@ -1133,9 +1141,15 @@ public sealed partial class DiarioPage : Page
         var idOriginal = parte?.Id ?? 0;
 
         if (parte == null)
-            editPage.NewParte();
+        {
+            // 🆕 NUEVO: Calcular hora de inicio para nuevo parte
+            var horaInicio = CalcularHoraInicioParaNuevoParte();
+            editPage.NewParte(horaInicio);
+        }
         else
+        {
             editPage.LoadParte(parte);
+        }
 
         var tcs = new TaskCompletionSource<bool>();
         window.Closed += (_, __) => tcs.TrySetResult(editPage.Guardado);
@@ -1474,29 +1488,81 @@ public sealed partial class DiarioPage : Page
             return;
         }
 
+        List<ParteDto>? allPartes = null;
+
         try
         {
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             App.Log?.LogInformation("📊 EXPORTAR A EXCEL - Iniciando proceso");
             
-            // Paso 1: Calcular semanas disponibles desde los datos actuales
-            var weeks = CalculateAvailableWeeks(Partes);
+            // ✅ NUEVO: Mostrar loader mientras carga historial completo
+            ViewModel.IsBusy = true;
+            LoadingOverlay.Visibility = Visibility.Visible;
+            LoadingRing.IsActive = true;
             
-            if (!weeks.Any())
+            App.Log?.LogInformation("📥 Cargando historial completo para exportación...");
+            
+            // ✅ NUEVO: Cargar TODO el historial sin límite (sin filtro de fechas)
+            var partesService = new Services.Catalog.PartesService(App.Api, App.Log);
+            allPartes = await partesService.ListAsync(
+                fecha: null,
+                fechaInicio: null,
+                fechaFin: null,
+                search: null,
+                estado: null,
+                idCliente: null,
+                idTipo: null,
+                idGrupo: null,
+                limit: 10000,  // Límite alto para cargar todo el historial
+                offset: 0
+            );
+            
+            if (allPartes == null || !allPartes.Any())
             {
                 App.Log?.LogWarning("⚠️ No hay datos disponibles para exportar");
                 App.Notifications?.ShowWarning(
-                    "No hay partes cargados para exportar. Carga datos primero.",
+                    "No hay partes disponibles para exportar.",
                     title: "⚠️ Sin Datos");
+                
+                ViewModel.IsBusy = false;
+                LoadingRing.IsActive = false;
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                return;
+            }
+            
+            App.Log?.LogInformation("✅ Historial cargado: {count} partes totales", allPartes.Count);
+            App.Log?.LogInformation("   • Rango de fechas: {min} a {max}", 
+                allPartes.Min(p => p.Fecha).ToString("yyyy-MM-dd"),
+                allPartes.Max(p => p.Fecha).ToString("yyyy-MM-dd"));
+            
+            // ✅ Calcular semanas desde TODO el historial
+            var weeks = CalculateAvailableWeeks(new ObservableCollection<ParteDto>(allPartes));
+            
+            if (!weeks.Any())
+            {
+                App.Log?.LogWarning("⚠️ No se pudieron calcular semanas");
+                App.Notifications?.ShowWarning(
+                    "No se pudieron calcular semanas disponibles.",
+                    title: "⚠️ Error");
+                
+                ViewModel.IsBusy = false;
+                LoadingRing.IsActive = false;
+                LoadingOverlay.Visibility = Visibility.Collapsed;
                 return;
             }
             
             App.Log?.LogInformation("📅 Semanas disponibles: {count}", weeks.Count);
             
-            // Paso 2: Calcular conteo de registros por semana
-            var recordCounts = CalculateRecordCountsByWeek(Partes, weeks);
+            // ✅ Ocultar loader antes de mostrar diálogo
+            ViewModel.IsBusy = false;
+            LoadingRing.IsActive = false;
+            LoadingOverlay.Visibility = Visibility.Collapsed;
             
-            // Paso 3: Mostrar diálogo de selección de semana
+            // Paso 2: Calcular conteo de registros por semana desde TODO el historial
+            var recordCounts = CalculateRecordCountsByWeek(
+                new ObservableCollection<ParteDto>(allPartes), weeks);
+            
+            // Paso 3: Mostrar diálogo de selección de semana con TODAS las semanas
             var dialog = new ExportWeekDialog
             {
                 XamlRoot = this.XamlRoot
@@ -1516,8 +1582,8 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogInformation("✅ Semana seleccionada: {week} (Año: {year}, Semana: {num})",
                 selectedWeek.DisplayText, selectedWeek.Year, selectedWeek.WeekNumber);
             
-            // Paso 4: Filtrar partes por semana seleccionada
-            var partesToExport = Partes
+            // Paso 4: Filtrar partes por semana seleccionada desde TODO el historial
+            var partesToExport = allPartes
                 .Where(p => System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha) == selectedWeek.WeekNumber &&
                            System.Globalization.ISOWeek.GetYear(p.Fecha) == selectedWeek.Year)
                 .OrderBy(p => p.Fecha)

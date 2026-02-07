@@ -412,8 +412,7 @@
                                             Width="32"
                                             Height="32"
                                             VerticalAlignment="Center"
-                                            Click="OnClienteNotaClick"
-                                            Visibility="Collapsed">
+                                            Click="OnClienteNotaClick">
                                         <TextBlock x:Name="TxtNotaIcono"
                                                    Text="📝"
                                                    FontSize="16"/>

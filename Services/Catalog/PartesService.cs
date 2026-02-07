@@ -29,6 +29,8 @@ public sealed class PartesService
         int? idCliente = null,
         int? idTipo = null,
         int? idGrupo = null,
+        int? limit = null,
+        int? offset = null,
         CancellationToken ct = default)
     {
         try
@@ -67,6 +69,13 @@ public sealed class PartesService
             
             if (idGrupo.HasValue)
                 queryParams.Add($"id_grupo={idGrupo.Value}");
+
+            // PAGINACIÓN
+            if (limit.HasValue)
+                queryParams.Add($"limit={limit.Value}");
+            
+            if (offset.HasValue)
+                queryParams.Add($"offset={offset.Value}");
 
             var path = queryParams.Count > 0 
                 ? $"/api/v1/partes?{string.Join("&", queryParams)}"

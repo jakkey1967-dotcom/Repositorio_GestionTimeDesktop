@@ -985,12 +985,26 @@ public partial class App : Application
         }
     }
 
-    /// <summary>Abre la ventana de Configuración (Settings).</summary>
+    /// <summary>Abre la ventana de Configuración (Settings) y oculta MainWindow.</summary>
     public static void ShowSettingsWindow()
     {
         try
         {
             Log?.LogInformation("⚙️ Abriendo ventana de Configuración");
+            
+            // Ocultar MainWindow usando AppWindow
+            if (MainWindowInstance != null)
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindowInstance);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                
+                if (appWindow != null)
+                {
+                    appWindow.Hide();
+                    Log?.LogInformation("🙈 MainWindow ocultada");
+                }
+            }
             
             var settingsWindow = new Views.SettingsWindow();
             settingsWindow.Activate();
@@ -998,6 +1012,15 @@ public partial class App : Application
         catch (Exception ex)
         {
             Log?.LogError(ex, "❌ Error abriendo ventana de Configuración");
+            
+            // Si hay error, volver a mostrar MainWindow
+            if (MainWindowInstance != null)
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindowInstance);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                appWindow?.Show();
+            }
         }
     }
 

@@ -127,6 +127,7 @@
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
                                                     <!-- Row 1: Name + Status -->
@@ -184,6 +185,14 @@
                                                                        FontWeight="SemiBold"/>
                                                         </Border>
                                                     </StackPanel>
+
+                                                    <!-- Row 3: Timestamp -->
+                                                    <TextBlock Grid.Row="2" 
+                                                               Text="{Binding DisplayStampText}" 
+                                                               FontSize="10" 
+                                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                               Opacity="0.7"
+                                                               Margin="0,2,0,0"/>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>

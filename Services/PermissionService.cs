@@ -45,6 +45,9 @@ public sealed class PermissionService
     /// <summary>Obtiene el rol del usuario actual.</summary>
     public UserRole GetCurrentUserRole() => _currentUserRole;
     
+    /// <summary>Alias de GetCurrentUserRole() para consistencia.</summary>
+    public UserRole GetCurrentRole() => _currentUserRole;
+    
     /// <summary>Verifica si el usuario actual puede acceder a una sección.</summary>
     public bool CanAccessSection(string sectionId, UserRole[] allowedRoles)
     {
