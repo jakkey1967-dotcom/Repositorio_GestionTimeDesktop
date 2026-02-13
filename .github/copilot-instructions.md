@@ -16,8 +16,16 @@
 - 1 archivo por respuesta.
 - Devuelve SOLO el bloque cambiado + instrucciones exactas de reemplazo.
 - Encapsula cambios con marcadores:
-  - `GT-BEGIN`
-  - `GT-END`
+
+```csharp
+// GT-BEGIN: Validación de email
+if (string.IsNullOrWhiteSpace(email))
+    return false;
+// GT-END
+```
+
+**Instrucciones:** Reemplazar líneas 45-47 en `LoginViewModel.cs`
+
 - Máximo ~60–120 líneas modificadas por paso. Si excede, divide en pasos.
 
 ---
@@ -30,8 +38,15 @@
    - Mover a `ResourceDictionary` (Templates/) y referenciar por `StaticResource`.
 3) Estilos repetidos:
    - Extraer a `Styles/` (ResourceDictionary) y usar `Style`/`BasedOn`.
-4) Si aún es grande:
+4) Si aún es grande (>400 líneas):
    - Extraer secciones a `UserControl` en `Controls/` heredando `DataContext`.
+   - **Cuándo extraer UserControl:**
+     - ✅ Sección XAML >80 líneas repetible
+     - ✅ Tiene su propia lógica de negocio
+     - ✅ Aparece en >2 vistas
+   - **NO extraer si:**
+     - ❌ Solo mejora estética (usar Styles)
+     - ❌ Es un ItemTemplate (usar ResourceDictionary)
    - El code-behind del UserControl debe ser mínimo (solo lo inevitable).
 
 ### B) C# (.cs)
@@ -46,54 +61,53 @@
 
 ---
 
-## 5) Estilo de código: XML Comments (C#) + StyleCop/Analyzers
+## 5) Estilo de código: XML Comments
 
-### Objetivo
-Normalizar comentarios XML para cumplir analyzers sin tocar lógica.
+### Formato obligatorio
+- **1 línea:** `/// <summary>Texto.</summary>` (NO multilínea)
+- **Punto final:** Todas las descripciones terminan con `.`
+- **Si >80 chars:** Resumir + usar `<remarks>` en 1 línea:
+  ```csharp
+  /// <summary>Valida credenciales de usuario.</summary>
+  /// <remarks>Usa bcrypt para hash y verifica expiración de contraseña.</remarks>
+  ```
+- **NO usar `//`** para documentar APIs públicas (convertir a XML de 1 línea)
 
 ### Alcance
 - Solo tocar documentación XML (`///`).
-- No reordenar código, no reformatear bloques, no cambiar firmas, no tocar XAML.
+- No reordenar código, no reformatear bloques, no cambiar firmas.
 - Si un miembro público NO tiene XML docs, NO añadirlos salvo que el proyecto ya lo exija.
 
-### Reglas obligatorias (formato)
-1) TODOS los XML docs en 1 línea:
-   - Correcto: `/// <summary>Texto.</summary>`
-   - Correcto: `/// <remarks>Texto.</remarks>`
-   - Prohibido: `<summary>` multilínea.
-2) Terminar SIEMPRE con punto final.
-3) Si el texto pasa ~80 chars:
-   - Acortar summary a 1 frase.
-   - Detalles extra en `<remarks>` también 1 línea.
-4) No usar `//` para documentar APIs públicas:
-   - Si existe `//` describiendo un miembro público, convertirlo a XML doc 1 línea.
-5) No convertir a multilínea bajo ningún motivo.
-
-### Entrega de cambios de docs
-- Devuelve SOLO bloques modificados con GT-BEGIN/GT-END + reemplazo exacto.
+### Entrega
+Solo bloques modificados con `GT-BEGIN/GT-END`.
 
 ---
 
-## 6) Criterio para partial classes (cuando usar y cómo)
+## 6) Criterio para partial classes
 
 ### Cuándo SÍ usar `partial`
-Usar `partial` SOLO si:
-- El archivo supera ~700 líneas (o está cerca y seguirá creciendo).
-- Hay bloques claramente separables sin dependencias circulares (commands/loading/validation/mapping).
-- El objetivo es separar por responsabilidad sin cambiar la API pública.
+✅ Archivo >700 líneas + separable por responsabilidad:
+ - `*.Commands.cs`: >10 comandos (RelayCommand, AsyncCommand)
+ - `*.Loading.cs`: >5 métodos de carga (LoadAsync, RefreshAsync)
+ - `*.Validation.cs`: >8 métodos de validación
+ - `*.Mapping.cs`: >6 conversiones (ToDto, FromDto)
+ - `*.Logging.cs`: Solo si logging es >100 líneas
 
 ### Cuándo NO usar `partial`
-No usar `partial` si:
-- El problema se resuelve extrayendo a `Services/` o `Helpers/`.
-- Es code-behind XAML: ahí mantener mínimo y mover lo demás a VM/Services.
+❌ NO usar si:
+ - El archivo es <700 líneas
+ - El problema se resuelve extrayendo a `Services/` o `Helpers/`
+ - Es code-behind XAML: ahí mantener mínimo y mover lo demás a VM/Services
 
-### Estructura recomendada (nombres)
+### Estructura recomendada
 Mantener el MISMO nombre de clase y namespace:
-- `NombreClase.Commands.cs`
-- `NombreClase.Loading.cs`
-- `NombreClase.Validation.cs`
-- `NombreClase.Mapping.cs`
-- `NombreClase.Logging.cs` (solo si es grande y repetitivo)
+```
+ViewModels/
+├── DiarioViewModel.cs (archivo principal)
+├── DiarioViewModel.Commands.cs
+├── DiarioViewModel.Loading.cs
+└── DiarioViewModel.Validation.cs
+```
 
 ### Reglas de partial
 - No mover campos privados críticos sin revisar inicialización.
@@ -103,7 +117,27 @@ Mantener el MISMO nombre de clase y namespace:
 
 ---
 
-## 7) Publicación / Instalación (fuera de este archivo)
-Esta guía NO debe estar aquí (para evitar ruido y cambios accidentales).
-Mover a `Docs/` y mantenerla como documentación separada (ej: `Docs/Publicacion-Instalacion.md`).
-Copilot NO debe editar esa guía salvo petición explícita.
+## 7) Referencias de proyecto
+
+### Publicación / Instalación
+Ver documentación separada: `Docs/BUILD_MSI_v1.9.3_BETA.md`
+
+**Notas clave:**
+- Ruta de instalación: `C:\App\GestionTime-Desktop` (hardcoded)
+- Versión actual: Definida en `Directory.Build.props`
+- Archivos críticos: `.exe`, `.pri`, `Assets/`, `window-config.ini`, `appsettings.json`
+
+**Copilot NO debe editar guías de publicación salvo petición explícita.**
+
+---
+
+## 8) Troubleshooting
+
+Si Copilot sugiere cambios no solicitados o masivos:
+1. Responder: **"Revisar §2 (Reglas de seguridad)"**
+2. Pedir: **"Solo bloques con GT-BEGIN/GT-END por §3"**
+3. Si persiste: **"Dividir en pasos de máx 120 líneas"**
+
+Si no encuentra DTOs/Models/Helpers existentes:
+1. Verificar con: `code_search` o `get_symbols_by_name`
+2. Reutilizar antes de crear duplicados
