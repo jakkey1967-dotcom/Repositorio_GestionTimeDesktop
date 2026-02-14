@@ -1,0 +1,371 @@
+<Window
+    x:Class="GestionTime.Desktop.Views.Reports.ReportsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:GestionTime.Desktop.Helpers"
+    xmlns:vm="using:GestionTime.Desktop.ViewModels.Reports"
+    mc:Ignorable="d"
+    Title="Informes - GestionTime">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- GT-BEGIN: Banner mejorado con logo y layout horizontal -->
+        <Border Grid.Row="0" 
+                Background="{ThemeResource BannerBg}" 
+                Padding="20,16" 
+                CornerRadius="10" 
+                Margin="0,0,0,16">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Fila 1: Logo + Título -->
+                <Grid Grid.Row="0" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Logo -->
+                    <Image Grid.Column="0"
+                           Source="ms-appx:///Assets/LogoOscuro.png"
+                           Stretch="Uniform"
+                           MaxHeight="50"
+                           VerticalAlignment="Center"/>
+
+                    <!-- Título -->
+                    <TextBlock Grid.Column="1"
+                               Text="Informes de Partes"
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Fila 2: Filtros horizontales con wrap -->
+                <Grid Grid.Row="1">
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <!-- Alcance (RadioButtons) -->
+                        <StackPanel Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="Alcance:" FontSize="13" Foreground="White" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <RadioButton Content="Día" 
+                                             IsChecked="{x:Bind ViewModel.IsDayScope, Mode=OneWay}"
+                                             Click="OnScopeDay_Click"
+                                             Foreground="White"/>
+                                <RadioButton Content="Semana" 
+                                             IsChecked="{x:Bind ViewModel.IsWeekScope, Mode=OneWay}"
+                                             Click="OnScopeWeek_Click"
+                                             Foreground="White"/>
+                                <RadioButton Content="Rango" 
+                                             IsChecked="{x:Bind ViewModel.IsRangeScope, Mode=OneWay}"
+                                             Click="OnScopeRange_Click"
+                                             Foreground="White"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Controles de fecha/semana/rango (según scope) -->
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.DayScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
+                            <TextBlock Text="Fecha:" FontSize="13" Foreground="White" FontWeight="SemiBold"/>
+                            <CalendarDatePicker Date="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}"
+                                                Width="180"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WeekScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
+                            <TextBlock Text="Semana:" FontSize="13" Foreground="White" FontWeight="SemiBold"/>
+                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableWeeks, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedWeek, Mode=TwoWay}"
+                                      DisplayMemberPath="Display"
+                                      Width="280"
+                                      PlaceholderText="Selecciona una semana"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.RangeScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
+                            <TextBlock Text="Desde:" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
+                            <CalendarDatePicker Date="{x:Bind ViewModel.RangeFrom, Mode=TwoWay}"
+                                                Width="160"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.RangeScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
+                            <TextBlock Text="Hasta:" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
+                            <CalendarDatePicker Date="{x:Bind ViewModel.RangeTo, Mode=TwoWay}"
+                                                Width="160"/>
+                        </StackPanel>
+
+                        <!-- Botón Buscar -->
+                        <Button Content="🔍 Buscar"
+                                Command="{x:Bind ViewModel.SearchCommand}"
+                                IsEnabled="{x:Bind ViewModel.CanSearch, Mode=OneWay}"
+                                Background="{ThemeResource Accent}"
+                                Foreground="White"
+                                Padding="20,10"
+                                CornerRadius="8"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                VerticalAlignment="Bottom"
+                                Margin="0,0,0,2"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+        <!-- GT-END -->
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="20">
+                
+                <InfoBar IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                         Severity="Error"
+                         Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                         IsClosable="True"/>
+
+                <Grid Visibility="{x:Bind ViewModel.LoadingVisibility, Mode=OneWay}"
+                      MinHeight="200">
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="16">
+                        <ProgressRing IsActive="True" 
+                                      Width="60" 
+                                      Height="60" 
+                                      Foreground="{ThemeResource Accent}"/>
+                        <TextBlock Text="⏳ Cargando informe..." 
+                                   FontSize="16" 
+                                   Foreground="{ThemeResource TextMuted}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Visibility="{x:Bind ViewModel.ResumenVisibility, Mode=OneWay}"
+                            Spacing="20">
+
+                    <InfoBar IsOpen="True"
+                             Severity="Success"
+                             Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"/>
+
+                    <!-- GT-BEGIN: Gráfica semanal -->
+                    <Border Background="{ThemeResource SurfaceBg}"
+                            BorderBrush="{ThemeResource Stroke}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="20"
+                            Visibility="{x:Bind ViewModel.WeekChartVisibility, Mode=OneWay}">
+                        <StackPanel Spacing="16">
+                            <!-- Título y total -->
+                            <Grid>
+                                <TextBlock Text="📊 Horas por día (Lun-Sáb)"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TextMain}"
+                                           HorizontalAlignment="Left"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                                    <TextBlock Text="Total:"
+                                               FontSize="14"
+                                               Foreground="{ThemeResource TextMuted}"/>
+                                    <TextBlock Text="{x:Bind ViewModel.WeekTotalHours, Mode=OneWay}"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="{ThemeResource Accent}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.WeekChartItems, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:WeekChartItem">
+                                        <Grid Margin="0,0,0,12" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="50"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Etiqueta del día -->
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{x:Bind DayLabel}"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextMuted}"
+                                                       VerticalAlignment="Center"/>
+
+                                            <!-- Contenedor de barra con % superpuesto -->
+                                            <Grid Grid.Column="1" HorizontalAlignment="Stretch">
+                                                <!-- Barra (normalizada a 8h) -->
+                                                <Border Width="{x:Bind BarWidth}"
+                                                        Height="28"
+                                                        CornerRadius="4"
+                                                        Background="{x:Bind BarBrush}"
+                                                        HorizontalAlignment="Left"/>
+
+                                                <!-- Texto % centrado DENTRO de la barra (negro) -->
+                                                <TextBlock Width="{x:Bind BarWidth}"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center"
+                                                           TextAlignment="Center"
+                                                           Foreground="Black"
+                                                           FontWeight="Bold"
+                                                           FontSize="13"
+                                                           IsHitTestVisible="False">
+                                                    <Run Text="{x:Bind Percent8h}"/><Run Text="%"/>
+                                                </TextBlock>
+                                            </Grid>
+
+                                            <!-- Tiempo + % objetivo 8h -->
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMain}">
+                                                    <Run Text="{x:Bind HoursText}"/>
+                                                    <Run Text=" (" Foreground="{ThemeResource TextMuted}"/>
+                                                    <Run Text="{x:Bind Percent8h}" FontWeight="Bold"/>
+                                                    <Run Text="%)" Foreground="{ThemeResource TextMuted}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="⚠️"
+                                                           FontSize="12"
+                                                           Visibility="{x:Bind IsUnderTarget}"
+                                                           ToolTipService.ToolTip="Menos de 8h"/>
+                                            </StackPanel>
+
+                                            <!-- % Distribución semanal -->
+                                            <TextBlock Grid.Column="3"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Foreground="{ThemeResource TextMuted}"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Right">
+                                                <Run Text="{x:Bind Percentage}"/><Run Text="%"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+
+                            <!-- Mensaje si no hay datos -->
+                            <TextBlock Text="{x:Bind ViewModel.WeekChartMessage, Mode=OneWay}"
+                                       FontSize="13"
+                                       Foreground="{ThemeResource TextMuted}"
+                                       Visibility="{x:Bind ViewModel.WeekChartMessageVisibility, Mode=OneWay}"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- GT-END -->
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" 
+                                Background="{ThemeResource SurfaceBg}" 
+                                BorderBrush="{ThemeResource Stroke}" 
+                                BorderThickness="1" 
+                                CornerRadius="12" 
+                                Padding="20">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="📋 Partes" 
+                                           FontSize="14" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBlock Text="{x:Bind ViewModel.Resumen.PartsCount, Mode=OneWay}" 
+                                           FontSize="36" 
+                                           FontWeight="Bold" 
+                                           Foreground="{ThemeResource Accent}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" 
+                                Background="{ThemeResource SurfaceBg}" 
+                                BorderBrush="{ThemeResource Stroke}" 
+                                BorderThickness="1" 
+                                CornerRadius="12" 
+                                Padding="20">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="⏱️ Registrado" 
+                                           FontSize="14" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBlock Text="{x:Bind ViewModel.RecordedTime, Mode=OneWay}" 
+                                           FontSize="32" 
+                                           FontWeight="Bold" 
+                                           Foreground="{ThemeResource TextMain}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" 
+                                Background="{ThemeResource SurfaceBg}" 
+                                BorderBrush="{ThemeResource Stroke}" 
+                                BorderThickness="1" 
+                                CornerRadius="12" 
+                                Padding="20">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="✅ Real (sin solape)" 
+                                           FontSize="14" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBlock Text="{x:Bind ViewModel.CoveredTime, Mode=OneWay}" 
+                                           FontSize="32" 
+                                           FontWeight="Bold" 
+                                           Foreground="#10B981"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" 
+                                Background="{ThemeResource SurfaceBg}" 
+                                BorderBrush="{ThemeResource Stroke}" 
+                                BorderThickness="1" 
+                                CornerRadius="12" 
+                                Padding="20">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="⚠️ Solape" 
+                                           FontSize="14" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBlock Text="{x:Bind ViewModel.OverlapTime, Mode=OneWay}" 
+                                           FontSize="32" 
+                                           FontWeight="Bold" 
+                                           Foreground="#F59E0B"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Background="{ThemeResource SurfaceBg}" 
+                            BorderBrush="{ThemeResource Stroke}" 
+                            BorderThickness="1" 
+                            CornerRadius="12" 
+                            Padding="20">
+                        <Grid ColumnSpacing="40">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Spacing="8">
+                                <TextBlock Text="🕐 Inicio Global" 
+                                           FontSize="13" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBlock Text="{x:Bind ViewModel.FirstStartFormatted, Mode=OneWay}" 
+                                           FontSize="22" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{ThemeResource TextMain}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Spacing="8">
+                                <TextBlock Text="🕕 Fin Global" 
+                                           FontSize="13" 
+                                           Foreground="{ThemeResource TextMuted}"/>
+                                <TextBlock Text="{x:Bind ViewModel.LastEndFormatted, Mode=OneWay}" 
+                                           FontSize="22" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{ThemeResource TextMain}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>
