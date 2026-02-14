@@ -226,21 +226,22 @@ Language="es-ES">
                             CornerRadius="8" 
                             Padding="10,8" 
                             ToolTipService.ToolTip="Configuración"
+                            Click="OnOpenUserSettings"
                             HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" Foreground="White"/>
-                        <Button.Flyout>
-                            <MenuFlyout>
-                                <!-- Configuración (solo para USER) -->
-                                <MenuFlyoutItem x:Name="ConfigUserItem" 
-                                                Text="Configuración" 
-                                                Click="OnOpenUserSettings"
-                                                Visibility="{x:Bind IsUserRole, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;"/>
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                            </MenuFlyout>
-                        </Button.Flyout>
+                    </Button>
+
+                    <!-- Botón de Ayuda -->
+                    <Button x:Name="BtnHelp" 
+                            Background="Transparent" 
+                            BorderBrush="White" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="10,8" 
+                            ToolTipService.ToolTip="Ver notas de versión y cambios recientes"
+                            Click="OnNotasVersionClick"
+                            HorizontalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE946;" Foreground="White"/>
                     </Button>
                     
                     
@@ -430,15 +431,15 @@ Language="es-ES">
                                 <TextBlock Text="Usuarios" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
-                        
-                        <!-- 🆕 NUEVO: Botón Notas de Versión -->
-                        <Button x:Name="BtnNotasVersion" Style="{StaticResource ToolbarButton}" Click="OnNotasVersionClick" 
-                                ToolTipService.ToolTip="Ver notas de versión y cambios recientes"
+
+                        <!-- 🆕 NUEVO: Botón Informes (reemplaza a Ayuda en la barra inferior) -->
+                        <Button x:Name="BtnInformes" Style="{StaticResource ToolbarButton}" 
+                                ToolTipService.ToolTip="Ver informes y estadísticas"
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE946;" FontSize="24" Foreground="#8B5CF6"/>
-                                <TextBlock Text="Ayuda" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE9F9;" FontSize="24" Foreground="#F59E0B"/>
+                                <TextBlock Text="Informes" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
