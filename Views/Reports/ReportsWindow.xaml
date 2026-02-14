@@ -9,122 +9,193 @@
     mc:Ignorable="d"
     Title="Informes - GestionTime">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
+    <Grid x:Name="Root" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
+        <Grid.Resources>
+            <helpers:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- GT-BEGIN: Banner mejorado con logo y layout horizontal -->
+        <!-- GT-BEGIN: Banner con logo e info contextual (SIN controles de búsqueda) -->
         <Border Grid.Row="0" 
                 Background="{ThemeResource BannerBg}" 
                 Padding="20,16" 
                 CornerRadius="10" 
                 Margin="0,0,0,16">
-            <Grid RowSpacing="12">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- Fila 1: Logo + Título -->
-                <Grid Grid.Row="0" ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <!-- Logo -->
+                <Image Grid.Column="0"
+                       Source="ms-appx:///Assets/LogoOscuro.png"
+                       Stretch="Uniform"
+                       MaxHeight="50"
+                       VerticalAlignment="Center"/>
 
-                    <!-- Logo -->
-                    <Image Grid.Column="0"
-                           Source="ms-appx:///Assets/LogoOscuro.png"
-                           Stretch="Uniform"
-                           MaxHeight="50"
-                           VerticalAlignment="Center"/>
-
-                    <!-- Título -->
-                    <TextBlock Grid.Column="1"
-                               Text="Informes de Partes"
+                <!-- Título + Contexto -->
+                <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                    <TextBlock Text="Informes de Partes"
                                FontSize="24"
                                FontWeight="SemiBold"
-                               Foreground="White"
+                               Foreground="White"/>
+                    <TextBlock Text="{x:Bind ViewModel.BannerContextText, Mode=OneWay}"
+                               FontSize="14"
+                               Foreground="#E0E0E0"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- Agente -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="👤"
+                               FontSize="16"
                                VerticalAlignment="Center"/>
-                </Grid>
-
-                <!-- Fila 2: Filtros horizontales con wrap -->
-                <Grid Grid.Row="1">
-                    <StackPanel Orientation="Horizontal" Spacing="16">
-                        <!-- Alcance (RadioButtons) -->
-                        <StackPanel Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="Alcance:" FontSize="13" Foreground="White" FontWeight="SemiBold"/>
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <RadioButton Content="Día" 
-                                             IsChecked="{x:Bind ViewModel.IsDayScope, Mode=OneWay}"
-                                             Click="OnScopeDay_Click"
-                                             Foreground="White"/>
-                                <RadioButton Content="Semana" 
-                                             IsChecked="{x:Bind ViewModel.IsWeekScope, Mode=OneWay}"
-                                             Click="OnScopeWeek_Click"
-                                             Foreground="White"/>
-                                <RadioButton Content="Rango" 
-                                             IsChecked="{x:Bind ViewModel.IsRangeScope, Mode=OneWay}"
-                                             Click="OnScopeRange_Click"
-                                             Foreground="White"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- Controles de fecha/semana/rango (según scope) -->
-                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.DayScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
-                            <TextBlock Text="Fecha:" FontSize="13" Foreground="White" FontWeight="SemiBold"/>
-                            <CalendarDatePicker Date="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}"
-                                                Width="180"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WeekScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
-                            <TextBlock Text="Semana:" FontSize="13" Foreground="White" FontWeight="SemiBold"/>
-                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableWeeks, Mode=OneWay}"
-                                      SelectedItem="{x:Bind ViewModel.SelectedWeek, Mode=TwoWay}"
-                                      DisplayMemberPath="Display"
-                                      Width="280"
-                                      PlaceholderText="Selecciona una semana"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.RangeScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
-                            <TextBlock Text="Desde:" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
-                            <CalendarDatePicker Date="{x:Bind ViewModel.RangeFrom, Mode=TwoWay}"
-                                                Width="160"/>
-                        </StackPanel>
-
-                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.RangeScopeVisibility, Mode=OneWay}" VerticalAlignment="Center">
-                            <TextBlock Text="Hasta:" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
-                            <CalendarDatePicker Date="{x:Bind ViewModel.RangeTo, Mode=TwoWay}"
-                                                Width="160"/>
-                        </StackPanel>
-
-                        <!-- Botón Buscar -->
-                        <Button Content="🔍 Buscar"
-                                Command="{x:Bind ViewModel.SearchCommand}"
-                                IsEnabled="{x:Bind ViewModel.CanSearch, Mode=OneWay}"
-                                Background="{ThemeResource Accent}"
-                                Foreground="White"
-                                Padding="20,10"
-                                CornerRadius="8"
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                VerticalAlignment="Bottom"
-                                Margin="0,0,0,2"/>
-                    </StackPanel>
-                </Grid>
+                    <TextBlock Text="{x:Bind ViewModel.AgentDisplayText, Mode=OneWay}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="White"/>
+                </StackPanel>
             </Grid>
         </Border>
         <!-- GT-END -->
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="20">
-                
+
+                <!-- GT-BEGIN: Panel de filtros (movido desde banner) -->
+                <Border Background="{ThemeResource SurfaceBg}"
+                        BorderBrush="{ThemeResource Stroke}"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="20">
+                    <StackPanel Spacing="16">
+                        <!-- Alcance -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Alcance:" FontSize="14" FontWeight="SemiBold" Foreground="{ThemeResource TextMain}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <RadioButton Content="Día" 
+                                             IsChecked="{x:Bind ViewModel.IsDayScope, Mode=OneWay}"
+                                             Click="OnScopeDay_Click"/>
+                                <RadioButton Content="Semana" 
+                                             IsChecked="{x:Bind ViewModel.IsWeekScope, Mode=OneWay}"
+                                             Click="OnScopeWeek_Click"/>
+                                <RadioButton Content="Rango" 
+                                             IsChecked="{x:Bind ViewModel.IsRangeScope, Mode=OneWay}"
+                                             Click="OnScopeRange_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Controles según scope -->
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <!-- Día -->
+                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.DayScopeVisibility, Mode=OneWay}">
+                                <TextBlock Text="Fecha:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
+                                <CalendarDatePicker Date="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}" Width="200"/>
+                            </StackPanel>
+
+                            <!-- Semana -->
+                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WeekScopeVisibility, Mode=OneWay}">
+                                <TextBlock Text="Semana:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
+                                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableWeeks, Mode=OneWay}"
+                                          SelectedItem="{x:Bind ViewModel.SelectedWeek, Mode=TwoWay}"
+                                          DisplayMemberPath="Display"
+                                          Width="320"
+                                          PlaceholderText="Selecciona una semana"/>
+                            </StackPanel>
+
+                            <!-- Rango -->
+                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.RangeScopeVisibility, Mode=OneWay}" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Desde:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
+                                    <CalendarDatePicker Date="{x:Bind ViewModel.RangeFrom, Mode=TwoWay}" Width="180"/>
+                                </StackPanel>
+                                <StackPanel Spacing="4" Margin="12,0,0,0">
+                                    <TextBlock Text="Hasta:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
+                                    <CalendarDatePicker Date="{x:Bind ViewModel.RangeTo, Mode=TwoWay}" Width="180"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Botón Buscar -->
+                            <Button Content="🔍 Buscar"
+                                    Command="{x:Bind ViewModel.SearchCommand}"
+                                    IsEnabled="{x:Bind ViewModel.CanSearch, Mode=OneWay}"
+                                    Background="{ThemeResource Accent}"
+                                    Foreground="White"
+                                    Padding="24,12"
+                                    CornerRadius="8"
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    VerticalAlignment="Bottom"
+                                    Margin="16,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- GT-BEGIN: Selector de agente (solo EDITOR/ADMIN) - Solo permite UNO -->
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CanSelectAgentVisibility, Mode=OneWay}">
+                            <TextBlock Text="Agente:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
+
+                            <!-- Checkbox "Todos" -->
+                            <CheckBox Content="Todos los agentes"
+                                      IsChecked="{x:Bind ViewModel.SelectAllAgents, Mode=TwoWay}"
+                                      FontSize="13"
+                                      Margin="0,0,0,8"/>
+
+                            <!-- Lista de agentes con checkboxes (LIMITACIÓN: backend solo soporta 1 agente) -->
+                            <Border Background="{ThemeResource CardBg}"
+                                    BorderBrush="{ThemeResource Stroke}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="12"
+                                    MaxHeight="200">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="⚠️ Nota: Solo se puede filtrar por un agente a la vez."
+                                               FontSize="11"
+                                               Foreground="{ThemeResource TextMuted}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,8"/>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="160">
+                                        <ItemsControl ItemsSource="{x:Bind ViewModel.AvailableAgents, Mode=OneWay}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:AgentOption">
+                                                    <CheckBox Content="{x:Bind Display}"
+                                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                                              IsEnabled="{Binding ElementName=Root, Path=ViewModel.SelectAllAgents, Converter={StaticResource InverseBoolConverter}}"
+                                                              FontSize="12"
+                                                              Margin="0,4"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Indicador de carga -->
+                            <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsLoadingAgentsVisibility, Mode=OneWay}">
+                                <ProgressRing IsActive="True" Width="16" Height="16"/>
+                                <TextBlock Text="Cargando agentes..." FontSize="12" Foreground="{ThemeResource TextMuted}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <!-- GT-END -->
+                    </StackPanel>
+                </Border>
+                <!-- GT-END -->
+
+                <!-- Errores -->
                 <InfoBar IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
                          Severity="Error"
                          Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                          IsClosable="True"/>
+
+                <!-- GT-BEGIN: Notificaciones temporales (reemplaza InfoBar fija) -->
+                <InfoBar IsOpen="{x:Bind ViewModel.ShowNotification, Mode=TwoWay}"
+                         Severity="{x:Bind ViewModel.NotificationSeverity, Mode=OneWay}"
+                         Message="{x:Bind ViewModel.NotificationMessage, Mode=OneWay}"
+                         IsClosable="True"/>
+                <!-- GT-END -->
 
                 <Grid Visibility="{x:Bind ViewModel.LoadingVisibility, Mode=OneWay}"
                       MinHeight="200">
@@ -145,10 +216,6 @@
                 <StackPanel Visibility="{x:Bind ViewModel.ResumenVisibility, Mode=OneWay}"
                             Spacing="20">
 
-                    <InfoBar IsOpen="True"
-                             Severity="Success"
-                             Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"/>
-
                     <!-- GT-BEGIN: Gráfica semanal -->
                     <Border Background="{ThemeResource SurfaceBg}"
                             BorderBrush="{ThemeResource Stroke}"
@@ -157,7 +224,7 @@
                             Padding="20"
                             Visibility="{x:Bind ViewModel.WeekChartVisibility, Mode=OneWay}">
                         <StackPanel Spacing="16">
-                            <!-- Título y total -->
+                            <!-- Título y total contextual -->
                             <Grid>
                                 <TextBlock Text="📊 Horas por día (Lun-Sáb)"
                                            FontSize="18"
@@ -165,13 +232,55 @@
                                            Foreground="{ThemeResource TextMain}"
                                            HorizontalAlignment="Left"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                    <TextBlock Text="Total:"
+                                    <TextBlock Text="{x:Bind ViewModel.TotalHeaderText, Mode=OneWay}"
                                                FontSize="14"
                                                Foreground="{ThemeResource TextMuted}"/>
                                     <TextBlock Text="{x:Bind ViewModel.WeekTotalHours, Mode=OneWay}"
                                                FontSize="16"
                                                FontWeight="Bold"
                                                Foreground="{ThemeResource Accent}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Agente + Inicio/Fin Global -->
+                            <Grid ColumnSpacing="24">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Agente -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                    <TextBlock Text="👤"
+                                               FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{x:Bind ViewModel.AgentDisplayText, Mode=OneWay}"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource TextMain}"/>
+                                </StackPanel>
+
+                                <!-- Inicio Global -->
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                    <TextBlock Text="🕒"
+                                               FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="13" Foreground="{ThemeResource TextMuted}">
+                                        <Run Text="Inicio global:"/>
+                                        <Run Text="{x:Bind ViewModel.FirstStartFormatted, Mode=OneWay}" FontWeight="SemiBold" Foreground="{ThemeResource TextMain}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Fin Global -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                    <TextBlock Text="🏁"
+                                               FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="13" Foreground="{ThemeResource TextMuted}">
+                                        <Run Text="Fin global:"/>
+                                        <Run Text="{x:Bind ViewModel.LastEndFormatted, Mode=OneWay}" FontWeight="SemiBold" Foreground="{ThemeResource TextMain}"/>
+                                    </TextBlock>
                                 </StackPanel>
                             </Grid>
 
@@ -329,39 +438,6 @@
                             </StackPanel>
                         </Border>
                     </Grid>
-
-                    <Border Background="{ThemeResource SurfaceBg}" 
-                            BorderBrush="{ThemeResource Stroke}" 
-                            BorderThickness="1" 
-                            CornerRadius="12" 
-                            Padding="20">
-                        <Grid ColumnSpacing="40">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0" Spacing="8">
-                                <TextBlock Text="🕐 Inicio Global" 
-                                           FontSize="13" 
-                                           Foreground="{ThemeResource TextMuted}"/>
-                                <TextBlock Text="{x:Bind ViewModel.FirstStartFormatted, Mode=OneWay}" 
-                                           FontSize="22" 
-                                           FontWeight="SemiBold" 
-                                           Foreground="{ThemeResource TextMain}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1" Spacing="8">
-                                <TextBlock Text="🕕 Fin Global" 
-                                           FontSize="13" 
-                                           Foreground="{ThemeResource TextMuted}"/>
-                                <TextBlock Text="{x:Bind ViewModel.LastEndFormatted, Mode=OneWay}" 
-                                           FontSize="22" 
-                                           FontWeight="SemiBold" 
-                                           Foreground="{ThemeResource TextMain}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
 
                 </StackPanel>
 

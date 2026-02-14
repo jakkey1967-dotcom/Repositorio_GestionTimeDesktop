@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GestionTime.Desktop.Models;
 using GestionTime.Desktop.Models.Dtos.Reports;
 using GestionTime.Desktop.Models.Enums;
 using GestionTime.Desktop.Services.Reports;
@@ -54,6 +55,25 @@ public class WeekOption
     public string Value { get; set; } = string.Empty;
 }
 
+/// <summary>Opción de agente para selección múltiple.</summary>
+public class AgentOption
+{
+    /// <summary>ID del agente (GUID)</summary>
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>Nombre completo del agente</summary>
+    public string FullName { get; set; } = string.Empty;
+
+    /// <summary>Email del agente</summary>
+    public string Email { get; set; } = string.Empty;
+
+    /// <summary>Texto visible: "Nombre (email)"</summary>
+    public string Display => $"{FullName} ({Email})";
+
+    /// <summary>Indica si este agente está seleccionado</summary>
+    public bool IsSelected { get; set; }
+}
+
 /// <summary>ViewModel para la ventana de Informes.</summary>
 public partial class ReportsViewModel : ObservableObject
 {
@@ -78,14 +98,38 @@ public partial class ReportsViewModel : ObservableObject
         OnPropertyChanged(nameof(WeekScopeVisibility));
         OnPropertyChanged(nameof(RangeScopeVisibility));
         OnPropertyChanged(nameof(CanSearch));  // ← Validación botón Buscar
+        OnPropertyChanged(nameof(BannerContextText));  // ← Actualizar banner
+        OnPropertyChanged(nameof(TotalHeaderText));  // ← Actualizar total
     }
-    [ObservableProperty] private string? _selectedAgentId;  // ← Ahora es string (GUID)
+    // GT-BEGIN: Selección múltiple de agentes para EDITOR/ADMIN
+    private ObservableCollection<AgentOption> _availableAgents = new();
+    public ObservableCollection<AgentOption> AvailableAgents
+    {
+        get => _availableAgents;
+        set => SetProperty(ref _availableAgents, value);
+    }
+
+    [ObservableProperty] private bool _selectAllAgents;  // ← Checkbox "Todos los agentes"
+    [ObservableProperty] private bool _isLoadingAgents;
+
+    partial void OnIsLoadingAgentsChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsLoadingAgentsVisibility));
+    }
+    // GT-END
+
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string? _errorMessage;
     [ObservableProperty] private InformeResumenDto? _resumen;
     [ObservableProperty] private UserRole _currentUserRole;
     [ObservableProperty] private bool _canSelectAgent;
     [ObservableProperty] private string? _currentUserId;  // ← ID del agente del usuario actual
+
+    // GT-BEGIN: Sistema de notificaciones temporales
+    [ObservableProperty] private bool _showNotification;
+    [ObservableProperty] private string _notificationMessage = string.Empty;
+    [ObservableProperty] private Microsoft.UI.Xaml.Controls.InfoBarSeverity _notificationSeverity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational;
+    // GT-END
 
     // GT-BEGIN: Propiedades para gráfica semanal
     private ObservableCollection<WeekChartItem> _weekChartItems = new();
@@ -117,6 +161,7 @@ public partial class ReportsViewModel : ObservableObject
         if (value != null)
         {
             WeekIso = value.Value; // Actualizar WeekIso con formato ISO "2026-W07"
+            OnPropertyChanged(nameof(BannerContextText));  // ← Actualizar banner
         }
     }
     // GT-END
@@ -149,6 +194,8 @@ public partial class ReportsViewModel : ObservableObject
         OnPropertyChanged(nameof(OverlapTime));
         OnPropertyChanged(nameof(FirstStartFormatted));  // ← Formato legible
         OnPropertyChanged(nameof(LastEndFormatted));  // ← Formato legible
+        OnPropertyChanged(nameof(TotalHeaderText));  // ← Header contextual
+        OnPropertyChanged(nameof(AgentDisplayText));  // ← Agente visible
 
         // GT-BEGIN: Cargar gráfica semanal si aplica
         _ = LoadWeekChartIfNeededAsync();
@@ -170,6 +217,12 @@ public partial class ReportsViewModel : ObservableObject
 
         // Generar lista de semanas (últimas 52)
         GenerateAvailableWeeks();
+
+        // Cargar agentes disponibles si es EDITOR/ADMIN
+        if (_canSelectAgent)
+        {
+            _ = LoadAvailableAgentsAsync();
+        }
     }
 
     /// <summary>Genera lista de las últimas 52 semanas para el ComboBox.</summary>
@@ -247,20 +300,66 @@ public partial class ReportsViewModel : ObservableObject
             }
 
             // Llamada API
-            // GT-BEGIN: Enviar agentId correcto
+            // GT-BEGIN: Enviar agentId(s) correcto(s) - Ajustado para backend
+            // IMPORTANTE: El backend actualmente solo soporta UN agentId o null (todos)
             // - USER: Siempre envía su propio agentId (CurrentUserId)
-            // - EDITOR/ADMIN: Envía agentId seleccionado o null (para ver todos)
+            // - EDITOR/ADMIN SIN selección: Envía su propio agentId (CurrentUserId) por defecto
+            // - EDITOR/ADMIN CON "Todos": Envía null para obtener todos los partes
+            // - EDITOR/ADMIN CON 1 agente: Envía ese agentId
+            // - EDITOR/ADMIN CON >1 agentes: Envía el PRIMERO (limitación del backend)
             string? agentIdToSend = null;
 
             if (CurrentUserRole == UserRole.USER)
             {
                 // Usuarios USER siempre ven solo sus propios partes
                 agentIdToSend = CurrentUserId;
+
+                if (string.IsNullOrEmpty(agentIdToSend))
+                {
+                    ErrorMessage = "❌ Error: No se pudo obtener tu ID de usuario. Por favor, cierra sesión y vuelve a iniciar.";
+                    System.Diagnostics.Debug.WriteLine($"❌ [ReportsViewModel] CurrentUserId es null/vacío para rol USER");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"👤 [ReportsViewModel] USER → Enviando agentId={agentIdToSend}");
             }
             else
             {
-                // EDITOR/ADMIN: Solo envía agentId si seleccionaron uno específicamente
-                agentIdToSend = SelectedAgentId;
+                // EDITOR/ADMIN: Construir lista de IDs seleccionados
+                var selectedAgents = AvailableAgents.Where(a => a.IsSelected).ToList();
+
+                if (SelectAllAgents)
+                {
+                    // "Todos" seleccionado → Enviar null para obtener todos los partes
+                    agentIdToSend = null;
+                    System.Diagnostics.Debug.WriteLine($"🌐 [ReportsViewModel] EDITOR/ADMIN → Todos los agentes seleccionados (agentId=null)");
+                }
+                else if (selectedAgents.Count > 0)
+                {
+                    // Uno o más agentes seleccionados → Enviar solo el PRIMERO (backend no soporta múltiples actualmente)
+                    agentIdToSend = selectedAgents[0].Id;
+
+                    if (selectedAgents.Count > 1)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ [ReportsViewModel] EDITOR/ADMIN → {selectedAgents.Count} agentes seleccionados, pero backend solo soporta 1. Usando: {agentIdToSend}");
+
+                        // Mostrar advertencia al usuario
+                        _dispatcher.TryEnqueue(() =>
+                        {
+                            ErrorMessage = $"⚠️ Actualmente solo se puede filtrar por un agente. Mostrando datos de: {selectedAgents[0].FullName}";
+                        });
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"👥 [ReportsViewModel] EDITOR/ADMIN → Agente seleccionado: {agentIdToSend}");
+                    }
+                }
+                else
+                {
+                    // NO seleccionaron ninguno → Ver solo sus propios partes
+                    agentIdToSend = CurrentUserId;
+                    System.Diagnostics.Debug.WriteLine($"👤 [ReportsViewModel] EDITOR/ADMIN (sin selección) → Enviando su propio ID: {agentIdToSend ?? "(null)"}");
+                }
             }
             // GT-END
 
@@ -335,6 +434,8 @@ public partial class ReportsViewModel : ObservableObject
     public Visibility RangeScopeVisibility => IsRangeScope ? Visibility.Visible : Visibility.Collapsed;
     public Visibility LoadingVisibility => IsLoading ? Visibility.Visible : Visibility.Collapsed;
     public Visibility ResumenVisibility => HasResumen ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility CanSelectAgentVisibility => _canSelectAgent ? Visibility.Visible : Visibility.Collapsed;  // ← Nueva propiedad
+    public Visibility IsLoadingAgentsVisibility => IsLoadingAgents ? Visibility.Visible : Visibility.Collapsed;  // ← Nueva propiedad
 
     // Validación 8 horas
     public bool Is8HoursComplete => Resumen?.CoveredMinutes >= 480;
@@ -370,6 +471,168 @@ public partial class ReportsViewModel : ObservableObject
             return Resumen.LastEnd;
         }
     }
+
+    // GT-BEGIN: Header contextual del Total según alcance
+    public string TotalHeaderText
+    {
+        get
+        {
+            if (Resumen == null) return "Total:";
+
+            return Scope switch
+            {
+                "day" => $"Total (Día: {SelectedDate:dd/MM/yyyy}):",
+                "week" => GetWeekRangeText(),
+                "range" => GetRangeText(),
+                _ => "Total:"
+            };
+        }
+    }
+
+    private string GetWeekRangeText()
+    {
+        if (SelectedWeek == null) return "Total (Semana):";
+
+        // Extraer año y número de semana del formato ISO "2026-W07"
+        var parts = WeekIso.Split('-');
+        if (parts.Length == 2 && parts[1].StartsWith("W"))
+        {
+            var year = int.Parse(parts[0]);
+            var weekNum = int.Parse(parts[1].Substring(1));
+            var monday = System.Globalization.ISOWeek.ToDateTime(year, weekNum, DayOfWeek.Monday);
+            var sunday = monday.AddDays(6);
+            return $"Total (Semana: {monday:dd/MM/yyyy} – {sunday:dd/MM/yyyy}):";
+        }
+
+        return "Total (Semana):";
+    }
+
+    private string GetRangeText()
+    {
+        if (RangeFrom.HasValue && RangeTo.HasValue)
+            return $"Total (Rango: {RangeFrom.Value:dd/MM/yyyy} – {RangeTo.Value:dd/MM/yyyy}):";
+
+        return "Total (Rango):";
+    }
+
+    // GT-BEGIN: Agente de las estadísticas mostradas
+    public string AgentDisplayText
+    {
+        get
+        {
+            // Si no hay resumen, no mostrar nada
+            if (Resumen == null) return string.Empty;
+
+            // USER: Siempre es el usuario actual
+            if (CurrentUserRole == UserRole.USER)
+                return "Agente: Tú";
+
+            // EDITOR/ADMIN: Verificar selección
+            var selectedAgents = AvailableAgents.Where(a => a.IsSelected).ToList();
+
+            if (SelectAllAgents)
+            {
+                return "Agentes: Todos";
+            }
+            else if (selectedAgents.Count > 0)
+            {
+                if (selectedAgents.Count == 1)
+                {
+                    return $"Agente: {selectedAgents[0].FullName}";
+                }
+                else
+                {
+                    return $"Agentes: {selectedAgents.Count} seleccionados";
+                }
+            }
+
+            // Sin selección: solo el usuario actual
+            return "Agente: Tú";
+        }
+    }
+
+    // GT-BEGIN: Texto contextual para banner según scope
+    public string BannerContextText
+    {
+        get
+        {
+            return Scope switch
+            {
+                "day" => $"Día: {SelectedDate:dd/MM/yyyy}",
+                "week" => GetWeekBannerText(),
+                "range" => GetRangeBannerText(),
+                _ => "Selecciona un alcance"
+            };
+        }
+    }
+
+    private string GetWeekBannerText()
+    {
+        if (SelectedWeek == null) return "Semana: (selecciona una)";
+
+        // Extraer año y número de semana del formato ISO "2026-W07"
+        var parts = WeekIso.Split('-');
+        if (parts.Length == 2 && parts[1].StartsWith("W"))
+        {
+            var year = int.Parse(parts[0]);
+            var weekNum = int.Parse(parts[1].Substring(1));
+            var monday = System.Globalization.ISOWeek.ToDateTime(year, weekNum, DayOfWeek.Monday);
+            var sunday = monday.AddDays(6);
+            return $"Semana {weekNum:D2} ({monday:dd/MM/yyyy} – {sunday:dd/MM/yyyy})";
+        }
+
+        return "Semana: (sin datos)";
+    }
+
+    private string GetRangeBannerText()
+    {
+        if (RangeFrom.HasValue && RangeTo.HasValue)
+            return $"Rango: {RangeFrom.Value:dd/MM/yyyy} – {RangeTo.Value:dd/MM/yyyy}";
+
+        return "Rango: (sin fechas)";
+    }
+    // GT-END
+
+    // GT-BEGIN: Método para disparar notificaciones tras búsqueda
+    public void ShowSearchResultNotifications()
+    {
+        if (Resumen == null) return;
+
+        var messages = new List<string>();
+        var severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success;
+
+        // 1. Validación 8 horas
+        if (Resumen.CoveredMinutes >= 480)
+        {
+            messages.Add("✅ Jornada completa (>=8h)");
+        }
+        else
+        {
+            var minutesMissing = 480 - Resumen.CoveredMinutes;
+            var hours = minutesMissing / 60;
+            var mins = minutesMissing % 60;
+            messages.Add($"⚠️ Faltan {hours}h {mins:D2}m para completar 8h");
+            severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning;
+        }
+
+        // 2. Solapes
+        if (Resumen.OverlapMinutes > 0)
+        {
+            var overlapHours = Resumen.OverlapMinutes / 60;
+            var overlapMins = Resumen.OverlapMinutes % 60;
+            messages.Add($"⚠️ Solape detectado: {overlapHours}h {overlapMins:D2}m");
+            severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning;
+        }
+
+        // Mostrar notificación (usar propiedades con mayúscula inicial)
+        _notificationMessage = string.Join(" | ", messages);
+        OnPropertyChanged(nameof(NotificationMessage));
+        _notificationSeverity = severity;
+        OnPropertyChanged(nameof(NotificationSeverity));
+        _showNotification = true;
+        OnPropertyChanged(nameof(ShowNotification));
+    }
+    // GT-END
     // GT-END
 
     // GT-BEGIN: Validación para habilitar botón Buscar
@@ -471,8 +734,31 @@ public partial class ReportsViewModel : ObservableObject
             // GT-END
 
             // Si no, hacer llamada adicional
-            string? agentIdToSend = CurrentUserRole == UserRole.USER ? CurrentUserId : SelectedAgentId;
-            System.Diagnostics.Debug.WriteLine($"[WeekChart] Haciendo llamada adicional con agentId: {agentIdToSend}");
+            // Construir agentId de la misma forma que en SearchAsync
+            string? agentIdToSend = null;
+            if (CurrentUserRole == UserRole.USER)
+            {
+                agentIdToSend = CurrentUserId;
+            }
+            else
+            {
+                var selectedAgents = AvailableAgents.Where(a => a.IsSelected).ToList();
+                if (SelectAllAgents)
+                {
+                    agentIdToSend = null;
+                }
+                else if (selectedAgents.Count > 0)
+                {
+                    // Solo enviar el primero (backend no soporta múltiples)
+                    agentIdToSend = selectedAgents[0].Id;
+                }
+                else
+                {
+                    agentIdToSend = CurrentUserId;
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[WeekChart] Haciendo llamada adicional con agentId: {agentIdToSend ?? "(null)"}");
 
             var weekData = await _informesService.GetResumenAsync(
                 scope: "week",
@@ -582,6 +868,76 @@ public partial class ReportsViewModel : ObservableObject
         }
 
         System.Diagnostics.Debug.WriteLine($"[WeekChart] BuildWeekChartFromByDay completado. Total items: {WeekChartItems.Count}, Total semana: {WeekTotalHours}");
+    }
+    // GT-END
+
+    // GT-BEGIN: Gestión de agentes disponibles
+    /// <summary>Carga la lista de agentes disponibles desde el backend para EDITOR/ADMIN.</summary>
+    private async Task LoadAvailableAgentsAsync()
+    {
+        if (!_canSelectAgent || IsLoadingAgents) return;
+
+        try
+        {
+            IsLoadingAgents = true;
+            System.Diagnostics.Debug.WriteLine($"[ReportsViewModel] 🔄 Cargando agentes disponibles...");
+
+            // Llamar al endpoint /api/v1/admin/users para obtener lista de usuarios
+            var users = await App.Api.GetAsync<List<UserViewModel>>("/api/v1/admin/users");
+
+            if (users != null && users.Count > 0)
+            {
+                var agents = users
+                    .Where(u => u.Enabled) // Solo agentes activos
+                    .Select(u => new AgentOption
+                    {
+                        Id = u.Id.ToString(),
+                        FullName = u.FullName ?? u.Email,
+                        Email = u.Email,
+                        IsSelected = false
+                    })
+                    .OrderBy(a => a.FullName)
+                    .ToList();
+
+                _dispatcher.TryEnqueue(() =>
+                {
+                    AvailableAgents.Clear();
+                    foreach (var agent in agents)
+                    {
+                        AvailableAgents.Add(agent);
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[ReportsViewModel] ✅ {agents.Count} agentes cargados");
+                });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[ReportsViewModel] ⚠️ No se encontraron agentes disponibles");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReportsViewModel] ❌ Error cargando agentes: {ex.Message}");
+        }
+        finally
+        {
+            IsLoadingAgents = false;
+        }
+    }
+
+    /// <summary>Maneja el cambio del checkbox "Todos los agentes".</summary>
+    partial void OnSelectAllAgentsChanged(bool value)
+    {
+        if (value)
+        {
+            // Si "Todos" está marcado, desmarcar todos los agentes individuales
+            foreach (var agent in AvailableAgents)
+            {
+                agent.IsSelected = false;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[ReportsViewModel] 🌐 Todos los agentes seleccionados");
+        }
     }
     // GT-END
 }
