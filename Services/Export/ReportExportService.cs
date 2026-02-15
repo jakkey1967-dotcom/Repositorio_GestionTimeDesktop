@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using SkiaSharp;
 
 namespace GestionTime.Desktop.Services.Export;
 
@@ -24,6 +26,7 @@ public class ReportExportData
     public string LastEnd { get; set; } = "-";
     public string StatusMessage { get; set; } = string.Empty;
     public string WeekTotalHours { get; set; } = string.Empty;
+    public string TotalHeaderText { get; set; } = string.Empty;
     public List<DayExportRow> DayBreakdown { get; set; } = new();
 }
 
@@ -103,52 +106,107 @@ public sealed class ReportExportService
             summaryRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             summaryRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-            // Desglose semanal (si hay datos)
+            // Desglose semanal con gráfica de barras (si hay datos)
             if (data.DayBreakdown.Count > 0)
             {
                 row += 2;
-                ws.Cell(row, 1).Value = "Desglose Semanal";
+                ws.Cell(row, 1).Value = "📊 Horas por día (Lun-Sáb)";
                 ws.Cell(row, 1).Style.Font.Bold = true;
                 ws.Cell(row, 1).Style.Font.FontSize = 14;
-                ws.Range(row, 1, row, 4).Merge();
+                ws.Range(row, 1, row, 3).Merge();
 
                 if (!string.IsNullOrEmpty(data.WeekTotalHours))
                 {
-                    row++;
-                    ws.Cell(row, 1).Value = $"Total semana: {data.WeekTotalHours}";
-                    ws.Cell(row, 1).Style.Font.FontSize = 12;
-                    ws.Range(row, 1, row, 4).Merge();
+                    ws.Cell(row, 4).Value = $"{data.TotalHeaderText} {data.WeekTotalHours}";
+                    ws.Cell(row, 4).Style.Font.Bold = true;
+                    ws.Cell(row, 4).Style.Font.FontColor = XLColor.FromHtml("#0F766E");
+                    ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    ws.Range(row, 4, row, 6).Merge();
                 }
 
                 row++;
-                string[] dayHeaders = { "Día", "Horas", "% Obj. 8h", "% Semanal" };
-                for (int i = 0; i < dayHeaders.Length; i++)
+                ws.Cell(row, 1).Value = data.AgentText;
+                ws.Cell(row, 1).Style.Font.FontSize = 10;
+                ws.Range(row, 1, row, 2).Merge();
+                ws.Cell(row, 3).Value = $"Inicio: {data.FirstStart}";
+                ws.Cell(row, 3).Style.Font.FontSize = 10;
+                ws.Cell(row, 5).Value = $"Fin: {data.LastEnd}";
+                ws.Cell(row, 5).Style.Font.FontSize = 10;
+
+                // Gráfica de barras visual
+                row++;
+                string[] chartHeaders = { "Día", "Barra", "", "% 8h", "Horas", "Semanal" };
+                for (int i = 0; i < chartHeaders.Length; i++)
                 {
                     var cell = ws.Cell(row, i + 1);
-                    cell.Value = dayHeaders[i];
+                    cell.Value = chartHeaders[i];
                     cell.Style.Font.Bold = true;
-                    cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0F766E");
+                    cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
                     cell.Style.Font.FontColor = XLColor.White;
                     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 }
 
-                int dayStartRow = row;
+                int chartStartRow = row;
+                ws.Column(2).Width = 30;
+                ws.Column(3).Width = 10;
+
                 foreach (var day in data.DayBreakdown)
                 {
                     row++;
-                    ws.Cell(row, 1).Value = day.Day;
-                    ws.Cell(row, 2).Value = day.Hours;
-                    ws.Cell(row, 3).Value = $"{day.Percent8h}%";
-                    ws.Cell(row, 4).Value = $"{day.WeeklyPercent}%";
-
-                    ws.Cell(row, 3).Style.Font.FontColor = day.Percent8h >= 100
+                    var barColor = day.Percent8h >= 100
                         ? XLColor.FromHtml("#10B981")
                         : XLColor.FromHtml("#F59E0B");
+
+                    ws.Cell(row, 1).Value = day.Day;
+                    ws.Cell(row, 1).Style.Font.Bold = true;
+                    ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    // Barra visual: relleno proporcional al % (columnas 2-3 mergeadas)
+                    var barCell = ws.Cell(row, 2);
+                    var pctCapped = Math.Min(day.Percent8h, 120);
+                    barCell.Value = new string('█', Math.Max(1, pctCapped / 4));
+                    barCell.Style.Font.FontColor = barColor;
+                    barCell.Style.Font.FontSize = 14;
+                    barCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+
+                    ws.Cell(row, 3).Value = $"{day.Percent8h}%";
+                    ws.Cell(row, 3).Style.Font.Bold = true;
+                    ws.Cell(row, 3).Style.Font.FontColor = barColor;
+                    ws.Cell(row, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    ws.Cell(row, 4).Value = $"{day.Percent8h}%";
+                    ws.Cell(row, 4).Style.Font.FontColor = barColor;
+                    ws.Cell(row, 4).Style.Font.Bold = true;
+                    ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    ws.Cell(row, 5).Value = day.Hours;
+                    ws.Cell(row, 5).Style.Font.Bold = true;
+                    ws.Cell(row, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                    ws.Cell(row, 6).Value = $"{day.WeeklyPercent}%";
+                    ws.Cell(row, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                    // Fondo oscuro para simular tema dark
+                    var rowRange = ws.Range(row, 1, row, 6);
+                    rowRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
+                    rowRange.Style.Font.FontColor = rowRange.Style.Font.FontColor == XLColor.Black
+                        ? XLColor.White : rowRange.Style.Font.FontColor;
+                    // Restaurar colores específicos que ya se setearon
+                    ws.Cell(row, 1).Style.Font.FontColor = XLColor.FromHtml("#94A3B8");
+                    ws.Cell(row, 5).Style.Font.FontColor = XLColor.White;
+                    ws.Cell(row, 6).Style.Font.FontColor = XLColor.FromHtml("#94A3B8");
                 }
 
-                var dayRange = ws.Range(dayStartRow, 1, row, 4);
-                dayRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                dayRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                var chartRange = ws.Range(chartStartRow, 1, row, 6);
+                chartRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                chartRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                chartRange.Style.Border.OutsideBorderColor = XLColor.FromHtml("#334155");
+                chartRange.Style.Border.InsideBorderColor = XLColor.FromHtml("#334155");
+
+                ws.Column(1).AdjustToContents();
+                ws.Column(4).AdjustToContents();
+                ws.Column(5).AdjustToContents();
+                ws.Column(6).AdjustToContents();
             }
 
             ws.Columns().AdjustToContents();
@@ -165,6 +223,20 @@ public sealed class ReportExportService
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
+            // GT-BEGIN: Cargar logo de la app para el header del PDF
+            byte[]? logoBytes = null;
+            try
+            {
+                var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "LogoOscuro.png");
+                if (File.Exists(logoPath))
+                {
+                    var rawBytes = File.ReadAllBytes(logoPath);
+                    logoBytes = ApplyRoundedCorners(rawBytes);
+                }
+            }
+            catch { /* Logo opcional, no bloquea exportación */ }
+            // GT-END
+
             Document.Create(container =>
             {
                 container.Page(page =>
@@ -173,13 +245,24 @@ public sealed class ReportExportService
                     page.Margin(2, Unit.Centimetre);
                     page.DefaultTextStyle(x => x.FontSize(11));
 
-                    // Header
+                    // Header con logo + info
                     page.Header().Column(col =>
                     {
-                        col.Item().Text(data.Title).FontSize(20).SemiBold().FontColor("#0F766E");
-                        col.Item().PaddingTop(4).Text(data.ScopeText).FontSize(13);
-                        col.Item().Text(data.AgentText).FontSize(12);
-                        col.Item().Text($"Generado: {data.GeneratedAt}").FontSize(9).FontColor("#888888");
+                        col.Item().Row(headerRow =>
+                        {
+                            if (logoBytes != null)
+                            {
+                                headerRow.AutoItem().AlignMiddle().Width(90).Image(logoBytes);
+                                headerRow.AutoItem().PaddingLeft(12);
+                            }
+                            headerRow.RelativeItem().Column(titleCol =>
+                            {
+                                titleCol.Item().Text(data.Title).FontSize(20).SemiBold().FontColor("#0F766E");
+                                titleCol.Item().PaddingTop(4).Text(data.ScopeText).FontSize(13);
+                                titleCol.Item().Text(data.AgentText).FontSize(12);
+                                titleCol.Item().Text($"Generado: {data.GeneratedAt}").FontSize(9).FontColor("#888888");
+                            });
+                        });
                         col.Item().PaddingTop(8).LineHorizontal(1).LineColor("#CCCCCC");
                     });
 
@@ -222,46 +305,77 @@ public sealed class ReportExportService
                             AddRow("Estado", data.StatusMessage);
                         });
 
-                        // Desglose semanal
+                        // Gráfica semanal visual (barras horizontales)
                         if (data.DayBreakdown.Count > 0)
                         {
-                            col.Item().PaddingTop(20).Text("Desglose Semanal").FontSize(14).SemiBold();
-
-                            if (!string.IsNullOrEmpty(data.WeekTotalHours))
+                            col.Item().PaddingTop(20).Background("#1E293B").Padding(16).Column(chart =>
                             {
-                                col.Item().PaddingTop(4).Text($"Total semana: {data.WeekTotalHours}")
-                                    .FontSize(12).FontColor("#0F766E").SemiBold();
-                            }
-
-                            col.Item().PaddingTop(8).Table(table =>
-                            {
-                                table.ColumnsDefinition(columns =>
+                                // Título + Total
+                                chart.Item().Row(titleRow =>
                                 {
-                                    columns.RelativeColumn(2);
-                                    columns.RelativeColumn(2);
-                                    columns.RelativeColumn(2);
-                                    columns.RelativeColumn(2);
+                                    titleRow.RelativeItem().Text("📊 Horas por día (Lun-Sáb)")
+                                        .FontSize(14).SemiBold().FontColor("#F1F5F9");
+                                    titleRow.AutoItem().Text(text =>
+                                    {
+                                        text.Span(data.TotalHeaderText + " ").FontSize(10).FontColor("#94A3B8");
+                                        text.Span(data.WeekTotalHours).FontSize(12).Bold().FontColor("#0F766E");
+                                    });
                                 });
 
-                                table.Header(header =>
+                                // Agente + Inicio/Fin
+                                chart.Item().PaddingTop(6).Row(infoRow =>
                                 {
-                                    header.Cell().Background("#0F766E").Padding(6).Text("Día").FontColor("#FFFFFF").SemiBold();
-                                    header.Cell().Background("#0F766E").Padding(6).Text("Horas").FontColor("#FFFFFF").SemiBold();
-                                    header.Cell().Background("#0F766E").Padding(6).Text("% Obj. 8h").FontColor("#FFFFFF").SemiBold();
-                                    header.Cell().Background("#0F766E").Padding(6).Text("% Semanal").FontColor("#FFFFFF").SemiBold();
+                                    infoRow.AutoItem().Text($"👤 {data.AgentText}").FontSize(9).FontColor("#CBD5E1");
+                                    infoRow.AutoItem().PaddingLeft(20).Text($"🕒 Inicio: {data.FirstStart}")
+                                        .FontSize(9).FontColor("#94A3B8");
+                                    infoRow.AutoItem().PaddingLeft(20).Text($"🏁 Fin: {data.LastEnd}")
+                                        .FontSize(9).FontColor("#94A3B8");
                                 });
 
+                                chart.Item().PaddingTop(12);
+
+                                // Barras por día
                                 foreach (var day in data.DayBreakdown)
                                 {
-                                    table.Cell().BorderBottom(1).BorderColor("#EEEEEE").Padding(5).Text(day.Day);
-                                    table.Cell().BorderBottom(1).BorderColor("#EEEEEE").Padding(5).Text(day.Hours);
+                                    var barColor = day.Percent8h >= 100 ? "#10B981" : "#F59E0B";
+                                    var barWidth = Math.Min(day.Percent8h, 120);
 
-                                    var pctColor = day.Percent8h >= 100 ? "#10B981" : "#F59E0B";
-                                    table.Cell().BorderBottom(1).BorderColor("#EEEEEE").Padding(5)
-                                        .Text($"{day.Percent8h}%").FontColor(pctColor).SemiBold();
+                                    chart.Item().PaddingBottom(6).Row(barRow =>
+                                    {
+                                        // Etiqueta día
+                                        barRow.ConstantItem(35).AlignMiddle()
+                                            .Text(day.Day).FontSize(10).SemiBold().FontColor("#94A3B8");
 
-                                    table.Cell().BorderBottom(1).BorderColor("#EEEEEE").Padding(5)
-                                        .Text($"{day.WeeklyPercent}%");
+                                        // Barra con % superpuesto
+                                        barRow.RelativeItem().Height(24).Layers(layers =>
+                                        {
+                                            // Fondo barra
+                                            layers.Layer().Background("#334155");
+
+                                            // Barra coloreada proporcional
+                                            layers.Layer().Row(inner =>
+                                            {
+                                                inner.RelativeItem(barWidth).Background(barColor);
+                                                inner.RelativeItem(Math.Max(1, 120 - barWidth));
+                                            });
+
+                                            // Texto % centrado en la barra
+                                            layers.PrimaryLayer().AlignCenter().AlignMiddle()
+                                                .Text($"{day.Percent8h}%").FontSize(10).Bold().FontColor("#FFFFFF");
+                                        });
+
+                                        // Horas + (%) 
+                                        barRow.ConstantItem(120).AlignMiddle().AlignRight()
+                                            .Text(text =>
+                                            {
+                                                text.Span(day.Hours).FontSize(10).SemiBold().FontColor("#F1F5F9");
+                                                text.Span($" ({day.Percent8h}%)").FontSize(9).FontColor("#94A3B8");
+                                            });
+
+                                        // % semanal
+                                        barRow.ConstantItem(40).AlignMiddle().AlignRight()
+                                            .Text($"{day.WeeklyPercent}%").FontSize(10).Bold().FontColor("#64748B");
+                                    });
                                 }
                             });
                         }
@@ -316,6 +430,31 @@ public sealed class ReportExportService
         }
 
         return sb.ToString();
+    }
+    // GT-END
+
+    // GT-BEGIN: Logo con esquinas redondeadas para PDF
+    /// <summary>Aplica esquinas redondeadas a una imagen usando SkiaSharp.</summary>
+    private static byte[] ApplyRoundedCorners(byte[] imageBytes)
+    {
+        using var original = SKBitmap.Decode(imageBytes);
+        var w = original.Width;
+        var h = original.Height;
+        var radius = Math.Min(w, h) * 0.12f;
+
+        var info = new SKImageInfo(w, h, SKColorType.Rgba8888, SKAlphaType.Premul);
+        using var surface = SKSurface.Create(info);
+        var canvas = surface.Canvas;
+        canvas.Clear(SKColors.Transparent);
+
+        var rect = new SKRect(0, 0, w, h);
+        var rrect = new SKRoundRect(rect, radius, radius);
+        canvas.ClipRoundRect(rrect, SKClipOperation.Intersect, true);
+        canvas.DrawBitmap(original, 0, 0);
+
+        using var snap = surface.Snapshot();
+        using var data = snap.Encode(SKEncodedImageFormat.Png, 100);
+        return data.ToArray();
     }
     // GT-END
 }
