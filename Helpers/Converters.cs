@@ -185,8 +185,25 @@ public sealed class CountToVisibilityConverter : IValueConverter
     {
         if (value is int count)
             return count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        
+
         return Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>Convierte bool a InfoBarSeverity (true = Success, false = Warning).</summary>
+public sealed class BoolToSeverityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool isComplete)
+            return isComplete ? Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success : Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning;
+
+        return Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)

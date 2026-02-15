@@ -197,7 +197,7 @@ public sealed class ProfileService
     {
         _cachedProfile = null;
         _cacheLoadedAt = null;
-        _log?.LogDebug("🗑️ Cache de perfil invalidado");
+        _log?.LogInformation("🗑️ Cache interno de ProfileService invalidado");
     }
 
     /// <summary>🆕 MODIFICADO: Guarda datos básicos del perfil en archivo JSON para acceso rápido.</summary>

@@ -103,9 +103,14 @@
                                 <TextBlock Text="Semana:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
                                 <ComboBox ItemsSource="{x:Bind ViewModel.AvailableWeeks, Mode=OneWay}"
                                           SelectedItem="{x:Bind ViewModel.SelectedWeek, Mode=TwoWay}"
-                                          DisplayMemberPath="Display"
                                           Width="320"
-                                          PlaceholderText="Selecciona una semana"/>
+                                          PlaceholderText="Selecciona una semana">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:WeekOption">
+                                            <TextBlock Text="{x:Bind Display}" FontSize="13"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                             </StackPanel>
 
                             <!-- Rango -->
@@ -119,6 +124,23 @@
                                     <CalendarDatePicker Date="{x:Bind ViewModel.RangeTo, Mode=TwoWay}" Width="180"/>
                                 </StackPanel>
                             </StackPanel>
+
+                            <!-- GT-BEGIN: ComboBox de Agente (solo EDITOR/ADMIN) en línea horizontal -->
+                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CanSelectAgentVisibility, Mode=OneWay}">
+                                <TextBlock Text="Agente:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
+                                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableAgents, Mode=OneWay}"
+                                          SelectedItem="{x:Bind ViewModel.SelectedAgent, Mode=TwoWay}"
+                                          Width="280"
+                                          PlaceholderText="Selecciona un agente..."
+                                          IsEnabled="{x:Bind ViewModel.IsAgentSelectorEnabled, Mode=OneWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:AgentOption">
+                                            <TextBlock Text="{x:Bind Display}" FontSize="13"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            <!-- GT-END -->
 
                             <!-- Botón Buscar -->
                             <Button Content="🔍 Buscar"
@@ -134,50 +156,10 @@
                                     Margin="16,0,0,0"/>
                         </StackPanel>
 
-                        <!-- GT-BEGIN: Selector de agente (solo EDITOR/ADMIN) - Solo permite UNO -->
-                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CanSelectAgentVisibility, Mode=OneWay}">
-                            <TextBlock Text="Agente:" FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource TextMuted}"/>
-
-                            <!-- Checkbox "Todos" -->
-                            <CheckBox Content="Todos los agentes"
-                                      IsChecked="{x:Bind ViewModel.SelectAllAgents, Mode=TwoWay}"
-                                      FontSize="13"
-                                      Margin="0,0,0,8"/>
-
-                            <!-- Lista de agentes con checkboxes (LIMITACIÓN: backend solo soporta 1 agente) -->
-                            <Border Background="{ThemeResource CardBg}"
-                                    BorderBrush="{ThemeResource Stroke}"
-                                    BorderThickness="1"
-                                    CornerRadius="6"
-                                    Padding="12"
-                                    MaxHeight="200">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="⚠️ Nota: Solo se puede filtrar por un agente a la vez."
-                                               FontSize="11"
-                                               Foreground="{ThemeResource TextMuted}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,0,0,8"/>
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="160">
-                                        <ItemsControl ItemsSource="{x:Bind ViewModel.AvailableAgents, Mode=OneWay}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="vm:AgentOption">
-                                                    <CheckBox Content="{x:Bind Display}"
-                                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
-                                                              IsEnabled="{Binding ElementName=Root, Path=ViewModel.SelectAllAgents, Converter={StaticResource InverseBoolConverter}}"
-                                                              FontSize="12"
-                                                              Margin="0,4"/>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Indicador de carga -->
-                            <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsLoadingAgentsVisibility, Mode=OneWay}">
-                                <ProgressRing IsActive="True" Width="16" Height="16"/>
-                                <TextBlock Text="Cargando agentes..." FontSize="12" Foreground="{ThemeResource TextMuted}"/>
-                            </StackPanel>
+                        <!-- GT-BEGIN: Indicador de carga de agentes -->
+                        <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind ViewModel.IsLoadingAgentsVisibility, Mode=OneWay}">
+                            <ProgressRing IsActive="True" Width="16" Height="16"/>
+                            <TextBlock Text="Cargando agentes..." FontSize="12" Foreground="{ThemeResource TextMuted}"/>
                         </StackPanel>
                         <!-- GT-END -->
                     </StackPanel>
@@ -438,6 +420,40 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+
+                    <!-- GT-BEGIN: Barra de exportación / compartir -->
+                    <Border Background="{ThemeResource SurfaceBg}"
+                            BorderBrush="{ThemeResource Stroke}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="16,12">
+                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                            <TextBlock Text="Compartir:"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextMuted}"
+                                       VerticalAlignment="Center"/>
+                            <Button Click="OnExportExcel_Click" Padding="12,8" CornerRadius="6">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="📊" FontSize="14"/>
+                                    <TextBlock Text="Excel" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Click="OnExportPdf_Click" Padding="12,8" CornerRadius="6">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="📄" FontSize="14"/>
+                                    <TextBlock Text="PDF" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Click="OnShareEmail_Click" Padding="12,8" CornerRadius="6">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="📧" FontSize="14"/>
+                                    <TextBlock Text="Email" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                    <!-- GT-END -->
 
                 </StackPanel>
 

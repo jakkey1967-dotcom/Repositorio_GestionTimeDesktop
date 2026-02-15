@@ -17,9 +17,9 @@
     <!-- 🎯 VERSIÓN DE LA APLICACIÓN - Modificar SOLO AQUÍ -->
     <AppVersionMajor>1</AppVersionMajor>
     <AppVersionMinor>9</AppVersionMinor>
-    <AppVersionPatch>0</AppVersionPatch>
-    <AppVersionSuffix>-beta</AppVersionSuffix>
-    
+    <AppVersionPatch>5</AppVersionPatch>
+    <AppVersionSuffix>-alpha</AppVersionSuffix>
+
     <!-- Versión completa calculada automáticamente -->
     <AppVersion>$(AppVersionMajor).$(AppVersionMinor).$(AppVersionPatch)$(AppVersionSuffix)</AppVersion>
     <AppVersionNumeric>$(AppVersionMajor).$(AppVersionMinor).$(AppVersionPatch).0</AppVersionNumeric>

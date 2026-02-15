@@ -1503,7 +1503,7 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogInformation("📥 Cargando historial completo para exportación...");
             
             // ✅ NUEVO: Cargar TODO el historial sin límite (sin filtro de fechas)
-            var partesService = new Services.Catalog.PartesService(App.Api, App.Log);
+            var partesService = new Services.Catalog.PartesService(App.Api, App.Log!);
             allPartes = await partesService.ListAsync(
                 fecha: null,
                 fechaInicio: null,
@@ -2798,6 +2798,28 @@ public sealed partial class DiarioPage : Page
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "❌ Error abriendo Configuración");
+        }
+    }
+
+    /// <summary>Abre la ventana de Informes y oculta DiarioPage.</summary>
+    private void OnOpenInformes(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            App.Log?.LogInformation("📊 Usuario abriendo ventana de Informes");
+            var currentWindow = App.MainWindowInstance;
+            if (currentWindow != null)
+            {
+                App.ShowReportsWindow(currentWindow);
+            }
+            else
+            {
+                App.Log?.LogError("❌ No se pudo obtener la ventana actual para abrir Informes");
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error abriendo ventana de Informes");
         }
     }
 }

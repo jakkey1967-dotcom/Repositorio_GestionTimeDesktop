@@ -1024,6 +1024,81 @@ public partial class App : Application
         }
     }
 
+    /// <summary>Abre la ventana de Informes y oculta la ventana padre.</summary>
+    public static void ShowReportsWindow(Window parentWindow)
+    {
+        try
+        {
+            Log?.LogInformation("📊 Abriendo ventana de Informes");
+
+            // GT-BEGIN: CARGAR ROL USUARIO
+            var userInfo = Helpers.UserInfoFileStorage.LoadUserInfo(Log);
+            var userRole = Models.Enums.UserRole.USER; // Default restrictivo
+
+            if (userInfo != null && !string.IsNullOrEmpty(userInfo.UserRole))
+            {
+                var roleString = userInfo.UserRole.Trim().ToUpperInvariant();
+                Log?.LogInformation("👤 Usuario actual: {nombre} (Rol string: {rol})",
+                    userInfo.UserName ?? "Desconocido", roleString);
+
+                userRole = roleString switch
+                {
+                    "ADMIN" => Models.Enums.UserRole.ADMIN,
+                    "EDITOR" => Models.Enums.UserRole.EDITOR,
+                    "USER" => Models.Enums.UserRole.USER,
+                    _ => Models.Enums.UserRole.USER
+                };
+
+                Log?.LogInformation("🎯 Rol mapeado para Informes: {roleEnum}", userRole);
+            }
+            else
+            {
+                Log?.LogWarning("⚠️ No se pudo cargar UserRole desde archivo - usando USER por defecto");
+            }
+            // GT-END
+
+            // Ocultar ventana padre (DiarioPage)
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(parentWindow);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            appWindow?.Hide();
+
+            // GT-BEGIN: CREAR SERVICIO Y VENTANA
+            Log?.LogInformation("🔧 Creando InformesService...");
+            var informesService = new Services.Reports.InformesService(Api);
+
+            Log?.LogInformation("🪟 Instanciando ReportsWindow...");
+            var reportsWindow = new Views.Reports.ReportsWindow(informesService, userRole, parentWindow);
+            reportsWindow.Activate();
+            // GT-END
+
+            Log?.LogInformation("✅ Ventana de Informes abierta correctamente");
+        }
+        catch (Exception ex)
+        {
+            Log?.LogError(ex, "❌ Error abriendo ventana de Informes: {message}", ex.Message);
+            if (ex.InnerException != null)
+            {
+                Log?.LogError("   • Inner exception: {inner}", ex.InnerException.Message);
+            }
+            Log?.LogError("   • StackTrace: {stack}", ex.StackTrace);
+
+            // Si hay error, volver a mostrar ventana padre
+            try
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(parentWindow);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                appWindow?.Show();
+                Log?.LogInformation("↩️ Ventana padre restaurada tras error");
+            }
+            catch (Exception restoreEx)
+            {
+                Log?.LogError(restoreEx, "❌ Error adicional restaurando ventana padre");
+            }
+        }
+    }
+
     /// <summary>
     /// Muestra un diálogo crítico de error al usuario
     /// </summary>

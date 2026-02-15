@@ -208,10 +208,11 @@ public sealed partial class SettingsWindow : Window
         // 🆕 CRÍTICO: Invalidar cache y recargar perfil desde servidor
         _log?.LogInformation("🔄 Recargando perfil desde servidor (invalidando cache)...");
         
-        // Invalidar cache del ProfileService para forzar recarga
+        // Invalidar AMBOS cachés: ApiClient (HTTP) y ProfileService (modelo)
         var cacheKey = "/api/v1/profiles/me";
         App.Api.InvalidateCacheEntry(cacheKey);
-        _log?.LogInformation("🗑️ Cache invalidado para {key}", cacheKey);
+        App.ProfileService.InvalidateCache();
+        _log?.LogInformation("🗑️ Cache HTTP y cache interno invalidados para {key}", cacheKey);
         
         // Recargar perfil desde servidor de forma asíncrona
         var loadingText = new TextBlock

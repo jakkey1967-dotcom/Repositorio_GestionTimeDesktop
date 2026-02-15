@@ -84,21 +84,21 @@ public sealed class PresenceService
     {
         try
         {
-            _log?.LogDebug("📡 Enviando ping a GET /api/v1/admin/ping...");
+            _log?.LogDebug("📡 Enviando heartbeat a GET /api/v1/health...");
 
-            var response = await App.Api.GetAsync<object>("/api/v1/admin/ping", ct);
+            var response = await App.Api.GetAsync<object>("/api/v1/health", ct);
 
-            _log?.LogDebug("✅ Ping enviado correctamente");
+            _log?.LogDebug("✅ Heartbeat enviado correctamente");
             return true;
         }
         catch (HttpRequestException httpEx)
         {
-            _log?.LogWarning(httpEx, "⚠️ Error HTTP al enviar ping (endpoint no implementado?)");
+            _log?.LogWarning(httpEx, "⚠️ Error HTTP al enviar heartbeat");
             return false;
         }
         catch (Exception ex)
         {
-            _log?.LogError(ex, "❌ Error al enviar ping");
+            _log?.LogError(ex, "❌ Error al enviar heartbeat");
             return false;
         }
     }
