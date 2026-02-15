@@ -113,7 +113,8 @@ public sealed partial class ReportsWindow : Window
             FirstStart = ViewModel.FirstStartFormatted,
             LastEnd = ViewModel.LastEndFormatted,
             StatusMessage = ViewModel.StatusMessage,
-            WeekTotalHours = ViewModel.WeekTotalHours
+            WeekTotalHours = ViewModel.WeekTotalHours,
+            TotalHeaderText = ViewModel.TotalHeaderText
         };
 
         foreach (var item in ViewModel.WeekChartItems)
@@ -219,5 +220,50 @@ public sealed partial class ReportsWindow : Window
         }
     }
 
+    // GT-END
+
+    // GT-BEGIN: Overlap detail edit handlers
+    private void OnEditOverlapPart_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.Button btn && btn.Tag is ViewModels.Reports.OverlapPartItem item)
+        {
+            ViewModel.BeginEditPart(item);
+        }
+    }
+
+    private async void OnSaveOverlapPart_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.Button btn && btn.Tag is ViewModels.Reports.OverlapPartItem item)
+        {
+            try
+            {
+                await ViewModel.SavePartTimeChangeAsync(item);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ReportsWindow] Error guardando parte: {ex}");
+            }
+        }
+    }
+
+    private void OnCancelOverlapEdit_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.Button btn && btn.Tag is ViewModels.Reports.OverlapPartItem item)
+        {
+            ViewModel.CancelEditPart(item);
+        }
+    }
+
+    private async void OnAutoFixOverlaps_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await ViewModel.AutoFixOverlapsAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReportsWindow] Error en auto-fix: {ex}");
+        }
+    }
     // GT-END
 }

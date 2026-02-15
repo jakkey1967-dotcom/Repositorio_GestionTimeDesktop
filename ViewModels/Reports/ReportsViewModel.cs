@@ -325,24 +325,20 @@ public partial class ReportsViewModel : ObservableObject
             }
 
             // Llamada API
-            // Enviar agentId correcto según selección (ComboBox único)
+            // GT-BEGIN: Determinar agentId según rol
+            // USER: NO enviar agentId → el backend usa el JWT token para identificar al usuario
+            // EDITOR/ADMIN: solo enviar agentId si seleccionaron un agente explícitamente en el ComboBox
             string? agentIdToSend = null;
 
             if (CurrentUserRole == UserRole.USER)
             {
-                agentIdToSend = CurrentUserId;
-
-                if (string.IsNullOrEmpty(agentIdToSend))
-                {
-                    DispatchUI(() => ErrorMessage = "❌ Error: No se pudo obtener tu ID de usuario. Por favor, cierra sesión y vuelve a iniciar.");
-                    System.Diagnostics.Debug.WriteLine($"❌ [ReportsViewModel] CurrentUserId es null/vacío para rol USER");
-                    return;
-                }
-
-                System.Diagnostics.Debug.WriteLine($"👤 [ReportsViewModel] USER → Enviando agentId={agentIdToSend}");
+                // No enviar agentId: el backend identifica al usuario por su JWT token
+                agentIdToSend = null;
+                System.Diagnostics.Debug.WriteLine($"👤 [ReportsViewModel] USER → Sin agentId (backend usa JWT)");
             }
             else
             {
+                // EDITOR/ADMIN: enviar agentId solo si seleccionaron uno en el ComboBox
                 if (SelectedAgent != null)
                 {
                     agentIdToSend = SelectedAgent.Id;
@@ -350,10 +346,12 @@ public partial class ReportsViewModel : ObservableObject
                 }
                 else
                 {
-                    agentIdToSend = CurrentUserId;
-                    System.Diagnostics.Debug.WriteLine($"👤 [ReportsViewModel] EDITOR/ADMIN (sin selección) → Enviando su propio ID: {agentIdToSend ?? "(null)"}");
+                    // Sin selección: backend usa JWT para devolver datos del usuario autenticado
+                    agentIdToSend = null;
+                    System.Diagnostics.Debug.WriteLine($"👤 [ReportsViewModel] EDITOR/ADMIN (sin selección) → Sin agentId (backend usa JWT)");
                 }
             }
+            // GT-END
 
             var result = await _informesService.GetResumenAsync(
                 scope: Scope,
@@ -372,6 +370,9 @@ public partial class ReportsViewModel : ObservableObject
                     Resumen = result;
                     // Fire-and-forget seguro: captura excepciones
                     _ = SafeLoadWeekChartAsync();
+                    // GT-BEGIN: Cargar detalle de solapamientos si hay overlap
+                    _ = SafeLoadOverlappingPartsAsync();
+                    // GT-END
                 }
                 else
                 {
@@ -430,9 +431,10 @@ public partial class ReportsViewModel : ObservableObject
     {
         try
         {
+            // USER: no enviar agentId (backend usa JWT). EDITOR/ADMIN: solo si hay agente seleccionado.
             string? agentId = CurrentUserRole == UserRole.USER
-                ? CurrentUserId
-                : (SelectedAgent?.Id ?? CurrentUserId);
+                ? null
+                : SelectedAgent?.Id;
 
             // Intentar semana actual primero
             var currentWeek = GetCurrentWeekIso();
@@ -736,6 +738,19 @@ public partial class ReportsViewModel : ObservableObject
         }
     }
 
+    /// <summary>Wrapper seguro para LoadOverlappingPartsAsync (evita crash en fire-and-forget).</summary>
+    private async Task SafeLoadOverlappingPartsAsync()
+    {
+        try
+        {
+            await LoadOverlappingPartsAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Overlap] ERROR no capturado: {ex}");
+        }
+    }
+
     // Carga de gráfica semanal
     /// <summary>Carga gráfica semanal si scope es Día o Semana.</summary>
     private async Task LoadWeekChartIfNeededAsync()
@@ -794,11 +809,12 @@ public partial class ReportsViewModel : ObservableObject
             }
 
             // Hacer llamada adicional para obtener datos semanales
+            // USER: no enviar agentId (backend usa JWT). EDITOR/ADMIN: solo si hay agente seleccionado.
             string? agentIdToSend = CurrentUserRole == UserRole.USER
-                ? CurrentUserId
-                : (SelectedAgent?.Id ?? CurrentUserId);
+                ? null
+                : SelectedAgent?.Id;
 
-            System.Diagnostics.Debug.WriteLine($"[WeekChart] Llamada adicional con agentId: {agentIdToSend ?? "(null)"}");
+            System.Diagnostics.Debug.WriteLine($"[WeekChart] Llamada adicional con agentId: {agentIdToSend ?? "(null, backend usa JWT)"}");
 
             var weekData = await _informesService.GetResumenAsync(
                 scope: "week",
