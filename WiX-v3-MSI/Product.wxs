@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- INSTALADOR MSI - GESTIONTIME DESKTOP v1.9.5-beta               -->
+  <!-- WiX Toolset v3.14                                               -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  
+  <!-- Variables de configuración -->
+  <?define ProductName = "GestionTime Desktop" ?>
+  <?define ProductVersion = "1.9.5.0" ?>
+  <?define Manufacturer = "GestionTime Solutions" ?>
+  <?define UpgradeCode = "12345678-1234-1234-1234-123456789012" ?>
+  
+  <!-- Ruta de los archivos publicados (recibida del script como -dSourceDir) -->
+  <!-- Se define via candle.exe: -dSourceDir="path\to\publish" -->
+
+  <Product Id="*" 
+           Name="$(var.ProductName)" 
+           Language="1033" 
+           Version="$(var.ProductVersion)" 
+           Manufacturer="$(var.Manufacturer)" 
+           UpgradeCode="$(var.UpgradeCode)">
+    
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Description="Aplicacion de gestion de tiempo para partes de trabajo"
+             Comments="(c) 2025 GestionTime Solutions" />
+
+    <!-- Media (instalador de un solo archivo) -->
+    <Media Id="1" Cabinet="GestionTime.cab" EmbedCab="yes" />
+
+    <!-- Icono del instalador -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.SourceDir)\Assets\app_logo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    
+    <!-- URL de soporte -->
+    <Property Id="ARPHELPLINK" Value="https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop" />
+
+    <!-- Actualización automática (desinstalar versiones anteriores) -->
+    <MajorUpgrade DowngradeErrorMessage="Ya existe una version mas reciente de [ProductName] instalada. La instalacion se cancelara." 
+                  AllowSameVersionUpgrades="yes" />
+
+    <!-- Condición: Solo Windows 10+ x64 -->
+    <Condition Message="Esta aplicacion requiere Windows 10 o superior de 64 bits.">
+      <![CDATA[Installed OR (VersionNT >= 603 AND VersionNT64)]]>
+    </Condition>
+
+    <!-- Interfaz de usuario moderna -->
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <!-- FORZAR directorio ABSOLUTO: C:\App\GestionTime-Desktop -->
+    <SetDirectory Id="INSTALLFOLDER" Value="C:\App\GestionTime-Desktop" />
+
+    <!-- Estructura de directorios -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      
+      <!-- Directorio de instalación FORZADO -->
+      <Directory Id="INSTALLFOLDER" />
+
+      <!-- Menú Inicio -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="GestionTime Desktop" />
+      </Directory>
+
+      <!-- Escritorio -->
+      <Directory Id="DesktopFolder" Name="Desktop" />
+      
+    </Directory>
+
+    <!-- Feature principal: Aplicación completa -->
+    <Feature Id="Complete" Title="$(var.ProductName)" Level="1">
+      <ComponentGroupRef Id="HarvestedFiles" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+      <ComponentRef Id="LogsFolder" />
+    </Feature>
+
+  </Product>
+
+  <!-- ============================================ -->
+  <!-- FRAGMENTO: Accesos directos                  -->
+  <!-- ============================================ -->
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="C0000000-0000-0000-0000-000000000001">
+        
+        <!-- Acceso directo principal -->
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="GestionTime Desktop"
+                  Description="Aplicacion de gestion de tiempo"
+                  Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.ico" />
+        
+        <!-- Acceso directo para desinstalar -->
+        <Shortcut Id="UninstallProduct"
+                  Name="Desinstalar GestionTime Desktop"
+                  Target="[SystemFolder]msiexec.exe"
+                  Arguments="/x [ProductCode]"
+                  Description="Desinstala GestionTime Desktop" />
+        
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall" />
+        
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                       Name="installed" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="C1111111-1111-1111-1111-111111111111">
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Name="GestionTime Desktop"
+                  Description="Aplicacion de gestion de tiempo"
+                  Target="[INSTALLFOLDER]GestionTime.Desktop.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.ico" />
+        
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                       Name="desktopShortcut" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    
+    <!-- Crear carpeta con permisos de escritura durante instalación -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="LogsFolder" Guid="C2222222-2222-2222-2222-222222222222">
+        <CreateFolder>
+          <util:PermissionEx User="Users" GenericAll="yes" />
+        </CreateFolder>
+        
+        <RegistryValue Root="HKCU" 
+                       Key="Software\GestionTime Solutions\GestionTime Desktop" 
+                       Name="InstallFolder" 
+                       Type="string" 
+                       Value="[INSTALLFOLDER]" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+</Wix>

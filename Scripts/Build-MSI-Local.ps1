@@ -1,5 +1,5 @@
-# ═══════════════════════════════════════════════════════════════
-# COMPILAR INSTALADOR MSI LOCAL - GESTIONTIME DESKTOP v1.9.3
+﻿# ═══════════════════════════════════════════════════════════════
+# COMPILAR INSTALADOR MSI LOCAL - GESTIONTIME DESKTOP v1.9.5
 # Configurado para backend de Render: https://gestiontimeapi.onrender.com
 # ═══════════════════════════════════════════════════════════════
 
@@ -19,7 +19,7 @@ $ProjectFile = Join-Path $ProjectRoot "GestionTime.Desktop.csproj"
 $PublishDir = Join-Path $ProjectRoot "publish\portable"
 $WixDir = Join-Path $ProjectRoot "WiX-v3-MSI"
 $InstallerDir = Join-Path $ProjectRoot "installers"
-$Version = "1.9.3"
+$Version = "1.9.5"
 
 Write-Host ""
 Write-Host "════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
