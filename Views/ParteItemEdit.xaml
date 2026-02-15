@@ -795,28 +795,103 @@
             <Button x:Name="BtnAccionGrabar" IsTabStop="False"/>
         </StackPanel>
         
-        <!-- ===================== CONTENTDIALOG: EDITAR NOTA CLIENTE ===================== -->
+        <!-- ===================== CONTENTDIALOG: NOTAS CLIENTE (global + personal) ===================== -->
         <ContentDialog x:Name="ClienteNotaDialog"
-                       Title="Nota del Cliente"
-                       PrimaryButtonText="Guardar"
-                       SecondaryButtonText="Cancelar"
-                       DefaultButton="Primary"
-                       PrimaryButtonClick="OnNotaDialogSave"
-                       SecondaryButtonClick="OnNotaDialogCancel">
-            <StackPanel Spacing="12">
-                <TextBlock Text="Edita la nota del cliente seleccionado:"
-                           FontSize="14"
-                           Foreground="{StaticResource TextSecondaryBrush}"/>
-                
-                <TextBox x:Name="TxtNotaEditor"
-                         PlaceholderText="Escribe aquí la nota del cliente..."
-                         AcceptsReturn="True"
-                         TextWrapping="Wrap"
-                         Height="200"
-                         VerticalContentAlignment="Top"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         Style="{StaticResource ModernTextBox}"/>
-            </StackPanel>
+                       Title="Notas del Cliente"
+                       CloseButtonText="Cerrar"
+                       DefaultButton="Close">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="480">
+                <StackPanel Spacing="16" MinWidth="420">
+
+                    <!-- GT-BEGIN: Nota global del cliente -->
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE774;" FontSize="14" Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="Nota del cliente (global)"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="TxtNotaGlobalMeta"
+                                   FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Visibility="Collapsed"/>
+                        <TextBox x:Name="TxtNotaGlobalEditor"
+                                 PlaceholderText="Nota global del cliente..."
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Height="140"
+                                 VerticalContentAlignment="Top"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 Style="{StaticResource ModernTextBox}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="BtnSaveNotaGlobal"
+                                    Content="Guardar nota global"
+                                    Click="OnSaveNotaGlobal_Click"
+                                    Background="{StaticResource AccentBrush}"
+                                    Foreground="White"
+                                    Padding="12,6"
+                                    CornerRadius="6"
+                                    FontSize="13"/>
+                            <TextBlock x:Name="TxtNotaGlobalStatus"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <!-- GT-END -->
+
+                    <Border Height="1" Background="{StaticResource CardBorderBrush}" Margin="0,4"/>
+
+                    <!-- GT-BEGIN: Nota personal del usuario -->
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE77B;" FontSize="14" Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="Mi nota personal"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="TxtNotaPersonalMeta"
+                                   FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Visibility="Collapsed"/>
+                        <TextBox x:Name="TxtNotaPersonalEditor"
+                                 PlaceholderText="Tu nota personal para este cliente..."
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Height="140"
+                                 VerticalContentAlignment="Top"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 Style="{StaticResource ModernTextBox}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="BtnSaveNotaPersonal"
+                                    Content="Guardar mi nota"
+                                    Click="OnSaveNotaPersonal_Click"
+                                    Background="{StaticResource AccentBrush}"
+                                    Foreground="White"
+                                    Padding="12,6"
+                                    CornerRadius="6"
+                                    FontSize="13"/>
+                            <TextBlock x:Name="TxtNotaPersonalStatus"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <!-- GT-END -->
+
+                    <!-- GT-BEGIN: Indicador de carga -->
+                    <StackPanel x:Name="PnlNotasLoading"
+                                Orientation="Horizontal" Spacing="8"
+                                HorizontalAlignment="Center"
+                                Visibility="Collapsed">
+                        <ProgressRing IsActive="True" Width="16" Height="16"/>
+                        <TextBlock Text="Cargando notas..." FontSize="12"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <!-- GT-END -->
+
+                </StackPanel>
+            </ScrollViewer>
         </ContentDialog>
     </Grid>
 </Page>

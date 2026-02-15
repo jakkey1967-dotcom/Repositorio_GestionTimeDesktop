@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.Models.Dtos;
 using GestionTime.Desktop.Models.Dtos.Catalog;
+using GestionTime.Desktop.Models.Enums;
 using GestionTime.Desktop.Services;
 using GestionTime.Desktop.Services.Catalog;
 
@@ -38,6 +39,11 @@ public sealed partial class ParteItemEdit : Page
     private string? _clienteNotaActual;
     private int _clienteIdActual;
     private CancellationTokenSource? _clienteNotaCts;
+
+    // GT-BEGIN: Notas v2 (global + personal)
+    private ClienteNotasResponse? _clienteNotasV2;
+    private bool _canEditGlobalNota;
+    // GT-END
     
     // 🆕 NUEVO: Gestores de eventos para ComboBox
     private ComboBoxEventManager? _grupoEventManager;
@@ -2051,21 +2057,34 @@ public sealed partial class ParteItemEdit : Page
     /// <summary>Actualiza el tooltip del botón de nota según el contenido actual.</summary>
     private void UpdateNotaTooltip()
     {
-        if (string.IsNullOrWhiteSpace(_clienteNotaActual))
+        var globalText = _clienteNotasV2?.Global?.Text ?? _clienteNotaActual;
+        var personalText = _clienteNotasV2?.Personal?.Text;
+
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(globalText))
         {
-            TxtNotaTooltip.Text = "Sin nota";
+            var preview = globalText.Length <= 120 
+                ? globalText 
+                : globalText.Substring(0, 120) + "...";
+            parts.Add($"📋 Global: {preview}");
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(personalText))
         {
-            // Mostrar primeras 200 caracteres con "..." si es más largo
-            var preview = _clienteNotaActual.Length <= 200 
-                ? _clienteNotaActual 
-                : _clienteNotaActual.Substring(0, 200) + "...";
-            
-            TxtNotaTooltip.Text = preview;
+            var preview = personalText.Length <= 120 
+                ? personalText 
+                : personalText.Substring(0, 120) + "...";
+            parts.Add($"👤 Personal: {preview}");
         }
+
+        TxtNotaTooltip.Text = parts.Count > 0 
+            ? string.Join("\n", parts) 
+            : "Sin notas";
     }
     
+    // GT-BEGIN: Notas v2 (global + personal) — dialog handlers
+
     /// <summary>Handler cuando se hace click en el botón de nota del cliente.</summary>
     private async void OnClienteNotaClick(object sender, RoutedEventArgs e)
     {
@@ -2074,101 +2093,229 @@ public sealed partial class ParteItemEdit : Page
             App.Log?.LogWarning("⚠️ Click en nota sin cliente válido");
             return;
         }
-        
+
         try
         {
-            // Cargar texto actual en el editor
-            TxtNotaEditor.Text = _clienteNotaActual ?? string.Empty;
-            
+            // Determinar rol del usuario actual
+            var userInfo = Helpers.UserInfoFileStorage.LoadUserInfo(App.Log);
+            var roleStr = userInfo?.UserRole?.Trim().ToUpperInvariant() ?? "USER";
+            _canEditGlobalNota = roleStr is "EDITOR" or "ADMIN";
+
+            // Mostrar loading, ocultar campos
+            PnlNotasLoading.Visibility = Visibility.Visible;
+            TxtNotaGlobalEditor.Text = string.Empty;
+            TxtNotaPersonalEditor.Text = string.Empty;
+            TxtNotaGlobalMeta.Visibility = Visibility.Collapsed;
+            TxtNotaPersonalMeta.Visibility = Visibility.Collapsed;
+            TxtNotaGlobalStatus.Visibility = Visibility.Collapsed;
+            TxtNotaPersonalStatus.Visibility = Visibility.Collapsed;
+
+            // Configurar permisos UI
+            TxtNotaGlobalEditor.IsReadOnly = !_canEditGlobalNota;
+            BtnSaveNotaGlobal.Visibility = _canEditGlobalNota ? Visibility.Visible : Visibility.Collapsed;
+            TxtNotaGlobalEditor.PlaceholderText = _canEditGlobalNota
+                ? "Nota global del cliente..."
+                : "Sin nota global (solo lectura)";
+
             // Mostrar dialog
             ClienteNotaDialog.XamlRoot = this.XamlRoot;
-            var result = await ClienteNotaDialog.ShowAsync();
-            
-            // El guardado se maneja en OnNotaDialogSave
+            _ = LoadNotasV2Async();
+            await ClienteNotaDialog.ShowAsync();
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "❌ Error abriendo dialog de nota");
+            App.Log?.LogError(ex, "❌ Error abriendo dialog de notas");
         }
     }
-    
-    /// <summary>Handler cuando se presiona "Guardar" en el dialog de nota.</summary>
-    private async void OnNotaDialogSave(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+
+    /// <summary>Carga notas v2 (global + personal) desde API.</summary>
+    private async Task LoadNotasV2Async()
     {
-        // Evitar que el dialog se cierre automáticamente mientras guardamos
-        args.Cancel = true;
-        
         try
         {
-            var nuevaNota = TxtNotaEditor.Text?.Trim();
-            
-            // Si no cambió, no hacer nada
-            if (nuevaNota == _clienteNotaActual)
-            {
-                App.Log?.LogDebug("📝 Nota sin cambios, cerrando dialog");
-                sender.Hide();
-                return;
-            }
-            
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var notaLength = nuevaNota?.Length ?? 0;
-            
-            App.Log?.LogInformation("💾 SaveClienteNota start - ClienteId: {id}, NotaLength: {length}",
-                _clienteIdActual, notaLength);
-            
-            // Crear servicio de clientes
             var clientesService = new ClientesService(App.Api, App.Log!);
-            
-            // Guardar nota
-            var result = await clientesService.UpdateNotaAsync(_clienteIdActual, nuevaNota);
-            
-            sw.Stop();
-            
-            if (result != null)
+            _clienteNotasV2 = await clientesService.GetNotasAsync(_clienteIdActual);
+
+            DispatcherQueue.TryEnqueue(() =>
             {
-                _clienteNotaActual = result.Nota;
-                
-                App.Log?.LogInformation("✅ SaveClienteNota end - ClienteId: {id}, Duration: {ms}ms",
-                    _clienteIdActual, sw.ElapsedMilliseconds);
-                
+                PnlNotasLoading.Visibility = Visibility.Collapsed;
+
+                // Nota global
+                if (_clienteNotasV2?.Global != null)
+                {
+                    TxtNotaGlobalEditor.Text = _clienteNotasV2.Global.Text;
+                    var meta = FormatNotaMeta(_clienteNotasV2.Global);
+                    if (!string.IsNullOrEmpty(meta))
+                    {
+                        TxtNotaGlobalMeta.Text = meta;
+                        TxtNotaGlobalMeta.Visibility = Visibility.Visible;
+                    }
+                }
+
+                // Nota personal
+                if (_clienteNotasV2?.Personal != null)
+                {
+                    TxtNotaPersonalEditor.Text = _clienteNotasV2.Personal.Text;
+                    var meta = FormatNotaMeta(_clienteNotasV2.Personal);
+                    if (!string.IsNullOrEmpty(meta))
+                    {
+                        TxtNotaPersonalMeta.Text = meta;
+                        TxtNotaPersonalMeta.Visibility = Visibility.Visible;
+                    }
+                }
+
+                // Actualizar tooltip con preview
                 UpdateNotaTooltip();
-                
-                // Cerrar dialog
-                sender.Hide();
-                
-                // Notificación de éxito
-                App.Notifications?.ShowSuccess(
-                    "Nota del cliente actualizada",
-                    title: "✅ Guardado");
-            }
+            });
         }
-        catch (ApiException apiEx)
+        catch (ApiException apiEx) when (apiEx.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            App.Log?.LogError("❌ Error guardando nota - StatusCode: {status}, Path: {path}, Message: {msg}",
-                apiEx.StatusCode, apiEx.Path, apiEx.Message);
-            
-            // Mostrar error al usuario
-            await ShowErrorAsync($"Error guardando nota:\n\n{apiEx.Message}\n\nCódigo: {apiEx.StatusCode}");
-            
-            // Permitir que el dialog se cierre
-            args.Cancel = false;
+            // Endpoint v2 no disponible — fallback a nota legacy
+            App.Log?.LogWarning("⚠️ Endpoint v2 notas no disponible, usando nota legacy");
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                PnlNotasLoading.Visibility = Visibility.Collapsed;
+                TxtNotaGlobalEditor.Text = _clienteNotaActual ?? string.Empty;
+                TxtNotaGlobalEditor.IsReadOnly = false;
+                BtnSaveNotaGlobal.Visibility = Visibility.Visible;
+                TxtNotaGlobalEditor.PlaceholderText = "Nota del cliente...";
+            });
         }
         catch (Exception ex)
         {
-            App.Log?.LogError(ex, "❌ Error inesperado guardando nota");
-            
-            await ShowErrorAsync($"Error guardando nota: {ex.Message}");
-            
-            args.Cancel = false;
+            App.Log?.LogError(ex, "❌ Error cargando notas v2");
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                PnlNotasLoading.Visibility = Visibility.Collapsed;
+            });
         }
     }
-    
-    /// <summary>Handler cuando se presiona "Cancelar" en el dialog de nota.</summary>
-    private void OnNotaDialogCancel(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+
+    /// <summary>Formatea metadatos de una nota (última edición).</summary>
+    private static string FormatNotaMeta(ClienteNotaItem item)
     {
-        App.Log?.LogDebug("🚫 Dialog de nota cancelado");
-        // No hacer nada, el dialog se cierra automáticamente
+        if (item.UpdatedAt == null) return string.Empty;
+        var who = !string.IsNullOrEmpty(item.UpdatedByName) ? $" por {item.UpdatedByName}" : "";
+        return $"Última edición{who}: {item.UpdatedAt.Value.ToLocalTime():dd/MM/yyyy HH:mm}";
     }
+
+    /// <summary>Handler: Guardar nota global.</summary>
+    private async void OnSaveNotaGlobal_Click(object sender, RoutedEventArgs e)
+    {
+        if (_clienteIdActual == 0) return;
+
+        try
+        {
+            BtnSaveNotaGlobal.IsEnabled = false;
+            TxtNotaGlobalStatus.Text = "Guardando...";
+            TxtNotaGlobalStatus.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                Microsoft.UI.Colors.Gray);
+            TxtNotaGlobalStatus.Visibility = Visibility.Visible;
+
+            var text = TxtNotaGlobalEditor.Text?.Trim();
+            var clientesService = new ClientesService(App.Api, App.Log!);
+
+            // Si v2 no está disponible, usar fallback legacy
+            if (_clienteNotasV2 == null && _canEditGlobalNota)
+            {
+                var legacyResult = await clientesService.UpdateNotaAsync(_clienteIdActual, text);
+                if (legacyResult != null)
+                {
+                    _clienteNotaActual = legacyResult.Nota;
+                    ShowNotaStatus(TxtNotaGlobalStatus, "✅ Guardada", true);
+                    UpdateNotaTooltip();
+                }
+                return;
+            }
+
+            var result = await clientesService.SaveNotaGlobalAsync(_clienteIdActual, text);
+
+            if (result != null)
+            {
+                if (_clienteNotasV2 != null) _clienteNotasV2.Global = result;
+                _clienteNotaActual = result.Text;
+
+                ShowNotaStatus(TxtNotaGlobalStatus, "✅ Guardada", true);
+                UpdateNotaTooltip();
+
+                // Actualizar meta
+                var meta = FormatNotaMeta(result);
+                if (!string.IsNullOrEmpty(meta))
+                {
+                    TxtNotaGlobalMeta.Text = meta;
+                    TxtNotaGlobalMeta.Visibility = Visibility.Visible;
+                }
+            }
+        }
+        catch (ApiException apiEx) when (apiEx.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            App.Log?.LogWarning("🔒 Sin permisos para editar nota global");
+            ShowNotaStatus(TxtNotaGlobalStatus, "🔒 Sin permisos", false);
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error guardando nota global");
+            ShowNotaStatus(TxtNotaGlobalStatus, "❌ Error al guardar", false);
+        }
+        finally
+        {
+            BtnSaveNotaGlobal.IsEnabled = true;
+        }
+    }
+
+    /// <summary>Handler: Guardar nota personal.</summary>
+    private async void OnSaveNotaPersonal_Click(object sender, RoutedEventArgs e)
+    {
+        if (_clienteIdActual == 0) return;
+
+        try
+        {
+            BtnSaveNotaPersonal.IsEnabled = false;
+            TxtNotaPersonalStatus.Text = "Guardando...";
+            TxtNotaPersonalStatus.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                Microsoft.UI.Colors.Gray);
+            TxtNotaPersonalStatus.Visibility = Visibility.Visible;
+
+            var text = TxtNotaPersonalEditor.Text?.Trim();
+            var clientesService = new ClientesService(App.Api, App.Log!);
+
+            var result = await clientesService.SaveNotaPersonalAsync(_clienteIdActual, text);
+
+            if (result != null)
+            {
+                if (_clienteNotasV2 != null) _clienteNotasV2.Personal = result;
+
+                ShowNotaStatus(TxtNotaPersonalStatus, "✅ Guardada", true);
+
+                var meta = FormatNotaMeta(result);
+                if (!string.IsNullOrEmpty(meta))
+                {
+                    TxtNotaPersonalMeta.Text = meta;
+                    TxtNotaPersonalMeta.Visibility = Visibility.Visible;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error guardando nota personal");
+            ShowNotaStatus(TxtNotaPersonalStatus, "❌ Error al guardar", false);
+        }
+        finally
+        {
+            BtnSaveNotaPersonal.IsEnabled = true;
+        }
+    }
+
+    /// <summary>Muestra estado temporal en un TextBlock.</summary>
+    private void ShowNotaStatus(TextBlock target, string text, bool success)
+    {
+        target.Text = text;
+        target.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+            success ? Microsoft.UI.Colors.Green : Microsoft.UI.Colors.Red);
+        target.Visibility = Visibility.Visible;
+    }
+
+    // GT-END
 
     /// <summary>Helper para truncar strings en logs con un máximo de caracteres.</summary>
     private static string Trim(string? s, int maxLen)

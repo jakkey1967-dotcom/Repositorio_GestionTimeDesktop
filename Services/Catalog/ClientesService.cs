@@ -225,9 +225,9 @@ public sealed class ClientesService
         try
         {
             _log.LogInformation("🗑️ Eliminando cliente ID: {id}", id);
-            
+
             await _api.DeleteAsync($"/api/v1/clientes/{id}", ct);
-            
+
             _log.LogInformation("✅ Cliente {id} eliminado", id);
             return true;
         }
@@ -237,4 +237,70 @@ public sealed class ClientesService
             throw;
         }
     }
+
+    // GT-BEGIN: Notas v2 (global + personal)
+
+    /// <summary>Obtiene las notas (global + personal) de un cliente.</summary>
+    public async Task<ClienteNotasResponse?> GetNotasAsync(int clienteId, CancellationToken ct = default)
+    {
+        try
+        {
+            _log.LogInformation("📝 GetNotas start - ClienteId: {id}", clienteId);
+
+            var result = await _api.GetAsync<ClienteNotasResponse>(
+                $"/api/v2/clientes/{clienteId}/notas", ct);
+
+            _log.LogInformation("✅ GetNotas end - ClienteId: {id}", clienteId);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "❌ Error obteniendo notas del cliente {id}", clienteId);
+            throw;
+        }
+    }
+
+    /// <summary>Guarda la nota global de un cliente (solo EDITOR/ADMIN).</summary>
+    public async Task<ClienteNotaItem?> SaveNotaGlobalAsync(int clienteId, string? text, CancellationToken ct = default)
+    {
+        try
+        {
+            _log.LogInformation("💾 SaveNotaGlobal start - ClienteId: {id}", clienteId);
+
+            var request = new ClienteNotaUpdateRequest { Text = text };
+            var result = await _api.PutAsync<ClienteNotaUpdateRequest, ClienteNotaItem>(
+                $"/api/v2/clientes/{clienteId}/notas/global", request, ct);
+
+            _log.LogInformation("✅ SaveNotaGlobal end - ClienteId: {id}", clienteId);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "❌ Error guardando nota global del cliente {id}", clienteId);
+            throw;
+        }
+    }
+
+    /// <summary>Guarda la nota personal del usuario autenticado para un cliente.</summary>
+    public async Task<ClienteNotaItem?> SaveNotaPersonalAsync(int clienteId, string? text, CancellationToken ct = default)
+    {
+        try
+        {
+            _log.LogInformation("💾 SaveNotaPersonal start - ClienteId: {id}", clienteId);
+
+            var request = new ClienteNotaUpdateRequest { Text = text };
+            var result = await _api.PutAsync<ClienteNotaUpdateRequest, ClienteNotaItem>(
+                $"/api/v2/clientes/{clienteId}/notas/personal", request, ct);
+
+            _log.LogInformation("✅ SaveNotaPersonal end - ClienteId: {id}", clienteId);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "❌ Error guardando nota personal del cliente {id}", clienteId);
+            throw;
+        }
+    }
+
+    // GT-END
 }
