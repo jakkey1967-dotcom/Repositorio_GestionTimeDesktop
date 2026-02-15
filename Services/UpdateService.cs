@@ -68,14 +68,54 @@ public class UpdateService : IUpdateService
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
 
-            // El endpoint /releases devuelve un array, tomamos el primer elemento (más reciente)
-            if (root.ValueKind != JsonValueKind.Array || root.GetArrayLength() == 0)
+            // GT-BEGIN: Buscar release más reciente que tenga assets descargables
+            // Iterar releases (ordenados por fecha desc) hasta encontrar uno con MSI/ZIP
+            JsonElement? bestRelease = null;
+            string bestDownloadUrl = "";
+
+            foreach (var release in root.EnumerateArray())
             {
-                _logger.LogWarning("No se encontraron releases en GitHub");
+                // Saltar drafts
+                if (release.TryGetProperty("draft", out var draft) && draft.GetBoolean())
+                    continue;
+
+                // Buscar asset MSI o ZIP
+                if (release.TryGetProperty("assets", out var releaseAssets) && releaseAssets.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var asset in releaseAssets.EnumerateArray())
+                    {
+                        if (asset.TryGetProperty("name", out var assetName))
+                        {
+                            var fileName = assetName.GetString() ?? string.Empty;
+                            if ((fileName.EndsWith(".msi", StringComparison.OrdinalIgnoreCase) ||
+                                 fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) &&
+                                fileName.Contains("GestionTime", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (asset.TryGetProperty("browser_download_url", out var dlUrl))
+                                {
+                                    bestDownloadUrl = dlUrl.GetString() ?? string.Empty;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(bestDownloadUrl))
+                {
+                    bestRelease = release;
+                    break;
+                }
+            }
+
+            if (bestRelease == null)
+            {
+                _logger.LogWarning("No se encontró ningún release con assets descargables");
                 return updateInfo;
             }
 
-            var latestRelease = root[0]; // Primer release (más reciente, incluye pre-releases)
+            var latestRelease = bestRelease.Value;
+            // GT-END
 
             // Obtener información del release
             if (latestRelease.TryGetProperty("tag_name", out var tagName))
@@ -101,27 +141,8 @@ public class UpdateService : IUpdateService
                 }
             }
 
-            // Buscar el archivo .msi o .zip en los assets
-            if (latestRelease.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var asset in assets.EnumerateArray())
-                {
-                    if (asset.TryGetProperty("name", out var assetName))
-                    {
-                        var fileName = assetName.GetString() ?? string.Empty;
-                        if ((fileName.EndsWith(".msi", StringComparison.OrdinalIgnoreCase) || 
-                             fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) && 
-                            fileName.Contains("GestionTime", StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (asset.TryGetProperty("browser_download_url", out var downloadUrl))
-                            {
-                                updateInfo.DownloadUrl = downloadUrl.GetString() ?? string.Empty;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
+            // URL de descarga ya obtenida en la búsqueda de release
+            updateInfo.DownloadUrl = bestDownloadUrl;
 
             // Comparar versiones
             _logger.LogInformation("=== Iniciando comparación de versiones ===");
@@ -189,62 +210,67 @@ public class UpdateService : IUpdateService
         }
     }
 
+    // GT-BEGIN: Comparación de versiones semver
     private bool IsNewerVersion(string currentVersion, string latestVersion)
     {
         try
         {
             _logger.LogInformation("=== Comparando versiones ===");
-            _logger.LogInformation("Versión actual: '{CurrentVersion}'", currentVersion);
-            _logger.LogInformation("Versión última: '{LatestVersion}'", latestVersion);
-            
+            _logger.LogInformation("Versión actual (raw): '{CurrentVersion}'", currentVersion);
+            _logger.LogInformation("Versión última (raw): '{LatestVersion}'", latestVersion);
+
             if (string.IsNullOrEmpty(latestVersion))
             {
                 _logger.LogWarning("latestVersion está vacío");
                 return false;
             }
 
-            // Limpiar prefijos como 'v'
-            currentVersion = currentVersion.TrimStart('v');
-            latestVersion = latestVersion.TrimStart('v');
-            
-            _logger.LogInformation("Después de limpiar 'v' - Actual: '{Current}', Última: '{Latest}'", currentVersion, latestVersion);
+            var current = ParseSemVer(currentVersion);
+            var latest = ParseSemVer(latestVersion);
 
-            var current = ParseVersion(currentVersion);
-            var latest = ParseVersion(latestVersion);
-            
-            _logger.LogInformation("Parseado - Actual: {CurrentMajor}.{CurrentMinor}.{CurrentPatch}", current.Major, current.Minor, current.Patch);
-            _logger.LogInformation("Parseado - Última: {LatestMajor}.{LatestMinor}.{LatestPatch}", latest.Major, latest.Minor, latest.Patch);
+            _logger.LogInformation("Parseado - Actual: {Major}.{Minor}.{Patch} suffix='{Suffix}'", 
+                current.Major, current.Minor, current.Patch, current.Suffix);
+            _logger.LogInformation("Parseado - Última: {Major}.{Minor}.{Patch} suffix='{Suffix}'", 
+                latest.Major, latest.Minor, latest.Patch, latest.Suffix);
 
-            // Comparar major, minor, patch
-            if (latest.Major > current.Major)
+            // Comparar major
+            if (latest.Major != current.Major)
             {
-                _logger.LogInformation("✅ Nueva versión disponible (Major: {LatestMajor} > {CurrentMajor})", latest.Major, current.Major);
-                return true;
-            }
-            if (latest.Major < current.Major)
-            {
-                _logger.LogInformation("❌ Versión actual es más nueva (Major: {CurrentMajor} > {LatestMajor})", current.Major, latest.Major);
-                return false;
+                var newer = latest.Major > current.Major;
+                _logger.LogInformation(newer ? "Nueva versión (Major)" : "Versión actual es más nueva (Major)");
+                return newer;
             }
 
-            if (latest.Minor > current.Minor)
+            // Comparar minor
+            if (latest.Minor != current.Minor)
             {
-                _logger.LogInformation("✅ Nueva versión disponible (Minor: {LatestMinor} > {CurrentMinor})", latest.Minor, current.Minor);
-                return true;
-            }
-            if (latest.Minor < current.Minor)
-            {
-                _logger.LogInformation("❌ Versión actual es más nueva (Minor: {CurrentMinor} > {LatestMinor})", current.Minor, latest.Minor);
-                return false;
+                var newer = latest.Minor > current.Minor;
+                _logger.LogInformation(newer ? "Nueva versión (Minor)" : "Versión actual es más nueva (Minor)");
+                return newer;
             }
 
-            if (latest.Patch > current.Patch)
+            // Comparar patch
+            if (latest.Patch != current.Patch)
             {
-                _logger.LogInformation("✅ Nueva versión disponible (Patch: {LatestPatch} > {CurrentPatch})", latest.Patch, current.Patch);
-                return true;
+                var newer = latest.Patch > current.Patch;
+                _logger.LogInformation(newer ? "Nueva versión (Patch)" : "Versión actual es más nueva (Patch)");
+                return newer;
             }
-            
-            _logger.LogInformation("❌ Versiones son iguales o actual es más nueva");
+
+            // Mismo major.minor.patch — comparar sufijo (release > rc > beta > alpha)
+            var currentWeight = GetSuffixWeight(current.Suffix);
+            var latestWeight = GetSuffixWeight(latest.Suffix);
+
+            if (latestWeight != currentWeight)
+            {
+                var newer = latestWeight > currentWeight;
+                _logger.LogInformation(newer 
+                    ? "Nueva versión (suffix '{LatestSuffix}' > '{CurrentSuffix}')" 
+                    : "Versión actual es más nueva (suffix)", latest.Suffix, current.Suffix);
+                return newer;
+            }
+
+            _logger.LogInformation("Versiones son iguales: {Current} == {Latest}", currentVersion, latestVersion);
             return false;
         }
         catch (Exception ex)
@@ -254,12 +280,44 @@ public class UpdateService : IUpdateService
         }
     }
 
-    private (int Major, int Minor, int Patch) ParseVersion(string version)
+    /// <summary>Parsea versión semver: "1.9.5-beta+hash" → (1, 9, 5, "beta").</summary>
+    private static (int Major, int Minor, int Patch, string Suffix) ParseSemVer(string version)
     {
+        if (string.IsNullOrWhiteSpace(version))
+            return (0, 0, 0, "");
+
+        // Limpiar prefijo 'v' y metadata '+hash'
+        version = version.TrimStart('v');
+        var plusIndex = version.IndexOf('+');
+        if (plusIndex >= 0)
+            version = version[..plusIndex];
+
+        // Separar sufijo: "1.9.5-beta" → "1.9.5" + "beta"
+        var suffix = "";
+        var dashIndex = version.IndexOf('-');
+        if (dashIndex >= 0)
+        {
+            suffix = version[(dashIndex + 1)..];
+            version = version[..dashIndex];
+        }
+
+        // Parsear major.minor.patch
         var parts = version.Split('.');
         var major = parts.Length > 0 && int.TryParse(parts[0], out var m) ? m : 0;
         var minor = parts.Length > 1 && int.TryParse(parts[1], out var n) ? n : 0;
         var patch = parts.Length > 2 && int.TryParse(parts[2], out var p) ? p : 0;
-        return (major, minor, patch);
+
+        return (major, minor, patch, suffix.ToLowerInvariant());
     }
+
+    /// <summary>Peso del sufijo para comparación: release(100) > rc(30) > beta(20) > alpha(10).</summary>
+    private static int GetSuffixWeight(string suffix)
+    {
+        if (string.IsNullOrEmpty(suffix)) return 100; // release (sin sufijo) es la más alta
+        if (suffix.StartsWith("rc")) return 30;
+        if (suffix.StartsWith("beta")) return 20;
+        if (suffix.StartsWith("alpha")) return 10;
+        return 15; // sufijo desconocido
+    }
+    // GT-END
 }
