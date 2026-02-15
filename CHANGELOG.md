@@ -1,5 +1,101 @@
 # 📋 CHANGELOG - GestionTime Desktop
 
+## 🎉 Versión 1.9.5 Beta (2 de Febrero, 2025)
+
+### 📊 SISTEMA DE INFORMES (NUEVO)
+
+#### 🪟 Ventana de Informes
+- **[NUEVO]** Ventana dedicada de Informes accesible desde DiarioPage
+- **[NUEVO]** Scopes: Día, Semana y Rango personalizado
+- **[NUEVO]** Selector de semanas con ComboBox (últimas 12 semanas)
+- **[NUEVO]** Selector de agente para EDITOR/ADMIN (delegación JWT)
+- **[NUEVO]** Fecha por defecto: último día con partes registrados
+- **[NUEVO]** Banner con logo, título contextual y agente activo
+- **[NUEVO]** Notificaciones contextuales (jornada completa, solapes)
+
+#### 📈 Gráfica Semanal
+- **[NUEVO]** Gráfica de barras Lun-Sáb con horas por día
+- **[NUEVO]** Validación visual vs objetivo 8h (verde/ámbar)
+- **[NUEVO]** Indicador ⚠️ cuando día < 8h
+- **[NUEVO]** Porcentaje de distribución semanal
+- **[NUEVO]** Total semanal con inicio/fin global
+
+#### 📤 Exportación de Informes
+- **[NUEVO]** Exportar a Excel (ClosedXML) con gráfica de barras
+- **[NUEVO]** Exportar a PDF (QuestPDF) con logo y barras de colores
+- **[NUEVO]** Compartir por Email (mailto: con resumen)
+- **[NUEVO]** Logo con esquinas redondeadas en PDF (SkiaSharp)
+- **[NUEVO]** Botones inline de compartir (Excel/PDF/Email)
+
+#### 🔀 Detección y Resolución de Solapamientos
+- **[NUEVO]** Tabla de detalle de partes solapados con columnas ID/Fecha/Cliente/Ticket/Inicio/Fin/Duración/Solapa con
+- **[NUEVO]** Edición inline de Hora Inicio/Fin por parte
+- **[NUEVO]** Validación en tiempo real (formato HH:mm, no crea nuevos solapes)
+- **[NUEVO]** Máscara auto-formato HH:mm (4 dígitos → auto-colon)
+- **[NUEVO]** Botón "Solución Automática" (algoritmo greedy por duración)
+- **[NUEVO]** Invalidación de cache y re-búsqueda tras correcciones
+
+#### 🔒 Seguridad por Roles en Informes
+- **[NUEVO]** USER: solo ve sus propios datos (agentId desde JWT)
+- **[NUEVO]** EDITOR/ADMIN: pueden seleccionar agente y ver datos de otros
+- **[FIX]** USER no envía agentId (3 ubicaciones corregidas)
+
+---
+
+### 📝 NOTAS DE CLIENTE: GLOBAL + PERSONAL (NUEVO)
+
+#### 🗒️ Sistema de Notas Dual
+- **[NUEVO]** Nota global por cliente (una sola, editable por EDITOR/ADMIN)
+- **[NUEVO]** Nota personal por usuario y cliente (privada)
+- **[NUEVO]** ContentDialog con 2 secciones separadas (global + personal)
+- **[NUEVO]** Indicador de última edición (quién y cuándo)
+- **[NUEVO]** Botones de guardado independientes por sección
+- **[NUEVO]** Tooltip combinado con preview (global + personal)
+
+#### 🔐 Permisos por Rol
+- **[NUEVO]** USER: ve nota global (readonly) + edita su nota personal
+- **[NUEVO]** EDITOR/ADMIN: edita nota global + su nota personal
+- **[NUEVO]** Backend valida rol desde JWT (403 si USER intenta editar global)
+
+#### 🔄 Compatibilidad
+- **[NUEVO]** Fallback automático a nota legacy si backend v2 no disponible
+- **[NUEVO]** Endpoints v1 existentes NO modificados
+
+#### 🧠 Backend (API v2)
+- **[NUEVO]** Tabla `pss_dvnx.cliente_notas` con unique constraints
+- **[NUEVO]** `GET /api/v2/clientes/{id}/notas` (global + personal)
+- **[NUEVO]** `PUT /api/v2/clientes/{id}/notas/global` (solo EDITOR/ADMIN)
+- **[NUEVO]** `PUT /api/v2/clientes/{id}/notas/personal` (todos los roles)
+- **[NUEVO]** Script SQL idempotente de migración
+
+---
+
+### 👤 PERFIL DE USUARIO EN SETTINGS
+
+#### ✏️ Edición de Perfil
+- **[NUEVO]** Edición inline de perfil en Settings (2 columnas)
+- **[NUEVO]** 11 campos editables (nombre, teléfono, dirección, etc.)
+- **[NUEVO]** Email no editable (campo deshabilitado)
+- **[NUEVO]** Recarga desde servidor al abrir Settings (cache invalidada)
+- **[FIX]** Datos aparecen correctamente después de guardar y reabrir
+
+#### 🎨 UX
+- **[NUEVO]** Icono de usuario en sección perfil de Settings
+- **[NUEVO]** Perfil completo cargado desde API al login
+- **[MEJORA]** Loading indicator mientras carga datos frescos
+
+---
+
+### 🎨 UI Y NAVEGACIÓN
+
+#### 🔧 Reorganización DiarioPage
+- **[NUEVO]** BtnSettings con click directo (eliminado MenuFlyout)
+- **[NUEVO]** BtnHelp añadido arriba derecha junto a Settings
+- **[NUEVO]** BtnInformes reemplaza BtnNotasVersion en barra inferior
+- **[MEJORA]** Copilot instructions optimizadas v2.0
+
+---
+
 ## 🎉 Versión 1.9.0 Beta (30 de Enero, 2025)
 
 ### 🚀 MEJORAS PRINCIPALES DE OPERATIVA
