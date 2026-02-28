@@ -90,10 +90,20 @@ if (-not $SkipPublish) {
     )
 
     Write-Host "  Compilando (puede tardar 2-3 min)..." -ForegroundColor Gray
+    Write-Host "  Comando: dotnet $($publishArgs -join ' ')" -ForegroundColor DarkGray
+
+    # Proteger contra $ErrorActionPreference=Stop de GitHub Actions
+    # que convierte stderr warnings en excepciones terminantes
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
     $out = & dotnet @publishArgs 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "  ERROR: dotnet publish fallo" -ForegroundColor Red
-        Write-Host $out
+    $publishExit = $LASTEXITCODE
+    $ErrorActionPreference = $prevEAP
+
+    Write-Host "  Exit code: $publishExit" -ForegroundColor DarkGray
+    if ($publishExit -ne 0) {
+        Write-Host "  ERROR: dotnet publish fallo (exit $publishExit)" -ForegroundColor Red
+        $out | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
         exit 1
     }
 
@@ -121,7 +131,9 @@ $criticalFiles = @(
 foreach ($f in $criticalFiles) {
     $fp = Join-Path $PublishDir $f
     if (-not (Test-Path $fp)) {
-        Write-Host "  FALTA: $f" -ForegroundColor Red
+        Write-Host "  FALTA: $f (ruta: $fp)" -ForegroundColor Red
+        Write-Host "  Contenido de PublishDir:" -ForegroundColor Yellow
+        Get-ChildItem $PublishDir -ErrorAction SilentlyContinue | Select-Object Name | ForEach-Object { Write-Host "    $($_.Name)" -ForegroundColor DarkGray }
         exit 1
     }
     Write-Host "  OK $f" -ForegroundColor Gray
@@ -141,13 +153,19 @@ Remove-Item "Files.wxs" -ErrorAction SilentlyContinue
 
 Write-Host "[5/6] WiX: heat -> candle -> light..." -ForegroundColor Yellow
 
+# Proteger llamadas a WiX contra $ErrorActionPreference=Stop
+$prevEAP = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+
 # 5a --- Heat: genera Files.wxs
 Write-Host "  heat.exe - generando Files.wxs..." -ForegroundColor Gray
+Write-Host "  SourceDir: $PublishDir" -ForegroundColor DarkGray
 
 $heatOut = & heat.exe dir """$PublishDir""" -cg HarvestedFiles -gg -scom -sreg -sfrag -srd -dr INSTALLFOLDER -var var.SourceDir -out Files.wxs 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ERROR heat.exe:" -ForegroundColor Red
-    Write-Host $heatOut
+    Write-Host "  ERROR heat.exe (exit $LASTEXITCODE):" -ForegroundColor Red
+    $heatOut | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+    $ErrorActionPreference = $prevEAP
     Pop-Location
     exit 1
 }
@@ -157,8 +175,9 @@ Write-Host "  candle.exe - compilando..." -ForegroundColor Gray
 
 $candleOut = & candle.exe Product.wxs Files.wxs "-dSourceDir=$PublishDir" "-dProductVersion=$VersionNumeric" -ext WixUtilExtension -arch x64 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ERROR candle.exe:" -ForegroundColor Red
-    Write-Host $candleOut
+    Write-Host "  ERROR candle.exe (exit $LASTEXITCODE):" -ForegroundColor Red
+    $candleOut | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+    $ErrorActionPreference = $prevEAP
     Pop-Location
     exit 1
 }
@@ -174,12 +193,14 @@ Write-Host "  light.exe - generando $msiName..." -ForegroundColor Gray
 
 $lightOut = & light.exe Product.wixobj Files.wixobj -ext WixUIExtension -ext WixUtilExtension -sice:ICE03 -sice:ICE60 -sice:ICE61 -out """$msiPath""" 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ERROR light.exe:" -ForegroundColor Red
-    Write-Host $lightOut
+    Write-Host "  ERROR light.exe (exit $LASTEXITCODE):" -ForegroundColor Red
+    $lightOut | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+    $ErrorActionPreference = $prevEAP
     Pop-Location
     exit 1
 }
 
+$ErrorActionPreference = $prevEAP
 Pop-Location
 
 Write-Host "  OK MSI generado correctamente" -ForegroundColor Green

@@ -118,19 +118,26 @@ jobs:
         id: build
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Continue"
           $skipPublish = "${{ github.event.inputs.skip_publish }}" -eq "true"
 
-          $args = @(
+          $buildArgs = @(
             "-Version",        "${{ steps.version.outputs.VERSION }}",
             "-VersionNumeric", "${{ steps.version.outputs.VERSION_NUMERIC }}"
           )
-          if ($skipPublish) { $args += "-SkipPublish" }
+          if ($skipPublish) { $buildArgs += "-SkipPublish" }
 
-          & "Scripts\Build-MSI-CI.ps1" @args
-
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Build-MSI-CI.ps1 falló con código $LASTEXITCODE"
-            exit $LASTEXITCODE
+          Write-Host "🔧 Ejecutando Build-MSI-CI.ps1 con args: $($buildArgs -join ' ')"
+          try {
+            & "Scripts\Build-MSI-CI.ps1" @buildArgs
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "❌ Build-MSI-CI.ps1 falló con código $LASTEXITCODE"
+              exit $LASTEXITCODE
+            }
+          } catch {
+            Write-Host "❌ Excepción PowerShell: $($_.Exception.Message)"
+            Write-Host "❌ StackTrace: $($_.ScriptStackTrace)"
+            exit 1
           }
 
       # ────────────────────────────────────────────────────────
