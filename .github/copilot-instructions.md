@@ -131,7 +131,15 @@ Ver documentación separada: `Docs/BUILD_MSI_v1.9.3_BETA.md`
 
 ---
 
-## 8) Troubleshooting
+## 8) Proyecto Móvil
+
+### Información del Proyecto
+- Nombre del proyecto: **GestionTime.Movility**
+- Ubicación: `C:\GestionTime\GestionTime.Movility\`
+
+---
+
+## 9) Troubleshooting
 
 Si Copilot sugiere cambios no solicitados o masivos:
 1. Responder: **"Revisar §2 (Reglas de seguridad)"**

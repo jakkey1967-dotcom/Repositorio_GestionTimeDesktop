@@ -77,9 +77,14 @@ namespace GestionTime.Desktop.Services
                 BaseAddress = new Uri(BaseUrl),
                 Timeout = TimeSpan.FromSeconds(120) // ✅ TIMEOUT aumentado a 120 segundos (2 minutos) para manejar latencias altas
             };
-            
-            _log.LogInformation("🌐 ApiClient inicializado - BaseUrl: {url}, Timeout: {timeout}s", 
-                BaseUrl, _http.Timeout.TotalSeconds);
+
+            // GT-BEGIN: Headers de versión del cliente
+            _http.DefaultRequestHeaders.Add("X-App-Version", Helpers.VersionInfo.Version);
+            _http.DefaultRequestHeaders.Add("X-App-Platform", "Desktop");
+            // GT-END
+
+            _log.LogInformation("🌐 ApiClient inicializado - BaseUrl: {url}, Timeout: {timeout}s, AppVersion: {ver}", 
+                BaseUrl, _http.Timeout.TotalSeconds, Helpers.VersionInfo.Version);
         }
 
         // =========================
@@ -91,10 +96,12 @@ namespace GestionTime.Desktop.Services
             var req = new LoginRequest
             {
                 Email = email ?? "",
-                Password = password ?? ""
+                Password = password ?? "",
+                AppVersion = Helpers.VersionInfo.Version,
+                Platform = "Desktop"
             };
 
-            _log.LogInformation("LoginAsync iniciado para {email}", email);
+            _log.LogInformation("LoginAsync iniciado para {email} (v{version})", email, Helpers.VersionInfo.Version);
 
             var res = await PostAsync<LoginRequest, LoginResponse>(LoginPath, req, ct);
             
@@ -1186,6 +1193,12 @@ namespace GestionTime.Desktop.Services
         {
             public string Email { get; set; } = "";
             public string Password { get; set; } = "";
+
+            [System.Text.Json.Serialization.JsonPropertyName("appVersion")]
+            public string? AppVersion { get; set; }
+
+            [System.Text.Json.Serialization.JsonPropertyName("platform")]
+            public string? Platform { get; set; }
         }
 
         public sealed class LoginResponse

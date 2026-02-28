@@ -33,6 +33,12 @@ public sealed partial class ReportsWindow : Window
         // Configurar tamaño de ventana y habilitar Ctrl+Alt+P
         WindowSizeManager.SetSizeForPage(this, typeof(ReportsWindow));
 
+        // GT-BEGIN: Tema oscuro — igual que DiarioPage
+        ThemeService.Instance.ApplyTheme(Root);
+        UpdateThemeAssets(ThemeService.Instance.CurrentTheme);
+        ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
+        // GT-END
+
         Closed += OnWindowClosed;
 
         // GT-BEGIN: Suscribirse a cambios de Resumen para mostrar notificaciones
@@ -57,9 +63,41 @@ public sealed partial class ReportsWindow : Window
 
     private void OnWindowClosed(object sender, WindowEventArgs args)
     {
+        ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
         ViewModel.CancelSearch();
         _parentWindow?.Activate();
     }
+
+    // GT-BEGIN: Tema oscuro — igual que DiarioPage
+    /// <summary>Manejador de cambios de tema globales.</summary>
+    private void OnGlobalThemeChanged(object? sender, ElementTheme theme)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            Root.RequestedTheme = theme;
+            UpdateThemeAssets(theme);
+        });
+    }
+
+    /// <summary>Actualiza el logo según el tema efectivo.</summary>
+    private void UpdateThemeAssets(ElementTheme theme)
+    {
+        var effectiveTheme = theme;
+        if (theme == ElementTheme.Default)
+        {
+            var uiSettings = new Windows.UI.ViewManagement.UISettings();
+            var foreground = uiSettings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Foreground);
+            effectiveTheme = foreground.R == 255 && foreground.G == 255 && foreground.B == 255
+                ? ElementTheme.Dark
+                : ElementTheme.Light;
+        }
+
+        LogoImageBanner.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
+            new Uri(effectiveTheme == ElementTheme.Dark
+                ? "ms-appx:///Assets/LogoOscuro.png"
+                : "ms-appx:///Assets/LogoClaro.png"));
+    }
+    // GT-END
 
     /// <summary>Wrapper seguro para LoadInitialDataAsync (evita crash en fire-and-forget).</summary>
     private async Task SafeLoadInitialDataAsync()
@@ -88,6 +126,14 @@ public sealed partial class ReportsWindow : Window
     {
         ViewModel.Scope = "range";
     }
+
+    // GT-BEGIN: Botón Salir
+    /// <summary>Cierra la ventana de informes.</summary>
+    private void OnSalir_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+    // GT-END: Botón Salir
 
     private static string GetCurrentWeekIso()
     {

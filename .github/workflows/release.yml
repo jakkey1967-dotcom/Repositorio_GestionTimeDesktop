@@ -1,0 +1,190 @@
+# ═══════════════════════════════════════════════════════════════
+# GITHUB ACTIONS — BUILD & RELEASE MSI
+# GestionTime Desktop — WinUI 3 / .NET 8
+#
+# Triggers:
+#   • Push de un tag v* (ej: v2.0.0-beta, v2.1.0)  → build + release
+#   • workflow_dispatch manual                        → solo build (artifact)
+#
+# Requisitos en el repo:
+#   • GITHUB_TOKEN (automático, sin configuración extra)
+#   • appsettings.json con URL de producción
+# ═══════════════════════════════════════════════════════════════
+
+name: Build and Release MSI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      skip_publish:
+        description: 'Saltar dotnet publish (usar binarios en caché)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+jobs:
+  build-msi:
+    name: Build MSI Installer
+    runs-on: windows-latest
+
+    permissions:
+      contents: write   # Necesario para crear GitHub Releases
+
+    steps:
+      # ────────────────────────────────────────────────────────
+      # 1. Checkout del repositorio
+      # ────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Historial completo (necesario para tags)
+
+      # ────────────────────────────────────────────────────────
+      # 2. Leer versión desde Directory.Build.props
+      # ────────────────────────────────────────────────────────
+      - name: Extract version from Directory.Build.props
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$props = Get-Content "Directory.Build.props"
+          $major  = $props.SelectSingleNode("//AppVersionMajor").InnerText.Trim()
+          $minor  = $props.SelectSingleNode("//AppVersionMinor").InnerText.Trim()
+          $patch  = $props.SelectSingleNode("//AppVersionPatch").InnerText.Trim()
+          $suffix = $props.SelectSingleNode("//AppVersionSuffix").InnerText.Trim()
+
+          $version        = "$major.$minor.$patch$suffix"
+          $versionNumeric = "$major.$minor.$patch.0"
+          $isPrerelease   = ($suffix -match "beta|alpha|rc") ? "true" : "false"
+          $msiName        = "GestionTime-v$version-win-x64.msi"
+
+          echo "VERSION=$version"               >> $env:GITHUB_OUTPUT
+          echo "VERSION_NUMERIC=$versionNumeric" >> $env:GITHUB_OUTPUT
+          echo "IS_PRERELEASE=$isPrerelease"     >> $env:GITHUB_OUTPUT
+          echo "MSI_NAME=$msiName"              >> $env:GITHUB_OUTPUT
+
+          Write-Host "✅ Versión:         $version"
+          Write-Host "✅ Versión numérica: $versionNumeric"
+          Write-Host "✅ Pre-release:      $isPrerelease"
+          Write-Host "✅ Nombre MSI:       $msiName"
+
+      # ────────────────────────────────────────────────────────
+      # 3. Configurar .NET 8 SDK
+      # ────────────────────────────────────────────────────────
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # ────────────────────────────────────────────────────────
+      # 4. Restaurar dependencias NuGet
+      # ────────────────────────────────────────────────────────
+      - name: Restore NuGet packages
+        run: dotnet restore GestionTime.Desktop.csproj
+
+      # ────────────────────────────────────────────────────────
+      # 5. Instalar WiX Toolset v3.14
+      # ────────────────────────────────────────────────────────
+      - name: Install WiX Toolset v3.14
+        shell: pwsh
+        run: |
+          Write-Host "⏳ Descargando WiX Toolset v3.14..."
+          $wixInstaller = "$env:TEMP\wix314.exe"
+          Invoke-WebRequest `
+            -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314.exe" `
+            -OutFile $wixInstaller `
+            -UseBasicParsing
+
+          Write-Host "⏳ Instalando WiX Toolset v3.14 (silencioso)..."
+          Start-Process $wixInstaller -ArgumentList "/quiet /norestart" -Wait
+
+          $wixBin = "C:\Program Files (x86)\WiX Toolset v3.14\bin"
+          if (-not (Test-Path "$wixBin\candle.exe")) {
+            Write-Host "❌ WiX no instalado correctamente en: $wixBin"
+            exit 1
+          }
+
+          # Añadir al PATH del runner para los pasos siguientes
+          "$wixBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Write-Host "✅ WiX Toolset v3.14 instalado y en PATH"
+
+      # ────────────────────────────────────────────────────────
+      # 6. Build MSI mediante Scripts/Build-MSI-CI.ps1
+      # ────────────────────────────────────────────────────────
+      - name: Build MSI
+        id: build
+        shell: pwsh
+        run: |
+          $skipPublish = "${{ github.event.inputs.skip_publish }}" -eq "true"
+
+          $args = @(
+            "-Version",        "${{ steps.version.outputs.VERSION }}",
+            "-VersionNumeric", "${{ steps.version.outputs.VERSION_NUMERIC }}"
+          )
+          if ($skipPublish) { $args += "-SkipPublish" }
+
+          & "Scripts\Build-MSI-CI.ps1" @args
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "❌ Build-MSI-CI.ps1 falló con código $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+
+      # ────────────────────────────────────────────────────────
+      # 7. Verificar y mostrar info del MSI generado
+      # ────────────────────────────────────────────────────────
+      - name: Verify MSI output
+        shell: pwsh
+        run: |
+          $msiPath = "installers\${{ steps.version.outputs.MSI_NAME }}"
+          if (-not (Test-Path $msiPath)) {
+            Write-Host "❌ MSI no encontrado: $msiPath"
+            exit 1
+          }
+          $sizeMB = [math]::Round((Get-Item $msiPath).Length / 1MB, 2)
+          Write-Host "✅ MSI verificado: $msiPath ($sizeMB MB)"
+
+      # ────────────────────────────────────────────────────────
+      # 8. Subir MSI como artifact (disponible en todos los runs)
+      # ────────────────────────────────────────────────────────
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GestionTime-Desktop-v${{ steps.version.outputs.VERSION }}-win-x64
+          path: installers/${{ steps.version.outputs.MSI_NAME }}
+          retention-days: 30
+          if-no-files-found: error
+
+      # ────────────────────────────────────────────────────────
+      # 9. Crear GitHub Release (solo en push de tag v*)
+      # ────────────────────────────────────────────────────────
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "GestionTime Desktop v${{ steps.version.outputs.VERSION }}"
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ steps.version.outputs.IS_PRERELEASE == 'true' }}
+          generate_release_notes: true
+          files: |
+            installers/${{ steps.version.outputs.MSI_NAME }}
+          body: |
+            ## 🚀 GestionTime Desktop v${{ steps.version.outputs.VERSION }}
+
+            ### Instalación
+            1. Descargar `${{ steps.version.outputs.MSI_NAME }}`
+            2. Ejecutar con doble-click (requiere Windows 10 x64 o superior)
+            3. Instala automáticamente en: `C:\App\GestionTime-Desktop`
+            4. Crea accesos directos en Menú Inicio y Escritorio
+
+            ### Notas de seguridad
+            > El instalador usa un certificado autofirmado. Si el navegador
+            > o SmartScreen muestran advertencia, hacer clic en **"Más información" → "Ejecutar de todas formas"**.
+
+            ---
+            *Build generado automáticamente desde el commit `${{ github.sha }}`*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

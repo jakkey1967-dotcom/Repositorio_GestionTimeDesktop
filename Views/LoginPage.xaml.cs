@@ -19,6 +19,7 @@ namespace GestionTime.Desktop.Views
     public sealed partial class LoginPage : Page
     {
         private bool _isPasswordVisible = false;
+        private const string PasswordVaultResource = "GestionTime-Desktop";
         
         // 🆕 NUEVO: Path alternativo para guardar el correo (no usa ApplicationData)
         private static string GetEmailSettingsPath()
@@ -35,14 +36,7 @@ namespace GestionTime.Desktop.Views
             
             // 🆕 NUEVO: Mostrar versión de la aplicación
             SetAppVersion();
-            
-            // 🆕 NUEVO: Cargar y aplicar tema global
-            ThemeService.Instance.ApplyTheme(this);
-            UpdateThemeCheckmarks();
-            
-            // 🆕 NUEVO: Suscribirse a cambios de tema globales
-            ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
-            
+
             // 🔥 NUEVO: Cargar correo desde archivo JSON
             LoadRememberedEmailFromFile();
             
@@ -61,10 +55,7 @@ namespace GestionTime.Desktop.Views
             try
             {
                 App.Log?.LogInformation("🧹 Limpiando recursos de LoginPage...");
-                
-                // Desuscribir eventos de tema
-                ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
-                
+
                 // Desuscribir evento Loaded
                 this.Loaded -= OnPageLoaded;
                 
@@ -145,23 +136,23 @@ namespace GestionTime.Desktop.Views
             try
             {
                 var settingsPath = GetEmailSettingsPath();
-                
+
                 if (!File.Exists(settingsPath))
                 {
                     App.Log?.LogDebug("📧 No existe archivo de settings: {path}", settingsPath);
                     return;
                 }
-                
+
                 var json = File.ReadAllText(settingsPath);
-                
+
                 using var doc = System.Text.Json.JsonDocument.Parse(json);
                 var root = doc.RootElement;
-                
+
                 if (root.TryGetProperty("RememberSession", out var remProp) && 
                     remProp.ValueKind == System.Text.Json.JsonValueKind.True)
                 {
                     ChkRemember.IsChecked = true;
-                    
+
                     if (root.TryGetProperty("Email", out var emailProp) && 
                         emailProp.ValueKind == System.Text.Json.JsonValueKind.String)
                     {
@@ -170,6 +161,21 @@ namespace GestionTime.Desktop.Views
                         {
                             TxtUser.Text = email;
                             App.Log?.LogInformation("📧 Correo cargado desde archivo: {email}", email);
+
+                            // GT-BEGIN: Cargar contraseña desde PasswordVault (cifrado Windows)
+                            try
+                            {
+                                var vault = new Windows.Security.Credentials.PasswordVault();
+                                var credential = vault.Retrieve(PasswordVaultResource, email);
+                                credential.RetrievePassword();
+                                TxtPass.Password = credential.Password;
+                                App.Log?.LogInformation("🔑 Contraseña cargada desde PasswordVault");
+                            }
+                            catch
+                            {
+                                // No existe o expiró — silencioso
+                            }
+                            // GT-END
                         }
                     }
                 }
@@ -187,9 +193,10 @@ namespace GestionTime.Desktop.Views
             {
                 var remember = ChkRemember.IsChecked == true;
                 var email = TxtUser.Text?.Trim() ?? "";
-                
+
                 var settingsPath = GetEmailSettingsPath();
-                
+                var vault = new Windows.Security.Credentials.PasswordVault();
+
                 if (remember && !string.IsNullOrWhiteSpace(email))
                 {
                     var json = System.Text.Json.JsonSerializer.Serialize(new
@@ -198,18 +205,36 @@ namespace GestionTime.Desktop.Views
                         Email = email,
                         LastSaved = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                    
+
                     File.WriteAllText(settingsPath, json);
                     App.Log?.LogInformation("✅ Correo guardado en archivo: {email}", email);
+
+                    // GT-BEGIN: Guardar contraseña en PasswordVault (cifrado Windows)
+                    var pass = _isPasswordVisible ? TxtPassVisible.Text ?? "" : TxtPass.Password ?? "";
+                    if (!string.IsNullOrWhiteSpace(pass))
+                    {
+                        try { vault.Remove(vault.Retrieve(PasswordVaultResource, email)); } catch { }
+                        vault.Add(new Windows.Security.Credentials.PasswordCredential(
+                            PasswordVaultResource, email, pass));
+                        App.Log?.LogInformation("🔑 Contraseña guardada en PasswordVault");
+                    }
+                    // GT-END
                 }
                 else
                 {
-                    // Si NO está marcado o email vacío, eliminar archivo
+                    // Si NO está marcado o email vacío, eliminar archivo y credencial
                     if (File.Exists(settingsPath))
                     {
                         File.Delete(settingsPath);
                         App.Log?.LogInformation("🗑️ Archivo de settings eliminado (Recordar sesión desactivado)");
                     }
+
+                    // GT-BEGIN: Eliminar contraseña del PasswordVault
+                    if (!string.IsNullOrWhiteSpace(email))
+                    {
+                        try { vault.Remove(vault.Retrieve(PasswordVaultResource, email)); } catch { }
+                    }
+                    // GT-END
                 }
             }
             catch (Exception ex)
@@ -603,10 +628,30 @@ namespace GestionTime.Desktop.Views
                 {
                     App.MainWindowInstance.Navigator.Navigate(typeof(DiarioPage));
                     App.Log?.LogInformation("Navegación a DiarioPage completada ✅");
-                    
+
                     // 🆕 NUEVO: Iniciar heartbeat para mantener usuario online
                     App.PresenceHeartbeat.Start(DispatcherQueue);
                     App.Log?.LogInformation("💓 Heartbeat de presencia iniciado");
+
+                    // GT-BEGIN: Registro de versión del cliente
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var versionResponse = await ClientVersionService.Instance.RegisterVersionAsync();
+                            if (versionResponse?.UpdateRequired == true)
+                            {
+                                DispatcherQueue.TryEnqueue(() =>
+                                {
+                                    App.Notifications?.ShowWarning(
+                                        $"Hay una nueva versión disponible: {versionResponse.LatestVersion}\n{versionResponse.Message}",
+                                        title: "🔄 Actualización Disponible");
+                                });
+                            }
+                        }
+                        catch { /* no bloqueante */ }
+                    });
+                    // GT-END
                     
                     
                     // 🔧 CORREGIDO: NO abrir ventana flotante automáticamente
@@ -829,56 +874,6 @@ namespace GestionTime.Desktop.Views
             TxtStatus.Text = status;
             TxtStatus.Visibility = string.IsNullOrEmpty(status) ? Visibility.Collapsed : Visibility.Visible;
         }
-
-        /// <summary>
-        /// Cargar el tema guardado en configuración
-        /// </summary>
-        private void LoadSavedTheme()
-        {
-            // Ya no necesitamos cargar aquí, ThemeService lo hace
-            // Solo aplicamos el tema actual
-            ThemeService.Instance.ApplyTheme(this);
-            UpdateThemeCheckmarks();
-        }
-
-        /// <summary>
-        /// 🆕 MODIFICADO: Usar ThemeService para guardar tema
-        /// </summary>
-        private void SaveTheme(ElementTheme theme)
-        {
-            // Delegar al servicio centralizado
-            ThemeService.Instance.SetTheme(theme);
-        }
-
-        /// <summary>
-        /// 🆕 MODIFICADO: Usar ThemeService para aplicar tema
-        /// </summary>
-        private void SetTheme(ElementTheme theme)
-        {
-            // Delegar al servicio centralizado (notificará a todos los componentes)
-            ThemeService.Instance.SetTheme(theme);
-            
-            // Actualizar checkmarks localmente
-            UpdateThemeCheckmarks();
-        }
-        
-        /// <summary>
-        /// 🆕 NUEVO: Actualiza los checkmarks del menú de tema
-        /// </summary>
-        private void UpdateThemeCheckmarks()
-        {
-            var currentTheme = ThemeService.Instance.CurrentTheme;
-            ThemeSystemItem.IsChecked = currentTheme == ElementTheme.Default;
-            ThemeLightItem.IsChecked = currentTheme == ElementTheme.Light;
-            ThemeDarkItem.IsChecked = currentTheme == ElementTheme.Dark;
-        }
-
-        /// <summary>
-        /// Eventos del menú de tema
-        /// </summary>
-        private void OnThemeSystem(object sender, RoutedEventArgs e) => SetTheme(ElementTheme.Default);
-        private void OnThemeLight(object sender, RoutedEventArgs e) => SetTheme(ElementTheme.Light);
-        private void OnThemeDark(object sender, RoutedEventArgs e) => SetTheme(ElementTheme.Dark);
 
         /// <summary>
         /// Navegar a la página de registro
@@ -1131,23 +1126,11 @@ namespace GestionTime.Desktop.Views
             }
         }
         
-        /// <summary>
-        /// 🆕 NUEVO: Manejador de cambios de tema globales
-        /// </summary>
-        private void OnGlobalThemeChanged(object? sender, ElementTheme theme)
-        {
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                this.RequestedTheme = theme;
-                UpdateThemeCheckmarks();
-                App.Log?.LogDebug("🎨 LoginPage: Tema actualizado por cambio global a {theme}", theme);
-            });
         }
-    }
-    
-    /// <summary>
-    /// Respuesta del endpoint /api/v1/users/me
-    /// </summary>
+
+        /// <summary>
+        /// Respuesta del endpoint /api/v1/users/me
+        /// </summary>
     internal sealed class UserInfoResponse
     {
         public int Id { get; set; }

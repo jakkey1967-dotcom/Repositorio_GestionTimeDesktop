@@ -72,23 +72,6 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <!-- // Selector de tema (esquina superior izquierda) -->
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
-            <Button x:Name="BtnTheme" MinWidth="40" MinHeight="40" CornerRadius="20"
-                    Background="{ThemeResource CardBackground}" BorderThickness="1"
-                    BorderBrush="{ThemeResource TealPrimary}" ToolTipService.ToolTip="Tema" Padding="8">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="18"
-                          Foreground="{ThemeResource TealPrimary}"/>
-                <Button.Flyout>
-                    <MenuFlyout>
-                        <ToggleMenuFlyoutItem x:Name="ThemeSystemItem" Text="Tema del sistema" Click="OnThemeSystem"/>
-                        <ToggleMenuFlyoutItem x:Name="ThemeLightItem" Text="Tema claro" Click="OnThemeLight"/>
-                        <ToggleMenuFlyoutItem x:Name="ThemeDarkItem" Text="Tema oscuro" Click="OnThemeDark"/>
-                    </MenuFlyout>
-                </Button.Flyout>
-            </Button>
-        </Grid>
-
         <!-- // Card del formulario -->
         <Border x:Name="LoginCard" CornerRadius="20" Background="{ThemeResource CardBackground}" Padding="24,20">
             <Border.Shadow>

@@ -43,6 +43,10 @@ public sealed partial class DiarioPage : Page
     private int _totalPages = 1;
     private List<ParteDto> _allFilteredPartes = new();
 
+    // GT-BEGIN: Filtros avanzados con pills
+    private readonly List<(string Category, string Value)> _activeFilters = new();
+    // GT-END
+
     public DiarioViewModel ViewModel { get; } = new();
     
     /// <summary>Indica si el usuario actual tiene rol USER.</summary>
@@ -68,6 +72,10 @@ public sealed partial class DiarioPage : Page
 
         // 🆕 CORREGIDO: Establecer fecha SIN disparar el evento DateChanged
         DpFiltroFecha.Date = DateTimeOffset.Now;
+
+        // GT-BEGIN: Calendario semana desde lunes
+        CalendarFirstDayHelper.Attach(DpFiltroFecha);
+        // GT-END
 
         // 🆕 NUEVO: Suscribir el evento DESPUÉS de establecer la fecha inicial
         DpFiltroFecha.DateChanged += OnFiltroFechaChanged;
@@ -844,7 +852,12 @@ public sealed partial class DiarioPage : Page
         // 🐛 DEBUG TEMPORAL
         System.Diagnostics.Debug.WriteLine($"═══ ApplyFilterToListView ═══");
         System.Diagnostics.Debug.WriteLine($"_cache30dias Count: {_cache30dias.Count}");
-        System.Diagnostics.Debug.WriteLine($"Filtro 'q': '{q}'");
+        System.Diagnostics.Debug.WriteLine($"Filtro texto libre 'q': '{q}'");
+        System.Diagnostics.Debug.WriteLine($"Pills activos: {_activeFilters.Count}");
+        foreach (var (cat, val) in _activeFilters)
+            System.Diagnostics.Debug.WriteLine($"  🏷️ {cat}: {val}");
+        App.Log?.LogDebug("📋 ApplyFilterToListView - q='{q}', pills={pills}, cache={cache}",
+            q, _activeFilters.Count, _cache30dias.Count);
 
         if (!string.IsNullOrWhiteSpace(q))
         {
@@ -856,9 +869,26 @@ public sealed partial class DiarioPage : Page
                 DiarioPageHelpers.Has(p.Grupo, q) ||
                 DiarioPageHelpers.Has(p.Tipo, q) ||
                 DiarioPageHelpers.Has(p.Tecnico, q) ||
-                DiarioPageHelpers.Has(p.Estado, q)
+                DiarioPageHelpers.Has(p.Estado, q) ||
+                p.Tags.Any(t => DiarioPageHelpers.Has(t, q))
             );
         }
+
+        // GT-BEGIN: Filtros por pills activos (AND)
+        foreach (var (category, value) in _activeFilters)
+        {
+            var v = value;
+            query = category switch
+            {
+                "Cliente" => query.Where(p => DiarioPageHelpers.Has(p.Cliente, v)),
+                "Grupo" => query.Where(p => DiarioPageHelpers.Has(p.Grupo, v)),
+                "Tipo" => query.Where(p => DiarioPageHelpers.Has(p.Tipo, v)),
+                "Ticket" => query.Where(p => DiarioPageHelpers.Has(p.Ticket, v)),
+                "Tags" => query.Where(p => p.Tags.Any(t => DiarioPageHelpers.Has(t, v))),
+                _ => query
+            };
+        }
+        // GT-END
 
         query = query
             .OrderByDescending(p => p.Fecha)
@@ -964,11 +994,159 @@ public sealed partial class DiarioPage : Page
         await LoadPartesAsync();
     }
 
-    private void OnFiltroQChanged(object sender, TextChangedEventArgs e)
+    // GT-BEGIN: Búsqueda avanzada con sugerencias y pills
+    private void OnFiltroQChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        App.Log?.LogDebug("🔍 OnFiltroQChanged - Reason: {reason}, Text: '{text}'", args.Reason, sender.Text);
+
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            UpdateFilterSuggestions(sender.Text);
+            // ✅ NO iniciar debounce aquí: causa rebuild de Partes que cierra el dropdown
+        }
+    }
+
+    /// <summary>Genera sugerencias categorizadas desde el caché local.</summary>
+    private void UpdateFilterSuggestions(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text.Length < 2)
+        {
+            TxtFiltroQ.ItemsSource = null;
+            return;
+        }
+
+        var q = text.Trim();
+        var suggestions = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        void AddCategory(string cat, IEnumerable<string?> values)
+        {
+            foreach (var v in values
+                .Where(v => !string.IsNullOrWhiteSpace(v) && v!.Contains(q, StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Take(3))
+            {
+                var key = $"{cat}: {v}";
+                if (seen.Add(key)) suggestions.Add(key);
+            }
+        }
+
+        AddCategory("Cliente", _cache30dias.Select(p => p.Cliente));
+        AddCategory("Grupo", _cache30dias.Select(p => p.Grupo));
+        AddCategory("Tipo", _cache30dias.Select(p => p.Tipo));
+        AddCategory("Ticket", _cache30dias.Select(p => p.Ticket));
+        AddCategory("Tags", _cache30dias.SelectMany(p => p.Tags));
+
+        TxtFiltroQ.ItemsSource = suggestions.Count > 0 ? suggestions : null;
+    }
+
+    /// <summary>Cuando el usuario selecciona una sugerencia o pulsa Enter.</summary>
+    private void OnFilterQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         _debounce?.Stop();
-        _debounce?.Start();
+
+        App.Log?.LogDebug("🎯 OnFilterQuerySubmitted - ChosenSuggestion: '{chosen}', QueryText: '{query}'",
+            args.ChosenSuggestion, args.QueryText);
+
+        if (args.ChosenSuggestion is string suggestion)
+        {
+            // ✅ Caso 1: Usuario seleccionó una sugerencia del dropdown (clic o Enter en item)
+            App.Log?.LogDebug("🏷️ Sugerencia seleccionada: '{suggestion}'", suggestion);
+
+            var colonIdx = suggestion.IndexOf(':');
+            if (colonIdx > 0)
+            {
+                var category = suggestion[..colonIdx].Trim();
+                var value = suggestion[(colonIdx + 1)..].Trim();
+
+                App.Log?.LogDebug("🏷️ Pill → Categoría: '{cat}', Valor: '{val}'", category, value);
+
+                if (!_activeFilters.Any(f => f.Category == category && f.Value.Equals(value, StringComparison.OrdinalIgnoreCase)))
+                {
+                    _activeFilters.Add((category, value));
+                    RebuildFilterPillsUI();
+                }
+
+                sender.Text = "";
+                sender.ItemsSource = null;
+                _currentPage = 1;
+                ApplyFilterToListView();
+            }
+        }
+        else
+        {
+            // ✅ Caso 2: Usuario pulsó Enter sin seleccionar sugerencia → filtro libre
+            var freeText = (args.QueryText ?? sender.Text ?? "").Trim();
+            App.Log?.LogDebug("⌨️ Enter sin sugerencia - texto libre: '{text}'", freeText);
+
+            sender.ItemsSource = null;
+            _currentPage = 1;
+            ApplyFilterToListView();
+        }
     }
+
+    /// <summary>Reconstruye los pills visuales desde _activeFilters.</summary>
+    private void RebuildFilterPillsUI()
+    {
+        PnlFilterPills.Children.Clear();
+
+        foreach (var (category, value) in _activeFilters)
+        {
+            var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+            sp.Children.Add(new TextBlock
+            {
+                Text = $"{category}: {value}",
+                FontSize = 12,
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            var closeBtn = new Button
+            {
+                Content = "✕",
+                FontSize = 10,
+                Padding = new Thickness(4, 2, 4, 2),
+                MinWidth = 0,
+                MinHeight = 0,
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent),
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
+                BorderThickness = new Thickness(0),
+                Tag = $"{category}:{value}"
+            };
+            closeBtn.Click += OnRemoveFilterPill;
+            sp.Children.Add(closeBtn);
+
+            var pill = new Border
+            {
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    Windows.UI.Color.FromArgb(255, 15, 167, 182)),
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(10, 4, 4, 4),
+                Child = sp
+            };
+
+            PnlFilterPills.Children.Add(pill);
+        }
+    }
+
+    /// <summary>Elimina un pill de filtro activo.</summary>
+    private void OnRemoveFilterPill(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is string tag)
+        {
+            var colonIdx = tag.IndexOf(':');
+            if (colonIdx > 0)
+            {
+                var category = tag[..colonIdx];
+                var value = tag[(colonIdx + 1)..];
+                _activeFilters.RemoveAll(f => f.Category == category && f.Value == value);
+                RebuildFilterPillsUI();
+                _currentPage = 1;
+                ApplyFilterToListView();
+            }
+        }
+    }
+    // GT-END: Búsqueda avanzada con sugerencias y pills
 
     private async void OnRefrescar(object sender, RoutedEventArgs e)
     {
@@ -979,9 +1157,12 @@ public sealed partial class DiarioPage : Page
         App.Api.ClearGetCache(); // Limpia TODA la caché de GET (es más seguro que invalidar solo un rango)
         App.Log?.LogInformation("✅ Caché de API limpiado completamente");
         
-        // Limpiar caché local también
+        // Limpiar caché local y filtros activos
         _cache30dias.Clear();
         Partes.Clear();
+        _activeFilters.Clear();
+        RebuildFilterPillsUI();
+        TxtFiltroQ.Text = "";
         App.Log?.LogInformation("✅ Caché local limpiado");
 
         // Deshabilitar temporalmente el evento de fecha

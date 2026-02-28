@@ -1,4 +1,4 @@
-﻿# ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
 # COMPILAR INSTALADOR MSI LOCAL - GESTIONTIME DESKTOP v1.9.5
 # Configurado para backend de Render: https://gestiontimeapi.onrender.com
 # ═══════════════════════════════════════════════════════════════
@@ -243,6 +243,9 @@ $lightArgs = @(
     "Files.wixobj",
     "-ext", "WixUIExtension",
     "-ext", "WixUtilExtension",
+    "-sice:ICE03",
+    "-sice:ICE60",
+    "-sice:ICE61",
     "-out", "`"$msiPath`""
 )
 

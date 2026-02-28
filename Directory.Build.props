@@ -15,9 +15,9 @@
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <PropertyGroup>
     <!-- 🎯 VERSIÓN DE LA APLICACIÓN - Modificar SOLO AQUÍ -->
-    <AppVersionMajor>1</AppVersionMajor>
-    <AppVersionMinor>9</AppVersionMinor>
-    <AppVersionPatch>5</AppVersionPatch>
+    <AppVersionMajor>2</AppVersionMajor>
+    <AppVersionMinor>0</AppVersionMinor>
+    <AppVersionPatch>0</AppVersionPatch>
     <AppVersionSuffix>-beta</AppVersionSuffix>
 
     <!-- Versión completa calculada automáticamente -->
@@ -27,8 +27,8 @@
 
   <!-- Información de ensamblado común -->
   <PropertyGroup>
-    <Company>GestionTime Solutions</Company>
-    <Copyright>© 2025 GestionTime Solutions</Copyright>
+    <Company>EcoNexia Tech S.L.</Company>
+    <Copyright>© 2025 EcoNexia Tech S.L. CEO: Francisco Santos Diaz</Copyright>
   </PropertyGroup>
 
 </Project>

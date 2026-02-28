@@ -9,8 +9,11 @@
   
   <!-- Variables de configuración -->
   <?define ProductName = "GestionTime Desktop" ?>
-  <?define ProductVersion = "1.9.5.0" ?>
-  <?define Manufacturer = "GestionTime Solutions" ?>
+  <!-- ProductVersion puede ser sobreescrito desde CI: candle.exe -dProductVersion=X.X.X.0 -->
+  <?ifndef ProductVersion ?>
+    <?define ProductVersion = "2.0.0.0" ?>
+  <?endif ?>
+  <?define Manufacturer = "EcoNexia Tech S.L." ?>
   <?define UpgradeCode = "12345678-1234-1234-1234-123456789012" ?>
   
   <!-- Ruta de los archivos publicados (recibida del script como -dSourceDir) -->
@@ -27,7 +30,7 @@
              Compressed="yes" 
              InstallScope="perMachine"
              Description="Aplicacion de gestion de tiempo para partes de trabajo"
-             Comments="(c) 2025 GestionTime Solutions" />
+             Comments="(c) 2025 EcoNexia Tech S.L. CEO: Francisco Santos Diaz" />
 
     <!-- Media (instalador de un solo archivo) -->
     <Media Id="1" Cabinet="GestionTime.cab" EmbedCab="yes" />
