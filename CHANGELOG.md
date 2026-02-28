@@ -1,5 +1,16 @@
 # 📋 CHANGELOG - GestionTime Desktop
 
+## 🔧 Versión 2.0.2 Beta (28 de Febrero, 2026)
+
+### 🐛 CORRECCIONES
+
+#### 🏗️ CI/CD — GitHub Actions MSI Build
+- **[FIX]** `dotnet restore` ahora incluye `-r win-x64 -p:Platform=x64` (antes no restauraba paquetes nativos de Windows App SDK correctamente)
+- **[FIX]** `dotnet publish` en `Build-MSI-CI.ps1` ahora incluye `-p:Platform=x64` (antes podía compilar para AnyCPU en vez de x64)
+- **[FIX]** Eliminadas comillas triples (`"""`) en argumentos de publish que podían causar problemas con splatting en PowerShell
+
+---
+
 ## 🔧 Versión 2.0.1 Beta (28 de Febrero, 2026)
 
 ### 🐛 CORRECCIONES

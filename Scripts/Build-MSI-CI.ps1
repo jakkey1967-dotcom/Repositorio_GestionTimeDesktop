@@ -79,13 +79,14 @@ if (-not $SkipPublish) {
     }
 
     $publishArgs = @(
-        "publish", """$ProjectFile""",
+        "publish", $ProjectFile,
         "-c", "Release",
         "-r", "win-x64",
         "--self-contained", "true",
+        "-p:Platform=x64",
         "-p:PublishSingleFile=false",
         "-p:PublishReadyToRun=true",
-        "-o", """$PublishDir"""
+        "-o", $PublishDir
     )
 
     Write-Host "  Compilando (puede tardar 2-3 min)..." -ForegroundColor Gray

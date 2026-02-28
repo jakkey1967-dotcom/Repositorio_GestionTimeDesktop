@@ -83,7 +83,7 @@ jobs:
       # 4. Restaurar dependencias NuGet
       # ────────────────────────────────────────────────────────
       - name: Restore NuGet packages
-        run: dotnet restore GestionTime.Desktop.csproj
+        run: dotnet restore GestionTime.Desktop.csproj -r win-x64 -p:Platform=x64
 
       # ────────────────────────────────────────────────────────
       # 5. Instalar WiX Toolset v3.14

@@ -15,7 +15,7 @@ $BaseUrl  = "https://gestiontimeapi.onrender.com"
 $Email    = "psantos@global-retail.com"
 $Password = "12345678"
 
-$AppVersion  = "2.0.1-beta"
+$AppVersion  = "2.0.2-beta"
 $Platform    = "Desktop"
 $OsVersion   = "Microsoft Windows NT 10.0.26200.0"
 $MachineName = $env:COMPUTERNAME
