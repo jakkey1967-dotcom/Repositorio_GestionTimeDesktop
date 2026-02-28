@@ -33,7 +33,10 @@ public static class VersionInfo
                 
                 if (infoVersionAttr != null && !string.IsNullOrWhiteSpace(infoVersionAttr.InformationalVersion))
                 {
-                    _version = infoVersionAttr.InformationalVersion;
+                    // Eliminar build metadata (+commitHash) que .NET SDK añade automáticamente
+                    var raw = infoVersionAttr.InformationalVersion;
+                    var plusIdx = raw.IndexOf('+');
+                    _version = plusIdx >= 0 ? raw[..plusIdx] : raw;
                 }
                 else
                 {

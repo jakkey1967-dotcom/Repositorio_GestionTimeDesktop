@@ -1,5 +1,55 @@
 # 📋 CHANGELOG - GestionTime Desktop
 
+## 🔧 Versión 2.0.1 Beta (28 de Febrero, 2026)
+
+### 🐛 CORRECCIONES
+
+#### 📦 Control de Versiones de Clientes
+- **[FIX]** Endpoint corregido de `/api/v1/client-version` a `/api/v2/client-version` (antes devolvía 404 silencioso)
+- **[FIX]** `VersionInfo.Version` limpia build metadata (`+commitHash`) que .NET SDK añade automáticamente (antes excedía `MaxLength(50)` del backend → 400)
+- **[FIX]** `ClientVersionResponse` alineado con backend: añadidos campos `updateAvailable` y `minRequiredVersion`
+
+#### 🗓️ Calendario — Semana desde Lunes
+- **[NUEVO]** `CalendarFirstDayHelper` reutilizable para fijar `FirstDayOfWeek=Monday` en WinUI 3
+- **[FIX]** `CalendarDatePicker` ahora usa `GetOpenPopupsForXamlRoot` + `DispatcherQueue.Low` para sobreescribir el valor local que WinUI resetea internamente
+
+#### 🔑 Login — Recordar Contraseña
+- **[NUEVO]** Contraseña se guarda cifrada en `PasswordVault` de Windows (además del email en JSON)
+- **[MEJORA]** Al reabrir la app con "Recordar sesión", se pre-rellena email + contraseña
+
+#### 🎨 Tema Oscuro en Informes
+- **[NUEVO]** `ReportsWindow` integra `ThemeService` igual que `DiarioPage`
+- **[NUEVO]** Logo swap dinámico (`LogoOscuro`/`LogoClaro`) al cambiar tema
+- **[NUEVO]** Suscripción a `ThemeChanged` con limpieza en `OnWindowClosed`
+
+#### 🎨 LoginPage — Tema Fijo Oscuro
+- **[CAMBIO]** Eliminado selector de tema de LoginPage (siempre oscuro por diseño)
+- **[LIMPIEZA]** Removidos métodos `OnThemeSystem/Light/Dark`, `UpdateThemeCheckmarks`, `SetTheme`, `LoadSavedTheme`, `OnGlobalThemeChanged`
+
+---
+
+## 🎉 Versión 2.0.0 Beta (Febrero, 2026)
+
+### 🚀 MEJORAS PRINCIPALES
+
+#### 🔍 Filtro Avanzado con AutoSuggestBox + Pills
+- **[NUEVO]** AutoSuggestBox con sugerencias categorizadas (Cliente, Grupo, Tipo, Ticket, Tags)
+- **[NUEVO]** Pills/chips acumulativos con filtro AND
+- **[FIX]** Enter sin seleccionar sugerencia aplica filtro libre
+- **[FIX]** Selección con ratón ya no requiere doble clic
+
+#### 📊 Gráfica Semanal — Horas en vez de Porcentajes
+- **[CAMBIO]** Barras muestran horas trabajadas (ej: `7:30h`) en lugar de porcentajes
+- **[NUEVO]** Botón "Salir" en ventana de Informes
+
+#### 📦 Control de Versiones de Clientes
+- **[NUEVO]** Headers `X-App-Version` y `X-App-Platform` en toda petición HTTP
+- **[NUEVO]** Campo `appVersion` en LoginRequest
+- **[NUEVO]** Endpoint `POST /api/v2/client-version` (fire & forget post-login)
+- **[NUEVO]** Notificación si `updateRequired = true`
+
+---
+
 ## 🎉 Versión 1.9.5 Beta (2 de Febrero, 2025)
 
 ### 📊 SISTEMA DE INFORMES (NUEVO)

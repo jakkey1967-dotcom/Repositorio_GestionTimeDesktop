@@ -39,10 +39,10 @@ public sealed class ClientVersionService
             _log?.LogInformation("   • Platform: {platform}", payload.Platform);
             _log?.LogInformation("   • OS: {os}", payload.OsVersion);
             _log?.LogInformation("   • Machine: {machine}", payload.MachineName);
-            _log?.LogInformation("   • Endpoint: POST /api/v1/client-version");
+            _log?.LogInformation("   • Endpoint: POST /api/v2/client-version");
 
             var response = await App.Api.PostAsync<ClientVersionDto, ClientVersionResponse>(
-                "/api/v1/client-version", payload, ct);
+                "/api/v2/client-version", payload, ct);
 
             if (response != null)
             {
@@ -67,7 +67,7 @@ public sealed class ClientVersionService
         }
         catch (ApiException apiEx) when (apiEx.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            _log?.LogDebug("ℹ️ Endpoint /api/v1/client-version no existe aún en el backend (404) - Ignorando");
+            _log?.LogDebug("ℹ️ Endpoint /api/v2/client-version no existe aún en el backend (404) - Ignorando");
             return null;
         }
         catch (Exception ex)

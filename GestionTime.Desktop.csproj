@@ -185,6 +185,7 @@
     <None Include=".github\ISSUE_TEMPLATE\bug_report.md" />
     <None Include=".github\ISSUE_TEMPLATE\feature_request.md" />
     <None Include=".github\pull_request_template.md" />
+    <None Include=".github\workflows\release.yml" />
     <None Include="bin\x64\Debug\net8.0-windows10.0.19041.0\window-config.ini" />
     <None Include="GestionTime.Installer\GestionTime.Installer.wixproj" />
     <None Include="GestionTime.sln" />

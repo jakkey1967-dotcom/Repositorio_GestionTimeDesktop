@@ -27,6 +27,12 @@ public sealed class ClientVersionResponse
     [JsonPropertyName("updateRequired")]
     public bool UpdateRequired { get; set; }
 
+    [JsonPropertyName("updateAvailable")]
+    public bool UpdateAvailable { get; set; }
+
+    [JsonPropertyName("minRequiredVersion")]
+    public string MinRequiredVersion { get; set; } = "";
+
     [JsonPropertyName("latestVersion")]
     public string? LatestVersion { get; set; }
 
