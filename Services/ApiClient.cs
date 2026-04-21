@@ -1032,9 +1032,47 @@ namespace GestionTime.Desktop.Services
             }
         }
 
-        /// <summary>
-        /// DELETE request
-        /// </summary>
+        /// <summary>POST multipart/form-data (para subir archivos).</summary>
+        public async Task<TRes?> PostMultipartAsync<TRes>(string path, MultipartFormDataContent form, CancellationToken ct = default)
+        {
+            path = NormalizePath(path);
+            var sw = Stopwatch.StartNew();
+            _log.LogInformation("HTTP POST MULTIPART {url}", path);
+
+            await EnsureTokenValidAsync(ct);
+
+            if (!string.IsNullOrEmpty(AccessToken))
+                form.Headers.TryAddWithoutValidation("Authorization", $"Bearer {AccessToken}");
+
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = form };
+                if (!string.IsNullOrEmpty(AccessToken))
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+                using var resp = await _http.SendAsync(request, ct);
+                var body = await resp.Content.ReadAsStringAsync(ct);
+                sw.Stop();
+                _log.LogInformation("HTTP POST MULTIPART {url} -> {code} en {ms}ms", path, (int)resp.StatusCode, sw.ElapsedMilliseconds);
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    var (message, error) = ExtractErrorFromBody(body);
+                    throw new ApiException(resp.StatusCode, path, message, error);
+                }
+
+                return JsonSerializer.Deserialize<TRes>(body, _jsonRead);
+            }
+            catch (ApiException) { throw; }
+            catch (Exception ex)
+            {
+                sw.Stop();
+                _log.LogError(ex, "HTTP POST MULTIPART {url} EXCEPCIÓN tras {ms}ms", path, sw.ElapsedMilliseconds);
+                throw;
+            }
+        }
+
+        /// <summary>DELETE request</summary>
         public async Task DeleteAsync(string path, CancellationToken ct = default)
         {
             path = NormalizePath(path);

@@ -14,6 +14,30 @@
         <ScrollViewer MaxHeight="600" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" Padding="16">
                 
+                <!-- Usuario destino (solo ADMIN) -->
+                <Border x:Name="TargetUserPanel"
+                        Background="#1F2937"
+                        BorderBrush="#F59E0B"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="👤 Usuario Destino (Agente)"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="White"/>
+                        <TextBlock Text="Los partes se asignarán a este usuario."
+                                   FontSize="11"
+                                   Foreground="#9CA3AF"/>
+                        <ComboBox x:Name="CmbTargetUser"
+                                  PlaceholderText="Selecciona un agente..."
+                                  HorizontalAlignment="Stretch"
+                                  Background="#111827"
+                                  Foreground="White"
+                                  SelectionChanged="OnTargetUserChanged"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- Información del archivo -->
                 <Border Background="#1F2937" 
                         BorderBrush="#0FA7B6" 
