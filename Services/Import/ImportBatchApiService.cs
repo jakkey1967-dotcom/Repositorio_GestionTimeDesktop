@@ -28,17 +28,23 @@ public sealed class ImportBatchApiService
     {
         _log?.LogInformation("📤 IMPORT Upload: {file} → target={target}", Path.GetFileName(filePath), targetUserId);
 
-        var fileBytes = await File.ReadAllBytesAsync(filePath, ct);
         var fileName = Path.GetFileName(filePath);
-        var mimeType = filePath.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase)
-            ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            : "application/vnd.ms-excel";
+
+        // GL-BEGIN: BuildMultipart
+        var isXlsx = filePath.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase);
+        var fileBytes = await File.ReadAllBytesAsync(filePath, ct);
+        var fileContent = new ByteArrayContent(fileBytes);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(
+            isXlsx
+                ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                : "application/vnd.ms-excel");
 
         using var form = new MultipartFormDataContent();
-        form.Add(new ByteArrayContent(fileBytes) { Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType) } }, "file", fileName);
+        form.Add(fileContent, "file", fileName);
         form.Add(new StringContent(targetUserId.ToString()), "targetUserId");
         if (!string.IsNullOrEmpty(notes))
             form.Add(new StringContent(notes), "notes");
+        // GL-END: BuildMultipart
 
         var result = await App.Api.PostMultipartAsync<ImportBatchCreateResponse>(
             "/api/v2/admin/import/batches", form, ct);
@@ -67,7 +73,7 @@ public sealed class ImportBatchApiService
     // GL-END: Validate
 
     // GL-BEGIN: Apply
-    /// <summary>Aplica las filas OK a partesdetrabajo usando NOT EXISTS anti-dup.</summary>
+    /// <summary>Aplica las filas OK del batch a partesdetrabajo via INSERT NOT EXISTS. Irreversible.</summary>
     public async Task<ImportBatchApplyResponse> ApplyAsync(long batchId, CancellationToken ct = default)
     {
         _log?.LogInformation("🚀 IMPORT Apply: batchId={id}", batchId);
@@ -75,8 +81,7 @@ public sealed class ImportBatchApiService
         var result = await App.Api.PostAsync<object, ImportBatchApplyResponse>(
             $"/api/v2/admin/import/batches/{batchId}/apply", new { }, ct);
 
-        _log?.LogInformation("✅ Apply: insertados={ins} skipped={skip}",
-            result?.Inserted, result?.SkippedDups);
+        _log?.LogInformation("✅ Apply: insertados={ins} skipped={skip}", result?.Inserted, result?.SkippedDups);
 
         return result ?? throw new InvalidOperationException("No se recibió respuesta del servidor.");
     }
