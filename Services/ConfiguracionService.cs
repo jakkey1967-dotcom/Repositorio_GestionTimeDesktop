@@ -1,4 +1,4 @@
-﻿using GestionTime.Desktop.Models;
+using GestionTime.Desktop.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -84,6 +84,30 @@ public class ConfiguracionService
             var jsonContent = File.ReadAllText(settingsPath);
             using var document = JsonDocument.Parse(jsonContent);
             var root = document.RootElement;
+
+            // GT-BEGIN: Merge appsettings.Development.json en DEBUG
+#if DEBUG
+            var devSettingsPath = Path.Combine(appPath, "appsettings.Development.json");
+            if (File.Exists(devSettingsPath))
+            {
+                var devJson = File.ReadAllText(devSettingsPath);
+                using var devDoc = JsonDocument.Parse(devJson);
+                var devRoot = devDoc.RootElement;
+
+                if (devRoot.TryGetProperty("Api", out var devApi))
+                {
+                    if (devApi.TryGetProperty("BaseUrl", out var devBaseUrl))
+                    {
+                        var url = devBaseUrl.GetString();
+                        if (!string.IsNullOrWhiteSpace(url))
+                            config.ApiUrl = url;
+                        System.Diagnostics.Debug.WriteLine($"[DEV] ApiUrl override → {config.ApiUrl}");
+                    }
+                }
+                System.Diagnostics.Debug.WriteLine("✅ appsettings.Development.json aplicado sobre appsettings.json");
+            }
+#endif
+            // GT-END: Merge appsettings.Development.json en DEBUG
 
             // ?? Configuración de Logging
             if (root.TryGetProperty("Logging", out var loggingSection))

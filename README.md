@@ -3,6 +3,7 @@
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![WinUI 3](https://img.shields.io/badge/WinUI-3.0-0078D4?logo=windows)](https://microsoft.github.io/microsoft-ui-xaml/)
 [![Windows 11](https://img.shields.io/badge/Windows-11-0078D6?logo=windows11)](https://www.microsoft.com/windows/windows-11)
+[![Version](https://img.shields.io/badge/version-v2.0.5--beta-orange)](https://github.com/jakkey1967-dotcom/Repositorio_GestionTimeDesktop/releases/tag/v2.0.5-beta)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **Aplicación de escritorio para la gestión de partes de trabajo** en empresas de soporte técnico y mantenimiento. Construida con .NET 8 y WinUI 3, ofrece una interfaz moderna y rendimiento nativo en Windows 11.
@@ -332,6 +333,23 @@ Ver: [`Docs/FIX_NOTIFICACIONES_NO_VISIBLES_SOLUCION_FINAL.md`](Docs/FIX_NOTIFICA
 3. Volver a importar
 
 Ver: [`Docs/FIX_IMPORTACION_EXCEL_CLIENTE_DURACION.md`](Docs/FIX_IMPORTACION_EXCEL_CLIENTE_DURACION.md)
+
+---
+
+## 🗂️ Changelog
+
+### v2.0.5-beta (2025)
+
+#### 🐛 Fixes importación Excel
+- **Estado correcto**: los partes importados se crean con estado `cerrado` en lugar de `en curso`.
+- **Filas vacías ignoradas**: celdas combinadas del Excel (filas sin fecha/proyecto/acción) ya no se procesan como filas inválidas.
+- **Grupo/Tipo por nombre flexible**: resolución con fallback `StartsWith` bidireccional (ej. `Tiendas` ↔ `Tienda`).
+
+#### ✨ Nueva funcionalidad
+- **Botón "Descartar validación"**: tras validar un Excel, si todos los datos son correctos, el admin puede descartar el batch sin importarlo (limpia el staging sin tocar `partesdetrabajo`).
+
+#### 🔧 API (Render)
+- Nuevo endpoint `DELETE /api/v2/admin/import/batches/{id}` para eliminar batches `DRAFT` o `VALIDATED`.
 
 ---
 

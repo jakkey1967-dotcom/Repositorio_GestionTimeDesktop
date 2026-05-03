@@ -2596,33 +2596,444 @@ public sealed partial class SettingsWindow : Window
         return stack;
     }
 
-    /// <summary>6. Importación/Exportación (ADMIN).</summary>
+    /// <summary>6. Importación/Exportación (ADMIN) — Wizard de importación Excel para agentes.</summary>
     private UIElement CreateImportExportContent()
     {
-        var stack = new StackPanel { Spacing = 16 };
-        
-        stack.Children.Add(new TextBlock
+        // Solo ADMIN puede ver el contenido completo
+        var userInfo = Helpers.UserInfoFileStorage.LoadUserInfo();
+        bool isAdmin = string.Equals(userInfo?.UserRole, "ADMIN", System.StringComparison.OrdinalIgnoreCase);
+        if (!isAdmin)
         {
-            Text = "Importación y Exportación",
+            var denied = new StackPanel { Spacing = 12 };
+            denied.Children.Add(new TextBlock
+            {
+                Text = "Importación / Exportación",
+                FontSize = 16,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 230, 237, 243))
+            });
+            denied.Children.Add(new TextBlock
+            {
+                Text = "⛔ Esta sección es exclusiva para usuarios ADMIN.",
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 245, 158, 11))
+            });
+            return denied;
+        }
+
+        // GL-BEGIN: ImportExportUI
+        var root = new StackPanel { Spacing = 16 };
+
+        root.Children.Add(new TextBlock
+        {
+            Text = "Importación Excel — Partes de otros agentes",
             FontSize = 16,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
             Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 230, 237, 243))
         });
-        
-        stack.Children.Add(new TextBlock
+        root.Children.Add(new TextBlock
         {
-            Text = "Gestión de datos masivos, rutas por defecto, formatos e historial.",
+            Text = "Importa un Excel externo con partes de trabajo para el agente seleccionado. Los duplicados se omiten automáticamente.",
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 170, 180, 191)),
+            TextWrapping = TextWrapping.Wrap
+        });
+
+        // ── Paso 1: Agente destino ──────────────────────────
+        root.Children.Add(new TextBlock
+        {
+            Text = "1. Agente destino",
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 96, 165, 250))
+        });
+
+        var cmbAgent = new ComboBox
+        {
+            PlaceholderText = "Seleccionar agente...",
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            DisplayMemberPath = "FullName"
+        };
+
+        // ── Paso 2: Archivo Excel ───────────────────────────
+        root.Children.Add(new TextBlock
+        {
+            Text = "2. Archivo Excel",
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 96, 165, 250))
+        });
+
+        var lblFile = new TextBlock
+        {
+            Text = "Ningún archivo seleccionado",
             Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 170, 180, 191))
-        });
-        
-        stack.Children.Add(new TextBlock
+        };
+
+        var btnPickFile = new Button { Content = "Seleccionar Excel (.xlsx)..." };
+        string? selectedFilePath = null;
+
+        // ── Paso 3: Previsualización ────────────────────────
+        root.Children.Add(new TextBlock
         {
-            Text = "🔧 Pendiente de implementar. Usará ExcelPartesImportService existente.",
-            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 245, 158, 11)),
-            Margin = new Thickness(0, 12, 0, 0)
+            Text = "3. Previsualización y validación",
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 96, 165, 250))
         });
-        
-        return stack;
+
+        // Cards de resumen
+        var panelSummary = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 16 };
+        var txtTotal   = MakeSummaryCard("Total", "0",  Microsoft.UI.ColorHelper.FromArgb(255, 100, 116, 139));
+        var txtOk      = MakeSummaryCard("Nuevas", "0", Microsoft.UI.ColorHelper.FromArgb(255, 34, 197, 94));
+        var txtDup     = MakeSummaryCard("Duplic.", "0",Microsoft.UI.ColorHelper.FromArgb(255, 234, 179, 8));
+        var txtInvalid = MakeSummaryCard("Inválidas","0",Microsoft.UI.ColorHelper.FromArgb(255, 239, 68, 68));
+        panelSummary.Children.Add(txtTotal.panel);
+        panelSummary.Children.Add(txtOk.panel);
+        panelSummary.Children.Add(txtDup.panel);
+        panelSummary.Children.Add(txtInvalid.panel);
+
+        // Grid de preview
+        var previewGrid = new ListView
+        {
+            MaxHeight = 280,
+            SelectionMode = ListViewSelectionMode.None
+        };
+        var previewBorder = new Border
+        {
+            BorderThickness = new Thickness(1),
+            BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 50, 65, 80)),
+            CornerRadius = new CornerRadius(4),
+            Child = previewGrid,
+            Visibility = Visibility.Collapsed
+        };
+
+        // Barra de estado (progreso/info)
+        var infoBar = new InfoBar
+        {
+            IsOpen = false,
+            IsClosable = true,
+            Margin = new Thickness(0, 4, 0, 0)
+        };
+
+        // ── Botones de acción ───────────────────────────────
+        var btnValidate = new Button
+        {
+            Content = "🔍 Validar Excel",
+            IsEnabled = false,
+            Style = (Style)Application.Current.Resources["AccentButtonStyle"]
+        };
+        var btnImport = new Button
+        {
+            Content = "⬆️ Importar (0 nuevas)",
+            IsEnabled = false,
+            Style = (Style)Application.Current.Resources["AccentButtonStyle"]
+        };
+        var btnReport = new Button
+        {
+            Content = "🧾 Descargar reporte",
+            IsEnabled = false
+        };
+        var btnCancelBatch = new Button
+        {
+            Content = "🗑️ Descartar validación",
+            IsEnabled = false,
+            Visibility = Visibility.Collapsed,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 255, 100, 100))
+        };
+
+        var panelButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        panelButtons.Children.Add(btnValidate);
+        panelButtons.Children.Add(btnImport);
+        panelButtons.Children.Add(btnReport);
+        panelButtons.Children.Add(btnCancelBatch);
+
+        // ── Estado interno ──────────────────────────────────
+        Services.Import.ImportSummary? lastSummary = null;
+        UserListItemDto? selectedAgent = null;
+        bool batchApplied = false;
+
+        void RefreshButtonStates()
+        {
+            btnValidate.IsEnabled    = selectedAgent != null && !string.IsNullOrEmpty(selectedFilePath);
+            btnImport.IsEnabled      = lastSummary != null && lastSummary.Ok > 0 && !batchApplied;
+            btnReport.IsEnabled      = lastSummary != null;
+            // GL-BEGIN: CancelBatch visibility
+            btnCancelBatch.IsEnabled = lastSummary != null && !batchApplied && lastSummary.Invalid == 0;
+            btnCancelBatch.Visibility = (lastSummary != null && !batchApplied) ? Visibility.Visible : Visibility.Collapsed;
+            // GL-END: CancelBatch visibility
+            if (lastSummary != null)
+                btnImport.Content = $"⬆️ Importar ({lastSummary.Ok} nuevas)";
+        }
+
+        // ── Handlers ────────────────────────────────────────
+        cmbAgent.SelectionChanged += (_, _) =>
+        {
+            selectedAgent = cmbAgent.SelectedItem as UserListItemDto;
+            lastSummary = null;
+            batchApplied = false;
+            previewBorder.Visibility = Visibility.Collapsed;
+            RefreshButtonStates();
+        };
+
+        btnPickFile.Click += async (_, _) =>
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance));
+            picker.FileTypeFilter.Add(".xlsx");
+            picker.FileTypeFilter.Add(".xls");
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                selectedFilePath = file.Path;
+                lblFile.Text = $"{file.Name}  ({GetFileSizeMB(file.Path)} MB)";
+                lastSummary = null;
+                batchApplied = false;
+                previewBorder.Visibility = Visibility.Collapsed;
+                RefreshButtonStates();
+            }
+        };
+
+        btnValidate.Click += async (_, _) =>
+        {
+            if (selectedAgent == null || string.IsNullOrEmpty(selectedFilePath)) return;
+            btnValidate.IsEnabled = false;
+            infoBar.IsOpen = false;
+
+            try
+            {
+                infoBar.Message = "Validando Excel...";
+                infoBar.Severity = InfoBarSeverity.Informational;
+                infoBar.IsOpen = true;
+
+                var svc = new Services.Import.AdminImportService();
+                lastSummary = await svc.ParseAndValidateAsync(selectedFilePath, selectedAgent.Id);
+
+                // Actualizar cards
+                txtTotal.label.Text   = lastSummary.Total.ToString();
+                txtOk.label.Text      = lastSummary.Ok.ToString();
+                txtDup.label.Text     = (lastSummary.DupInFile + lastSummary.DupExists).ToString();
+                txtInvalid.label.Text = lastSummary.Invalid.ToString();
+
+                // Poblar preview ListView
+                previewGrid.ItemsSource = lastSummary.Rows.Select(r => new
+                {
+                    Fila    = r.RowNumber,
+                    Fecha   = r.Fecha ?? "",
+                    Inicio  = r.Inicio ?? "",
+                    Cliente = r.Cliente ?? "",
+                    Accion  = r.Accion?.Length > 40 ? r.Accion[..40] + "…" : r.Accion ?? "",
+                    Estado  = r.Status.ToString(),
+                    Mensaje = r.Mensaje
+                }).ToList();
+
+                previewBorder.Visibility = Visibility.Visible;
+
+                infoBar.Message  = $"Validación completa: {lastSummary.Ok} nuevas · {lastSummary.DupInFile + lastSummary.DupExists} duplicadas · {lastSummary.Invalid} inválidas";
+                infoBar.Severity = lastSummary.Invalid > 0 ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
+            }
+            catch (Exception ex)
+            {
+                infoBar.Message  = $"Error al leer el Excel: {ex.Message}";
+                infoBar.Severity = InfoBarSeverity.Error;
+                _log?.LogError(ex, "[ImportExport] Error validando Excel");
+            }
+            finally
+            {
+                RefreshButtonStates();
+            }
+        };
+
+        btnImport.Click += async (_, _) =>
+        {
+            if (lastSummary == null || selectedAgent == null) return;
+
+            // Diálogo de confirmación
+            var dlg = new ContentDialog
+            {
+                Title = "Confirmar importación",
+                Content = $"Se importarán {lastSummary.Ok} partes para {selectedAgent.FullName}.\n" +
+                          $"Se omitirán {lastSummary.DupInFile + lastSummary.DupExists} duplicadas y {lastSummary.Invalid} inválidas.",
+                PrimaryButtonText = "Importar",
+                CloseButtonText   = "Cancelar",
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dlg.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            btnImport.IsEnabled  = false;
+            btnValidate.IsEnabled = false;
+            infoBar.Message  = "Importando...";
+            infoBar.Severity = InfoBarSeverity.Informational;
+            infoBar.IsOpen   = true;
+
+            try
+            {
+                var svc = new Services.Import.AdminImportService();
+                var (imported, failed) = await svc.ApplyImportAsync(lastSummary, selectedAgent.Id);
+
+                infoBar.Message  = $"✅ Importados: {imported}  |  Fallidos: {failed}";
+                infoBar.Severity = failed > 0 ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
+
+                _log?.LogInformation("[ImportExport] Admin={admin} Agente={agent} Importados={ok} Fallidos={fail}",
+                    App.CurrentLoginEmail, selectedAgent.Email, imported, failed);
+
+                batchApplied = true;
+                btnReport.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                infoBar.Message  = $"Error durante la importación: {ex.Message}";
+                infoBar.Severity = InfoBarSeverity.Error;
+                _log?.LogError(ex, "[ImportExport] Error importando");
+            }
+            finally
+            {
+                RefreshButtonStates();
+            }
+        };
+
+        btnReport.Click += async (_, _) =>
+        {
+            if (lastSummary == null || selectedAgent == null) return;
+            try
+            {
+                var svc = new Services.Import.AdminImportService();
+                var csv = svc.GenerateCsvReport(lastSummary, selectedAgent.FullName);
+                var fileName = svc.GetReportFileName(selectedAgent.FullName);
+
+                var picker = new Windows.Storage.Pickers.FileSavePicker();
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance));
+                picker.SuggestedFileName  = fileName;
+                picker.FileTypeChoices.Add("CSV", new System.Collections.Generic.List<string> { ".csv" });
+
+                var file = await picker.PickSaveFileAsync();
+                if (file != null)
+                {
+                    await Windows.Storage.FileIO.WriteTextAsync(file, csv);
+                    infoBar.Message  = $"Reporte guardado: {file.Name}";
+                    infoBar.Severity = InfoBarSeverity.Success;
+                    infoBar.IsOpen   = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log?.LogError(ex, "[ImportExport] Error guardando reporte CSV");
+            }
+        };
+
+        // GL-BEGIN: CancelBatch handler
+        btnCancelBatch.Click += async (_, _) =>
+        {
+            if (lastSummary == null || batchApplied) return;
+
+            var dlg = new ContentDialog
+            {
+                Title = "Descartar validación",
+                Content = $"Se eliminará el batch de validación ({lastSummary.Ok} nuevas · {lastSummary.DupInFile + lastSummary.DupExists} duplicadas · {lastSummary.Invalid} inválidas).\n" +
+                          "No se borrarán datos reales. ¿Confirmar?",
+                PrimaryButtonText = "Sí, descartar",
+                CloseButtonText   = "Cancelar",
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var res = await dlg.ShowAsync();
+            if (res != ContentDialogResult.Primary) return;
+
+            btnCancelBatch.IsEnabled = false;
+            try
+            {
+                var svc = new Services.Import.ImportBatchApiService();
+                await svc.DeleteAsync(lastSummary.BatchId, default);
+
+                lastSummary = null;
+                batchApplied = false;
+                previewBorder.Visibility = Visibility.Collapsed;
+                txtTotal.label.Text = "0";
+                txtOk.label.Text    = "0";
+                txtDup.label.Text   = "0";
+                txtInvalid.label.Text = "0";
+
+                infoBar.Message  = "Batch descartado. Puedes seleccionar un nuevo archivo.";
+                infoBar.Severity = InfoBarSeverity.Informational;
+                infoBar.IsOpen   = true;
+
+                _log?.LogInformation("[ImportExport] Batch descartado por {admin}", App.CurrentLoginEmail);
+            }
+            catch (Exception ex)
+            {
+                infoBar.Message  = $"Error al descartar el batch: {ex.Message}";
+                infoBar.Severity = InfoBarSeverity.Error;
+                infoBar.IsOpen   = true;
+                _log?.LogError(ex, "[ImportExport] Error descartando batch");
+            }
+            finally
+            {
+                RefreshButtonStates();
+            }
+        };
+        // GL-END: CancelBatch handler
+
+        // ── Ensamblar UI ────────────────────────────────────
+        root.Children.Add(cmbAgent);
+        root.Children.Add(btnPickFile);
+        root.Children.Add(lblFile);
+        root.Children.Add(panelSummary);
+        root.Children.Add(previewBorder);
+        root.Children.Add(infoBar);
+        root.Children.Add(panelButtons);
+
+        // Cargar agentes al abrir la sección
+        _ = LoadAgentsIntoComboAsync(cmbAgent);
+
+        // GL-END: ImportExportUI
+        return root;
+    }
+
+    private async Task LoadAgentsIntoComboAsync(ComboBox cmbAgent)
+    {
+        try
+        {
+            var response = await App.Api.GetAsync<UsersPagedResponse>("/api/v1/users?pageSize=200", default);
+            var users = response?.Users?.Where(u => u.Enabled).OrderBy(u => u.FullName).ToList()
+                        ?? new System.Collections.Generic.List<UserListItemDto>();
+            cmbAgent.ItemsSource = users;
+        }
+        catch (Exception ex)
+        {
+            _log?.LogWarning(ex, "[ImportExport] No se pudieron cargar agentes");
+        }
+    }
+
+    private static (StackPanel panel, TextBlock label) MakeSummaryCard(string title, string value, Windows.UI.Color color)
+    {
+        var lbl = new TextBlock
+        {
+            Text = value,
+            FontSize = 22,
+            FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(color),
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        var panel = new StackPanel
+        {
+            Spacing = 2,
+            MinWidth = 70,
+            Padding = new Thickness(8, 6, 8, 6),
+            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 30, 41, 55)),
+            CornerRadius = new CornerRadius(6)
+        };
+        panel.Children.Add(new TextBlock
+        {
+            Text = title,
+            FontSize = 11,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 150, 163, 175)),
+            HorizontalAlignment = HorizontalAlignment.Center
+        });
+        panel.Children.Add(lbl);
+        return (panel, lbl);
+    }
+
+    private static string GetFileSizeMB(string path)
+    {
+        try { return System.Math.Round(new System.IO.FileInfo(path).Length / 1_048_576.0, 1).ToString("0.0"); }
+        catch { return "?"; }
     }
 
     /// <summary>7. Usuarios online/Presencia (ADMIN) - Abre UsersOnlineWindow existente.</summary>

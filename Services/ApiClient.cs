@@ -67,9 +67,11 @@ namespace GestionTime.Desktop.Services
             { 
                 UseCookies = true, 
                 CookieContainer = new CookieContainer(),
-                // ⚠️ DESHABILITAR VALIDACIÓN SSL SOLO PARA DESARROLLO LOCAL
-                // Para producción (Render), comentar esta línea ya que usa certificados válidos
-                // ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+                // GT-BEGIN: Bypass SSL certificado autofirmado en DEBUG (localhost)
+#if DEBUG
+                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+#endif
+                // GT-END
             };
             var pipeline = new HttpLoggingHandler(_log, maxBodyChars: 200000) { InnerHandler = handler };
             _http = new HttpClient(pipeline) 

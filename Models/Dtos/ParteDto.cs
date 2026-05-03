@@ -9,11 +9,12 @@ namespace GestionTime.Desktop.Models.Dtos;
 /// </summary>
 public enum ParteEstado
 {
-    Abierto = 0,    // En curso activo (▶️ verde)
-    Pausado = 1,    // Temporalmente detenido (⏸️ amarillo)
-    Cerrado = 2,    // Finalizado (✅)
-    Enviado = 3,    // Enviado al sistema destino
-    Anulado = 9     // Cancelado (⛔ gris)
+    Abierto     = 0,    // En curso activo (▶️ verde)
+    Pausado     = 1,    // Temporalmente detenido (⏸️ amarillo)
+    Cerrado     = 2,    // Finalizado (✅)
+    Enviado     = 3,    // Enviado al sistema destino
+    Importacion = 4,    // Importado desde Excel/Importación-Exportación
+    Anulado     = 9     // Cancelado (⛔ gris)
 }
 
 public sealed class ParteDto
@@ -132,6 +133,7 @@ public sealed class ParteDto
             1 => ParteEstado.Pausado,
             2 => ParteEstado.Cerrado,
             3 => ParteEstado.Enviado,
+            4 => ParteEstado.Importacion,
             9 => ParteEstado.Anulado,
             _ => ParteEstado.Abierto
         };
@@ -144,11 +146,12 @@ public sealed class ParteDto
     [JsonIgnore]
     public string EstadoIcono => EstadoParte switch
     {
-        ParteEstado.Abierto => "\uE768",  // Play (▶️)
-        ParteEstado.Pausado => "\uE769",  // Pause (⏸️)
-        ParteEstado.Cerrado => "\uE73E",  // CheckMark (✅)
-        ParteEstado.Enviado => "\uE724",  // Send (📤)
-        ParteEstado.Anulado => "\uE711",  // Cancel (⛔)
+        ParteEstado.Abierto     => "\uE768",  // Play (▶️)
+        ParteEstado.Pausado     => "\uE769",  // Pause (⏸️)
+        ParteEstado.Cerrado     => "\uE73E",  // CheckMark (✅)
+        ParteEstado.Enviado     => "\uE724",  // Send (📤)
+        ParteEstado.Importacion => "\uE8B5",  // Import (📥)
+        ParteEstado.Anulado     => "\uE711",  // Cancel (⛔)
         _ => "\uE768"
     };
 
@@ -192,7 +195,7 @@ public sealed class ParteDto
     /// Indica si se puede duplicar (si está Cerrado o Enviado)
     /// </summary>
     [JsonIgnore]
-    public bool CanDuplicar => EstadoParte == ParteEstado.Cerrado || EstadoParte == ParteEstado.Enviado;
+    public bool CanDuplicar => EstadoParte == ParteEstado.Cerrado || EstadoParte == ParteEstado.Importacion || EstadoParte == ParteEstado.Enviado;
 
     /// <summary>
     /// Compatibilidad: indica si el CheckBox de finalizar debe ser visible
@@ -220,11 +223,12 @@ public sealed class ParteDto
     [JsonIgnore]
     public string StatusText => EstadoParte switch
     {
-        ParteEstado.Abierto => "En Curso",
-        ParteEstado.Pausado => "Pausado",
-        ParteEstado.Cerrado => "Cerrado",
-        ParteEstado.Enviado => "Enviado",
-        ParteEstado.Anulado => "Anulado",
+        ParteEstado.Abierto     => "En Curso",
+        ParteEstado.Pausado     => "Pausado",
+        ParteEstado.Cerrado     => "Cerrado",
+        ParteEstado.Enviado     => "Enviado",
+        ParteEstado.Importacion => "Importación",
+        ParteEstado.Anulado     => "Anulado",
         _ => "Desconocido"
     };
 
@@ -234,11 +238,12 @@ public sealed class ParteDto
     [JsonIgnore]
     public string StatusBackgroundColor => EstadoParte switch
     {
-        ParteEstado.Abierto => "#1A10B981",   // Verde muy suave (10% opacidad)
-        ParteEstado.Pausado => "#1AF59E0B",   // Amarillo muy suave (10% opacidad)
-        ParteEstado.Cerrado => "#1A3B82F6",   // Azul muy suave (10% opacidad)
-        ParteEstado.Enviado => "#1A8B5CF6",   // Púrpura muy suave (10% opacidad)
-        ParteEstado.Anulado => "#1A6B7280",   // Gris muy suave (10% opacidad)
+        ParteEstado.Abierto     => "#1A10B981",   // Verde muy suave
+        ParteEstado.Pausado     => "#1AF59E0B",   // Amarillo muy suave
+        ParteEstado.Cerrado     => "#1A3B82F6",   // Azul muy suave
+        ParteEstado.Enviado     => "#1A8B5CF6",   // Púrpura muy suave
+        ParteEstado.Importacion => "#1AF97316",   // Naranja muy suave
+        ParteEstado.Anulado     => "#1A6B7280",   // Gris muy suave
         _ => "#1A6B7280"
     };
 
@@ -248,11 +253,12 @@ public sealed class ParteDto
     [JsonIgnore]
     public string StatusForegroundColor => EstadoParte switch
     {
-        ParteEstado.Abierto => "#10B981",   // Verde brillante
-        ParteEstado.Pausado => "#F59E0B",   // Amarillo/naranja brillante
-        ParteEstado.Cerrado => "#3B82F6",   // Azul brillante
-        ParteEstado.Enviado => "#8B5CF6",   // Púrpura brillante
-        ParteEstado.Anulado => "#6B7280",   // Gris medio
+        ParteEstado.Abierto     => "#10B981",   // Verde brillante
+        ParteEstado.Pausado     => "#F59E0B",   // Amarillo/naranja brillante
+        ParteEstado.Cerrado     => "#3B82F6",   // Azul brillante
+        ParteEstado.Enviado     => "#8B5CF6",   // Púrpura brillante
+        ParteEstado.Importacion => "#F97316",   // Naranja brillante
+        ParteEstado.Anulado     => "#6B7280",   // Gris medio
         _ => "#6B7280"
     };
 

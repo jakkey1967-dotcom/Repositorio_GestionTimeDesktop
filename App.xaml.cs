@@ -333,7 +333,7 @@ public partial class App : Application
 
                 var json = File.ReadAllText(file);
                 System.Diagnostics.Debug.WriteLine($"JSON leído desde {file}: {json}");
-                
+
                 using var doc = System.Text.Json.JsonDocument.Parse(json);
                 if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object)
                     continue;
@@ -364,9 +364,27 @@ public partial class App : Application
                     PartesPath: GetString(apiEl, "PartesPath") ?? GetString(doc.RootElement, "PartesPath"),
                     LogPath: logPath
                 );
-                
-                System.Diagnostics.Debug.WriteLine($"=== SETTINGS CARGADOS ===");
-                System.Diagnostics.Debug.WriteLine($"BaseUrl: '{result.BaseUrl}'");
+
+                // GT-BEGIN: Override con appsettings.Development.json en DEBUG
+#if DEBUG
+                var devFile = Path.Combine(Path.GetDirectoryName(file)!, "appsettings.Development.json");
+                System.Diagnostics.Debug.WriteLine($"[DEV] Buscando override en: {devFile}");
+                if (File.Exists(devFile))
+                {
+                    var devJson = File.ReadAllText(devFile);
+                    using var devDoc = System.Text.Json.JsonDocument.Parse(devJson);
+                    if (devDoc.RootElement.TryGetProperty("Api", out var devApi))
+                    {
+                        var devBaseUrl = GetString(devApi, "BaseUrl");
+                        if (!string.IsNullOrWhiteSpace(devBaseUrl))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[DEV] BaseUrl override: {result.BaseUrl} → {devBaseUrl}");
+                            result = result with { BaseUrl = devBaseUrl };
+                        }
+                    }
+                }
+#endif
+                // GT-END
                 System.Diagnostics.Debug.WriteLine($"LoginPath: '{result.LoginPath}'");
                 System.Diagnostics.Debug.WriteLine($"LogPath: '{result.LogPath}'");
                 

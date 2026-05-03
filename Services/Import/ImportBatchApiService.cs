@@ -86,4 +86,14 @@ public sealed class ImportBatchApiService
         return result ?? throw new InvalidOperationException("No se recibió respuesta del servidor.");
     }
     // GL-END: Apply
+
+    // GL-BEGIN: Delete
+    /// <summary>Elimina un batch DRAFT o VALIDATED de la API (no toca partesdetrabajo).</summary>
+    public async Task DeleteAsync(long batchId, CancellationToken ct = default)
+    {
+        _log?.LogInformation("🗑️ IMPORT Delete: batchId={id}", batchId);
+        await App.Api.DeleteAsync($"/api/v2/admin/import/batches/{batchId}", ct);
+        _log?.LogInformation("✅ Batch {id} eliminado", batchId);
+    }
+    // GL-END: Delete
 }

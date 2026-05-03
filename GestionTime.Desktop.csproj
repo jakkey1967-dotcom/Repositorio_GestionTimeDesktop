@@ -71,6 +71,9 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="appsettings.Development.json" Condition="'$(Configuration)'=='Debug'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Doc\EJEMPLO_RESPONSIVE_COMPLETO.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>

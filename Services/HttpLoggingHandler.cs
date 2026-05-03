@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -44,13 +44,22 @@ public sealed class HttpLoggingHandler : DelegatingHandler
         // BODY request
         if (request.Content != null)
         {
-            var originalContent = request.Content;
-            var body = await SafeReadContentAsStringAsync(originalContent, ct);
-            var safeBody = Truncate(Redact(body), _maxBodyChars);
-            _log.LogDebug("[HTTP {id}] RequestBody: {body}", id, safeBody);
+            // GL-BEGIN: Skip multipart body logging (no consumir el stream)
+            if (request.Content is MultipartFormDataContent)
+            {
+                _log.LogDebug("[HTTP {id}] RequestBody: [multipart/form-data - omitido para no consumir el stream]", id);
+            }
+            else
+            {
+                var originalContent = request.Content;
+                var body = await SafeReadContentAsStringAsync(originalContent, ct);
+                var safeBody = Truncate(Redact(body), _maxBodyChars);
+                _log.LogDebug("[HTTP {id}] RequestBody: {body}", id, safeBody);
 
-            // Re-create content so downstream can still read it (and to be safe with non-buffered content).
-            request.Content = CloneContent(originalContent, body);
+                // Re-create content so downstream can still read it (and to be safe with non-buffered content).
+                request.Content = CloneContent(originalContent, body);
+            }
+            // GL-END: Skip multipart body logging
         }
 
         try
