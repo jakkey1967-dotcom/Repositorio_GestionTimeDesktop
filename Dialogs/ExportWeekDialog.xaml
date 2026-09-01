@@ -9,63 +9,100 @@
     PrimaryButtonText="Exportar"
     CloseButtonText="Cancelar"
     DefaultButton="Primary"
-    IsPrimaryButtonEnabled="{x:Bind IsWeekSelected, Mode=OneWay}"
-    Style="{StaticResource DefaultContentDialogStyle}">
+    IsPrimaryButtonEnabled="{x:Bind IsRangeValid, Mode=OneWay}">
 
-    <StackPanel Spacing="16" MinWidth="400">
-        <!-- Descripción -->
-        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextMuted}">
-            Selecciona la semana que deseas exportar. Se generará un archivo Excel (.xlsx) con todos los partes de esa semana.
+    <ContentDialog.Style>
+        <Style TargetType="ContentDialog">
+            <Setter Property="Background" Value="{ThemeResource AppDialogBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
+        </Style>
+    </ContentDialog.Style>
+
+    <StackPanel Spacing="16" MinWidth="440">
+        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource AppTextSecondaryBrush}">
+            Selecciona un rango de fechas. Se exportarán semanas ISO completas (lunes a domingo), incluso si las fechas caen a mitad de semana.
         </TextBlock>
 
-        <!-- Selector de semana -->
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="8">
+                <TextBlock Text="Fecha inicial" FontWeight="SemiBold"/>
+                <CalendarDatePicker x:Name="DpStartDate"
+                                    Date="{x:Bind StartDate, Mode=TwoWay}"
+                                    DateChanged="OnStartDateChanged"
+                                    HorizontalAlignment="Stretch"
+                                    PlaceholderText="Fecha inicial"
+                                    FirstDayOfWeek="Monday"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="8">
+                <TextBlock Text="Fecha final" FontWeight="SemiBold"/>
+                <CalendarDatePicker x:Name="DpEndDate"
+                                    Date="{x:Bind EndDate, Mode=TwoWay}"
+                                    DateChanged="OnEndDateChanged"
+                                    HorizontalAlignment="Stretch"
+                                    PlaceholderText="Fecha final"
+                                    FirstDayOfWeek="Monday"/>
+            </StackPanel>
+        </Grid>
+
         <StackPanel Spacing="8">
-            <TextBlock Text="Semana a exportar:" FontWeight="SemiBold"/>
-            <ComboBox x:Name="WeekComboBox"
-                      ItemsSource="{x:Bind Weeks}"
-                      SelectedItem="{x:Bind SelectedWeek, Mode=TwoWay}"
-                      DisplayMemberPath="DisplayText"
+            <TextBlock Text="Modo de exportación" FontWeight="SemiBold"/>
+            <ComboBox x:Name="ModeComboBox"
+                      SelectedIndex="{x:Bind SelectedModeIndex, Mode=TwoWay}"
+                      SelectionChanged="OnModeSelectionChanged"
                       HorizontalAlignment="Stretch"
-                      PlaceholderText="Selecciona una semana..."
-                      SelectionChanged="OnWeekSelectionChanged"/>
+                      Background="{ThemeResource AppInputBackgroundBrush}"
+                      Foreground="{ThemeResource AppTextPrimaryBrush}"
+                      BorderBrush="{ThemeResource AppBorderBrush}">
+                <ComboBoxItem Content="Unificar en un solo archivo Excel"/>
+                <ComboBoxItem Content="Generar un archivo Excel por semana"/>
+            </ComboBox>
         </StackPanel>
 
-        <!-- Info adicional -->
-        <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        <Border Background="{ThemeResource AppSurfaceVariantBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
-                Padding="12"
-                Visibility="{x:Bind IsWeekSelected, Mode=OneWay}">
+                Padding="12">
             <StackPanel Spacing="8">
                 <TextBlock Text="📋 Información de exportación" FontWeight="SemiBold" FontSize="13"/>
-                
+
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8FD;" FontSize="14" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                    <TextBlock>
-                        <Run Text="Registros a exportar:"/>
-                        <Run Text="{x:Bind RecordCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                    </TextBlock>
+                    <FontIcon Glyph="&#xE787;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                    <TextBlock Text="{x:Bind RangeSummaryText, Mode=OneWay}" TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8A5;" FontSize="14" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                    <TextBlock Text="Formato: Microsoft Excel (.xlsx)" FontSize="12" Foreground="{ThemeResource TextMuted}"/>
+                    <FontIcon Glyph="&#xE8FD;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                    <TextBlock Text="{x:Bind WeeksSummaryText, Mode=OneWay}" TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8FE;" FontSize="14" Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                    <TextBlock FontSize="12" Foreground="{ThemeResource TextMuted}">
-                        <Run Text="Columnas: PROYECTO, FECHA, HORA INICIO, HORA FIN, DURACION, TAREA, GRUPO, TIPO"/>
-                    </TextBlock>
+                    <FontIcon Glyph="&#xE8A5;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                    <TextBlock Text="{x:Bind ModeSummaryText, Mode=OneWay}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8B7;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                    <TextBlock Text="{x:Bind FilesSummaryText, Mode=OneWay}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8FE;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                    <TextBlock Text="Columnas: PROYECTO, FECHA, HORA INICIO, HORA FIN, DURACION, TAREA, GRUPO, TIPO"
+                               FontSize="12"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
         </Border>
 
-        <!-- Advertencia si no hay semanas -->
-        <InfoBar IsOpen="{x:Bind HasNoWeeks, Mode=OneWay}"
-                 Severity="Warning"
-                 Title="Sin datos"
-                 Message="No hay partes disponibles para exportar. Carga datos primero."/>
+        <InfoBar IsOpen="{x:Bind ShowInvalidRange, Mode=OneWay}"
+                 Severity="Error"
+                 Title="Rango inválido"
+                 Message="La fecha final no puede ser anterior a la fecha inicial."/>
     </StackPanel>
 </ContentDialog>

@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using Windows.Storage;
 using GestionTime.Desktop.Services;
 using GestionTime.Desktop.Helpers;
+using GestionTime.Desktop.Models;
+using GestionTime.Desktop.Models.Enums;
 
 namespace GestionTime.Desktop.Views
 {
@@ -30,9 +32,35 @@ namespace GestionTime.Desktop.Views
             return Path.Combine(gestionTimePath, "login-settings.json");
         }
 
+        /// <summary>Crea la sesión autenticada a partir de LoginResponse.User.Id.</summary>
+        private static AuthenticatedUser? CreateAuthenticatedUser(ApiClient.LoginResponse res, string loginEmail)
+        {
+            if (!Guid.TryParse(res.User?.Id, out var userId) || userId == Guid.Empty)
+                return null;
+
+            var role = (res.UserRoleSafe ?? "USER").Trim().ToUpperInvariant() switch
+            {
+                "ADMIN" => UserRole.ADMIN,
+                "EDITOR" => UserRole.EDITOR,
+                _ => UserRole.USER
+            };
+
+            return new AuthenticatedUser
+            {
+                UserId = userId,
+                Email = string.IsNullOrWhiteSpace(loginEmail) ? (res.UserEmailSafe ?? string.Empty) : loginEmail,
+                FullName = res.UserNameSafe,
+                Role = role
+            };
+        }
+
         public LoginPage()
         {
             InitializeComponent();
+
+            ThemeService.Instance.ApplyTheme(this);
+            ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
+            UpdateThemeToggleIcon();
             
             // 🆕 NUEVO: Mostrar versión de la aplicación
             SetAppVersion();
@@ -58,6 +86,7 @@ namespace GestionTime.Desktop.Views
 
                 // Desuscribir evento Loaded
                 this.Loaded -= OnPageLoaded;
+                ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
                 
                 App.Log?.LogInformation("✅ LoginPage recursos limpiados");
             }
@@ -117,6 +146,32 @@ namespace GestionTime.Desktop.Views
                 TxtPass.Focus(FocusState.Programmatic);
                 App.Log?.LogDebug("🎯 Focus inicial: Contraseña (correo pre-rellenado: {email})", TxtUser.Text);
             }
+        }
+
+        private void OnGlobalThemeChanged(object? sender, ElementTheme theme)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                this.RequestedTheme = theme;
+                UpdateThemeToggleIcon();
+            });
+        }
+
+        private void OnToggleThemeClick(object sender, RoutedEventArgs e)
+        {
+            var nextTheme = ThemeService.Instance.GetEffectiveTheme() == ElementTheme.Dark
+                ? ElementTheme.Light
+                : ElementTheme.Dark;
+
+            ThemeService.Instance.SetTheme(nextTheme);
+            UpdateThemeToggleIcon();
+        }
+
+        private void UpdateThemeToggleIcon()
+        {
+            var isDark = ThemeService.Instance.GetEffectiveTheme() == ElementTheme.Dark;
+            IconThemeLogin.Glyph = isDark ? "\uE708" : "\uE706";
+            ToolTipService.SetToolTip(BtnThemeLogin, isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro");
         }
 
         // 🆕 MÉTODO PARA MANEJAR ENTER EN CONTRASEÑA
@@ -582,6 +637,7 @@ namespace GestionTime.Desktop.Views
                 // Limpiar TODAS las variables globales de sesión
                 App.CurrentUserProfile = null;
                 App.CurrentLoginEmail = null;
+                App.CurrentAuthenticatedUser = null;
                 
                 App.Log?.LogInformation("✅ Sesión anterior limpiada completamente");
                 App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
@@ -589,6 +645,17 @@ namespace GestionTime.Desktop.Views
                 // 🆕 AHORA guardar el email del login NUEVO
                 App.CurrentLoginEmail = email;
                 App.Log?.LogInformation("📧 Email del login NUEVO guardado: {email}", App.CurrentLoginEmail);
+
+                App.CurrentAuthenticatedUser = CreateAuthenticatedUser(res, email);
+                if (App.CurrentAuthenticatedUser != null)
+                {
+                    App.Log?.LogInformation("👤 Sesión autenticada: {id} / {role}",
+                        App.CurrentAuthenticatedUser.UserId, App.CurrentAuthenticatedUser.Role);
+                }
+                else
+                {
+                    App.Log?.LogWarning("⚠️ LoginResponse.User.Id no es un GUID válido; el selector de agente ADMIN no se activará.");
+                }
 
                 // 🆕 CRÍTICO: Cargar perfil completo desde /api/v1/profiles/me
                 try
@@ -634,23 +701,7 @@ namespace GestionTime.Desktop.Views
                     App.Log?.LogInformation("💓 Heartbeat de presencia iniciado");
 
                     // GT-BEGIN: Registro de versión del cliente
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            var versionResponse = await ClientVersionService.Instance.RegisterVersionAsync();
-                            if (versionResponse?.UpdateRequired == true)
-                            {
-                                DispatcherQueue.TryEnqueue(() =>
-                                {
-                                    App.Notifications?.ShowWarning(
-                                        $"Hay una nueva versión disponible: {versionResponse.LatestVersion}\n{versionResponse.Message}",
-                                        title: "🔄 Actualización Disponible");
-                                });
-                            }
-                        }
-                        catch { /* no bloqueante */ }
-                    });
+                    _ = ClientVersionService.Instance.RegisterVersionAsync();
                     // GT-END
                     
                     

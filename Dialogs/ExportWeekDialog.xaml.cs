@@ -1,117 +1,270 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.Models.Export;
-using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 
 namespace GestionTime.Desktop.Dialogs;
 
-/// <summary>Diálogo para seleccionar una semana y exportar partes a Excel.</summary>
+/// <summary>Diálogo para exportar partes a Excel por rango de semanas ISO.</summary>
 public sealed partial class ExportWeekDialog : ContentDialog, INotifyPropertyChanged
 {
-    /// <summary>Lista de semanas disponibles para exportar.</summary>
-    public List<WeekOption> Weeks { get; set; } = new();
+    private bool _isUpdatingDates;
+    private DateTimeOffset? _startDate;
+    private DateTimeOffset? _endDate;
+    private int _selectedModeIndex;
+    private bool _isRangeValid;
+    private bool _showInvalidRange;
+    private string _rangeSummaryText = string.Empty;
+    private string _weeksSummaryText = string.Empty;
+    private string _modeSummaryText = string.Empty;
+    private string _filesSummaryText = string.Empty;
 
-    private WeekOption? _selectedWeek;
-    /// <summary>Semana seleccionada por el usuario.</summary>
-    public WeekOption? SelectedWeek
+    /// <summary>Fecha inicial seleccionada en el DatePicker.</summary>
+    public DateTimeOffset? StartDate
     {
-        get => _selectedWeek;
+        get => _startDate;
         set
         {
-            if (_selectedWeek != value)
-            {
-                _selectedWeek = value;
-                OnPropertyChanged();
-                IsWeekSelected = value != null;
-            }
+            if (_startDate == value)
+                return;
+            _startDate = value;
+            OnPropertyChanged();
         }
     }
 
-    private bool _isWeekSelected;
-    /// <summary>Indica si hay una semana seleccionada (para habilitar botón Exportar).</summary>
-    public bool IsWeekSelected
+    /// <summary>Fecha final seleccionada en el DatePicker.</summary>
+    public DateTimeOffset? EndDate
     {
-        get => _isWeekSelected;
+        get => _endDate;
         set
         {
-            if (_isWeekSelected != value)
-            {
-                _isWeekSelected = value;
-                OnPropertyChanged();
-            }
+            if (_endDate == value)
+                return;
+            _endDate = value;
+            OnPropertyChanged();
         }
     }
 
-    private bool _hasNoWeeks;
-    /// <summary>Indica si no hay semanas disponibles.</summary>
-    public bool HasNoWeeks
+    /// <summary>Índice del modo: 0 unificado, 1 un archivo por semana.</summary>
+    public int SelectedModeIndex
     {
-        get => _hasNoWeeks;
+        get => _selectedModeIndex;
         set
         {
-            if (_hasNoWeeks != value)
-            {
-                _hasNoWeeks = value;
-                OnPropertyChanged();
-            }
+            if (_selectedModeIndex == value)
+                return;
+            _selectedModeIndex = value;
+            OnPropertyChanged();
+            RefreshSummaries();
         }
     }
 
-    private int _recordCount;
-    /// <summary>Número de registros que se exportarán.</summary>
-    public int RecordCount
+    /// <summary>Indica si el rango efectivo es válido.</summary>
+    public bool IsRangeValid
     {
-        get => _recordCount;
-        set
+        get => _isRangeValid;
+        private set
         {
-            if (_recordCount != value)
-            {
-                _recordCount = value;
-                OnPropertyChanged();
-            }
+            if (_isRangeValid == value)
+                return;
+            _isRangeValid = value;
+            OnPropertyChanged();
         }
     }
+
+    /// <summary>Muestra el aviso de rango inválido.</summary>
+    public bool ShowInvalidRange
+    {
+        get => _showInvalidRange;
+        private set
+        {
+            if (_showInvalidRange == value)
+                return;
+            _showInvalidRange = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Texto del rango efectivo lunes-domingo.</summary>
+    public string RangeSummaryText
+    {
+        get => _rangeSummaryText;
+        private set
+        {
+            if (_rangeSummaryText == value)
+                return;
+            _rangeSummaryText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Texto con el número de semanas completas.</summary>
+    public string WeeksSummaryText
+    {
+        get => _weeksSummaryText;
+        private set
+        {
+            if (_weeksSummaryText == value)
+                return;
+            _weeksSummaryText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Texto del modo seleccionado.</summary>
+    public string ModeSummaryText
+    {
+        get => _modeSummaryText;
+        private set
+        {
+            if (_modeSummaryText == value)
+                return;
+            _modeSummaryText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Texto con el número estimado de archivos.</summary>
+    public string FilesSummaryText
+    {
+        get => _filesSummaryText;
+        private set
+        {
+            if (_filesSummaryText == value)
+                return;
+            _filesSummaryText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Lunes efectivo del rango.</summary>
+    public DateTime EffectiveMonday { get; private set; }
+
+    /// <summary>Domingo efectivo del rango.</summary>
+    public DateTime EffectiveSunday { get; private set; }
+
+    /// <summary>Semanas ISO incluidas en el rango.</summary>
+    public IReadOnlyList<WeekOption> Weeks { get; private set; } = Array.Empty<WeekOption>();
+
+    /// <summary>Modo de exportación seleccionado.</summary>
+    public ExportMode SelectedMode => SelectedModeIndex == 1 ? ExportMode.OneFilePerWeek : ExportMode.Unified;
 
     public ExportWeekDialog()
     {
         this.InitializeComponent();
+        InitializeDefaults();
     }
 
-    /// <summary>Configura el diálogo con las semanas disponibles.</summary>
-    /// <param name="weeks">Lista de semanas calculadas desde los datos</param>
-    /// <param name="recordCounts">Diccionario con el conteo de registros por semana</param>
-    public void SetWeeks(List<WeekOption> weeks, Dictionary<WeekOption, int> recordCounts)
+    /// <summary>Inicializa el diálogo con la semana ISO actual completa.</summary>
+    public void InitializeDefaults()
     {
-        Weeks = weeks ?? new List<WeekOption>();
-        HasNoWeeks = !Weeks.Any();
-        IsWeekSelected = false;
-        RecordCount = 0;
-
-        // Configurar el conteo de registros
-        _recordCounts = recordCounts ?? new Dictionary<WeekOption, int>();
-
-        App.Log?.LogInformation("📊 ExportWeekDialog: {count} semanas disponibles", Weeks.Count);
+        var today = DateTime.Today;
+        var monday = IsoWeekRangeHelper.GetMonday(today);
+        var sunday = IsoWeekRangeHelper.GetSunday(today);
+        _isUpdatingDates = true;
+        StartDate = new DateTimeOffset(monday);
+        EndDate = new DateTimeOffset(sunday);
+        SelectedModeIndex = 0;
+        _isUpdatingDates = false;
+        RecalculateEffectiveRange();
+        CalendarFirstDayHelper.Attach(DpStartDate);
+        CalendarFirstDayHelper.Attach(DpEndDate);
     }
 
-    private Dictionary<WeekOption, int> _recordCounts = new();
-
-    /// <summary>Evento cuando cambia la selección de semana.</summary>
-    private void OnWeekSelectionChanged(object sender, SelectionChangedEventArgs e)
+    /// <summary>Construye la solicitud de exportación a partir del rango actual.</summary>
+    public ExportRangeRequest ToRequest()
     {
-        IsWeekSelected = SelectedWeek != null;
+        return new ExportRangeRequest
+        {
+            EffectiveMonday = EffectiveMonday,
+            EffectiveSunday = EffectiveSunday,
+            Mode = SelectedMode,
+            Weeks = Weeks
+        };
+    }
 
-        if (SelectedWeek != null && _recordCounts.TryGetValue(SelectedWeek, out var count))
+    private void OnStartDateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+    {
+        if (_isUpdatingDates)
+            return;
+
+        RecalculateEffectiveRange(normalizeStart: true);
+    }
+
+    private void OnEndDateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+    {
+        if (_isUpdatingDates)
+            return;
+
+        RecalculateEffectiveRange(normalizeEnd: true);
+    }
+
+    private void OnModeSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        RefreshSummaries();
+    }
+
+    private void RecalculateEffectiveRange(bool normalizeStart = false, bool normalizeEnd = false)
+    {
+        if (StartDate == null || EndDate == null)
         {
-            RecordCount = count;
-            App.Log?.LogDebug("📊 Semana seleccionada: {week} - {count} registros", SelectedWeek.DisplayText, count);
+            IsRangeValid = false;
+            ShowInvalidRange = false;
+            Weeks = Array.Empty<WeekOption>();
+            RangeSummaryText = "Selecciona fecha inicial y fecha final.";
+            WeeksSummaryText = "Semanas completas: 0";
+            RefreshSummaries();
+            return;
         }
-        else
+
+        var start = StartDate.Value.Date;
+        var end = EndDate.Value.Date;
+        var monday = IsoWeekRangeHelper.GetMonday(start);
+        var sunday = IsoWeekRangeHelper.GetSunday(end);
+
+        _isUpdatingDates = true;
+        try
         {
-            RecordCount = 0;
+            if (normalizeStart && StartDate.Value.Date != monday)
+                StartDate = new DateTimeOffset(monday);
+            if (normalizeEnd && EndDate.Value.Date != sunday)
+                EndDate = new DateTimeOffset(sunday);
         }
+        finally
+        {
+            _isUpdatingDates = false;
+        }
+
+        EffectiveMonday = monday;
+        EffectiveSunday = sunday;
+        ShowInvalidRange = sunday < monday;
+        IsRangeValid = !ShowInvalidRange;
+        Weeks = IsRangeValid ? IsoWeekRangeHelper.EnumerateWeeks(monday, sunday) : Array.Empty<WeekOption>();
+        RangeSummaryText = ShowInvalidRange
+            ? "Rango inválido: la fecha final es anterior a la inicial."
+            : $"Rango efectivo: {monday:dd/MM/yyyy} (lunes) a {sunday:dd/MM/yyyy} (domingo)";
+        WeeksSummaryText = $"Semanas completas incluidas: {Weeks.Count}";
+        RefreshSummaries();
+    }
+
+    private void RefreshSummaries()
+    {
+        ModeSummaryText = SelectedMode == ExportMode.OneFilePerWeek
+            ? "Modo: un archivo Excel por semana"
+            : "Modo: unificar en un solo archivo Excel";
+
+        if (!IsRangeValid)
+        {
+            FilesSummaryText = "Archivos estimados: 0";
+            return;
+        }
+
+        FilesSummaryText = SelectedMode == ExportMode.Unified
+            ? "Archivos estimados: 1 (el recuento de registros se calculará al exportar)"
+            : $"Archivos estimados: hasta {Weeks.Count} (solo semanas con registros)";
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

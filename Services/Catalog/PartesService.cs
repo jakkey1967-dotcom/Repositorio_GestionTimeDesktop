@@ -2,6 +2,7 @@ using GestionTime.Desktop.Models.Dtos;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,7 @@ public sealed class PartesService
         int? idGrupo = null,
         int? limit = null,
         int? offset = null,
+        Guid? agentId = null,
         CancellationToken ct = default)
     {
         try
@@ -77,7 +79,10 @@ public sealed class PartesService
             if (offset.HasValue)
                 queryParams.Add($"offset={offset.Value}");
 
-            var path = queryParams.Count > 0 
+            if (agentId.HasValue && agentId.Value != Guid.Empty)
+                queryParams.Add($"agentId={Uri.EscapeDataString(agentId.Value.ToString())}");
+
+            var path = queryParams.Count > 0
                 ? $"/api/v1/partes?{string.Join("&", queryParams)}"
                 : "/api/v1/partes";
             
@@ -97,6 +102,52 @@ public sealed class PartesService
             _log.LogError(ex, "❌ Error listando partes");
             throw;
         }
+    }
+
+    /// <summary>Carga todas las páginas de partes del rango indicado sin duplicar IDs.</summary>
+    public async Task<List<ParteDto>> ListRangePagedAsync(
+        DateTime fechaInicio,
+        DateTime fechaFin,
+        int pageSize = 500,
+        CancellationToken ct = default)
+    {
+        if (pageSize <= 0)
+            pageSize = 500;
+
+        var all = new List<ParteDto>();
+        var seenIds = new HashSet<int>();
+        var offset = 0;
+
+        while (true)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var page = await ListAsync(
+                fechaInicio: fechaInicio.Date,
+                fechaFin: fechaFin.Date,
+                limit: pageSize,
+                offset: offset,
+                ct: ct) ?? new List<ParteDto>();
+
+            if (page.Count == 0)
+                break;
+
+            foreach (var parte in page)
+            {
+                if (seenIds.Add(parte.Id))
+                    all.Add(parte);
+            }
+
+            if (page.Count < pageSize)
+                break;
+
+            offset += page.Count;
+        }
+
+        return all
+            .OrderBy(p => p.Fecha)
+            .ThenBy(p => p.HoraInicio)
+            .ToList();
     }
 
     /// <summary>Obtener un parte por ID - ⚠️ ADVERTENCIA: Endpoint NO soportado por backend (405)</summary>

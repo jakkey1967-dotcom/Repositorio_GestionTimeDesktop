@@ -1,8 +1,11 @@
 using GestionTime.Desktop.Models.Dtos;
+using GestionTime.Desktop.Models.Export;
+using GestionTime.Desktop.Models.Enums;
 using GestionTime.Desktop.Helpers;
 using GestionTime.Desktop.ViewModels;
 using GestionTime.Desktop.Services;
 using GestionTime.Desktop.Services.Catalog;  // 🆕 NUEVO: Usar PartesService
+using GestionTime.Desktop.Services.Export;
 using GestionTime.Desktop.Diagnostics;
 using GestionTime.Desktop.Dialogs;  // 🆕 NUEVO: Agregar para usar CerrarParteDialog
 using Microsoft.Extensions.Logging;
@@ -25,6 +28,9 @@ namespace GestionTime.Desktop.Views;
 public sealed partial class DiarioPage : Page
 {
     public ObservableCollection<ParteDto> Partes { get; } = new();
+    private int _containerLogCounter;
+    private const bool DiagSkipInitialListRender = true;
+    private const bool DiagDisableContainerContentChanging = true;
 
     private List<ParteDto> _cache30dias = new();
     private DispatcherTimer? _debounce;
@@ -37,11 +43,19 @@ public sealed partial class DiarioPage : Page
     private PartesService? _partesService;
     private PartesService PartesService => _partesService ??= new PartesService(App.Api, App.Log!);
     
-    // 🆕 PAGINACIÓN: Variables para paginar ListView
-    private const int ITEMS_PER_PAGE = 30;
-    private int _currentPage = 1;
-    private int _totalPages = 1;
-    private List<ParteDto> _allFilteredPartes = new();
+    private const int HistoryPageSize = 30;
+    private int _historyOffset;
+    private int _loadedBatchCount;
+    private bool _hasMoreItems;
+    private bool _isLoadingMore;
+    private DateTime _anchorDate = DateTime.Today;
+    private string _activeSearch = string.Empty;
+    private long _activeQueryVersion;
+    private readonly List<int> _batchSizes = new();
+    private readonly HashSet<int> _loadedParteIds = new();
+    private bool _isUpdatingAgentCombo;
+    private AgentFilterItem? _selectedAgentFilter;
+    private readonly List<AgentFilterItem> _availableAgents = new();
 
     // GT-BEGIN: Filtros avanzados con pills
     private readonly List<(string Category, string Value)> _activeFilters = new();
@@ -60,6 +74,15 @@ public sealed partial class DiarioPage : Page
         }
     }
 
+    private bool IsAdminSession => App.CurrentAuthenticatedUser?.IsAdmin == true;
+    private Guid? AuthenticatedUserId => App.CurrentAuthenticatedUser?.UserId;
+    private bool IsViewingOwnAgent =>
+        !IsAdminSession
+        || _selectedAgentFilter == null
+        || (_selectedAgentFilter.IsSelf && AuthenticatedUserId.HasValue);
+    private bool IsReadOnlyAgentView => IsAdminSession && !IsViewingOwnAgent;
+    private bool CanMutateCurrentView => !IsReadOnlyAgentView;
+
     public DiarioPage()
     {
         this.InitializeComponent();
@@ -69,6 +92,8 @@ public sealed partial class DiarioPage : Page
 
         // 🆕 NUEVO: Aplicar tema global
         ThemeService.Instance.ApplyTheme(this);
+        UpdateThemeAssets(ThemeService.Instance.CurrentTheme);
+        UpdateThemeToggleIcon();
 
         // 🆕 CORREGIDO: Establecer fecha SIN disparar el evento DateChanged
         DpFiltroFecha.Date = DateTimeOffset.Now;
@@ -81,14 +106,23 @@ public sealed partial class DiarioPage : Page
         DpFiltroFecha.DateChanged += OnFiltroFechaChanged;
 
         _debounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(350) };
-        _debounce.Tick += (_, __) =>
+        _debounce.Tick += async (_, __) =>
         {
             _debounce!.Stop();
-            ApplyFilterToListView();
+            await LoadPartesAsync(reset: true);
         };
 
         InitializeIcons();
         InitializeKeyboardAccelerators();
+
+        if (!DiagDisableContainerContentChanging)
+        {
+            LvPartes.ContainerContentChanging += OnContainerContentChanging;
+        }
+        else
+        {
+            App.Log?.LogWarning("🧪 DIAG: ContainerContentChanging desactivado temporalmente");
+        }
 
         // 🆕 NUEVO: Suscribirse a cambios de tema globales
         ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
@@ -106,6 +140,7 @@ public sealed partial class DiarioPage : Page
             this.RequestedTheme = theme;
             UpdateThemeAssets(theme);
             UpdateThemeCheckmarks();
+            UpdateThemeToggleIcon();
             App.Log?.LogDebug("🎨 DiarioPage: Tema actualizado por cambio global a {theme}", theme);
         });
     }
@@ -116,30 +151,37 @@ public sealed partial class DiarioPage : Page
     /// </summary>
     private void OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
-        if (args.ItemContainer is ListViewItem container)
+        try
         {
-            // Aplicar Background según el índice (par/impar)
-            var isEvenRow = args.ItemIndex % 2 == 0;
+            if (args.ItemContainer is ListViewItem container)
+            {
+                var isEvenRow = args.ItemIndex % 2 == 0;
+                var brushKey = isEvenRow ? "EvenRowBrush" : "OddRowBrush";
+                var rowBrush = Resources[brushKey] as SolidColorBrush;
 
-            if (isEvenRow)
-            {
-                // Fila par: Transparente
-                container.Background = Resources["EvenRowBrush"] as SolidColorBrush;
-            }
-            else
-            {
-                // Fila impar: Turquesa 40%
-                container.Background = Resources["OddRowBrush"] as SolidColorBrush;
-            }
+                if (rowBrush is null)
+                {
+                    App.Log?.LogError("❌ OnContainerContentChanging: recurso {brushKey} no encontrado (ItemIndex={index}, InRecycleQueue={recycle})",
+                        brushKey, args.ItemIndex, args.InRecycleQueue);
+                    return;
+                }
 
-            // Log para debug (solo en modo Debug)
-#if DEBUG
-            if (args.ItemIndex < 10)
-            {
-                App.Log?.LogDebug("🎨 Zebra: ItemIndex={index}, IsEven={isEven}, Background={bg}", 
-                    args.ItemIndex, isEvenRow, isEvenRow ? "Transparent" : "Turquesa");
+                container.Background = rowBrush;
+
+                var currentCount = Interlocked.Increment(ref _containerLogCounter);
+                if (currentCount <= 40)
+                {
+                    var itemType = args.Item?.GetType().FullName ?? "<null>";
+                    App.Log?.LogDebug("🧩 ContainerContentChanging #{count}: ItemIndex={index}, InRecycleQueue={recycle}, ItemType={itemType}, Phase={phase}",
+                        currentCount, args.ItemIndex, args.InRecycleQueue, itemType, args.Phase);
+                }
             }
-#endif
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Excepción en OnContainerContentChanging (ItemIndex={index}, InRecycleQueue={recycle}, Phase={phase})",
+                args.ItemIndex, args.InRecycleQueue, args.Phase);
+            throw;
         }
     }
 
@@ -198,7 +240,7 @@ public sealed partial class DiarioPage : Page
             // 🔧 FIX: Limpiar colecciones
             Partes.Clear();
             _cache30dias.Clear();
-            _allFilteredPartes.Clear();
+            ResetHistoryState();
             
             // 🔧 FIX: Limpiar servicio de partes
             _partesService = null;
@@ -213,6 +255,7 @@ public sealed partial class DiarioPage : Page
 
     private void InitializeIcons()
     {
+        UpdateThemeToggleIcon();
         App.Log?.LogDebug("Iconos de DiarioPage inicializados (referenciando IconHelper)");
     }
 
@@ -261,7 +304,7 @@ public sealed partial class DiarioPage : Page
 
         // F5 - Refrescar
         var accelRefrescar = new KeyboardAccelerator { Key = Windows.System.VirtualKey.F5 };
-        accelRefrescar.Invoked += async (s, e) => { await LoadPartesAsync(); e.Handled = true; };
+        accelRefrescar.Invoked += async (s, e) => { await LoadPartesAsync(reset: true); e.Handled = true; };
         this.KeyboardAccelerators.Add(accelRefrescar);
 
         // ❌ ELIMINADO: F12 - Configuración (botón removido del UI)
@@ -348,9 +391,6 @@ public sealed partial class DiarioPage : Page
         {
             App.Log?.LogInformation("DiarioPage Loaded ✅");
 
-            // 🧪 TEST TEMPORAL: Mostrar notificación al cargar
-            App.Notifications?.ShowSuccess("Sistema funcionando correctamente", title: "✅ DiarioPage Cargado");
-
             // Inicializar tema y assets
             UpdateThemeAssets(this.RequestedTheme);
 
@@ -391,20 +431,13 @@ public sealed partial class DiarioPage : Page
                 ViewModel.DisplayPhone = "";
             }
 
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = new Duration(TimeSpan.FromMilliseconds(500)),
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-            };
+            // GT-BEGIN: Aislamiento de transición inicial para evitar crash WinUI nativo
+            if (RootGrid != null)
+                RootGrid.Opacity = 1;
+            // GT-END
 
-            Storyboard.SetTarget(fadeIn, RootGrid);
-            Storyboard.SetTargetProperty(fadeIn, "Opacity");
-
-            var storyboard = new Storyboard();
-            storyboard.Children.Add(fadeIn);
-            storyboard.Begin();
+            UpdateWeekLabel();
+            await InitializeAgentFilterAsync();
 
             // 🆕 NUEVO: Cargar datos y DESPUÉS habilitar el evento de fecha
             await LoadPartesAsync();
@@ -412,6 +445,26 @@ public sealed partial class DiarioPage : Page
             // Habilitar el evento de cambio de fecha DESPUÉS de la carga inicial
             _isInitialLoad = false;
             App.Log?.LogDebug("✅ Carga inicial completada - Evento de fecha habilitado");
+
+            // 🧪 DIAG: Al haber omitido el render inicial, forzar repintado cuando la UI ya está estable
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                App.Log?.LogDebug("🧪 DIAG: Reaplicando filtro tras fin de carga inicial para poblar ListView");
+                ApplyFilterToListView();
+            });
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                App.Log?.LogDebug("✅ DiarioPage post-load en DispatcherQueue (UI estable)");
+            });
+
+            _ = Task.Delay(150).ContinueWith(_ =>
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    App.Log?.LogDebug("✅ DiarioPage post-load +150ms en hilo UI");
+                });
+            });
         }
         catch (Exception ex)
         {
@@ -419,55 +472,136 @@ public sealed partial class DiarioPage : Page
         }
     }
 
-    private async Task LoadPartesAsync()
+    private async Task LoadPartesAsync(bool reset = true)
     {
-        // 🆕 NUEVO: Protección contra llamadas concurrentes
-        if (_isLoading)
+        if (reset)
         {
-            App.Log?.LogDebug("⚠️ Carga ya en proceso, ignorando nueva petición");
-            return;
-        }
-
-        _isLoading = true;
-
-        try
-        {
-            // 🔒 Cancelar cualquier carga previa
             _loadCts?.Cancel();
             _loadCts?.Dispose();
             _loadCts = new CancellationTokenSource();
-            var ct = _loadCts.Token;
+            ResetHistoryState();
+            LvPartes.SelectedItem = null;
+            Partes.Clear();
+            _cache30dias.Clear();
+        }
+        else if (_isLoadingMore || !_hasMoreItems)
+        {
+            return;
+        }
 
-            var selectedDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
+        var ct = _loadCts?.Token ?? CancellationToken.None;
+        var queryVersion = ++_activeQueryVersion;
+        _anchorDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
+        _activeSearch = (TxtFiltroQ.Text ?? string.Empty).Trim();
+        UpdateWeekLabel();
 
-            // 🆕 MODIFICADO: Determinar si es carga inicial (HOY sin cambios) o filtro específico
-            var isToday = selectedDate.Date == DateTime.Today;
+        if (reset)
+            _isLoading = true;
+        else
+            _isLoadingMore = true;
 
+        UpdatePaginationUI();
+
+        try
+        {
             using var loadScope = PerformanceLogger.BeginScope(SpecializedLoggers.Data, "LoadPartes",
-                new { IsInitialLoad = _isInitialLoad, SelectedDate = selectedDate });
+                new { AnchorDate = _anchorDate, Offset = _historyOffset, Search = _activeSearch, ReadOnly = IsReadOnlyAgentView });
 
-            SpecializedLoggers.Data.LogInformation("══════════════════════════════════════════════════════════════─");
-            SpecializedLoggers.Data.LogInformation("📥 CARGA DE PARTES");
+            Guid? requestedAgentId = null;
+            if (IsAdminSession &&
+                _selectedAgentFilter != null &&
+                !_selectedAgentFilter.IsSelf &&
+                _selectedAgentFilter.Id != Guid.Empty &&
+                _selectedAgentFilter.Id != AuthenticatedUserId)
+            {
+                requestedAgentId = _selectedAgentFilter.Id;
+            }
 
-            if (_isInitialLoad && isToday)
+            var searchPreview = _activeSearch.Length <= 40 ? _activeSearch : _activeSearch[..40] + "…";
+            SpecializedLoggers.Data.LogInformation(
+                "📥 Carga de partes: scope={scope}, targetAgentId={agent}, fechaFin={date}, limit={limit}, offset={offset}, q='{q}'",
+                requestedAgentId.HasValue ? "other-agent" : "self",
+                requestedAgentId,
+                _anchorDate.ToString("yyyy-MM-dd"),
+                HistoryPageSize,
+                _historyOffset,
+                searchPreview);
+
+            var page = await PartesService.ListAsync(
+                fechaFin: _anchorDate,
+                search: string.IsNullOrWhiteSpace(_activeSearch) ? null : _activeSearch,
+                limit: HistoryPageSize,
+                offset: _historyOffset,
+                agentId: requestedAgentId,
+                ct: ct) ?? new List<ParteDto>();
+
+            if (ct.IsCancellationRequested || queryVersion != _activeQueryVersion)
+                return;
+
+            var ordered = page
+                .Where(p => p.Fecha.Date <= _anchorDate.Date)
+                .GroupBy(p => p.Id)
+                .Select(g => g.First())
+                .OrderByDescending(p => p.Fecha)
+                .ThenByDescending(p => DiarioPageHelpers.ParseTime(p.HoraInicio))
+                .ThenByDescending(p => p.Id)
+                .ToList();
+
+            var added = 0;
+            foreach (var parte in ordered)
             {
-                // 🆕 NUEVO: Carga inicial - Últimos 25 partes sin filtro de fecha
-                SpecializedLoggers.Data.LogInformation("   • Tipo: CARGA INICIAL - Últimos 25 partes (sin filtro de fecha)");
-                SpecializedLoggers.Data.LogInformation("   • Orden: Fecha descendente (más recientes primero)");
-                
-                await LoadPartesWithLimitAsync(limit: 25, ct);
+                if (!_loadedParteIds.Add(parte.Id))
+                    continue;
+                _cache30dias.Add(parte);
+                added++;
             }
-            else
+
+            _batchSizes.Add(added);
+            _loadedBatchCount = _batchSizes.Count;
+            _historyOffset += page.Count;
+            _hasMoreItems = page.Count >= HistoryPageSize;
+
+            if (!reset && page.Count == 0)
             {
-                // 🆕 CORREGIDO: Fecha específica (incluyendo HOY cuando se selecciona manualmente)
-                SpecializedLoggers.Data.LogInformation("   • Tipo: FECHA ESPECÍFICA - {date}", selectedDate.ToString("yyyy-MM-dd"));
-                
-                await LoadPartesByDateAsync(selectedDate, ct);
+                _hasMoreItems = false;
+                App.Notifications?.ShowInfo("No hay más registros anteriores.", title: "Historial");
             }
+
+            ApplyFilterToListView();
+            UpdateMutationUiState();
         }
         catch (OperationCanceledException)
         {
             SpecializedLoggers.Data.LogInformation("Carga de partes cancelada por el usuario.");
+        }
+        catch (ApiException apiEx)
+        {
+            SpecializedLoggers.Data.LogWarning("HTTP {code} cargando partes (sin fallback al usuario autenticado)", (int)apiEx.StatusCode);
+            _hasMoreItems = false;
+            UpdateMutationUiState();
+
+            if (apiEx.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                App.Notifications?.ShowWarning(
+                    "No tienes autorización para consultar los partes de este agente",
+                    title: "Acceso denegado");
+            }
+            else if (apiEx.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                App.Notifications?.ShowWarning(
+                    "El agente seleccionado no es válido",
+                    title: "Consulta inválida");
+            }
+            else if (apiEx.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw;
+            }
+            else
+            {
+                App.Notifications?.ShowError(
+                    "No se pudieron cargar los partes. Inténtalo de nuevo.",
+                    title: "Error de carga");
+            }
         }
         catch (Exception ex)
         {
@@ -476,8 +610,20 @@ public sealed partial class DiarioPage : Page
         }
         finally
         {
-            _isLoading = false; // 🆕 NUEVO: Liberar flag
+            _isLoading = false;
+            _isLoadingMore = false;
+            UpdatePaginationUI();
         }
+    }
+
+    private void ResetHistoryState()
+    {
+        _historyOffset = 0;
+        _loadedBatchCount = 0;
+        _hasMoreItems = false;
+        _isLoadingMore = false;
+        _batchSizes.Clear();
+        _loadedParteIds.Clear();
     }
 
     /// <summary>
@@ -892,91 +1038,94 @@ public sealed partial class DiarioPage : Page
 
         query = query
             .OrderByDescending(p => p.Fecha)
-            .ThenByDescending(p => DiarioPageHelpers.ParseTime(p.HoraInicio));
+            .ThenByDescending(p => DiarioPageHelpers.ParseTime(p.HoraInicio))
+            .ThenByDescending(p => p.Id);
 
-        // 🆕 PAGINACIÓN: Guardar todos los resultados filtrados
-        _allFilteredPartes = query.ToList();
-        
-        // 🆕 PAGINACIÓN: Calcular total de páginas
-        _totalPages = (_allFilteredPartes.Count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
-        if (_totalPages < 1) _totalPages = 1;
-        
-        // 🆕 PAGINACIÓN: Ajustar página actual si está fuera de rango
-        if (_currentPage > _totalPages) _currentPage = _totalPages;
-        if (_currentPage < 1) _currentPage = 1;
-        
-        // 🆕 PAGINACIÓN: Obtener solo los items de la página actual
-        var pagedItems = _allFilteredPartes
-            .Skip((_currentPage - 1) * ITEMS_PER_PAGE)
-            .Take(ITEMS_PER_PAGE);
+        var visibleItems = query.ToList();
+        SyncVisiblePartes(visibleItems);
 
-        Partes.Clear();
-        foreach (var p in pagedItems)
-            Partes.Add(p);
-        
-        // 🐛 DEBUG TEMPORAL
-        System.Diagnostics.Debug.WriteLine($"Total filtrados: {_allFilteredPartes.Count}");
-        System.Diagnostics.Debug.WriteLine($"Página actual: {_currentPage}/{_totalPages}");
-        System.Diagnostics.Debug.WriteLine($"Mostrando: {Partes.Count} items");
-        System.Diagnostics.Debug.WriteLine($"═══════════════════════════");
+        App.Log?.LogInformation("Historial visible q='{q}'. Mostrando: {count}, bloques={batches}, hasMore={hasMore}",
+            q, Partes.Count, _loadedBatchCount, _hasMoreItems);
 
-        App.Log?.LogInformation("Filtro aplicado q='{q}'. Total: {total}, Página: {page}/{totalPages}, Mostrando: {count}",
-            q, _allFilteredPartes.Count, _currentPage, _totalPages, Partes.Count);
-
-        // Log de estados en la lista final
-        var estadosEnLista = Partes.GroupBy(p => p.EstadoTexto).Select(g => $"{g.Key}:{g.Count()}");
-        App.Log?.LogInformation("📊 Estados en ListView: {estados}", string.Join(", ", estadosEnLista));
-
-        // 🆕 NUEVO: Actualizar tooltip de cobertura de tiempo
         UpdateTimeCoverageTooltip();
-        
-        // 🆕 PAGINACIÓN: Actualizar UI de paginación (si existe)
         UpdatePaginationUI();
     }
-    
-    /// <summary>
-    /// 🆕 PAGINACIÓN: Actualiza la UI de paginación (botones, labels, etc.)
-    /// </summary>
+
+    private void SyncVisiblePartes(List<ParteDto> visibleItems)
+    {
+        var visibleIds = visibleItems.Select(p => p.Id).ToHashSet();
+        for (var i = Partes.Count - 1; i >= 0; i--)
+        {
+            if (!visibleIds.Contains(Partes[i].Id))
+                Partes.RemoveAt(i);
+        }
+
+        var currentIds = Partes.Select(p => p.Id).ToHashSet();
+        foreach (var parte in visibleItems)
+        {
+            if (currentIds.Add(parte.Id))
+                Partes.Add(parte);
+        }
+    }
+
+    /// <summary>Actualiza la visibilidad de ChevronUp/ChevronDown sin números de página.</summary>
     private void UpdatePaginationUI()
     {
-        // TODO: Implementar botones Previous/Next/Page numbers en el XAML
-        // Por ahora solo logueamos
-        App.Log?.LogDebug("📄 Paginación: {current}/{total} páginas", _currentPage, _totalPages);
+        var showLess = _loadedBatchCount > 1 ? Visibility.Visible : Visibility.Collapsed;
+        var showMore = _hasMoreItems ? Visibility.Visible : Visibility.Collapsed;
+
+        if (PnlShowLessHistory != null)
+            PnlShowLessHistory.Visibility = showLess;
+        if (BtnShowLessHistory != null)
+            BtnShowLessHistory.Visibility = showLess;
+
+        if (PnlLoadMoreHistory != null)
+            PnlLoadMoreHistory.Visibility = showMore;
+        if (BtnLoadMoreHistory != null)
+        {
+            BtnLoadMoreHistory.Visibility = showMore;
+            BtnLoadMoreHistory.IsEnabled = !_isLoadingMore;
+        }
+
+        if (IconLoadMoreHistory != null)
+            IconLoadMoreHistory.Visibility = _isLoadingMore ? Visibility.Collapsed : Visibility.Visible;
+
+        if (RingLoadMoreHistory != null)
+        {
+            RingLoadMoreHistory.Visibility = _isLoadingMore ? Visibility.Visible : Visibility.Collapsed;
+            RingLoadMoreHistory.IsActive = _isLoadingMore;
+        }
     }
-    
-    /// <summary>
-    /// 🆕 PAGINACIÓN: Navegar a una página específica
-    /// </summary>
-    private void GoToPage(int pageNumber)
+
+    private async void OnLoadMoreHistoryClick(object sender, RoutedEventArgs e)
     {
-        if (pageNumber < 1 || pageNumber > _totalPages) return;
-        
-        _currentPage = pageNumber;
+        if (_isLoadingMore || !_hasMoreItems)
+            return;
+
+        await LoadPartesAsync(reset: false);
+    }
+
+    private void OnShowLessHistoryClick(object sender, RoutedEventArgs e)
+    {
+        if (_loadedBatchCount <= 1 || _batchSizes.Count <= 1)
+            return;
+
+        var lastBatchSize = _batchSizes[^1];
+        _batchSizes.RemoveAt(_batchSizes.Count - 1);
+        _loadedBatchCount = _batchSizes.Count;
+        _historyOffset = Math.Max(0, _historyOffset - HistoryPageSize);
+        _hasMoreItems = true;
+
+        if (lastBatchSize > 0 && _cache30dias.Count >= lastBatchSize)
+        {
+            var removed = _cache30dias.GetRange(_cache30dias.Count - lastBatchSize, lastBatchSize);
+            _cache30dias.RemoveRange(_cache30dias.Count - lastBatchSize, lastBatchSize);
+            foreach (var parte in removed)
+                _loadedParteIds.Remove(parte.Id);
+        }
+
         ApplyFilterToListView();
-    }
-    
-    /// <summary>
-    /// 🆕 PAGINACIÓN: Ir a la página siguiente
-    /// </summary>
-    private void NextPage()
-    {
-        if (_currentPage < _totalPages)
-        {
-            _currentPage++;
-            ApplyFilterToListView();
-        }
-    }
-    
-    /// <summary>
-    /// 🆕 PAGINACIÓN: Ir a la página anterior
-    /// </summary>
-    private void PreviousPage()
-    {
-        if (_currentPage > 1)
-        {
-            _currentPage--;
-            ApplyFilterToListView();
-        }
+        UpdatePaginationUI();
     }
 
     // ===================== Filtros =====================
@@ -990,8 +1139,9 @@ public sealed partial class DiarioPage : Page
             return;
         }
 
-        App.Log?.LogInformation("📅 Usuario cambió fecha manualmente - Recargando...");
-        await LoadPartesAsync();
+        App.Log?.LogInformation("📅 Usuario cambió fecha de anclaje - Recargando historial...");
+        UpdateWeekLabel();
+        await LoadPartesAsync(reset: true);
     }
 
     // GT-BEGIN: Búsqueda avanzada con sugerencias y pills
@@ -1002,7 +1152,8 @@ public sealed partial class DiarioPage : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             UpdateFilterSuggestions(sender.Text);
-            // ✅ NO iniciar debounce aquí: causa rebuild de Partes que cierra el dropdown
+            _debounce?.Stop();
+            _debounce?.Start();
         }
     }
 
@@ -1069,8 +1220,7 @@ public sealed partial class DiarioPage : Page
 
                 sender.Text = "";
                 sender.ItemsSource = null;
-                _currentPage = 1;
-                ApplyFilterToListView();
+                _ = LoadPartesAsync(reset: true);
             }
         }
         else
@@ -1080,8 +1230,7 @@ public sealed partial class DiarioPage : Page
             App.Log?.LogDebug("⌨️ Enter sin sugerencia - texto libre: '{text}'", freeText);
 
             sender.ItemsSource = null;
-            _currentPage = 1;
-            ApplyFilterToListView();
+            _ = LoadPartesAsync(reset: true);
         }
     }
 
@@ -1141,8 +1290,7 @@ public sealed partial class DiarioPage : Page
                 var value = tag[(colonIdx + 1)..];
                 _activeFilters.RemoveAll(f => f.Category == category && f.Value == value);
                 RebuildFilterPillsUI();
-                _currentPage = 1;
-                ApplyFilterToListView();
+                _ = LoadPartesAsync(reset: true);
             }
         }
     }
@@ -1182,9 +1330,132 @@ public sealed partial class DiarioPage : Page
 
     private void OnPartesSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        var hasSelection = LvPartes.SelectedItem != null;
+        UpdateMutationUiState();
+    }
+
+    private void UpdateWeekLabel()
+    {
+        var selectedDate = DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today;
+        TxtSemanaIso.Text = IsoWeekRangeHelper.GetWeekLabel(selectedDate);
+        ToolTipService.SetToolTip(TxtSemanaIso, IsoWeekRangeHelper.GetWeekTooltip(selectedDate));
+    }
+
+    private void UpdateMutationUiState()
+    {
+        var canMutate = CanMutateCurrentView;
+        var hasSelection = canMutate && LvPartes.SelectedItem != null;
+        BtnTelefono.IsEnabled = canMutate;
+        BtnNuevo.IsEnabled = canMutate;
         BtnEditar.IsEnabled = hasSelection;
         BtnBorrar.IsEnabled = hasSelection;
+        BtnImportar.IsEnabled = canMutate;
+        BtnExportar.IsEnabled = canMutate;
+
+        BannerReadOnlyAgent.Visibility = IsReadOnlyAgentView ? Visibility.Visible : Visibility.Collapsed;
+        if (IsReadOnlyAgentView)
+            TxtReadOnlyAgent.Text = $"Modo solo lectura: viendo los partes de {_selectedAgentFilter?.FullName}";
+    }
+
+    private bool EnsureCanMutate()
+    {
+        if (CanMutateCurrentView)
+            return true;
+
+        App.Notifications?.ShowWarning(
+            "Estás viendo los datos de otro agente en modo solo lectura",
+            title: "👁️ Solo lectura");
+        return false;
+    }
+
+    private async Task InitializeAgentFilterAsync()
+    {
+        var session = App.CurrentAuthenticatedUser;
+        if (session?.IsAdmin != true)
+        {
+            PnlAgenteFiltro.Visibility = Visibility.Collapsed;
+            _selectedAgentFilter = null;
+            UpdateMutationUiState();
+            return;
+        }
+
+        PnlAgenteFiltro.Visibility = Visibility.Visible;
+        _availableAgents.Clear();
+
+        try
+        {
+            var page = 1;
+            var pageSize = 200;
+            var totalPages = 1;
+            do
+            {
+                var response = await App.Api.GetAsync<UsersPagedResponse>($"/api/v1/users?page={page}&pageSize={pageSize}");
+                if (response?.Users == null || response.Users.Count == 0)
+                    break;
+
+                foreach (var user in response.Users.Where(u => u.Enabled))
+                {
+                    _availableAgents.Add(new AgentFilterItem
+                    {
+                        Id = user.Id,
+                        FullName = string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName,
+                        Email = user.Email,
+                        IsSelf = session.UserId == user.Id
+                    });
+                }
+
+                totalPages = Math.Max(response.TotalPages, 1);
+                page++;
+            } while (page <= totalPages);
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "❌ Error cargando agentes para DiarioPage");
+        }
+
+        _availableAgents.Sort((a, b) =>
+        {
+            var byName = string.Compare(a.FullName, b.FullName, StringComparison.CurrentCultureIgnoreCase);
+            return byName != 0 ? byName : string.Compare(a.Email, b.Email, StringComparison.OrdinalIgnoreCase);
+        });
+
+        if (session.UserId != Guid.Empty && _availableAgents.All(a => a.Id != session.UserId))
+        {
+            _availableAgents.Insert(0, new AgentFilterItem
+            {
+                Id = session.UserId,
+                FullName = session.FullName,
+                Email = session.Email,
+                IsSelf = true
+            });
+        }
+
+        _isUpdatingAgentCombo = true;
+        CmbAgenteFiltro.ItemsSource = _availableAgents;
+        _selectedAgentFilter = _availableAgents.FirstOrDefault(a => a.IsSelf) ?? _availableAgents.FirstOrDefault();
+        CmbAgenteFiltro.SelectedItem = _selectedAgentFilter;
+        ToolTipService.SetToolTip(CmbAgenteFiltro, _selectedAgentFilter?.Display);
+        _isUpdatingAgentCombo = false;
+        UpdateMutationUiState();
+    }
+
+    private async void OnAgenteFiltroChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isUpdatingAgentCombo || _isInitialLoad)
+            return;
+
+        _selectedAgentFilter = CmbAgenteFiltro.SelectedItem as AgentFilterItem;
+        ToolTipService.SetToolTip(CmbAgenteFiltro, _selectedAgentFilter?.Display);
+        UpdateMutationUiState();
+        await LoadPartesAsync();
+    }
+
+    private sealed class AgentFilterItem
+    {
+        public Guid Id { get; init; }
+        public string FullName { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
+        public bool IsSelf { get; init; }
+        public string Display => $"{FullName} ({Email})";
     }
 
     // ===================== Theme =====================
@@ -1200,6 +1471,7 @@ public sealed partial class DiarioPage : Page
 
         // Actualizar logo y fondo según el tema
         UpdateThemeAssets(theme);
+        UpdateThemeToggleIcon();
 
         App.Log?.LogInformation("🎨 DiarioPage - Tema cambiado a: {theme} (guardado en configuración)", theme);
     }
@@ -1211,6 +1483,22 @@ public sealed partial class DiarioPage : Page
     {
         var currentTheme = ThemeService.Instance.CurrentTheme;
         // Nota: Los items de tema fueron eliminados del menú
+    }
+
+    private void OnToggleThemeClick(object sender, RoutedEventArgs e)
+    {
+        var nextTheme = ThemeService.Instance.GetEffectiveTheme() == ElementTheme.Dark
+            ? ElementTheme.Light
+            : ElementTheme.Dark;
+
+        SetTheme(nextTheme);
+    }
+
+    private void UpdateThemeToggleIcon()
+    {
+        var isDark = ThemeService.Instance.GetEffectiveTheme() == ElementTheme.Dark;
+        IconThemeDiario.Glyph = isDark ? "\uE708" : "\uE706";
+        ToolTipService.SetToolTip(BtnThemeDiario, isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro");
     }
 
     private void UpdateThemeAssets(ElementTheme theme)
@@ -1244,10 +1532,10 @@ public sealed partial class DiarioPage : Page
             LogoImageBanner.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
                 new Uri("ms-appx:///Assets/LogoClaro.png"));
 
-            // Fondo claro: imagen muy sutil (casi transparente)
+            // Fondo claro: la textura clara cubre completamente el fondo visual.
             BackgroundImageBrush.ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
-                new Uri("ms-appx:///Assets/Diario_bg_claro.png"));
-            BackgroundImageBrush.Opacity = 0.15;
+                new Uri("ms-appx:///Assets/diario_bg_claro.png"));
+            BackgroundImageBrush.Opacity = 0.95;
         }
 
         App.Log?.LogDebug("Tema actualizado: {theme} (efectivo: {effective})", theme, effectiveTheme);
@@ -1308,6 +1596,9 @@ public sealed partial class DiarioPage : Page
 
     private async Task OpenParteEditorAsync(ParteDto? parte, string title)
     {
+        if (!EnsureCanMutate())
+            return;
+
         var window = new Microsoft.UI.Xaml.Window { Title = title };
         var editPage = new ParteItemEdit();
 
@@ -1467,6 +1758,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnNuevo(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         try
         {
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
@@ -1514,6 +1808,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnNuevaLlamada(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         try
         {
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
@@ -1551,6 +1848,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnEditar(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (LvPartes.SelectedItem is not ParteDto parte)
         {
             await ShowInfoAsync("⚠️ Selecciona un parte para editar.");
@@ -1571,6 +1871,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnImportarExcel(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         try
         {
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
@@ -1663,245 +1966,148 @@ public sealed partial class DiarioPage : Page
 
     private async void OnExportarExcel(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (ViewModel.IsBusy)
         {
             App.Log?.LogWarning("⚠️ Exportación ya en proceso, ignorando nueva petición");
             return;
         }
 
-        List<ParteDto>? allPartes = null;
-
+        CancellationTokenSource? cts = null;
         try
         {
-            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
             App.Log?.LogInformation("📊 EXPORTAR A EXCEL - Iniciando proceso");
-            
-            // ✅ NUEVO: Mostrar loader mientras carga historial completo
-            ViewModel.IsBusy = true;
-            LoadingOverlay.Visibility = Visibility.Visible;
-            LoadingRing.IsActive = true;
-            
-            App.Log?.LogInformation("📥 Cargando historial completo para exportación...");
-            
-            // ✅ NUEVO: Cargar TODO el historial sin límite (sin filtro de fechas)
-            var partesService = new Services.Catalog.PartesService(App.Api, App.Log!);
-            allPartes = await partesService.ListAsync(
-                fecha: null,
-                fechaInicio: null,
-                fechaFin: null,
-                search: null,
-                estado: null,
-                idCliente: null,
-                idTipo: null,
-                idGrupo: null,
-                limit: 10000,  // Límite alto para cargar todo el historial
-                offset: 0
-            );
-            
-            if (allPartes == null || !allPartes.Any())
-            {
-                App.Log?.LogWarning("⚠️ No hay datos disponibles para exportar");
-                App.Notifications?.ShowWarning(
-                    "No hay partes disponibles para exportar.",
-                    title: "⚠️ Sin Datos");
-                
-                ViewModel.IsBusy = false;
-                LoadingRing.IsActive = false;
-                LoadingOverlay.Visibility = Visibility.Collapsed;
-                return;
-            }
-            
-            App.Log?.LogInformation("✅ Historial cargado: {count} partes totales", allPartes.Count);
-            App.Log?.LogInformation("   • Rango de fechas: {min} a {max}", 
-                allPartes.Min(p => p.Fecha).ToString("yyyy-MM-dd"),
-                allPartes.Max(p => p.Fecha).ToString("yyyy-MM-dd"));
-            
-            // ✅ Calcular semanas desde TODO el historial
-            var weeks = CalculateAvailableWeeks(new ObservableCollection<ParteDto>(allPartes));
-            
-            if (!weeks.Any())
-            {
-                App.Log?.LogWarning("⚠️ No se pudieron calcular semanas");
-                App.Notifications?.ShowWarning(
-                    "No se pudieron calcular semanas disponibles.",
-                    title: "⚠️ Error");
-                
-                ViewModel.IsBusy = false;
-                LoadingRing.IsActive = false;
-                LoadingOverlay.Visibility = Visibility.Collapsed;
-                return;
-            }
-            
-            App.Log?.LogInformation("📅 Semanas disponibles: {count}", weeks.Count);
-            
-            // ✅ Ocultar loader antes de mostrar diálogo
-            ViewModel.IsBusy = false;
-            LoadingRing.IsActive = false;
-            LoadingOverlay.Visibility = Visibility.Collapsed;
-            
-            // Paso 2: Calcular conteo de registros por semana desde TODO el historial
-            var recordCounts = CalculateRecordCountsByWeek(
-                new ObservableCollection<ParteDto>(allPartes), weeks);
-            
-            // Paso 3: Mostrar diálogo de selección de semana con TODAS las semanas
+
             var dialog = new ExportWeekDialog
             {
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                RequestedTheme = ThemeService.Instance.CurrentTheme
             };
-            
-            dialog.SetWeeks(weeks, recordCounts);
-            
+
             var result = await dialog.ShowAsync();
-            
-            if (result != ContentDialogResult.Primary || dialog.SelectedWeek == null)
+            if (result != ContentDialogResult.Primary || !dialog.IsRangeValid)
             {
                 App.Log?.LogInformation("❌ Usuario canceló la exportación");
                 return;
             }
-            
-            var selectedWeek = dialog.SelectedWeek;
-            App.Log?.LogInformation("✅ Semana seleccionada: {week} (Año: {year}, Semana: {num})",
-                selectedWeek.DisplayText, selectedWeek.Year, selectedWeek.WeekNumber);
-            
-            // Paso 4: Filtrar partes por semana seleccionada desde TODO el historial
-            var partesToExport = allPartes
-                .Where(p => System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha) == selectedWeek.WeekNumber &&
-                           System.Globalization.ISOWeek.GetYear(p.Fecha) == selectedWeek.Year)
-                .OrderBy(p => p.Fecha)
-                .ThenBy(p => p.HoraInicio)
-                .ToList();
-            
-            App.Log?.LogInformation("📊 Registros a exportar: {count}", partesToExport.Count);
-            
-            if (!partesToExport.Any())
+
+            var request = dialog.ToRequest();
+            var destination = await PickExportDestinationAsync(request);
+            if (string.IsNullOrWhiteSpace(destination))
             {
-                App.Log?.LogWarning("⚠️ No hay registros en la semana seleccionada");
-                App.Notifications?.ShowWarning(
-                    "La semana seleccionada no tiene registros para exportar.",
-                    title: "⚠️ Sin Registros");
+                App.Log?.LogInformation("❌ Usuario canceló la selección de destino");
                 return;
             }
-            
-            // Paso 5: Solicitar ubicación de guardado
-            var savePicker = new Windows.Storage.Pickers.FileSavePicker
-            {
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = $"GestionTime_Semana_{selectedWeek.Year}_{selectedWeek.WeekNumber:D2}"
-            };
-            
-            savePicker.FileTypeChoices.Add("Excel Workbook", new List<string> { ".xlsx" });
-            
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance);
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hWnd);
-            
-            var file = await savePicker.PickSaveFileAsync();
-            
-            if (file == null)
-            {
-                App.Log?.LogInformation("❌ Usuario canceló la selección de archivo");
-                return;
-            }
-            
-            App.Log?.LogInformation("📁 Archivo destino: {path}", file.Path);
-            
-            // Paso 6: Exportar (con loader)
+
             ViewModel.IsBusy = true;
             LoadingOverlay.Visibility = Visibility.Visible;
             LoadingRing.IsActive = true;
-            
-            App.Log?.LogInformation("📤 Iniciando exportación...");
-            
-            var exportService = new Services.Export.ExcelExportService();
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-            
-            await exportService.ExportAsync(partesToExport, file.Path, cts.Token);
-            
-            App.Log?.LogInformation("✅ Exportación completada exitosamente");
-            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");
-            
-            // Notificar éxito
-            App.Notifications?.ShowSuccess(
-                $"Se exportaron {partesToExport.Count} registros de la {selectedWeek.DisplayText}",
-                title: "✅ Exportación Exitosa");
+            cts = new CancellationTokenSource();
+
+            App.Log?.LogInformation("📥 Cargando partes {from} a {to}",
+                request.EffectiveMonday.ToString("yyyy-MM-dd"),
+                request.EffectiveSunday.ToString("yyyy-MM-dd"));
+
+            var partes = await PartesService.ListRangePagedAsync(
+                request.EffectiveMonday,
+                request.EffectiveSunday,
+                pageSize: 500,
+                ct: cts.Token);
+
+            if (partes.Count == 0)
+            {
+                App.Notifications?.ShowWarning(
+                    "No hay partes en el rango seleccionado.",
+                    title: "⚠️ Sin Datos");
+                return;
+            }
+
+            var rangeService = new ExcelRangeExportService(new ExcelExportService());
+            var exportResult = await rangeService.ExportRangeAsync(partes, request, destination, cts.Token);
+            NotifyExportResult(exportResult);
         }
         catch (OperationCanceledException)
         {
-            App.Log?.LogWarning("⚠️ Exportación cancelada por timeout o usuario");
-            App.Notifications?.ShowWarning(
-                "La exportación fue cancelada.",
-                title: "⚠️ Cancelado");
+            App.Log?.LogWarning("⚠️ Exportación cancelada");
+            App.Notifications?.ShowWarning("La exportación fue cancelada.", title: "⚠️ Cancelado");
         }
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "❌ Error durante la exportación");
-            App.Notifications?.ShowError(
-                $"Error: {ex.Message}",
-                title: "❌ Error de Exportación");
+            App.Notifications?.ShowError($"Error: {ex.Message}", title: "❌ Error de Exportación");
         }
         finally
         {
+            cts?.Dispose();
             ViewModel.IsBusy = false;
             LoadingRing.IsActive = false;
             LoadingOverlay.Visibility = Visibility.Collapsed;
-            App.Log?.LogInformation("🔄 Exportación finalizada - Loader ocultado");
         }
     }
 
-    /// <summary>Calcula las semanas disponibles desde los partes cargados.</summary>
-    private List<Models.Export.WeekOption> CalculateAvailableWeeks(ObservableCollection<ParteDto> partes)
+    /// <summary>Solicita archivo o carpeta de destino según el modo de exportación.</summary>
+    private async Task<string?> PickExportDestinationAsync(ExportRangeRequest request)
     {
-        if (!partes.Any())
-            return new List<Models.Export.WeekOption>();
-        
-        var weekGroups = partes
-            .GroupBy(p => new
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance);
+
+        if (request.Mode == ExportMode.Unified)
+        {
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker
             {
-                Year = System.Globalization.ISOWeek.GetYear(p.Fecha),
-                Week = System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha)
-            })
-            .OrderByDescending(g => g.Key.Year)
-            .ThenByDescending(g => g.Key.Week)
-            .ToList();
-        
-        var weeks = new List<Models.Export.WeekOption>();
-        
-        foreach (var group in weekGroups)
-        {
-            var startDate = System.Globalization.ISOWeek.ToDateTime(group.Key.Year, group.Key.Week, DayOfWeek.Monday);
-            var endDate = startDate.AddDays(6);
-            
-            weeks.Add(new Models.Export.WeekOption(
-                group.Key.Year,
-                group.Key.Week,
-                startDate,
-                endDate
-            ));
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = $"GestionTime_Desde_{request.EffectiveMonday:yyyy-MM-dd}_Hasta_{request.EffectiveSunday:yyyy-MM-dd}"
+            };
+            savePicker.FileTypeChoices.Add("Excel Workbook", new List<string> { ".xlsx" });
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hWnd);
+            var file = await savePicker.PickSaveFileAsync();
+            return file?.Path;
         }
-        
-        return weeks;
+
+        var folderPicker = new Windows.Storage.Pickers.FolderPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            ViewMode = Windows.Storage.Pickers.PickerViewMode.List
+        };
+        folderPicker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
+        var folder = await folderPicker.PickSingleFolderAsync();
+        return folder?.Path;
     }
 
-    /// <summary>Calcula el conteo de registros por cada semana.</summary>
-    private Dictionary<Models.Export.WeekOption, int> CalculateRecordCountsByWeek(
-        ObservableCollection<ParteDto> partes,
-        List<Models.Export.WeekOption> weeks)
+    /// <summary>Muestra el resumen de éxito o el fallo parcial de la exportación.</summary>
+    private static void NotifyExportResult(ExportRangeResult exportResult)
     {
-        var counts = new Dictionary<Models.Export.WeekOption, int>();
-        
-        foreach (var week in weeks)
+        var files = string.Join(", ", exportResult.GeneratedFiles.Select(System.IO.Path.GetFileName));
+        var emptyWeeks = exportResult.WeeksWithoutRecords > 0
+            ? $" Semanas sin registros: {exportResult.WeeksWithoutRecords}."
+            : string.Empty;
+
+        if (!exportResult.IsSuccess)
         {
-            var count = partes.Count(p =>
-                System.Globalization.ISOWeek.GetWeekOfYear(p.Fecha) == week.WeekNumber &&
-                System.Globalization.ISOWeek.GetYear(p.Fecha) == week.Year);
-            
-            counts[week] = count;
+            App.Log?.LogWarning("⚠️ Exportación parcial: creados {count}, falló {failed}",
+                exportResult.GeneratedFiles.Count, exportResult.FailedFile);
+            App.Notifications?.ShowError(
+                $"Se crearon {exportResult.GeneratedFiles.Count} archivo(s) ({files}). Falló: {System.IO.Path.GetFileName(exportResult.FailedFile)}. {exportResult.ErrorMessage}",
+                title: "❌ Exportación incompleta");
+            return;
         }
-        
-        return counts;
+
+        App.Log?.LogInformation("✅ Exportación: {records} registros, {files} archivos, rango {from}-{to}",
+            exportResult.TotalRecords, exportResult.GeneratedFiles.Count,
+            exportResult.EffectiveMonday.ToString("yyyy-MM-dd"),
+            exportResult.EffectiveSunday.ToString("yyyy-MM-dd"));
+        App.Notifications?.ShowSuccess(
+            $"{exportResult.TotalRecords} registros. Rango {exportResult.EffectiveMonday:dd/MM/yyyy} a {exportResult.EffectiveSunday:dd/MM/yyyy}. Semanas procesadas: {exportResult.WeeksProcessed}. Archivos: {exportResult.GeneratedFiles.Count} ({files}). Destino: {exportResult.Destination}.{emptyWeeks}",
+            title: "✅ Exportación Exitosa");
     }
 
     private async void OnBorrar(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (LvPartes.SelectedItem is not ParteDto parte)
         {
             await ShowInfoAsync("⚠️ Selecciona un parte para borrar.");
@@ -1915,7 +2121,8 @@ public sealed partial class DiarioPage : Page
             PrimaryButtonText = "Eliminar definitivamente",
             CloseButtonText = "Cancelar",
             DefaultButton = ContentDialogButton.Close,
-            XamlRoot = XamlRoot
+            XamlRoot = XamlRoot,
+            RequestedTheme = ThemeService.Instance.CurrentTheme
         };
 
         var result = await confirmDialog.ShowAsync();
@@ -2015,6 +2222,9 @@ public sealed partial class DiarioPage : Page
 
     private async Task ClosePartesAbiertosAsync(List<ParteDto> abiertos, string horaFin)
     {
+        if (!EnsureCanMutate())
+            return;
+
         try
         {
             foreach (var parte in abiertos)
@@ -2080,6 +2290,15 @@ public sealed partial class DiarioPage : Page
     {
         try
         {
+            if (!IsLoaded || XamlRoot == null)
+                return;
+
+            if (!DispatcherQueue.HasThreadAccess)
+            {
+                DispatcherQueue.TryEnqueue(UpdateTimeCoverageTooltip);
+                return;
+            }
+
             var partesConTiempo = Partes
                 .Where(p => !string.IsNullOrWhiteSpace(p.HoraInicio))
                 .ToList();
@@ -2137,6 +2356,15 @@ public sealed partial class DiarioPage : Page
     {
         try
         {
+            if (!IsLoaded || XamlRoot == null)
+                return;
+
+            if (!DispatcherQueue.HasThreadAccess)
+            {
+                DispatcherQueue.TryEnqueue(() => UpdateDuracionHeaderTooltip(coverage, totalPartes));
+                return;
+            }
+
             if (DuracionHeader == null)
                 return;
             
@@ -2159,6 +2387,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnPausarClick(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (sender is not MenuFlyoutItem menuItem || menuItem.Tag is not int parteId)
         {
             App.Log?.LogWarning("OnPausarClick: Tag no es int, es {type}", (sender as MenuFlyoutItem)?.Tag?.GetType()?.Name ?? "null");
@@ -2197,6 +2428,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnReanudarClick(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (sender is not MenuFlyoutItem menuItem || menuItem.Tag is not int parteId)
         {
             return;
@@ -2283,6 +2517,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnCerrarClick(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (sender is not MenuFlyoutItem menuItem || menuItem.Tag is not int parteId)
         {
             App.Log?.LogWarning("⚠️ OnCerrarClick: Tag inválido - Type={type}",
@@ -2599,7 +2836,8 @@ public sealed partial class DiarioPage : Page
         {
             var dialog = new CerrarParteDialog(parte)
             {
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                RequestedTheme = ThemeService.Instance.CurrentTheme
             };
 
             App.Log?.LogInformation("🔒 Abriendo diálogo de cierre para parte ID: {id}", parte.Id);
@@ -2627,6 +2865,9 @@ public sealed partial class DiarioPage : Page
 
     private async void OnDuplicarClick(object sender, RoutedEventArgs e)
     {
+        if (!EnsureCanMutate())
+            return;
+
         if (sender is not MenuFlyoutItem menuItem || menuItem.Tag is not int parteId)
         {
             return;
@@ -2753,7 +2994,8 @@ public sealed partial class DiarioPage : Page
                 PrimaryButtonText = "Ver en GitHub",
                 CloseButtonText = "Cerrar",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                RequestedTheme = ActualTheme
             };
 
             var result = await dialog.ShowAsync();
@@ -2827,7 +3069,8 @@ public sealed partial class DiarioPage : Page
         {
             Text = $"🎉 Novedades de la Versión {VersionInfo.Version}",
             FontSize = 20,
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = GetThemeBrush("AppPrimaryBrush")
         };
         stackPanel.Children.Add(headerText);
 
@@ -2835,7 +3078,7 @@ public sealed partial class DiarioPage : Page
         {
             Text = "En desarrollo • Próximo lanzamiento",
             FontSize = 12,
-            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            Foreground = GetThemeBrush("AppTextSecondaryBrush"),
             Margin = new Thickness(0, 4, 0, 0)
         };
         stackPanel.Children.Add(subtitleText);
@@ -2843,10 +3086,10 @@ public sealed partial class DiarioPage : Page
         // Importación Excel Mejorada
         var importBorder = new Border
         {
-            Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 26, 26, 26)),
+            Background = GetThemeBrush("AppSurfaceBrush"),
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(16),
-            BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 51, 51, 51)),
+            BorderBrush = GetThemeBrush("AppBorderBrush"),
             BorderThickness = new Thickness(1)
         };
 
@@ -2856,7 +3099,8 @@ public sealed partial class DiarioPage : Page
         {
             Text = "✨ Importación Excel Mejorada",
             FontSize = 16,
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = GetThemeBrush("AppTextPrimaryBrush")
         };
         importStack.Children.Add(importTitle);
 
@@ -2872,10 +3116,10 @@ public sealed partial class DiarioPage : Page
         // Reanudar Parte Mejorado
         var resumeBorder = new Border
         {
-            Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 26, 26, 26)),
+            Background = GetThemeBrush("AppSurfaceBrush"),
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(16),
-            BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 51, 51, 51)),
+            BorderBrush = GetThemeBrush("AppBorderBrush"),
             BorderThickness = new Thickness(1)
         };
 
@@ -2885,7 +3129,8 @@ public sealed partial class DiarioPage : Page
         {
             Text = "▶️ Reanudar Parte Mejorado",
             FontSize = 16,
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = GetThemeBrush("AppTextPrimaryBrush")
         };
         resumeStack.Children.Add(resumeTitle);
 
@@ -2899,10 +3144,10 @@ public sealed partial class DiarioPage : Page
         // Link a GitHub
         var githubBorder = new Border
         {
-            Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 37, 37, 37)),
+            Background = GetThemeBrush("AppSurfaceVariantBrush"),
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(12),
-            BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 59, 130, 246)),
+            BorderBrush = GetThemeBrush("AppInfoBrush"),
             BorderThickness = new Thickness(2)
         };
 
@@ -2912,7 +3157,8 @@ public sealed partial class DiarioPage : Page
         {
             Text = "🔗 Más Información",
             FontSize = 14,
-            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = GetThemeBrush("AppTextPrimaryBrush")
         };
         githubStack.Children.Add(githubTitle);
 
@@ -2920,7 +3166,7 @@ public sealed partial class DiarioPage : Page
         {
             Text = "Consulta el historial completo de cambios en GitHub",
             FontSize = 12,
-            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray)
+            Foreground = GetThemeBrush("AppTextSecondaryBrush")
         };
         githubStack.Children.Add(githubDesc);
 
@@ -2932,7 +3178,7 @@ public sealed partial class DiarioPage : Page
         {
             Text = $"Versión actual: {VersionInfo.Version}",
             FontSize = 12,
-            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            Foreground = GetThemeBrush("AppTextSecondaryBrush"),
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 16, 0, 0)
         };
@@ -2950,6 +3196,7 @@ public sealed partial class DiarioPage : Page
         {
             Text = title,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = GetThemeBrush("AppTextPrimaryBrush"),
             TextWrapping = TextWrapping.Wrap
         };
         
@@ -2957,7 +3204,7 @@ public sealed partial class DiarioPage : Page
         {
             Text = $"  {description}",
             FontSize = 12,
-            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            Foreground = GetThemeBrush("AppTextSecondaryBrush"),
             TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(0, 2, 0, 0)
         };
@@ -2966,6 +3213,24 @@ public sealed partial class DiarioPage : Page
         stack.Children.Add(descText);
         
         return stack;
+    }
+
+    private Brush GetThemeBrush(string key)
+    {
+        var themeKey = ActualTheme == ElementTheme.Dark ? "Dark" : "Light";
+
+        foreach (var dictionary in Application.Current.Resources.MergedDictionaries)
+        {
+            if (dictionary.ThemeDictionaries.TryGetValue(themeKey, out var themeResources) &&
+                themeResources is ResourceDictionary resources &&
+                resources.TryGetValue(key, out var resource) &&
+                resource is Brush brush)
+            {
+                return brush;
+            }
+        }
+
+        return (Brush)Application.Current.Resources[key];
     }
     
     /// <summary>Abre la ventana de Settings y navega a Perfil y cuenta.</summary>

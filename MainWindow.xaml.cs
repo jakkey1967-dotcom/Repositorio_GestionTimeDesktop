@@ -22,6 +22,12 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        if (Content is FrameworkElement root)
+        {
+            ThemeService.Instance.ApplyTheme(root);
+        }
+        ThemeService.Instance.ThemeChanged += OnThemeChanged;
+        Closed += OnMainWindowClosed;
         
         Title = "GestionTime Desktop";
 
@@ -35,6 +41,20 @@ public sealed partial class MainWindow : Window
         
         // Cargar LoginPage al iniciar (el tamaño se ajustará automáticamente)
         RootFrame.Navigate(typeof(Views.LoginPage));
+    }
+
+    private void OnThemeChanged(object? sender, ElementTheme theme)
+    {
+        if (Content is FrameworkElement root)
+        {
+            root.RequestedTheme = theme;
+        }
+    }
+
+    private void OnMainWindowClosed(object sender, WindowEventArgs e)
+    {
+        ThemeService.Instance.ThemeChanged -= OnThemeChanged;
+        Closed -= OnMainWindowClosed;
     }
 
     /// <summary>
@@ -200,7 +220,8 @@ public sealed partial class MainWindow : Window
                 PrimaryButtonText = "Cerrar sesión",
                 CloseButtonText = "Cancelar",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = currentPage.XamlRoot
+                XamlRoot = currentPage.XamlRoot,
+                RequestedTheme = ThemeService.Instance.CurrentTheme
             };
 
             var result = await confirmDialog.ShowAsync();
@@ -278,6 +299,7 @@ public sealed partial class MainWindow : Window
             // 4️⃣ Limpiar perfil del usuario actual
             App.CurrentUserProfile = null;
             App.CurrentLoginEmail = null;
+            App.CurrentAuthenticatedUser = null;
             App.Log?.LogInformation("✅ Datos de sesión limpiados");
 
             App.Log?.LogInformation("═══════════════════════════════════════════════════════════════");

@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -40,6 +41,9 @@ public partial class App : Application
     
     // 🆕 NUEVO: Email del login (guardado cuando el usuario hace login)
     public static string? CurrentLoginEmail { get; set; }
+
+    /// <summary>Usuario autenticado de la sesión actual (LoginResponse.User.Id, no el UUID de perfil).</summary>
+    public static AuthenticatedUser? CurrentAuthenticatedUser { get; set; }
     
     // 🆕 NUEVO: Ventana de usuarios online (única instancia)
     public static Views.UsersOnlineWindow? UsersWindowInstance { get; set; }
@@ -59,17 +63,11 @@ public partial class App : Application
     {
         try
         {
-            var settings = ApplicationData.Current.LocalSettings;
-            var theme = settings.Values["AppTheme"] as string ?? "System";
+            var theme = ThemeService.Instance.CurrentTheme.ToString();
 
             if (MainWindowInstance?.Content is FrameworkElement root)
             {
-                root.RequestedTheme = theme switch
-                {
-                    "Light" => ElementTheme.Light,
-                    "Dark" => ElementTheme.Dark,
-                    _ => ElementTheme.Default
-                };
+                ThemeService.Instance.ApplyTheme(root);
             }
 
             Log?.LogInformation("Theme aplicado: {Theme}", theme);
@@ -287,6 +285,7 @@ public partial class App : Application
             // 5. Limpiar perfil de usuario
             CurrentUserProfile = null;
             CurrentLoginEmail = null;
+            CurrentAuthenticatedUser = null;
             
             // 6. Limpiar notificaciones
             if (Notifications != null)
@@ -499,6 +498,28 @@ public partial class App : Application
 
     private void HookGlobalExceptions()
     {
+        // Excepciones de primera oportunidad (filtradas) para diagnosticar crash nativo/XAML
+        AppDomain.CurrentDomain.FirstChanceException += (s, e) =>
+        {
+            try
+            {
+                var ex = e.Exception;
+                var isXamlRelated =
+                    (ex.StackTrace?.Contains("Microsoft.UI.Xaml", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (ex.Message?.Contains("XAML", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (ex.Message?.Contains("WinRT", StringComparison.OrdinalIgnoreCase) ?? false);
+
+                if (isXamlRelated)
+                {
+                    Log.LogWarning(ex, "FirstChanceException (XAML/WinRT): {type} - {msg}", ex.GetType().Name, ex.Message);
+                }
+            }
+            catch
+            {
+                // no-op en diagnóstico
+            }
+        };
+
         // WinUI UI thread exceptions
         this.UnhandledException += (s, e) =>
         {
@@ -506,6 +527,19 @@ public partial class App : Application
             // Si quieres evitar cierre en algunos casos:
             // e.Handled = true;
         };
+
+#if DEBUG
+        // Diagnóstico XAML adicional en logs (además de Output)
+        DebugSettings.BindingFailed += (_, args) =>
+        {
+            Log.LogWarning("XAML BindingFailed: {msg}", args.Message);
+        };
+
+        DebugSettings.XamlResourceReferenceFailed += (_, args) =>
+        {
+            Log.LogWarning("XAML ResourceReferenceFailed: {msg}", args.Message);
+        };
+#endif
 
         // Background thread exceptions
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>

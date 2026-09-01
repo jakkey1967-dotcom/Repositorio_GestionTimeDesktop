@@ -40,52 +40,57 @@ Language="es-ES">
                 </helpers:AlternationIndexToBrushConverter.OddBrush>
             </helpers:AlternationIndexToBrushConverter>
 
+            <!-- GT-BEGIN: Brushes de filas para code-behind (tema claro/oscuro) -->
+            <SolidColorBrush x:Key="EvenRowBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="OddRowBrush" Color="Transparent" Opacity="0.85"/>
+            <!-- GT-END -->
+
             <!-- ✅ ESTILOS (usan ThemeResource de App.xaml) -->
             <Style x:Key="MutedText" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{ThemeResource TextMuted}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextSecondaryBrush}"/>
             </Style>
             <Style x:Key="PanelBorder" TargetType="Border">
-                <Setter Property="Background" Value="{ThemeResource SurfaceBg}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource Stroke}"/>
+                <Setter Property="Background" Value="{ThemeResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="10"/>
             </Style>
             <Style x:Key="TealBar" TargetType="Grid">
                 <Setter Property="Height" Value="38"/>
-                <Setter Property="Background" Value="{ThemeResource InputBg}"/>
+                <Setter Property="Background" Value="{ThemeResource AppInputBackgroundBrush}"/>
             </Style>
             <Style x:Key="TealInnerTextBox" TargetType="TextBox">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Foreground" Value="{ThemeResource InputText}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
             <Style x:Key="TealCalendar" TargetType="CalendarDatePicker">
-                <Setter Property="Background" Value="{ThemeResource InputBg}"/>
-                <Setter Property="Foreground" Value="{ThemeResource InputText}"/>
+                <Setter Property="Background" Value="{ThemeResource AppInputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="CornerRadius" Value="0"/>
                 <Setter Property="Height" Value="38"/>
             </Style>
             <Style x:Key="MiniIconButton" TargetType="Button">
-                <Setter Property="Background" Value="{ThemeResource ButtonBg}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource ButtonStroke}"/>
+                <Setter Property="Background" Value="{ThemeResource AppSurfaceVariantBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Padding" Value="10,8"/>
             </Style>
             <Style x:Key="ThemeButton" TargetType="Button">
-                <Setter Property="Background" Value="{ThemeResource ButtonBg}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource ButtonStroke}"/>
+                <Setter Property="Background" Value="{ThemeResource AppSurfaceVariantBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="8"/>
                 <Setter Property="Padding" Value="10,8"/>
             </Style>
             <Style x:Key="ToolButton" TargetType="Button">
-                <Setter Property="Background" Value="{ThemeResource SurfaceBg}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource Stroke}"/>
+                <Setter Property="Background" Value="{ThemeResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="0"/>
                 <Setter Property="MinWidth" Value="72"/>
@@ -94,7 +99,7 @@ Language="es-ES">
             <Style x:Key="ToolbarButton" TargetType="Button">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource Accent}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppPrimaryBrush}"/>
                 <Setter Property="Width" Value="80"/>
                 <Setter Property="Height" Value="70"/>
                 <Setter Property="Padding" Value="8"/>
@@ -113,6 +118,16 @@ Language="es-ES">
                 <Setter Property="Padding" Value="8,4"/>
                 <Setter Property="MinWidth" Value="0"/>
                 <Setter Property="MinHeight" Value="0"/>
+            </Style>
+            <Style x:Key="HistoryNavButton" TargetType="Button">
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="28"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextSecondaryBrush}"/>
             </Style>
 
         </ResourceDictionary>
@@ -133,7 +148,7 @@ Language="es-ES">
         </Grid.RowDefinitions>
 
         <!-- BANNER -->
-        <Border Grid.Row="0" Background="{ThemeResource BannerBg}" CornerRadius="10" Padding="16">
+        <Border Grid.Row="0" Background="{ThemeResource AppPrimaryBrush}" CornerRadius="10" Padding="16">
             <Grid ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -246,6 +261,18 @@ Language="es-ES">
                                 Click="OnNotasVersionClick">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE946;" Foreground="White"/>
                         </Button>
+
+                        <!-- Botón de Tema (icono) -->
+                        <Button x:Name="BtnThemeDiario"
+                                Background="Transparent"
+                                BorderBrush="White"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="10,8"
+                                Click="OnToggleThemeClick"
+                                ToolTipService.ToolTip="Cambiar tema">
+                            <FontIcon x:Name="IconThemeDiario" FontFamily="Segoe MDL2 Assets" Glyph="&#xE706;" Foreground="White"/>
+                        </Button>
                     </StackPanel>
 
                     <!-- Estado del Servicio -->
@@ -295,7 +322,7 @@ Language="es-ES">
                             <!-- Icono de advertencia (solo offline) -->
                             <FontIcon Glyph="&#xE7BA;" 
                                       FontSize="11" 
-                                      Foreground="#FBBF24"
+                                      Foreground="{ThemeResource AppWarningBrush}"
                                       Visibility="{x:Bind ViewModel.IsServiceOnline, Mode=OneWay, Converter={StaticResource ServiceStatusToVisibilityConverter}}"
                                       ToolTipService.ToolTip="Sin conexión con el servidor"/>
                         </StackPanel>
@@ -314,45 +341,92 @@ Language="es-ES">
                 </Grid.ColumnDefinitions>
                 
                 <!-- Columna izquierda: Fecha y Búsqueda -->
-                <StackPanel Grid.Column="0" Spacing="6" MinWidth="250">
+                <StackPanel Grid.Column="0" Spacing="4" HorizontalAlignment="Left" MaxWidth="520">
                     <!-- Fecha -->
                     <TextBlock Text="Fecha" Style="{StaticResource MutedText}"/>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <CalendarDatePicker x:Name="DpFiltroFecha" 
-                                            Style="{StaticResource TealCalendar}" 
-                                            Width="180" 
+                    <Grid ColumnSpacing="8" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <CalendarDatePicker x:Name="DpFiltroFecha"
+                                            Style="{StaticResource TealCalendar}"
+                                            Width="175"
+                                            MaxWidth="175"
                                             DateFormat="{}{day.integer(2)}-{month.integer(2)}-{year.full}"/>
-                        <Button Style="{StaticResource MiniIconButton}" 
-                                Click="OnRefrescar" 
-                                ToolTipService.ToolTip="Refrescar (F5)" 
+                        <TextBlock x:Name="TxtSemanaIso"
+                                   Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}"/>
+                        <Button Grid.Column="2"
+                                Style="{StaticResource MiniIconButton}"
+                                Click="OnRefrescar"
+                                ToolTipService.ToolTip="Refrescar (F5)"
                                 Height="38">
-                            <FontIcon FontFamily="Segoe Fluent Icons" 
-                                      Glyph="&#xE72C;" 
-                                      Foreground="{ThemeResource Accent}"/>
+                            <FontIcon FontFamily="Segoe Fluent Icons"
+                                      Glyph="&#xE72C;"
+                                      Foreground="{ThemeResource AppPrimaryBrush}"/>
                         </Button>
-                    </StackPanel>
-                    
+                    </Grid>
+
                     <!-- GT-BEGIN: Búsqueda avanzada con sugerencias y pills -->
-                    <TextBlock Text="Buscar" Style="{StaticResource MutedText}" Margin="0,6,0,0"/>
+                    <TextBlock Text="Buscar" Style="{StaticResource MutedText}" Margin="0,4,0,0"/>
                     <AutoSuggestBox x:Name="TxtFiltroQ"
                                     PlaceholderText="cliente, grupo, tipo, ticket, tags..."
                                     QueryIcon="Find"
                                     TextChanged="OnFiltroQChanged"
                                     QuerySubmitted="OnFilterQuerySubmitted"
-                                    Background="{ThemeResource InputBg}"
-                                    Foreground="{ThemeResource InputText}"
+                                    Background="{ThemeResource AppInputBackgroundBrush}"
+                                    Foreground="{ThemeResource AppTextPrimaryBrush}"
                                     Height="38"
                                     FontSize="14"
-                                    BorderThickness="0"/>
+                                    BorderThickness="0"
+                                    HorizontalAlignment="Stretch"
+                                    MaxWidth="520"/>
                     <StackPanel x:Name="PnlFilterPills"
                                 Orientation="Horizontal"
                                 Spacing="6"
-                                Margin="0,4,0,0"/>
+                                Margin="0,2,0,0"/>
                     <!-- GT-END: Búsqueda avanzada con sugerencias y pills -->
+
+                    <StackPanel x:Name="PnlAgenteFiltro" Visibility="Collapsed" Spacing="4" Margin="0,4,0,0" MaxWidth="520">
+                        <TextBlock Text="Agente" Style="{StaticResource MutedText}"/>
+                        <ComboBox x:Name="CmbAgenteFiltro"
+                                  HorizontalAlignment="Stretch"
+                                  MaxWidth="520"
+                                  SelectionChanged="OnAgenteFiltroChanged"
+                                  Background="{ThemeResource AppInputBackgroundBrush}"
+                                  Foreground="{ThemeResource AppTextPrimaryBrush}"
+                                  BorderBrush="{ThemeResource AppBorderBrush}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Display}"
+                                               TextTrimming="CharacterEllipsis"
+                                               TextWrapping="NoWrap"
+                                               ToolTipService.ToolTip="{Binding Display}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <Border x:Name="BannerReadOnlyAgent"
+                            Visibility="Collapsed"
+                            Background="{ThemeResource AppSurfaceVariantBrush}"
+                            BorderBrush="{ThemeResource AppBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="8,6"
+                            Margin="0,6,0,0">
+                        <TextBlock x:Name="TxtReadOnlyAgent"
+                                   TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                    </Border>
                 </StackPanel>
                 
                 <!-- Barra de botones -->
-                <Border Grid.Column="2" BorderBrush="{ThemeResource Accent}" BorderThickness="2" Padding="8" CornerRadius="6" Background="Transparent">
+                <Border Grid.Column="2" BorderBrush="{ThemeResource AppPrimaryBrush}" BorderThickness="2" Padding="8" CornerRadius="6" Background="{ThemeResource AppElevatedSurfaceBrush}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <!-- Llamada telefónica rápida -->
                         <Button x:Name="BtnTelefono" Style="{StaticResource ToolbarButton}" Click="OnNuevaLlamada" 
@@ -360,8 +434,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE717;" FontSize="24" Foreground="#10B981"/>
-                                <TextBlock Text="Teléfono" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE717;" FontSize="24" Foreground="{ThemeResource AppSuccessBrush}"/>
+                                <TextBlock Text="Teléfono" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
@@ -370,8 +444,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE710;" FontSize="24" Foreground="#3B82F6"/>
-                                <TextBlock Text="Nuevo" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE710;" FontSize="24" Foreground="{ThemeResource AppInfoBrush}"/>
+                                <TextBlock Text="Nuevo" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button x:Name="BtnEditar" Style="{StaticResource ToolbarButton}" Click="OnEditar" IsEnabled="False" 
@@ -379,18 +453,18 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon x:Name="IconEditar" Glyph="&#xE70F;" FontSize="24" Foreground="#8B5CF6"/>
-                                <TextBlock Text="Editar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon x:Name="IconEditar" Glyph="&#xE70F;" FontSize="24" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                                <TextBlock Text="Editar" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
                         <!-- Separador -->
-                        <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
+                        <Border Width="1" Height="50" Background="{ThemeResource AppBorderBrush}" Margin="4,0" VerticalAlignment="Center"/>
                         
                         <!-- Grupo: Visualización -->
                         
                         <!-- Separador -->
-                        <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
+                        <Border Width="1" Height="50" Background="{ThemeResource AppBorderBrush}" Margin="4,0" VerticalAlignment="Center"/>
                         
                         <!-- Grupo: Administración -->
                         <Button x:Name="BtnBorrar" Style="{StaticResource ToolbarButton}" Click="OnBorrar" IsEnabled="False"
@@ -398,8 +472,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE74D;" FontSize="24" Foreground="#EF4444"/>
-                                <TextBlock Text="Borrar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE74D;" FontSize="24" Foreground="{ThemeResource AppErrorBrush}"/>
+                                <TextBlock Text="Borrar" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
@@ -409,8 +483,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE8B5;" FontSize="24" Foreground="#8B5CF6"/>
-                                <TextBlock Text="Importar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE8B5;" FontSize="24" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                                <TextBlock Text="Importar" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
@@ -423,13 +497,13 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE8A5;" FontSize="24" Foreground="#10B981"/>
-                                <TextBlock Text="Exportar" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE8A5;" FontSize="24" Foreground="{ThemeResource AppSuccessBrush}"/>
+                                <TextBlock Text="Exportar" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
                         <!-- Separador -->
-                        <Border Width="1" Height="50" Background="{ThemeResource Stroke}" Margin="4,0" VerticalAlignment="Center"/>
+                        <Border Width="1" Height="50" Background="{ThemeResource AppBorderBrush}" Margin="4,0" VerticalAlignment="Center"/>
                         
                         <!-- 🆕 NUEVO: Botón Usuarios Online -->
                         <Button x:Name="BtnUsersOnline" Style="{StaticResource ToolbarButton}" Click="OnToggleUsersPanel" 
@@ -437,8 +511,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE716;" FontSize="24" Foreground="#0FA7B6"/>
-                                <TextBlock Text="Usuarios" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE716;" FontSize="24" Foreground="{ThemeResource AppPrimaryBrush}"/>
+                                <TextBlock Text="Usuarios" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -449,8 +523,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE9F9;" FontSize="24" Foreground="#F59E0B"/>
-                                <TextBlock Text="Informes" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE9F9;" FontSize="24" Foreground="{ThemeResource AppWarningBrush}"/>
+                                <TextBlock Text="Informes" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
@@ -460,8 +534,8 @@ Language="es-ES">
                                 PointerEntered="OnButtonPointerEntered"
                                 PointerExited="OnButtonPointerExited">
                             <StackPanel Spacing="4">
-                                <FontIcon Glyph="&#xE7E8;" FontSize="24" Foreground="#EF4444"/>
-                                <TextBlock Text="Salir" FontSize="11" Foreground="{ThemeResource TextMain}" HorizontalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE7E8;" FontSize="24" Foreground="{ThemeResource AppErrorBrush}"/>
+                                <TextBlock Text="Salir" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -489,8 +563,8 @@ Language="es-ES">
             </SplitView.Pane>
             
             <!-- Contenido principal: ListView de partes -->
-            <Border Background="#1F000000"
-                    BorderBrush="#330FA7B6"
+            <Border Background="{ThemeResource AppSurfaceBrush}"
+                    BorderBrush="{ThemeResource AppBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="14"
                     Padding="12">
@@ -501,8 +575,10 @@ Language="es-ES">
                 </Grid.RowDefinitions>
 
                 <!-- Cabecera -->
-                <Grid x:Name="HeaderGrid" Background="{ThemeResource AccentDark}" Padding="8" CornerRadius="8,8,0,0">
+                <Grid x:Name="HeaderGrid" Background="{ThemeResource AppPrimaryPressedBrush}" Padding="4,8,8,8" CornerRadius="8,8,0,0">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="70"/>
                         <ColumnDefinition Width="90"/>
                         <ColumnDefinition Width="55"/>
@@ -516,26 +592,26 @@ Language="es-ES">
                         <ColumnDefinition Width="80"/>  <!-- Tags -->
                         <ColumnDefinition Width="90"/>  <!-- Estado -->
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Fecha" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="1" Text="Cliente" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="2" Text="Tienda" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="3" Text="Acción" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="4" Text="Inicio" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="5" Text="Fin" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="2" Text="Fecha" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="3" Text="Cliente" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="4" Text="Tienda" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="5" Text="Acción" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="6" Text="Inicio" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="7" Text="Fin" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
                     <!-- 🆕 Header "Dur." con tooltip dinámico -->
                     <TextBlock x:Name="DuracionHeader" 
-                               Grid.Column="6" 
+                               Grid.Column="8" 
                                Text="Dur." 
                                Foreground="White" 
                                FontWeight="SemiBold" 
                                FontSize="12"
                                ToolTipService.ToolTip="Pasa el ratón para ver estadísticas de tiempo"
                                ToolTipService.Placement="Bottom"/>
-                    <TextBlock Grid.Column="7" Text="Ticket" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="8" Text="Grupo" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="9" Text="Tipo" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="10" Text="Tags" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
-                    <TextBlock Grid.Column="11" Text="Estado" Foreground="White" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="9" Text="Ticket" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="10" Text="Grupo" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="11" Text="Tipo" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="12" Text="Tags" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="13" Text="Estado" Foreground="White" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center"/>
                 </Grid>
 
                 <!-- ✅ ListView con Zebra Rows -->
@@ -545,42 +621,87 @@ Language="es-ES">
                           Background="Transparent" 
                           BorderThickness="0" 
                           SelectionChanged="OnPartesSelectionChanged">
+                    <ListView.Header>
+                        <Grid x:Name="PnlShowLessHistory" Height="32" Visibility="Collapsed">
+                            <Button x:Name="BtnShowLessHistory"
+                                    Style="{StaticResource HistoryNavButton}"
+                                    Visibility="Collapsed"
+                                    Click="OnShowLessHistoryClick"
+                                    ToolTipService.ToolTip="Mostrar menos registros"
+                                    AutomationProperties.Name="Mostrar menos registros">
+                                <FontIcon FontFamily="Segoe Fluent Icons"
+                                          Glyph="&#xE70E;"
+                                          FontSize="16"
+                                          Foreground="{ThemeResource AppTextSecondaryBrush}"/>
+                            </Button>
+                        </Grid>
+                    </ListView.Header>
+                    <ListView.Footer>
+                        <Grid x:Name="PnlLoadMoreHistory" Height="32" Visibility="Collapsed">
+                            <Button x:Name="BtnLoadMoreHistory"
+                                    Style="{StaticResource HistoryNavButton}"
+                                    Visibility="Collapsed"
+                                    Click="OnLoadMoreHistoryClick"
+                                    ToolTipService.ToolTip="Cargar más registros antiguos"
+                                    AutomationProperties.Name="Cargar más registros antiguos">
+                                <Grid>
+                                    <FontIcon x:Name="IconLoadMoreHistory"
+                                              FontFamily="Segoe Fluent Icons"
+                                              Glyph="&#xE70D;"
+                                              FontSize="16"
+                                              Foreground="{ThemeResource AppTextSecondaryBrush}"/>
+                                    <ProgressRing x:Name="RingLoadMoreHistory"
+                                                  Width="16"
+                                                  Height="16"
+                                                  IsActive="False"
+                                                  Visibility="Collapsed"/>
+                                </Grid>
+                            </Button>
+                        </Grid>
+                    </ListView.Footer>
                     <!-- ✅ RECURSOS DE ESTADOS VISUALES CON COLORES MEJORADOS -->
                     <ListView.Resources>
-                        <!-- FONDO POR DEFECTO - Transparente para zebra rows -->
-                        <SolidColorBrush x:Key="ListViewItemBackground" Color="Transparent"/>
-                        
-                        <!-- HOVER - Fondo sutil blanco 12% opacidad -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#1FFFFFFF"/>
-                        
-                        <!-- PRESSED - Fondo un poco más marcado -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#28FFFFFF"/>
-                        
-                        <!-- SELECTED - Acento #0FA7B6 con 15% opacidad -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#260FA7B6"/>
-                        
-                        <!-- SELECTED + HOVER - Acento con 22% opacidad -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#380FA7B6"/>
-                        
-                        <!-- SELECTED + PRESSED - Acento con 28% opacidad -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#470FA7B6"/>
-                        
-                        <!-- BORDES - Transparentes en todos los estados -->
-                        <SolidColorBrush x:Key="ListViewItemBorderBrushPointerOver" Color="Transparent"/>
-                        <SolidColorBrush x:Key="ListViewItemBorderBrushPressed" Color="Transparent"/>
-                        <SolidColorBrush x:Key="ListViewItemBorderBrushSelected" Color="Transparent"/>
-                        <SolidColorBrush x:Key="ListViewItemBorderBrushSelectedPointerOver" Color="Transparent"/>
-                        <SolidColorBrush x:Key="ListViewItemBorderBrushSelectedPressed" Color="Transparent"/>
-                        
-                        <!-- TEXTO - Blanco/near-white en todos los estados -->
-                        <SolidColorBrush x:Key="ListViewItemForeground" Color="#F5F7FA"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundPointerOver" Color="#FFFFFF"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundPressed" Color="#FFFFFF"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#FFFFFF"/>
-                        <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#FFFFFF"/>
-                        
-                        <!-- Desactivar Reveal (sin efectos extraños) -->
-                        <x:Boolean x:Key="ListViewItemRevealBackgroundShowsAboveContent">False</x:Boolean>
+                        <ResourceDictionary>
+                            <ResourceDictionary.ThemeDictionaries>
+                                <ResourceDictionary x:Key="Light">
+                                <StaticResource x:Key="ListViewItemBackground" ResourceKey="AppSurfaceBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundPointerOver" ResourceKey="AppListHoverBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundPressed" ResourceKey="AppListPressedBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundSelected" ResourceKey="AppListSelectedBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundSelectedPointerOver" ResourceKey="AppListSelectedBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundSelectedPressed" ResourceKey="AppListPressedBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushPointerOver" ResourceKey="AppListSeparatorBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushPressed" ResourceKey="AppListSeparatorBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushSelected" ResourceKey="AppPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushSelectedPointerOver" ResourceKey="AppPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushSelectedPressed" ResourceKey="AppPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForeground" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundPointerOver" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundPressed" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundSelected" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundSelectedPointerOver" ResourceKey="AppTextPrimaryBrush"/>
+                                </ResourceDictionary>
+                                <ResourceDictionary x:Key="Dark">
+                                <StaticResource x:Key="ListViewItemBackground" ResourceKey="AppSurfaceBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundPointerOver" ResourceKey="AppListHoverBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundPressed" ResourceKey="AppListPressedBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundSelected" ResourceKey="AppListSelectedBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundSelectedPointerOver" ResourceKey="AppListSelectedBrush"/>
+                                <StaticResource x:Key="ListViewItemBackgroundSelectedPressed" ResourceKey="AppListPressedBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushPointerOver" ResourceKey="AppListSeparatorBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushPressed" ResourceKey="AppListSeparatorBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushSelected" ResourceKey="AppPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushSelectedPointerOver" ResourceKey="AppPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemBorderBrushSelectedPressed" ResourceKey="AppPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForeground" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundPointerOver" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundPressed" ResourceKey="AppTextPrimaryBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundSelected" ResourceKey="AppSelectedForegroundBrush"/>
+                                <StaticResource x:Key="ListViewItemForegroundSelectedPointerOver" ResourceKey="AppSelectedForegroundBrush"/>
+                                </ResourceDictionary>
+                            </ResourceDictionary.ThemeDictionaries>
+                            <x:Boolean x:Key="ListViewItemRevealBackgroundShowsAboveContent">False</x:Boolean>
+                        </ResourceDictionary>
                     </ListView.Resources>
                     
                     <!-- ✅ ItemContainerStyle sin Background (se establece dinámicamente) -->
@@ -591,12 +712,15 @@ Language="es-ES">
                             <Setter Property="Margin" Value="0,0,0,1"/>
                             <Setter Property="MinHeight" Value="0"/>
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="8,7">
+                            <Grid Padding="4,4,8,4">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="55"/>
@@ -607,103 +731,157 @@ Language="es-ES">
                                     <ColumnDefinition Width="65"/>
                                     <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="70"/>
-                                    <ColumnDefinition Width="80"/>  <!-- Tags -->
-                                    <ColumnDefinition Width="90"/>  <!-- Estado -->
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="90"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding FechaText}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Cliente}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Tienda}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                
-                                <!-- ✅ Columna Acción con Multiline (MaxLines=2) y Tooltip -->
-                                <TextBlock Grid.Column="3" 
-                                           Text="{Binding Accion}" 
-                                           TextWrapping="Wrap"
+                                <Border Grid.Column="0"
+                                        Margin="0,1,0,1"
+                                        Background="{Binding StatusForegroundColor, Converter={StaticResource HexColorToBrushConverter}}"
+                                        CornerRadius="2"/>
+                                <TextBlock Grid.Column="2" Text="{Binding FechaText}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding Cliente}"
                                            TextTrimming="CharacterEllipsis"
-                                           MaxLines="2"
-                                           FontSize="13" 
-                                           Foreground="{ThemeResource TextMain}"
-                                           ToolTipService.ToolTip="{Binding Accion}"
-                                           ToolTipService.Placement="Bottom"/>
-                                
-                                <TextBlock Grid.Column="4" Text="{Binding HoraInicio}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="5" Text="{Binding HoraFin}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="6" Text="{Binding DuracionText}" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="7" Text="{Binding Ticket}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="8" Text="{Binding Grupo}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                <TextBlock Grid.Column="9" Text="{Binding Tipo}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" FontSize="13" Foreground="{ThemeResource TextMain}"/>
-                                
-                                
-                                <!-- 🆕 Columna Tags - SOLO PRIMER TAG VISIBLE -->
-                                <Border Grid.Column="10" 
-                                        Background="Transparent"
-                                        Padding="0"
+                                           TextWrapping="NoWrap"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding Tienda}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap"
+                                           FontSize="13"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="5"
+                                           Text="{Binding Accion}"
+                                           TextTrimming="CharacterEllipsis"
+                                            TextWrapping="Wrap"
+                                            MaxLines="4"
+                                           FontSize="13"
+                                            ToolTipService.ToolTip="{Binding Accion}"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="6"
+                                           Text="{Binding HoraInicio}"
+                                           TextWrapping="NoWrap"
+                                           FontSize="13"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="7"
+                                           Text="{Binding HoraFin}"
+                                           TextWrapping="NoWrap"
+                                           FontSize="13"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <TextBlock Grid.Column="8"
+                                           Text="{Binding DuracionText}"
+                                           TextWrapping="NoWrap"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <Border Grid.Column="9"
                                         HorizontalAlignment="Left"
-                                        VerticalAlignment="Center">
-                                    
-                                    <!-- Tag visible (primer tag) -->
-                                    <Border Background="#1A8B5CF6" 
-                                            BorderBrush="#8B5CF6" 
-                                            BorderThickness="1" 
-                                            CornerRadius="8" 
-                                            Padding="4,2"
-                                            Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}">
-                                        <TextBlock Text="{Binding Tags[0]}" 
-                                                   FontSize="9" 
-                                                   Foreground="#E9D5FF" 
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="70"/>
-                                        
-                                        <!-- ToolTip con TODOS los tags -->
-                                        <ToolTipService.ToolTip>
-                                            <ToolTip Background="#1E1E1E" 
-                                                     BorderBrush="#0FA7B6" 
-                                                     BorderThickness="1"
-                                                     Padding="8">
-                                                <ItemsControl ItemsSource="{Binding Tags}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="#1A8B5CF6" 
-                                                                    BorderBrush="#8B5CF6" 
-                                                                    BorderThickness="1" 
-                                                                    CornerRadius="8" 
-                                                                    Padding="6,3" 
-                                                                    Margin="0,2">
-                                                                <TextBlock Text="{Binding}" 
-                                                                           FontSize="10" 
-                                                                           Foreground="#E9D5FF"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <StackPanel Orientation="Vertical" Spacing="3"/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                </ItemsControl>
-                                            </ToolTip>
-                                        </ToolTipService.ToolTip>
-                                    </Border>
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding Ticket, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Background="Transparent"
+                                        BorderBrush="{ThemeResource AppBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="5,2">
+                                    <TextBlock Text="{Binding Ticket}"
+                                               TextTrimming="CharacterEllipsis"
+                                               TextWrapping="NoWrap"
+                                               FontSize="11"
+                                               MaxWidth="53"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}"/>
                                 </Border>
-                                
-                                
-                                <!-- ✅ Estado: Pill profesional con icono y texto -->
-                                <Button Grid.Column="11" 
-                                        Style="{StaticResource EstadoIconButton}" 
-                                        HorizontalAlignment="Center" 
-                                        VerticalAlignment="Center" 
-                                        ToolTipService.ToolTip="{Binding EstadoTexto}" 
+                                <TextBlock Grid.Column="10"
+                                           Text="{Binding Grupo}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap"
+                                           FontSize="13"
+                                           Foreground="{ThemeResource AppTextPrimaryBrush}"/>
+                                <Border Grid.Column="11"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding Tipo, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Background="{ThemeResource AppSurfaceVariantBrush}"
+                                        BorderBrush="{ThemeResource AppBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="5,2">
+                                    <TextBlock Text="{Binding Tipo}"
+                                               TextTrimming="CharacterEllipsis"
+                                               TextWrapping="NoWrap"
+                                               FontSize="11"
+                                               MaxWidth="58"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}"/>
+                                </Border>
+                                <!-- Tags: primer tag visible + tooltip con todos los tags -->
+                                <Border Grid.Column="12"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                         Visibility="{Binding FirstTag, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Spacing="3">
+                                        <Border Background="{ThemeResource AppPrimaryContainerBrush}"
+                                                BorderBrush="{ThemeResource AppPrimaryBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="6,3">
+                                            <TextBlock Text="{Binding FirstTag}"
+                                                       FontSize="10"
+                                                       Foreground="{ThemeResource AppOnPrimaryContainerBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       TextWrapping="NoWrap"
+                                                       MaxWidth="48"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding Tags, Converter={StaticResource TagOverflowTextConverter}}"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <ItemsControl ItemsSource="{Binding Tags}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{ThemeResource AppPrimaryContainerBrush}"
+                                                                BorderBrush="{ThemeResource AppPrimaryBrush}"
+                                                                BorderThickness="1"
+                                                                CornerRadius="8"
+                                                                Padding="6,3"
+                                                                Margin="0,2">
+                                                            <TextBlock Text="{Binding}"
+                                                                       FontSize="10"
+                                                                       Foreground="{ThemeResource AppOnPrimaryContainerBrush}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Vertical" Spacing="3"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </Border>
+
+                                <!-- Estado: pill con acciones -->
+                                <Button Grid.Column="13"
+                                        Style="{StaticResource EstadoIconButton}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        IsEnabled="{Binding ElementName=BtnNuevo, Path=IsEnabled}"
+                                        ToolTipService.ToolTip="{Binding EstadoTexto}"
                                         Tag="{Binding Id}">
-                                    <!-- Pill (Badge) con fondo suave y texto -->
                                     <Border Background="{Binding StatusBackgroundColor, Converter={StaticResource HexColorToBrushConverter}}"
                                             CornerRadius="10"
                                             Padding="6,3">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <!-- Icono pequeño (opcional) -->
-                                            <FontIcon FontFamily="Segoe MDL2 Assets" 
-                                                      Glyph="{Binding StatusIcon}" 
-                                                      Foreground="{Binding StatusForegroundColor, Converter={StaticResource HexColorToBrushConverter}}" 
+                                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                      Glyph="{Binding StatusIcon}"
+                                                      Foreground="{Binding StatusForegroundColor, Converter={StaticResource HexColorToBrushConverter}}"
                                                       FontSize="10"/>
-                                            <!-- Texto del estado -->
                                             <TextBlock Text="{Binding StatusText}"
                                                        Foreground="{Binding StatusForegroundColor, Converter={StaticResource HexColorToBrushConverter}}"
                                                        FontSize="10"
@@ -715,22 +893,22 @@ Language="es-ES">
                                         <MenuFlyout>
                                             <MenuFlyoutItem Text="Pausar" Click="OnPausarClick" Tag="{Binding Id}" Visibility="{Binding CanPausar, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <MenuFlyoutItem.Icon>
-                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE769;" Foreground="#F59E0B"/>
+                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE769;" Foreground="{ThemeResource AppWarningBrush}"/>
                                                 </MenuFlyoutItem.Icon>
                                             </MenuFlyoutItem>
                                             <MenuFlyoutItem Text="Reanudar" Click="OnReanudarClick" Tag="{Binding Id}" Visibility="{Binding CanReanudar, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <MenuFlyoutItem.Icon>
-                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE768;" Foreground="#10B981"/>
+                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE768;" Foreground="{ThemeResource AppSuccessBrush}"/>
                                                 </MenuFlyoutItem.Icon>
                                             </MenuFlyoutItem>
                                             <MenuFlyoutItem Text="Cerrar" Click="OnCerrarClick" Tag="{Binding Id}" Visibility="{Binding CanCerrar, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <MenuFlyoutItem.Icon>
-                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE73E;" Foreground="#3B82F6"/>
+                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE73E;" Foreground="{ThemeResource AppInfoBrush}"/>
                                                 </MenuFlyoutItem.Icon>
                                             </MenuFlyoutItem>
                                             <MenuFlyoutItem Text="Duplicar" Click="OnDuplicarClick" Tag="{Binding Id}" Visibility="{Binding CanDuplicar, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <MenuFlyoutItem.Icon>
-                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8C8;" Foreground="#8B5CF6"/>
+                                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8C8;" Foreground="{ThemeResource AppPrimaryBrush}"/>
                                                 </MenuFlyoutItem.Icon>
                                             </MenuFlyoutItem>
                                         </MenuFlyout>
@@ -747,14 +925,14 @@ Language="es-ES">
         <!-- 🆕 OVERLAY DE CARGA - Solo ProgressRing centrado más abajo -->
         <Grid x:Name="LoadingOverlay"
               Grid.RowSpan="3"
-              Background="#80000000"
+              Background="{ThemeResource AppOverlayBrush}"
               Visibility="Collapsed"
               Canvas.ZIndex="1000">
             <ProgressRing x:Name="LoadingRing"
                           IsActive="False"
                           Width="80"
                           Height="80"
-                          Foreground="{ThemeResource Accent}"
+                          Foreground="{ThemeResource AppPrimaryBrush}"
                           VerticalAlignment="Center"
                           HorizontalAlignment="Center"
                           Margin="0,100,0,0"/>
