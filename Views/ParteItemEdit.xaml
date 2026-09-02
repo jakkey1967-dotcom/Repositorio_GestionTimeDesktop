@@ -13,25 +13,13 @@
     <Page.Resources>
         <ResourceDictionary>
             <!-- 🎨 PALETA DE COLORES EXACTA DEL PANTALLAZO -->
-            <SolidColorBrush x:Key="AccentBrush" Color="#16A8B8"/>
-            <SolidColorBrush x:Key="BackgroundBrush" Color="#0F1419"/>
-            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1A2332"/>
-            <SolidColorBrush x:Key="CardBorderBrush" Color="#2D3E50"/>
-            <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0D1117"/>
-            <SolidColorBrush x:Key="InputBorderBrush" Color="#30363D"/>
-            <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#16A8B8"/>
-            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E6EDF3"/>
-            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#AAB4BF"/>
-            <SolidColorBrush x:Key="TextPlaceholderBrush" Color="#484F58"/>
-            <SolidColorBrush x:Key="HeaderBrush" Color="#16A8B8"/>
-            <SolidColorBrush x:Key="FooterBackgroundBrush" Color="#0D1117"/>
-            <SolidColorBrush x:Key="BadgeGreenBrush" Color="#238636"/>
+
             
             <!-- 📝 ESTILO TEXTBOX -->
             <Style x:Key="ModernTextBox" TargetType="TextBox">
-                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="Background" Value="{ThemeResource AppInputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Padding" Value="12,8"/>
@@ -42,9 +30,9 @@
             
             <!-- 📝 ESTILO AUTOSUGGESTBOX -->
             <Style x:Key="ModernAutoSuggestBox" TargetType="AutoSuggestBox">
-                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="Background" Value="{ThemeResource AppInputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Height" Value="38"/>
@@ -62,9 +50,9 @@
             
             <!-- 📅 ESTILO DATEPICKER -->
             <Style x:Key="ModernDatePicker" TargetType="CalendarDatePicker">
-                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="Background" Value="{ThemeResource AppInputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Height" Value="38"/>
@@ -72,9 +60,9 @@
             
             <!-- 🔽 ESTILO COMBOBOX -->
             <Style x:Key="ModernComboBox" TargetType="ComboBox">
-                <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="Background" Value="{ThemeResource AppInputBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Height" Value="38"/>
@@ -82,7 +70,7 @@
             
             <!-- 🔘 BOTÓN PRIMARIO (GRABAR) -->
             <Style x:Key="PrimaryButton" TargetType="Button">
-                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Background" Value="{ThemeResource AppPrimaryBrush}"/>
                 <Setter Property="Foreground" Value="White"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="CornerRadius" Value="6"/>
@@ -96,8 +84,8 @@
             <!-- 🔘 BOTÓN SECUNDARIO (ANULAR/SALIR) -->
             <Style x:Key="SecondaryButton" TargetType="Button">
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextPrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Padding" Value="20,10"/>
@@ -109,7 +97,7 @@
             
             <!-- 📌 LABEL CAMPO -->
             <Style x:Key="FieldLabel" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppTextSecondaryBrush}"/>
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
                 <Setter Property="Margin" Value="0,0,0,4"/>
@@ -117,7 +105,7 @@
             
             <!-- 🏷️ SECTION TITLE -->
             <Style x:Key="SectionTitle" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource AppPrimaryBrush}"/>
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="Margin" Value="0,0,0,8"/>
@@ -129,7 +117,7 @@
     <Grid x:Name="RootGrid" Padding="8" Opacity="0">
         <!-- FONDO OSCURO SÓLIDO -->
         <Grid.Background>
-            <SolidColorBrush Color="#0F1419"/>
+            <SolidColorBrush Color="{ThemeResource AppBackgroundBrush}"/>
         </Grid.Background>
         
         <!-- // VISUALSTATEMANAGER - Breakpoints responsive -->
@@ -158,13 +146,19 @@
                         <Setter Target="Card2Grid.ColumnDefinitions[4].Width" Value="0"/>
                         <Setter Target="HoraFinStack.(Grid.Column)" Value="0"/>
                         <Setter Target="HoraFinStack.(Grid.Row)" Value="1"/>
+                        <Setter Target="HoraIniStack.Margin" Value="0,0,0,8"/>
+                        <Setter Target="HoraFinStack.Margin" Value="0,0,0,8"/>
                         <Setter Target="TicketStack.(Grid.Column)" Value="0"/>
                         <Setter Target="TicketStack.(Grid.Row)" Value="2"/>
+                        <Setter Target="TicketStack.Margin" Value="0,0,0,8"/>
                         <Setter Target="GrupoStack.(Grid.Column)" Value="0"/>
                         <Setter Target="GrupoStack.(Grid.Row)" Value="3"/>
+                        <Setter Target="GrupoStack.Margin" Value="0,0,0,8"/>
                         <Setter Target="TipoStack.(Grid.Column)" Value="0"/>
                         <Setter Target="TipoStack.(Grid.Row)" Value="4"/>
-                        
+                        <Setter Target="TipoStack.Margin" Value="0,0,0,8"/>
+                        <Setter Target="PnlDayTimeHistory.(Grid.Row)" Value="5"/>
+
                         <!-- Botones footer - apilados verticalmente -->
                         <Setter Target="FooterButtons.Orientation" Value="Vertical"/>
                         <Setter Target="FooterButtons.HorizontalAlignment" Value="Stretch"/>
@@ -192,15 +186,20 @@
                         <Setter Target="Card2Grid.ColumnDefinitions[2].Width" Value="170"/>
                         <Setter Target="Card2Grid.ColumnDefinitions[3].Width" Value="*"/>
                         <Setter Target="Card2Grid.ColumnDefinitions[4].Width" Value="*"/>
+                        <Setter Target="HoraIniStack.Margin" Value="0"/>
                         <Setter Target="HoraFinStack.(Grid.Column)" Value="1"/>
                         <Setter Target="HoraFinStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="HoraFinStack.Margin" Value="0"/>
                         <Setter Target="TicketStack.(Grid.Column)" Value="2"/>
                         <Setter Target="TicketStack.(Grid.Row)" Value="0"/>
-                        <!-- Grupo y Tipo en la MISMA fila -->
+                        <Setter Target="TicketStack.Margin" Value="0"/>
                         <Setter Target="GrupoStack.(Grid.Column)" Value="3"/>
                         <Setter Target="GrupoStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="GrupoStack.Margin" Value="0"/>
                         <Setter Target="TipoStack.(Grid.Column)" Value="4"/>
                         <Setter Target="TipoStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="TipoStack.Margin" Value="0"/>
+                        <Setter Target="PnlDayTimeHistory.(Grid.Row)" Value="1"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -225,14 +224,20 @@
                         <Setter Target="Card2Grid.ColumnDefinitions[2].Width" Value="150"/>
                         <Setter Target="Card2Grid.ColumnDefinitions[3].Width" Value="*"/>
                         <Setter Target="Card2Grid.ColumnDefinitions[4].Width" Value="*"/>
+                        <Setter Target="HoraIniStack.Margin" Value="0"/>
                         <Setter Target="HoraFinStack.(Grid.Column)" Value="1"/>
                         <Setter Target="HoraFinStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="HoraFinStack.Margin" Value="0"/>
                         <Setter Target="TicketStack.(Grid.Column)" Value="2"/>
                         <Setter Target="TicketStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="TicketStack.Margin" Value="0"/>
                         <Setter Target="GrupoStack.(Grid.Column)" Value="3"/>
                         <Setter Target="GrupoStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="GrupoStack.Margin" Value="0"/>
                         <Setter Target="TipoStack.(Grid.Column)" Value="4"/>
                         <Setter Target="TipoStack.(Grid.Row)" Value="0"/>
+                        <Setter Target="TipoStack.Margin" Value="0"/>
+                        <Setter Target="PnlDayTimeHistory.(Grid.Row)" Value="1"/>
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -247,7 +252,7 @@
 
         <!-- ===================== HEADER - BANNER TEAL (COMPACTO) ===================== -->
         <Border Grid.Row="0" 
-                Background="{StaticResource HeaderBrush}" 
+                Background="{ThemeResource AppPrimaryBrush}"
                 CornerRadius="6" 
                 Padding="16">
             <Grid ColumnSpacing="12">
@@ -317,7 +322,7 @@
                 <!-- BADGE ESTADO (compacto) -->
                 <Border x:Name="BadgeEstado"
                         Grid.Column="2"
-                        Background="{StaticResource BadgeGreenBrush}"
+                        Background="{ThemeResource AppSuccessBrush}"
                         CornerRadius="3"
                         Padding="8,3"
                         VerticalAlignment="Center">
@@ -344,8 +349,8 @@
                 
                 <!-- ========== CARD 1: DATOS GENERALES ========== -->
                 <Border Grid.Row="0"
-                        Background="{StaticResource CardBackgroundBrush}"
-                        BorderBrush="{StaticResource CardBorderBrush}"
+                        Background="{ThemeResource AppElevatedSurfaceBrush}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="12,10">
@@ -360,7 +365,7 @@
                                    Text="DATOS GENERALES" 
                                    FontSize="10"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource AccentBrush}"
+                                   Foreground="{ThemeResource AppPrimaryBrush}"
                                    Margin="0,0,0,4"/>
                         
                         <!-- // Grid responsive para campos (3 cols max, adaptable) -->
@@ -443,19 +448,15 @@
                 
                 <!-- ========== CARD 2: INFORMACIÓN DE TIEMPO ========== -->
                 <Border Grid.Row="1"
-                        Background="{StaticResource CardBackgroundBrush}"
-                        BorderBrush="{StaticResource CardBorderBrush}"
+                        Background="{ThemeResource AppElevatedSurfaceBrush}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
-                        Padding="12,10">
-                    <Grid RowSpacing="8">
+                        Padding="12,8,12,6">
+                    <Grid RowSpacing="4">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>   <!-- Título sección -->
-                            <RowDefinition Height="Auto"/>   <!-- Campos Row 0 -->
-                            <RowDefinition Height="Auto"/>   <!-- Campos Row 1 (si necesario) -->
-                            <RowDefinition Height="Auto"/>   <!-- Campos Row 2 (si necesario) -->
-                            <RowDefinition Height="Auto"/>   <!-- Campos Row 3 (si necesario) -->
-                            <RowDefinition Height="Auto"/>   <!-- Campos Row 4 (si necesario) -->
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
                         <!-- // Título Sección COMPACTO -->
@@ -463,15 +464,14 @@
                                    Text="INFORMACIÓN DE TIEMPO" 
                                    FontSize="10"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource AccentBrush}"
+                                   Foreground="{ThemeResource AppPrimaryBrush}"
                                    Margin="0,0,0,4"/>
                         
                         <!-- // Grid responsive (5 cols max, adaptable) -->
                         <Grid x:Name="Card2Grid"
                               Grid.Row="1"
-                              Grid.RowSpan="5"
                               ColumnSpacing="12"
-                              RowSpacing="8">
+                              RowSpacing="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>  <!-- Hora Ini -->
                                 <ColumnDefinition Width="100"/>  <!-- Hora Fin -->
@@ -480,6 +480,7 @@
                                 <ColumnDefinition Width="*"/>    <!-- Tipo -->
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -538,15 +539,88 @@
                                         HorizontalAlignment="Stretch"
                                         TabIndex="7"/>
                             </StackPanel>
-                            
+
+                            <StackPanel x:Name="PnlDayTimeHistory"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="5"
+                                        Grid.Row="1"
+                                        Spacing="2"
+                                        Margin="0,6,0,0"
+                                        IsTabStop="False">
+                                <Grid>
+                                    <ProgressRing x:Name="RingDayTimeHistory"
+                                                  Width="16"
+                                                  Height="16"
+                                                  IsActive="False"
+                                                  Visibility="Collapsed"
+                                                  HorizontalAlignment="Left"/>
+                                    <TextBlock x:Name="TxtDayTimeHistoryStatus"
+                                               Text="No hay otros partes registrados para esta fecha."
+                                               FontSize="12"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                               TextWrapping="Wrap"/>
+                                </Grid>
+                                <ScrollViewer x:Name="ScrDayTimeHistory"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              Visibility="Collapsed"
+                                              IsTabStop="False">
+                                    <Border Background="{ThemeResource AppSurfaceVariantBrush}"
+                                            BorderBrush="{ThemeResource AppBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="3,2"
+                                            SizeChanged="OnDayTimeHistorySizeChanged">
+                                        <ItemsControl x:Name="IcDayTimeHistory"
+                                                      IsTabStop="False">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="{Binding DisplayWidth}"
+                                                            Height="22"
+                                                            Background="{Binding Background}"
+                                                            CornerRadius="4"
+                                                            Padding="5,0"
+                                                            ToolTipService.ToolTip="{Binding TooltipText}"
+                                                            AutomationProperties.Name="{Binding AutomationName}"
+                                                            IsTabStop="False">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    VerticalAlignment="Center"
+                                                                    Spacing="4">
+                                                            <TextBlock Text="{Binding OverlapGlyph}"
+                                                                       FontSize="11"
+                                                                       Foreground="{Binding Foreground}"/>
+                                                            <TextBlock Text="{Binding TimeText}"
+                                                                       FontSize="11"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{Binding Foreground}"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding StatusLabel}"
+                                                                       FontSize="9"
+                                                                       FontWeight="SemiBold"
+                                                                       Opacity="0.95"
+                                                                       Foreground="{Binding Foreground}"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Border>
+                                </ScrollViewer>
+                            </StackPanel>
+
                         </Grid>
                     </Grid>
                 </Border>
                 
                 <!-- ========== CARD 3: DESCRIPCIÓN / ACCIÓN (ESTIRABLE) ========== -->
                 <Border Grid.Row="2"
-                        Background="{StaticResource CardBackgroundBrush}"
-                        BorderBrush="{StaticResource CardBorderBrush}"
+                        Background="{ThemeResource AppElevatedSurfaceBrush}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="12,10"
@@ -562,7 +636,7 @@
                                    Text="DESCRIPCIÓN / ACCIÓN" 
                                    FontSize="10"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource AccentBrush}"
+                                   Foreground="{ThemeResource AppPrimaryBrush}"
                                    Margin="0,0,0,2"/>
                         
                         <!-- CAMPO: Acción/Descripción (ESTIRABLE - OCUPA TODO EL ESPACIO) -->
@@ -571,9 +645,9 @@
                                  TextWrapping="Wrap"
                                  AcceptsReturn="True"
                                  VerticalAlignment="Stretch"
-                                 Background="{StaticResource InputBackgroundBrush}"
-                                 Foreground="{StaticResource TextPrimaryBrush}"
-                                 BorderBrush="{StaticResource InputBorderBrush}"
+                                Background="{ThemeResource AppInputBackgroundBrush}"
+                                Foreground="{ThemeResource AppTextPrimaryBrush}"
+                                BorderBrush="{ThemeResource AppBorderBrush}"
                                  BorderThickness="1"
                                  CornerRadius="6"
                                  Padding="12,8"
@@ -593,7 +667,7 @@
 
         <!-- ===================== FOOTER - TAGS + BOTONERA EN LA MISMA FILA ===================== -->
         <Border Grid.Row="2" 
-                Background="{StaticResource FooterBackgroundBrush}"
+                Background="{ThemeResource AppSurfaceVariantBrush}"
                 Padding="12,10">
             
             <Grid ColumnSpacing="12">
@@ -604,8 +678,8 @@
                 
                 <!-- ========== COLUMNA IZQUIERDA: TAGS (EXPANDIDO) ========== -->
                 <Border Grid.Column="0"
-                        Background="{StaticResource CardBackgroundBrush}"
-                        BorderBrush="{StaticResource CardBorderBrush}"
+                Background="{ThemeResource AppElevatedSurfaceBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="10,8"
@@ -629,14 +703,14 @@
                                        Text="TAGS / ETIQUETAS" 
                                        FontSize="9"
                                        FontWeight="SemiBold"
-                                       Foreground="{StaticResource AccentBrush}"
+                        Foreground="{ThemeResource AppPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                             
                             <TextBlock x:Name="TxtTagCounter"
                                        Grid.Column="1"
                                        Text="(0/5)"
                                        FontSize="9"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                         </Grid>
                         
@@ -707,7 +781,7 @@
                 <Button x:Name="BtnGuardar"
                         Background="Transparent"
                         BorderThickness="1"
-                        BorderBrush="{StaticResource AccentBrush}"
+                        BorderBrush="{ThemeResource AppPrimaryBrush}"
                         Width="80"
                         Height="70"
                         Padding="8"
@@ -718,7 +792,7 @@
                         TabIndex="9">
                     <StackPanel Spacing="4">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;" FontSize="24" Foreground="#10B981"/>
-                        <TextBlock Text="Guardar" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Guardar" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 
@@ -726,7 +800,7 @@
                 <Button x:Name="BtnGuardarYCerrar"
                         Background="Transparent"
                         BorderThickness="1"
-                        BorderBrush="{StaticResource AccentBrush}"
+                        BorderBrush="{ThemeResource AppPrimaryBrush}"
                         Width="110"
                         Height="70"
                         Padding="6"
@@ -737,7 +811,7 @@
                         TabIndex="10">
                     <StackPanel Spacing="4">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;" FontSize="24" Foreground="#10B981"/>
-                        <TextBlock Text="Guardar y Cerrar" FontSize="10" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
+                            <TextBlock Text="Guardar y Cerrar" FontSize="10" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center" TextWrapping="NoWrap"/>
                     </StackPanel>
                 </Button>
                 
@@ -745,7 +819,7 @@
                 <Button x:Name="BtnCancelar"
                         Background="Transparent"
                         BorderThickness="1"
-                        BorderBrush="{StaticResource AccentBrush}"
+                        BorderBrush="{ThemeResource AppPrimaryBrush}"
                         Width="80"
                         Height="70"
                         Padding="8"
@@ -756,7 +830,7 @@
                         TabIndex="11">
                     <StackPanel Spacing="4">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;" FontSize="24" Foreground="#EF4444"/>
-                        <TextBlock Text="Anular" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Anular" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 
@@ -764,7 +838,7 @@
                 <Button x:Name="BtnSalir"
                         Background="Transparent"
                         BorderThickness="1"
-                        BorderBrush="{StaticResource AccentBrush}"
+                        BorderBrush="{ThemeResource AppPrimaryBrush}"
                         Width="80"
                         Height="70"
                         Padding="8"
@@ -775,7 +849,7 @@
                         TabIndex="12">
                     <StackPanel Spacing="4">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8BB;" FontSize="24" Foreground="#F59E0B"/>
-                        <TextBlock Text="Salir" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Salir" FontSize="11" Foreground="{ThemeResource AppTextPrimaryBrush}" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 
@@ -806,14 +880,14 @@
                     <!-- GT-BEGIN: Nota global del cliente -->
                     <StackPanel Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE774;" FontSize="14" Foreground="{StaticResource AccentBrush}"/>
+                    <FontIcon Glyph="&#xE774;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
                             <TextBlock Text="Nota del cliente (global)"
                                        FontSize="14" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                               Foreground="{ThemeResource AppTextPrimaryBrush}"/>
                         </StackPanel>
                         <TextBlock x:Name="TxtNotaGlobalMeta"
                                    FontSize="11"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
                                    Visibility="Collapsed"/>
                         <TextBox x:Name="TxtNotaGlobalEditor"
                                  PlaceholderText="Nota global del cliente..."
@@ -827,7 +901,7 @@
                             <Button x:Name="BtnSaveNotaGlobal"
                                     Content="Guardar nota global"
                                     Click="OnSaveNotaGlobal_Click"
-                                    Background="{StaticResource AccentBrush}"
+                        Background="{ThemeResource AppPrimaryBrush}"
                                     Foreground="White"
                                     Padding="12,6"
                                     CornerRadius="6"
@@ -840,19 +914,19 @@
                     </StackPanel>
                     <!-- GT-END -->
 
-                    <Border Height="1" Background="{StaticResource CardBorderBrush}" Margin="0,4"/>
+                <Border Height="1" Background="{ThemeResource AppBorderBrush}" Margin="0,4"/>
 
                     <!-- GT-BEGIN: Nota personal del usuario -->
                     <StackPanel Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE77B;" FontSize="14" Foreground="{StaticResource AccentBrush}"/>
+                    <FontIcon Glyph="&#xE77B;" FontSize="14" Foreground="{ThemeResource AppPrimaryBrush}"/>
                             <TextBlock Text="Mi nota personal"
                                        FontSize="14" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                               Foreground="{ThemeResource AppTextPrimaryBrush}"/>
                         </StackPanel>
                         <TextBlock x:Name="TxtNotaPersonalMeta"
                                    FontSize="11"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
                                    Visibility="Collapsed"/>
                         <TextBox x:Name="TxtNotaPersonalEditor"
                                  PlaceholderText="Tu nota personal para este cliente..."
@@ -866,7 +940,7 @@
                             <Button x:Name="BtnSaveNotaPersonal"
                                     Content="Guardar mi nota"
                                     Click="OnSaveNotaPersonal_Click"
-                                    Background="{StaticResource AccentBrush}"
+                        Background="{ThemeResource AppPrimaryBrush}"
                                     Foreground="White"
                                     Padding="12,6"
                                     CornerRadius="6"
@@ -886,7 +960,7 @@
                                 Visibility="Collapsed">
                         <ProgressRing IsActive="True" Width="16" Height="16"/>
                         <TextBlock Text="Cargando notas..." FontSize="12"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"/>
                     </StackPanel>
                     <!-- GT-END -->
 

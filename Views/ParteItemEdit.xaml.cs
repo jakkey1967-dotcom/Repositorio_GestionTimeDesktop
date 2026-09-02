@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
 using GestionTime.Desktop.Helpers;
+using GestionTime.Desktop.Models;
 using GestionTime.Desktop.Models.Dtos;
 using GestionTime.Desktop.Models.Dtos.Catalog;
 using GestionTime.Desktop.Models.Enums;
@@ -97,6 +98,12 @@ public sealed partial class ParteItemEdit : Page
     
     // Sistema de timestamp automático para TxtAccion
     private bool _suppressAccionTimestamp;
+    private bool _themeHandlerAttached;
+    private bool _suppressDayTimeHistoryLoad = true;
+    private bool _dayTimeHistoryLayoutBusy;
+    private CancellationTokenSource? _timeHistoryCts;
+    private readonly ObservableCollection<PartTimeSegment> _dayTimeSegments = new();
+    private readonly List<PartTimeSegment> _dayTimeSegmentSource = new();
 
     public ParteItemEdit()
     {
@@ -109,6 +116,10 @@ public sealed partial class ParteItemEdit : Page
         
         // 🆕 NUEVO: Suscribirse a cambios de tema globales
         ThemeService.Instance.ThemeChanged += OnGlobalThemeChanged;
+        _themeHandlerAttached = true;
+
+        // Liberar suscripciones al salir del árbol visual
+        this.Unloaded += OnEditorUnloaded;
         
         // Cargar información del usuario desde LocalSettings
         LoadUserInfo();
@@ -152,6 +163,8 @@ public sealed partial class ParteItemEdit : Page
         // Configurar ComboBox de Tipo (solo lectura)
         CmbTipo.ItemsSource = _tipoItems;
         App.Log?.LogDebug("✅ CmbTipo.ItemsSource configurado con ObservableCollection vacía");
+        IcDayTimeHistory.ItemsSource = _dayTimeSegments;
+        DpFecha.DateChanged += OnFechaHistorialChanged;
         
         // 🆕 NUEVO: Configurar gestores de eventos para ComboBox
         _grupoEventManager = new ComboBoxEventManager(
@@ -666,9 +679,39 @@ public sealed partial class ParteItemEdit : Page
 
     public void SetParentWindow(Microsoft.UI.Xaml.Window window)
     {
+        if (_parentWindow != null)
+        {
+            _parentWindow.Closed -= OnParentWindowClosed;
+        }
+
         _parentWindow = window;
+        _parentWindow.Closed += OnParentWindowClosed;
         
         // NO redimensionar aquí - se hace desde DiarioPage después de Activate()
+    }
+
+    private void OnParentWindowClosed(object sender, WindowEventArgs args)
+    {
+        UnsubscribeThemeHandler();
+    }
+
+    private void OnEditorUnloaded(object sender, RoutedEventArgs e)
+    {
+        UnsubscribeThemeHandler();
+        DpFecha.DateChanged -= OnFechaHistorialChanged;
+        _timeHistoryCts?.Cancel();
+        _timeHistoryCts?.Dispose();
+        _timeHistoryCts = null;
+        this.Unloaded -= OnEditorUnloaded;
+    }
+
+    private void UnsubscribeThemeHandler()
+    {
+        if (!_themeHandlerAttached)
+            return;
+
+        ThemeService.Instance.ThemeChanged -= OnGlobalThemeChanged;
+        _themeHandlerAttached = false;
     }
 
     /// <summary>Inicializa un nuevo parte con la hora de inicio especificada o la actual.</summary>
@@ -683,8 +726,7 @@ public sealed partial class ParteItemEdit : Page
         
         // ? Actualizar badge de estado para nuevo parte
         TxtEstadoParte.Text = "Abierto";
-        BadgeEstado.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-            Windows.UI.Color.FromArgb(255, 16, 185, 129)); // Verde #10B981
+        BadgeEstado.Background = GetThemeBrush("AppSuccessBrush");
         
         Parte = new ParteDto
         {
@@ -738,6 +780,9 @@ public sealed partial class ParteItemEdit : Page
         
         App.Log?.LogDebug("✅ Botón Guardar habilitado para nuevo parte");
 
+        _suppressDayTimeHistoryLoad = false;
+        _ = LoadDayTimeHistoryAsync();
+
         // Asegurar renderizado inicial y colocar foco
         await Task.Delay(50);
         TxtCliente.Focus(FocusState.Programmatic);
@@ -755,6 +800,7 @@ public sealed partial class ParteItemEdit : Page
         // Actualizar badge de estado según el estado actual del parte
         UpdateEstadoBadge(parte.EstadoParte);
 
+        _suppressDayTimeHistoryLoad = true;
         DpFecha.Date = parte.Fecha;
         TxtTienda.Text = parte.Tienda ?? "";
         TxtAccion.Text = parte.Accion ?? "";
@@ -767,6 +813,8 @@ public sealed partial class ParteItemEdit : Page
         TxtEstado.Text = parte.Estado ?? "";
         
         App.Log?.LogInformation("🔄 Cargando catálogos para selección inicial...");
+        _suppressDayTimeHistoryLoad = false;
+        _ = LoadDayTimeHistoryAsync();
         
         // ✅ CORREGIDO: Cargar catálogos Y poblar ObservableCollections ANTES de seleccionar
         
@@ -897,7 +945,8 @@ public sealed partial class ParteItemEdit : Page
                 Title = "GestionTime",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                RequestedTheme = ThemeService.Instance.CurrentTheme
             };
 
             await dlg.ShowAsync();
@@ -1508,17 +1557,260 @@ public sealed partial class ParteItemEdit : Page
     
     // ===================== GLOBAL =====================
     
+    /// <summary>Obtiene un brush de la paleta global de temas, con fallback seguro.</summary>
+    private void OnFechaHistorialChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+    {
+        if (_suppressDayTimeHistoryLoad)
+            return;
+
+        _ = LoadDayTimeHistoryAsync();
+    }
+
+    private async Task LoadDayTimeHistoryAsync()
+    {
+        var fecha = DpFecha.Date?.DateTime.Date ?? DateTime.Today;
+        _timeHistoryCts?.Cancel();
+        _timeHistoryCts?.Dispose();
+        _timeHistoryCts = new CancellationTokenSource();
+        var ct = _timeHistoryCts.Token;
+
+        ShowDayTimeHistoryStatus("Cargando tiempos del día…", showRing: true, showTrack: false);
+
+        try
+        {
+            var partesService = new PartesService(App.Api, App.Log!);
+            var partes = await partesService.ListAsync(
+                fecha: fecha,
+                limit: 10000,
+                offset: 0,
+                ct: ct) ?? new List<ParteDto>();
+
+            if (ct.IsCancellationRequested)
+                return;
+
+            var editingId = Parte?.Id ?? 0;
+            var built = BuildDayTimeSegments(partes, editingId);
+            _dayTimeSegmentSource.Clear();
+            _dayTimeSegmentSource.AddRange(built);
+            RelayoutDayTimeSegments();
+
+            if (_dayTimeSegmentSource.Count == 0)
+                ShowDayTimeHistoryStatus("No hay otros partes registrados para esta fecha.", showRing: false, showTrack: false);
+            else
+                ShowDayTimeHistoryStatus(string.Empty, showRing: false, showTrack: true);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "No se pudieron cargar los tiempos del día");
+            if (!ct.IsCancellationRequested)
+            {
+                _dayTimeSegmentSource.Clear();
+                _dayTimeSegments.Clear();
+                ShowDayTimeHistoryStatus("No se pudieron cargar los tiempos del día.", showRing: false, showTrack: false);
+            }
+        }
+    }
+
+    private List<PartTimeSegment> BuildDayTimeSegments(IEnumerable<ParteDto> partes, int editingParteId)
+    {
+        var raw = new List<(int Id, TimeSpan Start, TimeSpan End, ParteDto Parte)>();
+        foreach (var parte in partes)
+        {
+            if (parte.EstadoParte == ParteEstado.Anulado)
+            {
+                App.Log?.LogDebug("Historial diario: descartado parte {id} anulado", parte.Id);
+                continue;
+            }
+            if (string.IsNullOrWhiteSpace(parte.HoraInicio) || string.IsNullOrWhiteSpace(parte.HoraFin))
+            {
+                App.Log?.LogDebug("Historial diario: descartado parte {id} sin horas válidas", parte.Id);
+                continue;
+            }
+            if (!TimeSpan.TryParse(parte.HoraInicio.Trim(), out var start) ||
+                !TimeSpan.TryParse(parte.HoraFin.Trim(), out var end) ||
+                end <= start)
+            {
+                App.Log?.LogDebug("Historial diario: descartado parte {id} intervalo inválido", parte.Id);
+                continue;
+            }
+
+            raw.Add((parte.Id, start, end, parte));
+        }
+
+        var ordered = raw
+            .OrderBy(x => x.Start)
+            .ThenBy(x => x.End)
+            .ThenBy(x => x.Id)
+            .ToList();
+
+        var occupied = new List<(TimeSpan Start, TimeSpan End)>();
+        var segments = new List<PartTimeSegment>();
+        foreach (var item in ordered)
+        {
+            var overlapping = occupied.Any(prev => item.Start < prev.End && item.End > prev.Start);
+            occupied.Add((item.Start, item.End));
+            var isEditing = editingParteId > 0 && item.Id == editingParteId;
+            var minutes = Math.Max(1, (int)(item.End - item.Start).TotalMinutes);
+            var durationText = IntervalMerger.FormatDuration(TimeSpan.FromMinutes(minutes));
+            var timeText = $"{FormatDayTime(item.Start)}-{FormatDayTime(item.End)}";
+            var estado = string.IsNullOrWhiteSpace(item.Parte.EstadoTexto) ? item.Parte.EstadoNombre : item.Parte.EstadoTexto;
+            var tooltip = $"Parte registrado\n{timeText} · {durationText}\nCliente: {item.Parte.Cliente}\n" +
+                          (string.IsNullOrWhiteSpace(item.Parte.Tienda) ? string.Empty : $"Tienda: {item.Parte.Tienda}\n") +
+                          (string.IsNullOrWhiteSpace(item.Parte.Ticket) ? string.Empty : $"Ticket: {item.Parte.Ticket}\n") +
+                          $"Estado: {estado}\n" +
+                          (isEditing ? "Editado\n" : string.Empty) +
+                          (overlapping ? "⚠ Solapado" : "Sin solapamiento");
+
+            var (background, foreground) = GetDayTimeSegmentBrushes(isEditing, overlapping);
+            segments.Add(new PartTimeSegment
+            {
+                ParteId = item.Id,
+                Start = item.Start,
+                End = item.End,
+                DurationMinutes = minutes,
+                TimeText = timeText,
+                DurationText = durationText,
+                Cliente = item.Parte.Cliente ?? string.Empty,
+                Tienda = item.Parte.Tienda ?? string.Empty,
+                Ticket = item.Parte.Ticket ?? string.Empty,
+                Estado = estado ?? string.Empty,
+                IsOverlapping = overlapping,
+                IsEditing = isEditing,
+                DisplayWidth = 150,
+                Background = background,
+                Foreground = foreground,
+                TooltipText = tooltip.Trim(),
+                AutomationName = isEditing
+                    ? $"Parte editado {timeText}"
+                    : overlapping ? $"Parte solapado {timeText}" : $"Parte {timeText}"
+            });
+        }
+
+        return segments;
+    }
+
+    private void ApplyDayTimeSegmentTheme()
+    {
+        foreach (var segment in _dayTimeSegmentSource)
+        {
+            var (background, foreground) = GetDayTimeSegmentBrushes(segment.IsEditing, segment.IsOverlapping);
+            segment.Background = background;
+            segment.Foreground = foreground;
+        }
+    }
+
+    private static string FormatDayTime(TimeSpan value)
+        => $"{value.Hours:00}:{value.Minutes:00}h";
+
+    private static (Microsoft.UI.Xaml.Media.Brush Background, Microsoft.UI.Xaml.Media.Brush Foreground) GetDayTimeSegmentBrushes(bool isEditing, bool isOverlapping)
+    {
+        var white = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White);
+        if (isEditing)
+            return (GetThemeBrush("AppInfoBrush"), GetThemeBrush("AppOnInfoBrush") ?? white);
+        if (isOverlapping)
+            return (GetThemeBrush("AppErrorBrush"), GetThemeBrush("AppOnErrorBrush") ?? white);
+        return (GetThemeBrush("AppSuccessBrush"), GetThemeBrush("AppOnSuccessBrush") ?? white);
+    }
+
+    private void RelayoutDayTimeSegments()
+    {
+        if (_dayTimeHistoryLayoutBusy)
+            return;
+
+        _dayTimeHistoryLayoutBusy = true;
+        try
+        {
+            const double preferredWidth = 150;
+            const double minimumWidth = 120;
+            const double segmentSpacing = 4;
+
+            var available = ScrDayTimeHistory?.ActualWidth ?? 0;
+            if (available <= 0)
+                available = RootGrid?.ActualWidth ?? 600;
+
+            var count = _dayTimeSegmentSource.Count;
+            var totalSpacing = Math.Max(0, count - 1) * segmentSpacing;
+            var widthThatFits = count > 0 && available > totalSpacing
+                ? (available - totalSpacing) / count
+                : preferredWidth;
+            var uniformWidth = Math.Clamp(widthThatFits, minimumWidth, preferredWidth);
+
+            _dayTimeSegments.Clear();
+            foreach (var segment in _dayTimeSegmentSource)
+            {
+                segment.DisplayWidth = uniformWidth;
+                _dayTimeSegments.Add(segment);
+            }
+        }
+        finally
+        {
+            _dayTimeHistoryLayoutBusy = false;
+        }
+    }
+
+    private void OnDayTimeHistorySizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (_dayTimeHistoryLayoutBusy || Math.Abs(e.NewSize.Width - e.PreviousSize.Width) < 1)
+            return;
+
+        RelayoutDayTimeSegments();
+    }
+
+    private void ShowDayTimeHistoryStatus(string message, bool showRing, bool showTrack)
+    {
+        if (RingDayTimeHistory != null)
+        {
+            RingDayTimeHistory.IsActive = showRing;
+            RingDayTimeHistory.Visibility = showRing ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        if (TxtDayTimeHistoryStatus != null)
+        {
+            TxtDayTimeHistoryStatus.Text = message;
+            TxtDayTimeHistoryStatus.Visibility = string.IsNullOrWhiteSpace(message) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        if (ScrDayTimeHistory != null)
+            ScrDayTimeHistory.Visibility = showTrack ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private static Microsoft.UI.Xaml.Media.Brush GetThemeBrush(string key)
+    {
+        if (Application.Current.Resources.TryGetValue(key, out var value) &&
+            value is Microsoft.UI.Xaml.Media.Brush brush)
+        {
+            return brush;
+        }
+
+        return new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray);
+    }
+
     /// <summary>
     /// Se dispara cuando el tema global cambia desde otra ventana
     /// </summary>
     private void OnGlobalThemeChanged(object? sender, ElementTheme newTheme)
     {
+        var dispatcher = DispatcherQueue;
+        if (dispatcher == null)
+            return;
+
+        if (!dispatcher.HasThreadAccess)
+        {
+            _ = dispatcher.TryEnqueue(() => OnGlobalThemeChanged(sender, newTheme));
+            return;
+        }
+
         // Aplicar el nuevo tema a esta página
         this.RequestedTheme = newTheme;
-        
+
         // Actualizar logo del banner
         UpdateBannerLogo();
-        
+        ApplyDayTimeSegmentTheme();
+        RelayoutDayTimeSegments();
+
         App.Log?.LogInformation("🎨 ParteItemEdit - Tema global cambiado a: {theme}", newTheme);
     }
     
@@ -1763,45 +2055,45 @@ public sealed partial class ParteItemEdit : Page
     private void UpdateEstadoBadge(ParteEstado estado)
     {
         string textoEstado;
-        Windows.UI.Color colorBadge;
+        string colorBadgeKey;
         
         switch (estado)
         {
             case ParteEstado.Abierto:
                 textoEstado = "Abierto";
-                colorBadge = Windows.UI.Color.FromArgb(255, 16, 185, 129); // Verde #10B981
+                colorBadgeKey = "AppSuccessBrush";
                 break;
                 
             case ParteEstado.Pausado:
                 textoEstado = "Pausado";
-                colorBadge = Windows.UI.Color.FromArgb(255, 245, 158, 11); // Amarillo #F59E0B
+                colorBadgeKey = "AppWarningBrush";
                 break;
                 
             case ParteEstado.Cerrado:
                 textoEstado = "Cerrado";
-                colorBadge = Windows.UI.Color.FromArgb(255, 59, 130, 246); // Azul #3B82F6
+                colorBadgeKey = "AppInfoBrush";
                 break;
                 
             case ParteEstado.Enviado:
                 textoEstado = "Enviado";
-                colorBadge = Windows.UI.Color.FromArgb(255, 139, 92, 246); // Púrpura #8B5CF6
+                colorBadgeKey = "AppPrimaryBrush";
                 break;
                 
             case ParteEstado.Anulado:
                 textoEstado = "Anulado";
-                colorBadge = Windows.UI.Color.FromArgb(255, 239, 68, 68); // Rojo #EF4444
+                colorBadgeKey = "AppErrorBrush";
                 break;
             
             default:
                 textoEstado = "Desconocido";
-                colorBadge = Windows.UI.Color.FromArgb(255, 107, 114, 128); // Gris #6B7280
+                colorBadgeKey = "AppTextDisabledBrush";
                 break;
         }
         
         TxtEstadoParte.Text = textoEstado;
-        BadgeEstado.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(colorBadge);
+        BadgeEstado.Background = GetThemeBrush(colorBadgeKey);
         
- App.Log?.LogDebug("Badge de estado actualizado: {estado} (color: {color})", textoEstado, colorBadge);
+  App.Log?.LogDebug("Badge de estado actualizado: {estado} (color: {color})", textoEstado, colorBadgeKey);
     }
     
     /// <summary>Busca clientes en la API según el texto ingresado (case-insensitive + sin acentos).</summary>
@@ -2208,8 +2500,7 @@ public sealed partial class ParteItemEdit : Page
         {
             BtnSaveNotaGlobal.IsEnabled = false;
             TxtNotaGlobalStatus.Text = "Guardando...";
-            TxtNotaGlobalStatus.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Microsoft.UI.Colors.Gray);
+            TxtNotaGlobalStatus.Foreground = GetThemeBrush("AppTextSecondaryBrush");
             TxtNotaGlobalStatus.Visibility = Visibility.Visible;
 
             var text = TxtNotaGlobalEditor.Text?.Trim();
@@ -2272,8 +2563,7 @@ public sealed partial class ParteItemEdit : Page
         {
             BtnSaveNotaPersonal.IsEnabled = false;
             TxtNotaPersonalStatus.Text = "Guardando...";
-            TxtNotaPersonalStatus.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Microsoft.UI.Colors.Gray);
+            TxtNotaPersonalStatus.Foreground = GetThemeBrush("AppTextSecondaryBrush");
             TxtNotaPersonalStatus.Visibility = Visibility.Visible;
 
             var text = TxtNotaPersonalEditor.Text?.Trim();
@@ -2310,8 +2600,7 @@ public sealed partial class ParteItemEdit : Page
     private void ShowNotaStatus(TextBlock target, string text, bool success)
     {
         target.Text = text;
-        target.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-            success ? Microsoft.UI.Colors.Green : Microsoft.UI.Colors.Red);
+        target.Foreground = GetThemeBrush(success ? "AppSuccessBrush" : "AppErrorBrush");
         target.Visibility = Visibility.Visible;
     }
 

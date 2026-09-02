@@ -44,6 +44,7 @@ public sealed partial class DiarioPage : Page
     private PartesService PartesService => _partesService ??= new PartesService(App.Api, App.Log!);
     
     private const int HistoryPageSize = 30;
+    private const string FreshdeskTicketBaseUrl = "https://alterasoftware.freshdesk.com/helpdesk/tickets/";
     private int _historyOffset;
     private int _loadedBatchCount;
     private bool _hasMoreItems;
@@ -2299,31 +2300,42 @@ public sealed partial class DiarioPage : Page
                 return;
             }
 
+            var activeDate = (_anchorDate != default ? _anchorDate : DpFiltroFecha.Date?.DateTime.Date ?? DateTime.Today).Date;
+            var activeDateKey = activeDate.ToString("yyyy-MM-dd");
             var partesConTiempo = Partes
-                .Where(p => !string.IsNullOrWhiteSpace(p.HoraInicio))
+                .Where(p => p.Fecha != default
+                            && p.Fecha.ToString("yyyy-MM-dd") == activeDateKey
+                            && !string.IsNullOrWhiteSpace(p.HoraInicio))
                 .ToList();
-            
+
             var intervals = partesConTiempo
                 .Select(p =>
                 {
-                    if (!TimeSpan.TryParse(p.HoraInicio, out var inicio))
+                    if (!TimeSpan.TryParse(p.HoraInicio.Trim(), out var inicio))
                         return null;
-                    
-                    var startTime = p.Fecha.Date.Add(inicio);
-                    
+
+                    var day = DateTime.ParseExact(activeDateKey, "yyyy-MM-dd", null);
+                    var startTime = day.Add(inicio);
+
                     DateTime endTime;
-                    if (!string.IsNullOrWhiteSpace(p.HoraFin) && TimeSpan.TryParse(p.HoraFin, out var fin))
+                    if (!string.IsNullOrWhiteSpace(p.HoraFin) && TimeSpan.TryParse(p.HoraFin.Trim(), out var fin))
                     {
-                        endTime = p.Fecha.Date.Add(fin);
+                        endTime = day.Add(fin);
+                        if (endTime <= startTime)
+                            endTime = endTime.AddDays(1);
                     }
                     else
                     {
                         endTime = DateTime.Now;
+                        if (endTime.Date != day)
+                            endTime = day.AddDays(1);
+                        if (endTime <= startTime)
+                            endTime = startTime.AddMinutes(1);
                     }
-                    
+
                     if (endTime <= startTime)
                         return null;
-                    
+
                     return new IntervalMerger.Interval(startTime, endTime);
                 })
                 .Where(i => i != null)
@@ -2332,12 +2344,12 @@ public sealed partial class DiarioPage : Page
             
             if (!intervals.Any())
             {
-                UpdateDuracionHeaderTooltip(null, 0);
+                UpdateDuracionHeaderTooltip(null, null);
                 return;
             }
-            
+
             var coverage = IntervalMerger.ComputeCoverage(intervals);
-            UpdateDuracionHeaderTooltip(coverage, partesConTiempo.Count);
+            UpdateDuracionHeaderTooltip(coverage, intervals);
             
             App.Log?.LogInformation("⏱️ Cobertura calculada - Partes: {count}, Intervalos: {intervals}, Cubierto: {covered}, Solapado: {overlap}",
                 partesConTiempo.Count,
@@ -2348,11 +2360,13 @@ public sealed partial class DiarioPage : Page
         catch (Exception ex)
         {
             App.Log?.LogError(ex, "Error calculando cobertura");
-            UpdateDuracionHeaderTooltip(null, 0);
+            UpdateDuracionHeaderTooltip(null, null);
         }
     }
-    
-    private void UpdateDuracionHeaderTooltip(IntervalMerger.CoverageResult? coverage, int totalPartes)
+
+    private void UpdateDuracionHeaderTooltip(
+        IntervalMerger.CoverageResult? coverage,
+        System.Collections.Generic.IReadOnlyList<IntervalMerger.Interval>? originalIntervals)
     {
         try
         {
@@ -2361,20 +2375,24 @@ public sealed partial class DiarioPage : Page
 
             if (!DispatcherQueue.HasThreadAccess)
             {
-                DispatcherQueue.TryEnqueue(() => UpdateDuracionHeaderTooltip(coverage, totalPartes));
+                DispatcherQueue.TryEnqueue(() => UpdateDuracionHeaderTooltip(coverage, originalIntervals));
                 return;
             }
 
             if (DuracionHeader == null)
                 return;
             
+            ToolTipService.SetToolTip(DuracionHeader, null);
+
             if (coverage == null || !coverage.MergedIntervals.Any())
             {
                 ToolTipService.SetToolTip(DuracionHeader, "No hay datos de tiempo disponibles");
                 return;
             }
-            
-            var tooltipText = DiarioPageHelpers.BuildCoverageTooltipText(coverage, totalPartes);
+
+            var tooltipText = DiarioPageHelpers.BuildCoverageTooltipText(
+                coverage,
+                originalIntervals ?? Array.Empty<IntervalMerger.Interval>());
             ToolTipService.SetToolTip(DuracionHeader, tooltipText);
         }
         catch (Exception ex)
@@ -2921,20 +2939,6 @@ public sealed partial class DiarioPage : Page
         }
     }
 
-    private void OnMiPerfilClick(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            App.Log?.LogInformation("═══════════════════════════════════════════════════════════════════════════════");
-            App.Log?.LogInformation("👤 MI PERFIL - Navegando a UserProfilePage");
-            App.MainWindowInstance?.Navigator?.Navigate(typeof(UserProfilePage));
-        }
-        catch (Exception ex)
-        {
-            App.Log?.LogError(ex, "Error navegando a UserProfilePage");
-        }
-    }
-
     private static int CalcularDuracionMinutos(string? horaInicio, string? horaFin)
     {
         if (string.IsNullOrWhiteSpace(horaInicio) || string.IsNullOrWhiteSpace(horaFin))
@@ -2977,6 +2981,62 @@ public sealed partial class DiarioPage : Page
     private void OnSalir(object sender, RoutedEventArgs e)
     {
         OnLogout(sender, e);
+    }
+
+    private async void OnTicketClick(object sender, RoutedEventArgs e)
+    {
+        var raw = (sender as FrameworkElement)?.Tag as string
+                  ?? (sender as HyperlinkButton)?.Content as string;
+
+        var ticketNumber = NormalizeTicketNumber(raw);
+        if (ticketNumber == null)
+        {
+            App.Log?.LogWarning("Ticket Freshdesk inválido: '{ticket}'", raw);
+            App.Notifications?.ShowWarning("El ticket no es un número válido.", title: "Ticket");
+            return;
+        }
+
+        try
+        {
+            var uri = new Uri($"{FreshdeskTicketBaseUrl}{ticketNumber}", UriKind.Absolute);
+            if (!string.Equals(uri.Host, "alterasoftware.freshdesk.com", StringComparison.OrdinalIgnoreCase)
+                || !uri.AbsolutePath.Equals($"/helpdesk/tickets/{ticketNumber}", StringComparison.Ordinal))
+            {
+                App.Log?.LogWarning("URL Freshdesk rechazada: {uri}", uri);
+                App.Notifications?.ShowWarning("No se pudo construir la URL del ticket.", title: "Ticket");
+                return;
+            }
+
+            var opened = await Windows.System.Launcher.LaunchUriAsync(uri);
+            if (!opened)
+            {
+                App.Log?.LogWarning("Windows no pudo abrir Freshdesk para el ticket {ticket}", ticketNumber);
+                App.Notifications?.ShowWarning("No se pudo abrir el ticket en el navegador.", title: "Ticket");
+                return;
+            }
+
+            App.Log?.LogInformation("Ticket Freshdesk abierto: {ticket}", ticketNumber);
+        }
+        catch (Exception ex)
+        {
+            App.Log?.LogError(ex, "Error abriendo ticket Freshdesk");
+            App.Notifications?.ShowError("No se pudo abrir el ticket en Freshdesk.", title: "Ticket");
+        }
+    }
+
+    private static string? NormalizeTicketNumber(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        var value = raw.Trim();
+        if (value.StartsWith('#'))
+            value = value[1..].Trim();
+
+        if (value.Length == 0 || !value.All(char.IsDigit))
+            return null;
+
+        return value;
     }
 
     // ===================== AYUDA Y NOTAS DE VERSIÓN =====================

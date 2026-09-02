@@ -1,5 +1,6 @@
 using GestionTime.Desktop.Helpers;
 using System;
+using System.Linq;
 
 namespace GestionTime.Desktop.Helpers;
 
@@ -23,28 +24,36 @@ public static class DiarioPageHelpers
     }
 
     /// <summary>Construye el texto del tooltip de cobertura de tiempo.</summary>
-    public static string BuildCoverageTooltipText(IntervalMerger.CoverageResult coverage, int totalPartes)
+    public static string BuildCoverageTooltipText(
+        IntervalMerger.CoverageResult coverage,
+        System.Collections.Generic.IReadOnlyList<IntervalMerger.Interval> originalIntervals)
     {
+        var detailIntervals = originalIntervals
+            .OrderBy(i => i.Start)
+            .ThenBy(i => i.End)
+            .ToList();
+
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("⏱️ TIEMPO REAL OCUPADO (SIN SOLAPAMIENTO)");
         sb.AppendLine();
         sb.AppendLine($"📊 Cubierto: {IntervalMerger.FormatDuration(coverage.TotalCovered)}");
-        
+
         if (coverage.TotalOverlap.TotalMinutes > 0)
             sb.AppendLine($"⚠️ Solapado: {IntervalMerger.FormatDuration(coverage.TotalOverlap)}");
-        
+
         sb.AppendLine();
-        sb.AppendLine($"📋 Partes con tiempo registrado: {totalPartes}");
+        sb.AppendLine($"📋 Partes con tiempo registrado: {detailIntervals.Count}");
         sb.AppendLine($"🕐 Intervalos cubiertos (unidos): {coverage.MergedIntervals.Count}");
         sb.AppendLine();
-        
-        foreach (var interval in coverage.MergedIntervals)
+        sb.AppendLine("📄 Detalle de partes:");
+
+        foreach (var interval in detailIntervals)
         {
             var formatted = IntervalMerger.FormatInterval(interval);
             var duration = IntervalMerger.FormatDuration(interval.Duration);
             sb.AppendLine($"   • {formatted} ({duration})");
         }
-        
+
         return sb.ToString().TrimEnd();
     }
 }
